@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Hazenix's Blog</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <style>
+        .material-icons {
+            font-family: 'Material Icons';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#3b82f6",
+                        "background-light": "#ffffff",
+                        "background-dark": "#111827",
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        DEFAULT: '0.5rem',
+                    },
+                },
+            },
+        };
+    </script>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200 font-sans">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <header class="flex justify-between items-center py-6">
+            <div class="flex items-center space-x-2">
+                <img alt="User avatar" class="w-10 h-10 rounded-full" src="/assets/avatar.jpg" />
+            </div>
+            <nav class="hidden md:flex items-center space-x-8 text-gray-600 dark:text-gray-400">
+                <a class="hover:text-primary" href="#">首页</a>
+                <a class="hover:text-primary" href="#">相册</a>
+                <a class="hover:text-primary" href="#">文章</a>
+                <a class="hover:text-primary" href="#">记录</a>
+                <a class="hover:text-primary" href="#">标签</a>
+                <a class="hover:text-primary" href="#">思考</a>
+                <a class="hover:text-primary" href="#">归档</a>
+                <a class="hover:text-primary" href="#">更多</a>
+            </nav>
+            <div class="flex items-center space-x-4">
+                <button class="text-gray-600 dark:text-gray-400 hover:text-primary">
+                    <span class="material-icons">search</span>
+                </button>
+                <a class="text-gray-600 dark:text-gray-400 hover:text-primary" href="#">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 16 16">
+                        <path
+                            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z">
+                        </path>
+                    </svg>
+                </a>
+                <button class="text-gray-600 dark:text-gray-400 hover:text-primary">
+                    <span class="material-icons">person_outline</span>
+                </button>
+            </div>
+        </header>
+        <main class="py-16 md:py-24">
+            <div class="flex flex-col md:flex-row justify-between items-start gap-12">
+                <div class="md:w-2/3">
+                    <h1 class="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white">Hazenix's Blog</h1>
+                    <p class="mt-4 text-2xl md:text-3xl text-primary font-semibold">Nothing but enthusiasm brightens up
+                        the endless years.</p>
+                    <p class="mt-6 text-lg text-gray-500 dark:text-gray-400">总之岁月漫长，然而值得等待</p>
+                </div>
+                <div class="w-full md:w-1/3 mt-12 md:mt-0">
+                    <div class="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                        <div class="flex items-center">
+                            <img alt="User avatar" class="w-16 h-16 rounded-full" src="/assets/avatar.jpg" />
+                            <div class="ml-4">
+                                <h2 class="text-xl font-bold text-gray-900 dark:text-white">hazenix</h2>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Java 后端开发者</p>
+                            </div>
+                        </div>
+                        <p class="mt-4 text-sm text-gray-700 dark:text-gray-300">
+                            ✨ 大二后端探索者 | 写代码也写生活 | 开源项目爱好者 ✨ 欢迎来我的博客交流学习, 一起成长进步, 用代码敲醒慵懒, 一起走更远~
+                        </p>
+                        <div class="mt-6 flex items-center text-sm text-gray-500 dark:text-gray-400 space-x-4">
+                            <a class="flex items-center hover:text-primary" href="#">
+                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 16 16">
+                                    <path
+                                        d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z">
+                                    </path>
+                                </svg>
+                                hazenix
+                            </a>
+                            <a class="flex items-center hover:text-primary" href="#">
+                                <span class="material-icons text-base mr-1">home</span>
+                                Home Page
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-24 md:mt-32 text-center">
+                <p class="text-4xl text-gray-400 dark:text-gray-600">“</p>
+                <blockquote class="text-xl md:text-2xl text-gray-700 dark:text-gray-300 italic">
+                    指尖触摸长夜，字句生长成黎明。萤火虫穿克前路，星河流向破晓
+                </blockquote>
+                <div class="mt-6 text-gray-500 dark:text-gray-400">
+                    <span>商叁</span>
+                    <span class="mx-2">·</span>
+                    <span>2025/4/4</span>
+                </div>
+            </div>
+            <div class="flex justify-center mt-16">
+                <button class="animate-bounce text-gray-400 dark:text-gray-600">
+                    <span class="material-icons text-3xl">keyboard_arrow_down</span>
+                </button>
+            </div>
+        </main>
+    </div>
+    <footer class="bg-gray-100 dark:bg-gray-900/50 pt-16 pb-8 text-gray-600 dark:text-gray-400">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="font-bold text-lg text-gray-900 dark:text-white mb-4">Want to know me</h3>
+                    <ul class="space-y-2">
+                        <li><a class="hover:text-primary" href="#">About me</a></li>
+                        <li><a class="hover:text-primary" href="#">My projects</a></li>
+                        <li><a class="hover:text-primary" href="#">My Skills</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg text-gray-900 dark:text-white mb-4">You might also be looking for</h3>
+                    <ul class="space-y-2">
+                        <li><a class="hover:text-primary" href="#">Friends</a></li>
+                        <li><a class="hover:text-primary" href="#">Gallery</a></li>
+                        <li><a class="hover:text-primary" href="#">Archives</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg text-gray-900 dark:text-white mb-4">Contact Me</h3>
+                    <ul class="space-y-2">
+                        <li><a class="hover:text-primary" href="#">GitHub</a></li>
+                        <li><a class="hover:text-primary" href="#">Twitter</a></li>
+                        <li><a class="hover:text-primary" href="#">Email</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700 text-center text-sm">
+                <p>Powered by <a class="text-primary hover:underline" href="#">Hazenix</a></p>
+                <p class="mt-2">Copyright © 2024-2025 hazenix</p>
+                <p class="mt-2">本站总访问量 <span class="text-primary">1314</span> 次</p>
+                <p class="mt-2">冀ICP备2021020258号-1</p>
+            </div>
+        </div>
+    </footer>
+    <button
+        class="fixed bottom-8 right-8 bg-primary text-white p-3 rounded-full shadow-lg hover:bg-blue-600 transition-colors">
+        <span class="material-icons">palette</span>
+    </button>
+
+</body>
+
+</html>
