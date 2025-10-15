@@ -18,6 +18,19 @@ const routes = [
   { path: '/login', name: 'Login', component: () => import('@/views/Login.vue') },
   { path: '/register', name: 'Register', component: () => import('@/views/Register.vue') },
   { path: '/index', name: 'Index', component: () => import('@/views/index.vue') },
+  {
+    path: '/admin',
+    component: () => import('@/components/layout/AdminLayout.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true },
+    children: [
+      { path: '', name: 'AdminDashboard', component: () => import('@/views/admin/Dashboard.vue') },
+      { path: 'articles', name: 'AdminArticles', component: () => import('@/views/admin/ArticleManagement.vue') },
+      { path: 'categories', name: 'AdminCategories', component: () => import('@/views/admin/CategoryManagement.vue') },
+      { path: 'tags', name: 'AdminTags', component: () => import('@/views/admin/TagManagement.vue') },
+      { path: 'comments', name: 'AdminComments', component: () => import('@/views/admin/CommentManagement.vue') },
+      { path: 'updates', name: 'AdminUpdates', component: () => import('@/views/admin/UpdateManagement.vue') },
+    ]
+  },
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: () => import('@/views/NotFound.vue') },
 ]
 
