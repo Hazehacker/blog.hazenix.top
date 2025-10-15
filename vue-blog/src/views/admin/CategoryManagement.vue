@@ -29,8 +29,8 @@
         </el-input>
 
         <el-select v-model="searchForm.status" placeholder="选择状态" clearable>
-          <el-option label="启用" value="active" />
-          <el-option label="禁用" value="inactive" />
+          <el-option label="启用" value=0 />
+          <el-option label="禁用" value=1 />
         </el-select>
 
         <div class="flex space-x-2">
@@ -81,15 +81,15 @@
 
         <el-table-column prop="status" label="状态" width="100">
           <template #default="{ row }">
-            <el-tag :type="row.status === 'active' ? 'success' : 'danger'" size="small">
-              {{ row.status === 'active' ? '启用' : '禁用' }}
+            <el-tag :type="row.status === 0 ? 'success' : 'danger'" size="small">
+              {{ row.status === 0 ? '启用' : '禁用' }}
             </el-tag>
           </template>
         </el-table-column>
 
-        <el-table-column prop="createdAt" label="创建时间" width="180">
+        <el-table-column prop="createTime" label="创建时间" width="180">
           <template #default="{ row }">
-            {{ formatDate(row.createdAt) }}
+            {{ formatDate(row.createTime) }}
           </template>
         </el-table-column>
 
@@ -100,8 +100,8 @@
                 编辑
               </el-button>
               <el-button @click="handleToggleStatus(row)" size="small" 
-                         :type="row.status === 'active' ? 'warning' : 'success'">
-                {{ row.status === 'active' ? '禁用' : '启用' }}
+                         :type="row.status === 0 ? 'warning' : 'success'">
+                {{ row.status === 0 ? '禁用' : '启用' }}
               </el-button>
               <el-button @click="handleDelete(row)" size="small" type="danger" plain>
                 删除
@@ -242,7 +242,7 @@ const form = reactive({
   description: '',
   color: '#3B82F6',
   sort: 0,
-  status: 'active'
+  status: 0
 })
 
 // 表单验证规则
@@ -339,7 +339,7 @@ const handleEdit = (category) => {
     description: category.description || '',
     color: category.color || '#3B82F6',
     sort: category.sort || 0,
-    status: category.status || 'active'
+    status: category.status || 0
   })
   dialogVisible.value = true
 }
@@ -347,9 +347,9 @@ const handleEdit = (category) => {
 // 切换分类状态
 const handleToggleStatus = async (category) => {
   try {
-    const newStatus = category.status === 'active' ? 'inactive' : 'active'
+    const newStatus = category.status === 0 ? 1 : 0
     await adminApi.updateCategory(category.id, { status: newStatus })
-    ElMessage.success(`${newStatus === 'active' ? '启用' : '禁用'}成功`)
+    ElMessage.success(`${newStatus === 0 ? '启用' : '禁用'}成功`)
     loadCategories()
   } catch (error) {
     console.error('切换分类状态失败:', error)
@@ -444,7 +444,7 @@ const resetForm = () => {
     description: '',
     color: '#3B82F6',
     sort: 0,
-    status: 'active'
+    status: 0
   })
   if (formRef.value) {
     formRef.value.clearValidate()

@@ -100,9 +100,9 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="createdAt" label="创建时间" width="180">
+        <el-table-column prop="createTime" label="创建时间" width="180">
           <template #default="{ row }">
-            {{ formatDate(row.createdAt) }}
+            {{ formatDate(row.createTime) }}
           </template>
         </el-table-column>
 
@@ -279,7 +279,7 @@
           <div class="grid grid-cols-2 gap-4 text-sm">
             <div>
               <span class="text-gray-500 dark:text-gray-400">创建时间:</span>
-              <span class="ml-2 text-gray-700 dark:text-gray-300">{{ formatDate(currentUpdate.createdAt) }}</span>
+              <span class="ml-2 text-gray-700 dark:text-gray-300">{{ formatDate(currentUpdate.createTime) }}</span>
             </div>
             <div>
               <span class="text-gray-500 dark:text-gray-400">更新时间:</span>

@@ -30,21 +30,21 @@ public class UserController {
      */
     @PostMapping("/login")
     public Result<UserLoginVO> login(@RequestBody UserLoginDTO userLoginDTO){
-        log.info("用户登录:{}",userLoginDTO);
-        User user = userService.login(userLoginDTO);
-        HashMap<String,Object> claims = new HashMap<>();
-        claims.put(JwtClaimsConstant.USER_ID,user.getId());
-        String token = JwtUtil.createJWT(jwtProperties.getUserSecretKey(),jwtProperties.getUserTtl(),claims);
-        UserLoginVO userLoginVO = UserLoginVO.builder()
-                .id(user.getId())
-                .openid(user.getOpenid())
-                .token(token)
-                .build();
-        try {
-            return Result.success(userLoginVO);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        log.info("用户登录:{}",userLoginDTO);
+//        User user = userService.login(userLoginDTO);
+//        HashMap<String,Object> claims = new HashMap<>();
+//        claims.put(JwtClaimsConstant.USER_ID,user.getId());
+//        String token = JwtUtil.createJWT(jwtProperties.getUserSecretKey(),jwtProperties.getUserTtl(),claims);
+//        UserLoginVO userLoginVO = UserLoginVO.builder()
+//                .id(user.getId())
+//                .openid(user.getOpenid())
+//                .token(token)
+//                .build();
+//        try {
+//            return Result.success(userLoginVO);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
         return null;
     }
 

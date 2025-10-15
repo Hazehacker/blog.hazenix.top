@@ -57,15 +57,15 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
     @Bean
     public Docket docket() {
         ApiInfo apiInfo = new ApiInfoBuilder()
-                .title("苍穹外卖项目接口文档")
+                .title("个人博客项目接口文档")
                 .version("2.0")
-                .description("苍穹外卖项目接口文档")
+                .description("个人博客项目接口文档")
                 .build();
         Docket docket = new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo)
                 .select()
                 //扫描的包要写对
-                .apis(RequestHandlerSelectors.basePackage("com.sky.controller"))
+                .apis(RequestHandlerSelectors.basePackage("top.hazenix.controller"))
                 .paths(PathSelectors.any())
                 .build();
         return docket;

@@ -1,4 +1,8 @@
 package top.hazenix.service.impl;
 
-public class TagsServiceImpl implements TagsService{
+import org.springframework.stereotype.Service;
+import top.hazenix.service.TagsService;
+
+@Service
+public class TagsServiceImpl implements TagsService {
 }

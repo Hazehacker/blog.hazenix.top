@@ -12,6 +12,7 @@
       <router-link to="/articles" class="hover:text-primary">文章</router-link>
       <router-link to="/categories" class="hover:text-primary">分类</router-link>
       <router-link to="/tags" class="hover:text-primary">标签</router-link>
+      <router-link to="/album" class="hover:text-primary">相册</router-link>
     </nav>
     
     <div class="flex items-center space-x-4">

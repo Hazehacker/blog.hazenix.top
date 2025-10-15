@@ -38,8 +38,8 @@
         </el-select>
 
         <el-select v-model="searchForm.status" placeholder="选择状态" clearable>
-          <el-option label="已发布" value="published" />
-          <el-option label="草稿" value="draft" />
+          <el-option label="已发布" value=0 />
+          <el-option label="草稿" value=2 />
         </el-select>
 
         <div class="flex space-x-2">
@@ -103,16 +103,16 @@
         <el-table-column prop="status" label="状态" width="100">
           <template #default="{ row }">
             <el-tag :type="row.status === 'published' ? 'success' : 'warning'" size="small">
-              {{ row.status === 'published' ? '已发布' : '草稿' }}
+              {{ row.status === 0 ? '已发布' : '草稿' }}
             </el-tag>
           </template>
         </el-table-column>
 
         <el-table-column prop="viewCount" label="浏览量" width="100" />
 
-        <el-table-column prop="createdAt" label="创建时间" width="180">
+        <el-table-column prop="createTime" label="创建时间" width="180">
           <template #default="{ row }">
-            {{ formatDate(row.createdAt) }}
+            {{ formatDate(row.createTime) }}
           </template>
         </el-table-column>
 
@@ -127,7 +127,7 @@
               </el-button>
               <el-button @click="handleToggleStatus(row)" size="small" 
                          :type="row.status === 'published' ? 'warning' : 'success'">
-                {{ row.status === 'published' ? '下架' : '发布' }}
+                {{ row.status === 0 ? '下架' : '发布' }}
               </el-button>
               <el-button @click="handleDelete(row)" size="small" type="danger" plain>
                 删除
@@ -307,9 +307,9 @@ const handleView = (article) => {
 // 切换文章状态
 const handleToggleStatus = async (article) => {
   try {
-    const newStatus = article.status === 'published' ? 'draft' : 'published'
+    const newStatus = article.status === 0 ? 'draft' : 'published'
     await adminApi.toggleArticleStatus(article.id, newStatus)
-    ElMessage.success(`${newStatus === 'published' ? '发布' : '下架'}成功`)
+    ElMessage.success(`${newStatus === 0 ? '发布' : '下架'}成功`)
     loadArticles()
   } catch (error) {
     console.error('切换文章状态失败:', error)

@@ -15,7 +15,7 @@
   "code": 200,
   "message": "success",
   "data": {},
-  "timestamp": "2024-01-01T00:00:00Z"
+  "
 }
 ```
 
@@ -72,7 +72,7 @@
       "id": 1,
       "title": "文章标题",
       "status": "published",
-      "createdAt": "2024-01-01T00:00:00Z"
+      "createTime": "2024-01-01T00:00:00Z"
     }
   ]
 }
@@ -93,7 +93,7 @@
       "id": 1,
       "author": "评论者",
       "content": "评论内容",
-      "createdAt": "2024-01-01T00:00:00Z"
+      "createTime": "2024-01-01T00:00:00Z"
     }
   ]
 }
@@ -140,7 +140,7 @@
         "isTop": false,
         "allowComment": true,
         "viewCount": 100,
-        "createdAt": "2024-01-01T00:00:00Z",
+        "createTime": "2024-01-01T00:00:00Z",
         "updatedAt": "2024-01-01T00:00:00Z"
       }
     ],
@@ -176,7 +176,7 @@
     "metaDescription": "SEO描述",
     "keywords": "关键词1,关键词2",
     "viewCount": 100,
-    "createdAt": "2024-01-01T00:00:00Z",
+    "createTime": "2024-01-01T00:00:00Z",
     "updatedAt": "2024-01-01T00:00:00Z"
   }
 }
@@ -265,7 +265,7 @@
         "sort": 0,
         "status": "active",
         "articleCount": 10,
-        "createdAt": "2024-01-01T00:00:00Z",
+        "createTime": "2024-01-01T00:00:00Z",
         "updatedAt": "2024-01-01T00:00:00Z"
       }
     ],
@@ -346,7 +346,7 @@
         "sort": 0,
         "status": "active",
         "articleCount": 5,
-        "createdAt": "2024-01-01T00:00:00Z",
+        "createTime": "2024-01-01T00:00:00Z",
         "updatedAt": "2024-01-01T00:00:00Z"
       }
     ],
@@ -437,7 +437,7 @@
           "author": "被回复者",
           "avatar": "头像URL"
         },
-        "createdAt": "2024-01-01T00:00:00Z",
+        "createTime": "2024-01-01T00:00:00Z",
         "updatedAt": "2024-01-01T00:00:00Z"
       }
     ],
@@ -530,7 +530,7 @@
         "releaseDate": "2024-01-01",
         "isImportant": false,
         "link": "相关链接",
-        "createdAt": "2024-01-01T00:00:00Z",
+        "createTime": "2024-01-01T00:00:00Z",
         "updatedAt": "2024-01-01T00:00:00Z"
       }
     ],
@@ -707,4 +707,4 @@
 7. **文档**: 使用Swagger等工具生成API文档
 8. **部署**: 使用Docker容器化部署
 
-//检查一下git
+//检查一下gi

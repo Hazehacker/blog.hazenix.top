@@ -75,10 +75,10 @@
                  class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
               <div class="flex-1">
                 <h4 class="font-medium text-gray-900 dark:text-gray-100">{{ article.title }}</h4>
-                <p class="text-sm text-gray-500 dark:text-gray-400">{{ formatDate(article.createdAt) }}</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">{{ formatDate(article.createTime) }}</p>
               </div>
               <el-tag :type="article.status === 'published' ? 'success' : 'warning'" size="small">
-                {{ article.status === 'published' ? '已发布' : '草稿' }}
+                {{ article.status === 0 ? '已发布' : '草稿' }}
               </el-tag>
             </div>
           </div>
@@ -98,8 +98,8 @@
             <div v-for="comment in recentComments" :key="comment.id" 
                  class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
               <div class="flex items-center justify-between mb-2">
-                <span class="font-medium text-gray-900 dark:text-gray-100">{{ comment.author }}</span>
-                <span class="text-sm text-gray-500 dark:text-gray-400">{{ formatDate(comment.createdAt) }}</span>
+                <span class="font-medium text-gray-900 dark:text-gray-100">{{ comment.username }}</span>
+                <span class="text-sm text-gray-500 dark:text-gray-400">{{ formatDate(comment.createTime) }}</span>
               </div>
               <p class="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">{{ comment.content }}</p>
             </div>

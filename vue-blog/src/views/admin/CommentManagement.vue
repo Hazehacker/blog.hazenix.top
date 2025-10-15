@@ -119,9 +119,9 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="createdAt" label="评论时间" width="180">
+        <el-table-column prop="createTime" label="评论时间" width="180">
           <template #default="{ row }">
-            {{ formatDate(row.createdAt) }}
+            {{ formatDate(row.createTime) }}
           </template>
         </el-table-column>
 
@@ -190,7 +190,7 @@
           <div>
             <h3 class="font-medium text-gray-900 dark:text-gray-100">{{ currentComment.author }}</h3>
             <p class="text-sm text-gray-500 dark:text-gray-400">
-              {{ formatDate(currentComment.createdAt) }}
+              {{ formatDate(currentComment.createTime) }}
             </p>
           </div>
         </div>
