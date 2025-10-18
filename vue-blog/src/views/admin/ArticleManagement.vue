@@ -38,7 +38,7 @@
         </el-select>
 
         <el-select v-model="searchForm.status" placeholder="选择状态" clearable>
-          <el-option label="已发布" value=0 />
+          <el-option label="发布" value=0 />
           <el-option label="草稿" value=2 />
         </el-select>
 
@@ -102,23 +102,24 @@
 
         <el-table-column prop="status" label="状态" width="100">
           <template #default="{ row }">
-            <el-tag :type="row.status === 'published' ? 'success' : 'warning'" size="small">
+            <el-tag :type="row.status === 0 ? 'success' : 'warning'" size="small">
               {{ row.status === 0 ? '已发布' : '草稿' }}
             </el-tag>
           </template>
         </el-table-column>
 
+        <el-table-column prop="likeCount" label="点赞量" width="100" />
+        <el-table-column prop="favoriteCount" label="收藏量" width="100" />
         <el-table-column prop="viewCount" label="浏览量" width="100" />
-
         <el-table-column prop="createTime" label="创建时间" width="180">
           <template #default="{ row }">
             {{ formatDate(row.createTime) }}
           </template>
         </el-table-column>
 
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column label="操作" width="235" fixed="right">
           <template #default="{ row }">
-            <div class="flex space-x-2">
+            <div class="flex space-x-2 " >
               <el-button @click="handleView(row)" size="small" type="primary" plain>
                 查看
               </el-button>
@@ -126,7 +127,7 @@
                 编辑
               </el-button>
               <el-button @click="handleToggleStatus(row)" size="small" 
-                         :type="row.status === 'published' ? 'warning' : 'success'">
+                         :type="row.status === 0 ? 'warning' : 'success'">
                 {{ row.status === 0 ? '下架' : '发布' }}
               </el-button>
               <el-button @click="handleDelete(row)" size="small" type="danger" plain>
@@ -229,7 +230,7 @@ const loadArticles = async () => {
       ...searchForm
     }
     const response = await adminApi.getArticles(params)
-    articles.value = response.data.list
+    articles.value = response.data.records
     total.value = response.data.total
   } catch (error) {
     console.error('加载文章列表失败:', error)
@@ -307,7 +308,7 @@ const handleView = (article) => {
 // 切换文章状态
 const handleToggleStatus = async (article) => {
   try {
-    const newStatus = article.status === 0 ? 'draft' : 'published'
+    const newStatus = article.status === 0 ? 2 : 0
     await adminApi.toggleArticleStatus(article.id, newStatus)
     ElMessage.success(`${newStatus === 0 ? '发布' : '下架'}成功`)
     loadArticles()

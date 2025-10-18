@@ -125,20 +125,15 @@
         "summary": "文章摘要",
         "content": "文章内容",
         "status": "published",
-        "categoryId": 1,
         "category": {
           "id": 1,
           "name": "分类名称"
         },
-        "tags": [
-          {
-            "id": 1,
-            "name": "标签名称"
-          }
-        ],
+
         "coverImage": "封面图片URL",
         "isTop": false,
-        "allowComment": true,
+        "likeCount": 100,
+        "favoriteCount": 100,
         "viewCount": 100,
         "createTime": "2024-01-01T00:00:00Z",
         "updatedAt": "2024-01-01T00:00:00Z"
@@ -166,15 +161,13 @@
     "title": "文章标题",
     "summary": "文章摘要",
     "content": "文章内容",
-    "status": "published",
+    "status": 0,
     "categoryId": 1,
     "tagIds": [1, 2, 3],
     "coverImage": "封面图片URL",
     "isTop": false,
-    "allowComment": true,
     "slug": "article-slug",
-    "metaDescription": "SEO描述",
-    "keywords": "关键词1,关键词2",
+    //"metaDescription": "SEO描述",暂时没加
     "viewCount": 100,
     "createTime": "2024-01-01T00:00:00Z",
     "updatedAt": "2024-01-01T00:00:00Z"
@@ -189,17 +182,16 @@
 ```json
 {
   "title": "文章标题",
-  "summary": "文章摘要",
+  //"summary": "文章摘要",
   "content": "文章内容",
-  "status": "draft",
+  "status": 2,
   "categoryId": 1,
   "tagIds": [1, 2, 3],
   "coverImage": "封面图片URL",
   "isTop": false,
-  "allowComment": true,
   "slug": "article-slug",
-  "metaDescription": "SEO描述",
-  "keywords": "关键词1,关键词2"
+  //"metaDescription": "SEO描述",
+  //"keywords": "关键词1,关键词2"
 }
 ```
 

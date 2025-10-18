@@ -283,7 +283,7 @@
             </div>
             <div>
               <span class="text-gray-500 dark:text-gray-400">更新时间:</span>
-              <span class="ml-2 text-gray-700 dark:text-gray-300">{{ formatDate(currentUpdate.updatedAt) }}</span>
+              <span class="ml-2 text-gray-700 dark:text-gray-300">{{ formatDate(currentUpdate.updateTime) }}</span>
             </div>
           </div>
         </div>

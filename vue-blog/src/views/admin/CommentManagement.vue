@@ -68,7 +68,7 @@
       >
         <el-table-column type="selection" width="55" />
         
-        <el-table-column prop="author" label="评论者" width="120">
+        <el-table-column prop="username" label="评论者" width="120">
           <template #default="{ row }">
             <div class="flex items-center">
               <img
@@ -76,7 +76,7 @@
                 alt="头像"
                 class="w-8 h-8 rounded-full mr-2"
               />
-              <span class="font-medium text-gray-900 dark:text-gray-100">{{ row.author }}</span>
+              <span class="font-medium text-gray-900 dark:text-gray-100">{{ row.username }}</span>
             </div>
           </template>
         </el-table-column>
@@ -86,7 +86,7 @@
             <div class="max-w-xs">
               <p class="text-gray-900 dark:text-gray-100 line-clamp-2">{{ row.content }}</p>
               <div v-if="row.replyTo" class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                回复: {{ row.replyTo.author }}
+                回复: {{ row.replyTo.username }}
               </div>
             </div>
           </template>
@@ -216,7 +216,7 @@
               alt="头像"
               class="w-8 h-8 rounded-full"
             />
-            <span class="text-gray-700 dark:text-gray-300">{{ currentComment.replyTo.author }}</span>
+            <span class="text-gray-700 dark:text-gray-300">{{ currentComment.replyTo.username }}</span>
           </div>
         </div>
 

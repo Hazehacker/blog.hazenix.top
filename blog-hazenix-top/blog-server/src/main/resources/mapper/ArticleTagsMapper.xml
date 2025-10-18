@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.hazenix.mapper.ArticleTagsMapper">
+
+    <insert id="insertBatch">
+        insert into article_tags (tags_id,tags_name,article_id) values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.tagsId},#{item.tagsName},#{item.articleId})
+        </foreach>
+    </insert>
+</mapper>

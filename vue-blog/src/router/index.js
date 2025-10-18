@@ -15,6 +15,7 @@ const routes = [
       { path: 'tags', name: 'TagList', component: () => import('@/views/TagList.vue') },
     ]
   },
+  { path: '', name: 'index', component: () => import('@/views/index.vue') },
   { path: '/login', name: 'Login', component: () => import('@/views/Login.vue') },
   { path: '/register', name: 'Register', component: () => import('@/views/Register.vue') },
   { path: '/index', name: 'Index', component: () => import('@/views/index.vue') },

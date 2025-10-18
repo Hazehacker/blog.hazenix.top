@@ -94,8 +94,8 @@
                 发布状态
               </label>
               <el-select v-model="form.status" class="w-full">
-                <el-option label="草稿" value="draft" />
-                <el-option label="已发布" value="published" />
+                <el-option label="草稿" value=2 />
+                <el-option label="已发布" value=0 />
               </el-select>
             </div>
 
@@ -168,7 +168,7 @@
             <!-- 其他选项 -->
             <div class="space-y-2">
               <el-checkbox v-model="form.isTop">置顶文章</el-checkbox>
-              <el-checkbox v-model="form.allowComment">允许评论</el-checkbox>
+         
             </div>
           </div>
         </div>
@@ -263,12 +263,12 @@ const form = reactive({
   title: '',
   summary: '',
   content: '',
-  status: 'draft',
+  status: 2,
   categoryId: '',
   tagIds: [],
   coverImage: '',
   isTop: false,
-  allowComment: true,
+
   slug: '',
   metaDescription: '',
   keywords: ''
@@ -287,12 +287,12 @@ const initForm = () => {
       title: props.article.title || '',
       summary: props.article.summary || '',
       content: props.article.content || '',
-      status: props.article.status || 'draft',
+      status: props.article.status || 2,
       categoryId: props.article.categoryId || '',
       tagIds: props.article.tagIds || [],
       coverImage: props.article.coverImage || '',
       isTop: props.article.isTop || false,
-      allowComment: props.article.allowComment !== false,
+
       slug: props.article.slug || '',
       metaDescription: props.article.metaDescription || '',
       keywords: props.article.keywords || ''
@@ -303,12 +303,11 @@ const initForm = () => {
       title: '',
       summary: '',
       content: '',
-      status: 'draft',
+      status: 2,
       categoryId: '',
       tagIds: [],
       coverImage: '',
       isTop: false,
-      allowComment: true,
       slug: '',
       metaDescription: '',
       keywords: ''
@@ -344,7 +343,7 @@ const handleImageUpload = (response) => {
 
 // 保存草稿
 const handleSaveDraft = async () => {
-  await saveArticle('draft')
+  await saveArticle(2)
 }
 
 // 发布文章

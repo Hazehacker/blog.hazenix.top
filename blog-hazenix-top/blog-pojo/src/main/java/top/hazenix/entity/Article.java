@@ -16,15 +16,18 @@ public class Article {
     private Long id;
     private Long userId;
     private String title;
+//    private String summary;//这个字段待定 TODO
     private String content;
     private String coverImage;
-    private Long tagsId;
-    private String tagsName;
     private Integer categoryId;
     private Integer likeCount;
     private Integer favoriteCount;
     private Integer viewCount;
-    private String status;
+    //URL标识符
+    private String slug;
+    //TODO "metaDescription": "SEO描述", 后期看下加不加
+    private Integer isTop;
+    private Integer status;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 }

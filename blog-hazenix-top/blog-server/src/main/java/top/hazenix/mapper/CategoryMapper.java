@@ -2,6 +2,7 @@ package top.hazenix.mapper;
 
 
 import org.apache.ibatis.annotations.Mapper;
+import top.hazenix.entity.Category;
 
 @Mapper
 public interface CategoryMapper {
@@ -11,4 +12,11 @@ public interface CategoryMapper {
      * @return
      */
     Integer count();
+
+    /**
+     * 根据id获取分类(返回category对象)
+     * @param categoryId
+     * @return
+     */
+    Category getById(Integer categoryId);
 }

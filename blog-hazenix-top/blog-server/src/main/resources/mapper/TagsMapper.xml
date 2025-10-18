@@ -6,4 +6,11 @@
     <select id="count" resultType="java.lang.Integer">
         select count(*) from tags
     </select>
+    <select id="getListByArticleId" resultType="java.lang.Integer">
+        select *
+        from article_tags where article_id = #{id};
+    </select>
+    <select id="getById" resultType="top.hazenix.entity.Tags">
+        select * from tags where id = #{id}
+    </select>
 </mapper>

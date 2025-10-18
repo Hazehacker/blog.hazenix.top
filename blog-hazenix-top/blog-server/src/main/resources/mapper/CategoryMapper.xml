@@ -6,4 +6,5 @@
     <select id="count" resultType="java.lang.Integer">
         select count(*) from category
     </select>
+    <select id="getById" resultType="top.hazenix.entity.Category"></select>
 </mapper>
