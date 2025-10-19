@@ -8,4 +8,21 @@
             (#{item.tagsId},#{item.tagsName},#{item.articleId})
         </foreach>
     </insert>
+    <update id="updateTagsName">
+        update article_tags
+        set tags_name = #{tagsName}
+        where tags_id = #{id}
+    </update>
+    <delete id="deleteByArticleIds">
+        delete from article_tags where article_id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <select id="countByIds" resultType="java.lang.Integer">
+        select count(id) from article_tags where tags_id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

@@ -150,14 +150,7 @@ public class ArticleServiceImpl implements ArticleService {
         articleMapper.update(article);
     }
 
-    /**
-     * 删除单个文章
-     * @param id
-     */
-    @Override
-    public void deleteArticle(Long id) {
-        articleMapper.deleteByIds(Collections.singletonList(id));
-    }
+
 
     /**
      * 更新文章状态
@@ -172,13 +165,28 @@ public class ArticleServiceImpl implements ArticleService {
         articleMapper.update(article);
     }
 
+    /**
+     * 删除单个文章
+     * @param id
+     */
+    @Override
+    public void deleteArticle(Long id) {
+        //删除文章的同时，也要维护article_tags关联表
+        articleTagsMapper.deleteByArticleIds(Collections.singletonList(id));
+
+        articleMapper.deleteByIds(Collections.singletonList(id));
+    }
 
     /**
      * 批量删除文章
      * @param ids
      */
     @Override
+    @Transactional
     public void deleteArticles(List<Long> ids) {
+        //删除文章的同时，也要维护article_tags关联表
+        articleTagsMapper.deleteByArticleIds(ids);
+
         articleMapper.deleteByIds(ids);
     }
 

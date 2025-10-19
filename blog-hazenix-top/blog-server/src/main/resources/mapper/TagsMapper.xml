@@ -1,6 +1,34 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="top.hazenix.mapper.TagsMapper">
+    <insert id="insert">
+        insert into tags
+        (name,slug,create_time,update_time)
+        values
+        (#{name},#{slug},#{createTime},#{updateTime})
+    </insert>
+    <update id="update">
+        update tags
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="slug != null">
+                slug = #{slug},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        where id=#{id}
+    </update>
+    <delete id="deleteBatch">
+        delete from tags
+        where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
 
 
     <select id="count" resultType="java.lang.Integer">
@@ -12,5 +40,13 @@
     </select>
     <select id="getById" resultType="top.hazenix.entity.Tags">
         select * from tags where id = #{id}
+    </select>
+    <select id="pageQuery" resultType="top.hazenix.entity.Category">
+        select * from tags
+        <where>
+            <if test="keyword != null and keyword != ''">
+                and name like concat('%',#{keyword},'%')
+            </if>
+        </where>
     </select>
 </mapper>

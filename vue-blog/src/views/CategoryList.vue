@@ -9,9 +9,9 @@
         <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">
           {{ category.name }}
         </h3>
-        <p class="text-gray-600 dark:text-gray-400 mb-4">
-          {{ category.description }}
-        </p>
+<!--        <p class="text-gray-600 dark:text-gray-400 mb-4">-->
+<!--          {{ category.description }}-->
+<!--        </p>-->
         <div class="text-sm text-gray-500">
           {{ category.articleCount || 0 }} 篇文章
         </div>

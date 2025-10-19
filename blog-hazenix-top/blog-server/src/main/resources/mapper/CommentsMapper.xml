@@ -9,4 +9,15 @@
     <select id="getRecentComments" resultType="top.hazenix.vo.CommentShortVO">
         select id,username,content,create_time from comments order by create_time desc limit #{i}
     </select>
+    <select id="pageQuery" resultType="top.hazenix.entity.Comments">
+        select * from comments
+        <where>
+            <if test="keyword != null and keyword != ''">
+                and content like concat('%',#{keyword},'%') and username like concat('%',#{keyword},'%')
+            </if>
+            <if test="status != null ">
+                and status = #{status}
+            </if>
+        </where>
+    </select>
 </mapper>

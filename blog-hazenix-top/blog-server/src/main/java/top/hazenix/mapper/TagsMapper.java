@@ -1,9 +1,14 @@
 package top.hazenix.mapper;
 
 
+import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.beans.BeanMetadataAttribute;
+import top.hazenix.annotation.AutoFill;
+import top.hazenix.dto.TagsDTO;
+import top.hazenix.entity.Category;
 import top.hazenix.entity.Tags;
+import top.hazenix.enumeration.OperationType;
 
 import java.util.List;
 
@@ -29,4 +34,31 @@ public interface TagsMapper {
      * @return
      */
     Tags getById(Integer tagId);
+
+    /**
+     * 分页查询标签列表
+     * @param keyword
+     * @return
+     */
+    Page<Category> pageQuery(String keyword);
+
+    /**
+     * 新增标签
+     * @param tags
+     */
+    @AutoFill(OperationType.INSERT)
+    void insert(Tags tags);
+
+    /**
+     * 更新指定标签
+     * @param tags
+     */
+    @AutoFill(OperationType.UPDATE)
+    void update(Tags tags);
+
+    /**
+     * 批量删除标签
+     * @param ids
+     */
+    void deleteBatch(List<Long> ids);
 }

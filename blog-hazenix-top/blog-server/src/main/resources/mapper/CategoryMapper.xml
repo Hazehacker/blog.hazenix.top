@@ -1,10 +1,53 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="top.hazenix.mapper.CategoryMapper">
+    <insert id="insert">
+        insert into category
+        (name,status,sort,create_time,update_time)
+        values
+        (#{name},#{status},#{sort},#{createTime},#{updateTime})
+    </insert>
+    <update id="update">
+        update category
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="sort != null">
+                sort = #{sort},
+            </if>
+
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+    <delete id="deleteBatch">
+        delete from category
+        where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
 
 
     <select id="count" resultType="java.lang.Integer">
         select count(*) from category
     </select>
     <select id="getById" resultType="top.hazenix.entity.Category"></select>
+    <select id="pageQuery" resultType="top.hazenix.entity.Category">
+        select * from category
+        <where>
+            <if test="keyword != null and keyword != ''">
+                and name like concat('%',#{keyword},'%')
+            </if>
+            <if test="status != null ">
+                and status = #{status}
+            </if>
+        </where>
+    </select>
 </mapper>

@@ -110,7 +110,7 @@ public class ArticleController {
 
     /**
      * 批量删除文章
-     * @param ids
+     * @param
      * @return
      */
     @DeleteMapping("/batch")

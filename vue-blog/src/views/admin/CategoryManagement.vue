@@ -71,11 +71,11 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="articleCount" label="文章数量" width="120">
-          <template #default="{ row }">
-            <el-tag type="info" size="small">{{ row.articleCount || 0 }}</el-tag>
-          </template>
-        </el-table-column>
+<!--        <el-table-column prop="articleCount" label="文章数量" width="120">-->
+<!--          <template #default="{ row }">-->
+<!--            <el-tag type="info" size="small">{{ row.articleCount || 0 }}</el-tag>-->
+<!--          </template>-->
+<!--        </el-table-column>-->
 
         <el-table-column prop="sort" label="排序" width="100" />
 
@@ -163,17 +163,17 @@
           />
         </el-form-item>
 
-        <el-form-item label="分类颜色" prop="color">
-          <div class="flex items-center space-x-3">
-            <el-color-picker v-model="form.color" />
-            <el-input
-              v-model="form.color"
-              placeholder="#000000"
-              maxlength="7"
-              style="width: 120px"
-            />
-          </div>
-        </el-form-item>
+<!--        <el-form-item label="分类颜色" prop="color">-->
+<!--          <div class="flex items-center space-x-3">-->
+<!--            <el-color-picker v-model="form.color" />-->
+<!--            <el-input-->
+<!--              v-model="form.color"-->
+<!--              placeholder="#000000"-->
+<!--              maxlength="7"-->
+<!--              style="width: 120px"-->
+<!--            />-->
+<!--          </div>-->
+<!--        </el-form-item>-->
 
         <el-form-item label="排序" prop="sort">
           <el-input-number
@@ -239,11 +239,14 @@ const dialogTitle = computed(() => currentCategory.value ? '编辑分类' : '新
 // 表单数据
 const form = reactive({
   name: '',
-  description: '',
-  color: '#3B82F6',
+
   sort: 0,
   status: 0
 })
+// 去掉这两个
+// description: '',
+// color: '#3B82F6',
+
 
 // 表单验证规则
 const rules = {
@@ -251,9 +254,9 @@ const rules = {
     { required: true, message: '请输入分类名称', trigger: 'blur' },
     { min: 1, max: 50, message: '分类名称长度在 1 到 50 个字符', trigger: 'blur' }
   ],
-  color: [
-    { required: true, message: '请选择分类颜色', trigger: 'change' }
-  ],
+  // color: [
+  //   { required: true, message: '请选择分类颜色', trigger: 'change' }
+  // ],
   sort: [
     { required: true, message: '请输入排序值', trigger: 'blur' }
   ]
@@ -336,8 +339,8 @@ const handleEdit = (category) => {
   currentCategory.value = { ...category }
   Object.assign(form, {
     name: category.name,
-    description: category.description || '',
-    color: category.color || '#3B82F6',
+    // description: category.description || '',
+    // color: category.color || '#3B82F6',
     sort: category.sort || 0,
     status: category.status || 0
   })
@@ -441,8 +444,8 @@ const handleSave = async () => {
 const resetForm = () => {
   Object.assign(form, {
     name: '',
-    description: '',
-    color: '#3B82F6',
+    // description: '',
+    // color: '#3B82F6',
     sort: 0,
     status: 0
   })

@@ -1,7 +1,10 @@
 package top.hazenix.mapper;
 
 
+import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Mapper;
+import top.hazenix.entity.Category;
+import top.hazenix.entity.Comments;
 import top.hazenix.vo.CommentShortVO;
 
 import java.util.List;
@@ -21,4 +24,12 @@ public interface CommentsMapper {
      * @return
      */
     List<CommentShortVO> getRecentComments(int i);
+
+    /**
+     * 分页查询，获取评论列表
+     * @param keyword
+     * @param status
+     * @return
+     */
+    Page<Comments> pageQuery(String keyword, Integer status);
 }

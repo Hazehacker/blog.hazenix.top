@@ -30,6 +30,15 @@ public interface ArticleMapper {
     Integer count();
 
     /**
+     * 统计某一分类id集合下的文章数量
+     * @param ids
+     * @return
+     */
+    Integer countByIds(List<Integer> ids);
+
+
+
+    /**
      * 获取最新的文章列表
      * @param i
      * @return
@@ -62,4 +71,5 @@ public interface ArticleMapper {
      * @param ids
      */
     void deleteByIds(List<Long> ids);
+
 }

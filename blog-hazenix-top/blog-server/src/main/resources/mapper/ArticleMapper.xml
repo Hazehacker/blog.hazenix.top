@@ -79,4 +79,8 @@
     <select id="getById" resultType="top.hazenix.entity.Article">
         select * from article where id = #{id}
     </select>
+    <select id="countByIds" resultType="java.lang.Integer">
+        select count(id) from article where category_id in
+                                          <foreach collection="ids" item="id" separator="," open="id in (" close=")">#{id}</foreach>
+    </select>
 </mapper>

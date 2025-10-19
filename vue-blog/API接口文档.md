@@ -252,11 +252,8 @@
       {
         "id": 1,
         "name": "分类名称",
-        "description": "分类描述",
-        "color": "#3B82F6",
         "sort": 0,
         "status": "active",
-        "articleCount": 10,
         "createTime": "2024-01-01T00:00:00Z",
         "updatedAt": "2024-01-01T00:00:00Z"
       }
@@ -333,11 +330,11 @@
       {
         "id": 1,
         "name": "标签名称",
-        "description": "标签描述",
-        "color": "#3B82F6",
-        "sort": 0,
-        "status": "active",
-        "articleCount": 5,
+        //"description": "标签描述",
+        //"color": "#3B82F6",
+        //"sort": 0,
+        //"status": "active",
+        //"articleCount": 5,
         "createTime": "2024-01-01T00:00:00Z",
         "updatedAt": "2024-01-01T00:00:00Z"
       }
@@ -362,10 +359,10 @@
 ```json
 {
   "name": "标签名称",
-  "description": "标签描述",
-  "color": "#3B82F6",
-  "sort": 0,
-  "status": "active"
+  //"description": "标签描述",
+  //"color": "#3B82F6",
+  //"sort": 0,
+  //"status": "active"
 }
 ```
 
@@ -414,11 +411,11 @@
     "list": [
       {
         "id": 1,
-        "author": "评论者",
-        "email": "user@example.com",
+        //"author": "评论者",
+        "username":"评论者",
         "content": "评论内容",
         "status": "pending",
-        "ip": "192.168.1.1",
+        //"ip": "192.168.1.1",
         "avatar": "头像URL",
         "article": {
           "id": 1,
@@ -427,10 +424,10 @@
         "replyTo": {
           "id": 2,
           "author": "被回复者",
-          "avatar": "头像URL"
+          //"avatar": "头像URL"
         },
         "createTime": "2024-01-01T00:00:00Z",
-        "updatedAt": "2024-01-01T00:00:00Z"
+        //"updatedAt": "2024-01-01T00:00:00Z"
       }
     ],
     "total": 100,
