@@ -24,8 +24,7 @@ public class CommentsVO {
     private String avatar;//评论者头像
     private Article article;//填充id和title
     private User replyPerson;//填充id和username
-    //被评论者名称
-    private String replyUsername;
+
 
     //评论点赞数
     private Integer likeCount;

@@ -32,4 +32,10 @@ public interface CommentsMapper {
      * @return
      */
     Page<Comments> pageQuery(String keyword, Integer status);
+
+    /**
+     * 批量删除评论
+     * @param ids
+     */
+    void deleteBatch(List<Long> ids);
 }

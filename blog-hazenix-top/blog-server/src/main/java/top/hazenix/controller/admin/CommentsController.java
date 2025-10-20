@@ -3,15 +3,14 @@ package top.hazenix.controller.admin;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import top.hazenix.dto.DeleteCommentsRequestDTO;
 import top.hazenix.result.PageResult;
 import top.hazenix.result.Result;
 import top.hazenix.service.CommentsService;
 import top.hazenix.vo.CommentShortVO;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController("AdminCommentsController")
@@ -51,6 +50,32 @@ public class CommentsController {
         log.info("获取列表");
         PageResult pageResult = commentsService.pageQuery(page,pageSize,keyword,status);
         return Result.success(pageResult);
+    }
+
+    /**
+     * 删除评论
+     * @param id
+     * @return
+     */
+    @DeleteMapping("/{id}")
+    public Result deleteComment(@PathVariable Long id){
+        log.info("删除评论：{}",id);
+        commentsService.deleteComments(Collections.singletonList(id));
+
+        return Result.success();
+    }
+
+    /**
+     * 批量删除评论
+     * @param deleteCommentsRequestDTO
+     * @return
+     */
+    @DeleteMapping("/batch")
+    public Result deleteComments(@RequestBody DeleteCommentsRequestDTO deleteCommentsRequestDTO){
+        log.info("删除评论：{}",deleteCommentsRequestDTO);
+        List<Long> ids = deleteCommentsRequestDTO.getIds();
+        commentsService.deleteComments(ids);
+        return Result.success();
     }
 
 

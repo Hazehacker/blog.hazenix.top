@@ -10,4 +10,7 @@ public interface CommentsService {
     List<CommentShortVO> getRecentComments(int i);
 
     PageResult pageQuery(Integer page, Integer pageSize, String keyword, Integer status);
+
+
+    void deleteComments(List<Long> ids);
 }
