@@ -275,7 +275,7 @@ const form = reactive({
 })
 
 // 上传配置
-const uploadUrl = computed(() => `${import.meta.env.VITE_API_BASE_URL}/admin/upload/image`)
+const uploadUrl = computed(() => `${import.meta.env.VITE_API_BASE_URL}/common/upload`)
 const uploadHeaders = computed(() => ({
   'Authorization': `Bearer ${getToken()}`
 }))

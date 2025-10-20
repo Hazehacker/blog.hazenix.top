@@ -74,7 +74,12 @@ public class CommentsController {
     public Result deleteComments(@RequestBody DeleteCommentsRequestDTO deleteCommentsRequestDTO){
         log.info("删除评论：{}",deleteCommentsRequestDTO);
         List<Long> ids = deleteCommentsRequestDTO.getIds();
-        commentsService.deleteComments(ids);
+        try {
+            commentsService.deleteComments(ids);
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
         return Result.success();
     }
 

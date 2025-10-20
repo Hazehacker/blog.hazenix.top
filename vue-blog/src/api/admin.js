@@ -189,7 +189,7 @@ export const adminApi = {
   uploadImage(file) {
     const formData = new FormData()
     formData.append('file', file)
-    return request.post(`${ADMIN_BASE_URL}/upload/image`, formData, {
+    return request.post(`common/upload`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
@@ -200,7 +200,7 @@ export const adminApi = {
   uploadFile(file) {
     const formData = new FormData()
     formData.append('file', file)
-    return request.post(`${ADMIN_BASE_URL}/upload/file`, formData, {
+    return request.post(`common/upload`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }

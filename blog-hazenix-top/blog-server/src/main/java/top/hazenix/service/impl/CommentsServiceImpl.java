@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import top.hazenix.entity.Article;
 import top.hazenix.entity.Category;
 import top.hazenix.entity.Comments;
@@ -55,6 +56,7 @@ public class CommentsServiceImpl implements CommentsService {
      * @return
      */
     @Override
+    @Transactional
     public PageResult pageQuery(Integer page, Integer pageSize, String keyword,Integer status) {
         PageHelper.startPage(page,pageSize);
         Page<Comments> pageRes = commentsMapper.pageQuery(keyword,status);

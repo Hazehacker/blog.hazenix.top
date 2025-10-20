@@ -11,10 +11,7 @@ import top.hazenix.dto.ArticleDTO;
 import top.hazenix.dto.ArticleTagsDTO;
 import top.hazenix.entity.Article;
 import top.hazenix.entity.Category;
-import top.hazenix.mapper.ArticleMapper;
-import top.hazenix.mapper.ArticleTagsMapper;
-import top.hazenix.mapper.CategoryMapper;
-import top.hazenix.mapper.TagsMapper;
+import top.hazenix.mapper.*;
 import top.hazenix.result.PageResult;
 import top.hazenix.service.ArticleService;
 import top.hazenix.vo.ArticleDetailVO;
@@ -34,6 +31,8 @@ public class ArticleServiceImpl implements ArticleService {
     private TagsMapper tagsMapper;
     @Autowired
     private ArticleTagsMapper articleTagsMapper;
+    @Autowired
+    private CommentsMapper commentsMapper;
 
     /**
      * 获取最新点的文章列表
@@ -173,7 +172,8 @@ public class ArticleServiceImpl implements ArticleService {
     public void deleteArticle(Long id) {
         //删除文章的同时，也要维护article_tags关联表
         articleTagsMapper.deleteByArticleIds(Collections.singletonList(id));
-
+        //和这篇文章有关系的评论也要删掉
+        commentsMapper.deleteByArticleIds(Collections.singletonList(id));
         articleMapper.deleteByIds(Collections.singletonList(id));
     }
 
@@ -186,7 +186,8 @@ public class ArticleServiceImpl implements ArticleService {
     public void deleteArticles(List<Long> ids) {
         //删除文章的同时，也要维护article_tags关联表
         articleTagsMapper.deleteByArticleIds(ids);
-
+        // TODO 和这篇文章有关系的评论也要删掉
+        commentsMapper.deleteByArticleIds(ids);
         articleMapper.deleteByIds(ids);
     }
 

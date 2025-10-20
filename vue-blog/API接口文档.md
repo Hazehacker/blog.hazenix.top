@@ -579,27 +579,10 @@
 
 ## 7. 文件上传接口
 
-### 7.1 上传图片
-- **URL**: `POST /admin/upload/image`
-- **描述**: 上传图片文件
-- **请求类型**: `multipart/form-data`
-- **请求参数**:
-  - `file` (file): 图片文件
-- **响应示例**:
-```json
-{
-  "code": 200,
-  "message": "上传成功",
-  "data": {
-    "url": "https://example.com/uploads/image.jpg",
-    "filename": "image.jpg",
-    "size": 1024000
-  }
-}
-```
 
-### 7.2 上传文件
-- **URL**: `POST /admin/upload/file`
+
+### 上传文件
+- **URL**: `POST /common/upload`
 - **描述**: 上传其他类型文件
 - **请求类型**: `multipart/form-data`
 - **请求参数**:
@@ -611,8 +594,6 @@
   "message": "上传成功",
   "data": {
     "url": "https://example.com/uploads/file.pdf",
-    "filename": "file.pdf",
-    "size": 2048000
   }
 }
 ```

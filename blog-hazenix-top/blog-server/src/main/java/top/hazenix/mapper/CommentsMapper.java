@@ -38,4 +38,10 @@ public interface CommentsMapper {
      * @param ids
      */
     void deleteBatch(List<Long> ids);
+
+    /**
+     * 根据文章ids集合删除评论
+     * @param ids
+     */
+    void deleteByArticleIds(List<Long> ids);
 }
