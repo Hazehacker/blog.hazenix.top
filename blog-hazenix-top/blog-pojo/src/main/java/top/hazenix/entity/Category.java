@@ -18,6 +18,7 @@ public class Category {
     private String name;
     private Integer status;
     private Integer sort;
+    private String slug;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 }

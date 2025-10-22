@@ -1,12 +1,22 @@
 <template>
-  <div class="space-y-6">
-    <!-- 基本信息 -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="max-w-7xl mx-auto">
+    <!-- 页面标题 -->
+    <div class="mb-8">
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+        {{ props.article ? '编辑文章' : '创建新文章' }}
+      </h1>
+      <p class="text-gray-600 dark:text-gray-400 mt-2">
+        {{ props.article ? '修改您的文章内容' : '创建一篇新的博客文章' }}
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <!-- 左侧：编辑器 -->
-      <div class="lg:col-span-2 space-y-4">
+      <div class="lg:col-span-2 space-y-6">
         <!-- 标题 -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+            <i class="fas fa-heading mr-2"></i>
             文章标题 *
           </label>
           <el-input
@@ -15,77 +25,60 @@
             size="large"
             maxlength="100"
             show-word-limit
+            class="text-lg"
           />
         </div>
 
         <!-- 摘要 -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+            <i class="fas fa-align-left mr-2"></i>
             文章摘要
           </label>
           <el-input
             v-model="form.summary"
             type="textarea"
             :rows="3"
-            placeholder="请输入文章摘要"
+            placeholder="请输入文章摘要，这将显示在文章列表中..."
             maxlength="200"
             show-word-limit
           />
         </div>
 
         <!-- 内容编辑器 -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+            <i class="fas fa-edit mr-2"></i>
             文章内容 *
           </label>
-          <div class="border border-gray-300 dark:border-gray-600 rounded-lg">
-            <div class="flex border-b border-gray-300 dark:border-gray-600">
-              <button
-                @click="editorMode = 'markdown'"
-                :class="[
-                  'px-4 py-2 text-sm font-medium',
-                  editorMode === 'markdown'
-                    ? 'bg-primary text-white'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                ]"
-              >
-                Markdown
-              </button>
-              <button
-                @click="editorMode = 'preview'"
-                :class="[
-                  'px-4 py-2 text-sm font-medium',
-                  editorMode === 'preview'
-                    ? 'bg-primary text-white'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                ]"
-              >
-                预览
-              </button>
-            </div>
-            
-            <div v-if="editorMode === 'markdown'" class="h-96">
-              <el-input
-                v-model="form.content"
-                type="textarea"
-                :rows="20"
-                placeholder="请输入Markdown内容..."
-                class="border-0"
-              />
-            </div>
-            
-            <div v-else class="h-96 p-4 overflow-auto bg-gray-50 dark:bg-gray-800">
-              <MarkdownRenderer :content="form.content" />
-            </div>
+          <div class="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
+            <!-- 工具栏 -->
+            <Toolbar
+              :editor="editorRef"
+              :defaultConfig="toolbarConfig"
+              :mode="mode"
+              class="border-b border-gray-200 dark:border-gray-600"
+            />
+            <!-- 编辑器 -->
+            <Editor
+              v-model="form.content"
+              :defaultConfig="editorConfig"
+              :mode="mode"
+              style="height: 600px; overflow-y: auto;"
+              @onCreated="handleCreated"
+            />
           </div>
         </div>
       </div>
 
       <!-- 右侧：设置 -->
-      <div class="space-y-4">
+      <div class="space-y-6">
         <!-- 发布设置 -->
-        <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-          <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">发布设置</h3>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4 flex items-center">
+            <i class="fas fa-cog mr-2"></i>
+            发布设置
+          </h3>
           
           <div class="space-y-4">
             <!-- 状态 -->
@@ -94,8 +87,8 @@
                 发布状态
               </label>
               <el-select v-model="form.status" class="w-full">
-                <el-option label="草稿" value=2 />
-                <el-option label="已发布" value=0 />
+                <el-option label="草稿" value="2" />
+                <el-option label="已发布" value="0" />
               </el-select>
             </div>
 
@@ -174,8 +167,11 @@
         </div>
 
         <!-- SEO设置 -->
-        <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-          <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">SEO设置</h3>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4 flex items-center">
+            <i class="fas fa-search mr-2"></i>
+            SEO设置
+          </h3>
           
           <div class="space-y-4">
             <div>
@@ -219,21 +215,40 @@
     </div>
 
     <!-- 操作按钮 -->
-    <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
-      <el-button @click="$emit('cancel')">取消</el-button>
-      <el-button @click="handleSaveDraft" :loading="saving">保存草稿</el-button>
-      <el-button @click="handlePublish" type="primary" :loading="saving">发布文章</el-button>
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mt-8">
+      <div class="flex justify-between items-center">
+        <div class="text-sm text-gray-500 dark:text-gray-400">
+          <i class="fas fa-info-circle mr-1"></i>
+          保存草稿会自动保存您的编辑内容
+        </div>
+        <div class="flex space-x-3">
+          <el-button @click="$emit('cancel')" size="large">
+            <i class="fas fa-times mr-2"></i>
+            取消
+          </el-button>
+          <el-button @click="handleSaveDraft" :loading="saving" size="large">
+            <i class="fas fa-save mr-2"></i>
+            保存草稿
+          </el-button>
+          <el-button @click="handlePublish" type="primary" :loading="saving" size="large">
+            <i class="fas fa-paper-plane mr-2"></i>
+            发布文章
+          </el-button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Upload } from '@element-plus/icons-vue'
 import { adminApi } from '@/api/admin'
 import { getToken } from '@/utils/auth'
 import MarkdownRenderer from '@/components/article/MarkdownRenderer.vue'
+import '@wangeditor/editor/dist/css/style.css' //引入css
+import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 
 // Props
 const props = defineProps({
@@ -255,15 +270,52 @@ const props = defineProps({
 const emit = defineEmits(['save', 'cancel'])
 
 // 响应式数据
-const editorMode = ref('markdown')
+const editorRef = ref()
+const mode = 'default'
 const saving = ref(false)
+
+// 工具栏配置
+const toolbarConfig = {}
+
+// 编辑器配置
+const editorConfig = {
+  placeholder: '请输入内容...',
+  MENU_CONF: {}
+}
+
+// 配置图片上传
+editorConfig.MENU_CONF['uploadImage'] = {
+  server: `${import.meta.env.VITE_API_BASE_URL}/common/upload`,
+  headers: {
+    Authorization: `Bearer ${getToken()}`
+  },
+  fieldName: 'file',
+  maxFileSize: 2 * 1024 * 1024, // 2MB
+  onBeforeUpload(file) {
+    const isImage = file.type.startsWith('image/')
+    const isLt2M = file.size / 1024 / 1024 < 2
+
+    if (!isImage) {
+      ElMessage.error('只能上传图片文件!')
+      return false
+    }
+    if (!isLt2M) {
+      ElMessage.error('图片大小不能超过 2MB!')
+      return false
+    }
+    return true
+  },
+  onSuccess(file, res) {
+    ElMessage.success('图片上传成功')
+  }
+}
 
 // 表单数据
 const form = reactive({
   title: '',
   summary: '',
   content: '',
-  status: 2,
+  status: '2',
   categoryId: '',
   tagIds: [],
   coverImage: '',
@@ -287,7 +339,7 @@ const initForm = () => {
       title: props.article.title || '',
       summary: props.article.summary || '',
       content: props.article.content || '',
-      status: props.article.status || 2,
+      status: props.article.status || '2',
       categoryId: props.article.categoryId || '',
       tagIds: props.article.tagIds || [],
       coverImage: props.article.coverImage || '',
@@ -303,7 +355,7 @@ const initForm = () => {
       title: '',
       summary: '',
       content: '',
-      status: 2,
+      status: '2',
       categoryId: '',
       tagIds: [],
       coverImage: '',
@@ -341,14 +393,26 @@ const handleImageUpload = (response) => {
   }
 }
 
+// 编辑器创建回调
+const handleCreated = (editor) => {
+  editorRef.value = editor
+}
+
+// 组件销毁前清理编辑器
+onBeforeUnmount(() => {
+  const editor = editorRef.value
+  if (editor == null) return
+  editor.destroy()
+})
+
 // 保存草稿
 const handleSaveDraft = async () => {
-  await saveArticle(2)
+  await saveArticle('2')
 }
 
 // 发布文章
 const handlePublish = async () => {
-  await saveArticle('published')
+  await saveArticle('0')
 }
 
 // 保存文章

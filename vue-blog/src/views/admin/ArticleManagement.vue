@@ -163,7 +163,7 @@
       :close-on-click-modal="false"
       @close="handleDialogClose"
     >
-      <ArticleEditor
+      <ToastUIEditor
         v-if="dialogVisible"
         :article="currentArticle"
         :categories="categories"
@@ -180,7 +180,9 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Search, Refresh } from '@element-plus/icons-vue'
 import { adminApi } from '@/api/admin'
-import ArticleEditor from '@/components/admin/ArticleEditor.vue'
+import ToastUIEditor from '@/components/admin/ToastUIEditor.vue'
+
+
 
 // 响应式数据
 const loading = ref(false)

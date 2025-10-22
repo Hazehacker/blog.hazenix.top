@@ -22,6 +22,9 @@
       <el-button link @click="openGithub">
           <img :src="github" alt="GitHub" class="w-5 h-5 rounded-full" />
         </el-button>
+      <el-button link @click="openCSDN">
+          <img :src="csdn" alt="CSDN" class="w-5 h-5 rounded-full" />
+        </el-button>
       <el-dropdown v-if="userStore.token" @command="handleCommand">
         <el-button link>
           <el-icon><User/></el-icon>
@@ -59,9 +62,10 @@ const router = useRouter()
 const searchDialogRef = ref()
 import avatarFallback from '@/assets/img/avatar.jpg'
 import githubImg from '@/assets/img/githubLogo.png'
+import csdnImg from '@/assets/img/csdnLogo.png'
 const defaultAvatar = avatarFallback
 const github = githubImg
-
+const csdn = csdnImg
 
 const onAvatarError = (e) => {
   e.target.src = avatarFallback
@@ -75,7 +79,10 @@ const openSearch = () => {
 const openGithub = () => {
   window.open('https://github.com/HazeHacker', '_blank')
 }
-
+//点击按钮之后，打开csdn
+const openCSDN = () => {
+  window.open('https://github.com/HazeHacker', '_blank')
+}
 
 const handleCommand = (command) => {
   if (command === 'logout') {
