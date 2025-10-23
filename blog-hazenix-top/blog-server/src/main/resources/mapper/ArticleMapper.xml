@@ -81,6 +81,6 @@
     </select>
     <select id="countByIds" resultType="java.lang.Integer">
         select count(id) from article where category_id in
-                                          <foreach collection="ids" item="id" separator="," open="id in (" close=")">#{id}</foreach>
+                                          <foreach collection="ids" item="id" separator="," open="(" close=")">#{id}</foreach>
     </select>
 </mapper>

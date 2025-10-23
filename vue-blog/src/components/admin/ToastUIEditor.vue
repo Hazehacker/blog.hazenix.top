@@ -376,8 +376,8 @@ const initEditor = async () => {
       ],
       hooks: {
         addImageBlobHook: (blob, callback) => {
-          // 处理图片上传
-          handleImageUpload(blob, callback)
+          // 处理编辑器中的图片上传
+          handleEditorImageUpload(blob, callback)
         }
       }
     })
@@ -412,6 +412,38 @@ const handleImageUpload = (response) => {
     ElMessage.success('图片上传成功')
   } else {
     ElMessage.error('图片上传失败')
+  }
+}
+
+// 处理编辑器中的图片上传
+const handleEditorImageUpload = async (blob, callback) => {
+  try {
+    // 创建FormData对象
+    const formData = new FormData()
+    formData.append('file', blob, 'image.png')
+    
+    // 使用fetch上传图片到服务器
+    const response = await fetch(uploadUrl.value, {
+      method: 'POST',
+      headers: uploadHeaders.value,
+      body: formData
+    })
+    
+    const result = await response.json()
+    
+    if (result.code === 200) {
+      // 上传成功，返回图片URL给编辑器
+      callback(result.data.url, '图片上传成功')
+      ElMessage.success('图片上传成功')
+    } else {
+      // 上传失败
+      callback('', '图片上传失败')
+      ElMessage.error(result.message || '图片上传失败')
+    }
+  } catch (error) {
+    console.error('图片上传失败:', error)
+    callback('', '图片上传失败')
+    ElMessage.error('网络错误，图片上传失败')
   }
 }
 

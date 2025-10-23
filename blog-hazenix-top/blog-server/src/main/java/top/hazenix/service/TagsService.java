@@ -5,7 +5,7 @@ import top.hazenix.dto.TagsDTO;
 import top.hazenix.result.PageResult;
 
 public interface TagsService {
-    PageResult pageQuery(Integer page, Integer pageSize, String keyword);
+    PageResult pageQuery(Integer page, Integer pageSize, String keyword ,Integer status);
 
     void addTag(TagsDTO tagsDTO);
 

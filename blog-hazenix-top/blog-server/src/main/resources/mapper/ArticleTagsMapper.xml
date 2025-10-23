@@ -20,7 +20,7 @@
         </foreach>
     </delete>
     <select id="countByIds" resultType="java.lang.Integer">
-        select count(id) from article_tags where tags_id in
+        select count(tags_id) from article_tags where tags_id in
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>

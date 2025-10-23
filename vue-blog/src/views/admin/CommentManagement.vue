@@ -31,9 +31,8 @@
         </el-input>
 
         <el-select v-model="searchForm.status" placeholder="选择状态" clearable>
-          <el-option label="待审核" value="pending" />
-          <el-option label="已通过" value="approved" />
-          <el-option label="已拒绝" value="rejected" />
+          <el-option label="正常" value=0 />
+          <el-option label="已删除" value=1 />
         </el-select>
 
         <el-select v-model="searchForm.articleId" placeholder="选择文章" clearable>
@@ -113,11 +112,12 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="ip" label="IP地址" width="120">
-          <template #default="{ row }">
-            <span class="text-sm text-gray-500 dark:text-gray-400">{{ row.ip || '-' }}</span>
-          </template>
-        </el-table-column>
+<!--TODO 后期考虑添加-->
+<!--        <el-table-column prop="ip" label="IP地址" width="120">-->
+<!--          <template #default="{ row }">-->
+<!--            <span class="text-sm text-gray-500 dark:text-gray-400">{{ row.ip || '-' }}</span>-->
+<!--          </template>-->
+<!--        </el-table-column>-->
 
         <el-table-column prop="createTime" label="评论时间" width="180">
           <template #default="{ row }">
@@ -315,9 +315,8 @@ const formatDate = (dateString) => {
 // 获取状态类型
 const getStatusType = (status) => {
   const statusMap = {
-    pending: 'warning',
-    approved: 'success',
-    rejected: 'danger'
+    0: '正常',
+    1: '已删除',
   }
   return statusMap[status] || 'info'
 }
@@ -325,9 +324,8 @@ const getStatusType = (status) => {
 // 获取状态文本
 const getStatusText = (status) => {
   const statusMap = {
-    pending: '待审核',
-    approved: '已通过',
-    rejected: '已拒绝'
+    0: '正常',
+    1: '已删除'
   }
   return statusMap[status] || '未知'
 }
@@ -342,7 +340,7 @@ const loadComments = async () => {
       ...searchForm
     }
     const response = await adminApi.getComments(params)
-    comments.value = response.data.list
+    comments.value = response.data.records
     total.value = response.data.total
   } catch (error) {
     console.error('加载评论列表失败:', error)
@@ -350,6 +348,7 @@ const loadComments = async () => {
   } finally {
     loading.value = false
   }
+
 }
 
 // 加载文章列表（用于筛选）

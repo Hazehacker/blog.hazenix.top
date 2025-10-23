@@ -40,7 +40,7 @@ public interface TagsMapper {
      * @param keyword
      * @return
      */
-    Page<Category> pageQuery(String keyword);
+    Page<Category> pageQuery(String keyword,Integer status);
 
     /**
      * 新增标签

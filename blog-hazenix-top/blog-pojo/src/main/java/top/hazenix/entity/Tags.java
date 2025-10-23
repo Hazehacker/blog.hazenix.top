@@ -21,6 +21,11 @@ public class Tags {
     //URL标识符
     private String slug;
 
+    //排序字段
+    private Integer sort;
+    //状态：0禁用，1启用
+    private Integer status;
+
     //创建时间
     private LocalDateTime createTime;
 

@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import top.hazenix.exception.FailUploadException;
-import top.hazenix.properties.AliOssProperties;
 import top.hazenix.result.Result;
 import top.hazenix.utils.AliOssUtil;
 
@@ -22,7 +21,7 @@ public class WebController {
     private AliOssUtil aliOssUtil;
 
     @PostMapping("/upload")
-    public Result upload(MultipartFile file)  {
+    public Result upload(MultipartFile file) {
         log.info("文件上传：{}",file.getOriginalFilename());
         //将文件交给OSS存储管理
         String url;

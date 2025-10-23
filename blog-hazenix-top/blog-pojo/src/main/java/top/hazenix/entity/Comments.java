@@ -21,7 +21,7 @@ public class Comments {
     private String replyUsername;
     private String content;
     private Integer likeCount;
-    private String status;
+    private Integer status;
     private LocalDateTime createTime;
 
 }

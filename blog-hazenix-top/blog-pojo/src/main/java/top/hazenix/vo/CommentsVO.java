@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import top.hazenix.entity.Article;
 import top.hazenix.entity.User;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -29,5 +31,5 @@ public class CommentsVO {
     //评论点赞数
     private Integer likeCount;
     //评论时间
-    private String createTime;
+    private LocalDateTime createTime;
 }

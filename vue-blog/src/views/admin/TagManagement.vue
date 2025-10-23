@@ -29,8 +29,8 @@
         </el-input>
 
         <el-select v-model="searchForm.status" placeholder="选择状态" clearable>
-          <el-option label="启用" value="active" />
-          <el-option label="禁用" value="inactive" />
+          <el-option label="启用" value="0" />
+          <el-option label="禁用" value="1" />
         </el-select>
 
         <div class="flex space-x-2">
@@ -71,24 +71,24 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="description" label="描述" min-width="200">
+        <el-table-column prop="slug" label="URL标识符" min-width="200">
           <template #default="{ row }">
-            <span class="text-gray-600 dark:text-gray-400">{{ row.description || '-' }}</span>
+            <span class="text-gray-600 dark:text-gray-400">{{ row.slug || '-' }}</span>
           </template>
         </el-table-column>
 
-        <el-table-column prop="articleCount" label="文章数量" width="120">
-          <template #default="{ row }">
-            <el-tag type="info" size="small">{{ row.articleCount || 0 }}</el-tag>
-          </template>
-        </el-table-column>
+<!--        <el-table-column prop="articleCount" label="文章数量" width="120">-->
+<!--          <template #default="{ row }">-->
+<!--            <el-tag type="info" size="small">{{ row.articleCount || 0 }}</el-tag>-->
+<!--          </template>-->
+<!--        </el-table-column>-->
 
         <el-table-column prop="sort" label="排序" width="100" />
 
         <el-table-column prop="status" label="状态" width="100">
           <template #default="{ row }">
-            <el-tag :type="row.status === 'active' ? 'success' : 'danger'" size="small">
-              {{ row.status === 'active' ? '启用' : '禁用' }}
+            <el-tag :type="row.status === 0 ? 'success' : 'danger'" size="small">
+              {{ row.status === 0 ? '启用' : '禁用' }}
             </el-tag>
           </template>
         </el-table-column>
@@ -106,8 +106,8 @@
                 编辑
               </el-button>
               <el-button @click="handleToggleStatus(row)" size="small" 
-                         :type="row.status === 'active' ? 'warning' : 'success'">
-                {{ row.status === 'active' ? '禁用' : '启用' }}
+                         :type="row.status === 0 ? 'warning' : 'success'">
+                {{ row.status === 0 ? '禁用' : '启用' }}
               </el-button>
               <el-button @click="handleDelete(row)" size="small" type="danger" plain>
                 删除
@@ -158,9 +158,9 @@
           />
         </el-form-item>
 
-        <el-form-item label="标签描述" prop="description">
+        <el-form-item label="slug" prop="slug">
           <el-input
-            v-model="form.description"
+            v-model="form.slug"
             type="textarea"
             :rows="3"
             placeholder="请输入标签描述"
@@ -193,8 +193,8 @@
 
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="form.status">
-            <el-radio value="active">启用</el-radio>
-            <el-radio value="inactive">禁用</el-radio>
+            <el-radio value="0">启用</el-radio>
+            <el-radio value="1">禁用</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
@@ -245,10 +245,10 @@ const dialogTitle = computed(() => currentTag.value ? '编辑标签' : '新建�
 // 表单数据
 const form = reactive({
   name: '',
-  description: '',
+  slug: '',
   color: '#3B82F6',
   sort: 0,
-  status: 'active'
+  status: 0
 })
 
 // 表单验证规则
@@ -287,7 +287,7 @@ const loadTags = async () => {
       ...searchForm
     }
     const response = await adminApi.getTags(params)
-    tags.value = response.data.list
+    tags.value = response.data.records
     total.value = response.data.total
   } catch (error) {
     console.error('加载标签列表失败:', error)
@@ -342,10 +342,10 @@ const handleEdit = (tag) => {
   currentTag.value = { ...tag }
   Object.assign(form, {
     name: tag.name,
-    description: tag.description || '',
+    slug: tag.slug || '',
     color: tag.color || '#3B82F6',
     sort: tag.sort || 0,
-    status: tag.status || 'active'
+    status: tag.status || 0
   })
   dialogVisible.value = true
 }
@@ -353,9 +353,9 @@ const handleEdit = (tag) => {
 // 切换标签状态
 const handleToggleStatus = async (tag) => {
   try {
-    const newStatus = tag.status === 'active' ? 'inactive' : 'active'
+    const newStatus = tag.status === 0 ? 1 : 0
     await adminApi.updateTag(tag.id, { status: newStatus })
-    ElMessage.success(`${newStatus === 'active' ? '启用' : '禁用'}成功`)
+    ElMessage.success(`${newStatus === 0 ? '启用': '禁用'} 成功`)
     loadTags()
   } catch (error) {
     console.error('切换标签状态失败:', error)
@@ -447,10 +447,10 @@ const handleSave = async () => {
 const resetForm = () => {
   Object.assign(form, {
     name: '',
-    description: '',
+    slug: '',
     color: '#3B82F6',
     sort: 0,
-    status: 'active'
+    status: 0
   })
   if (formRef.value) {
     formRef.value.clearValidate()

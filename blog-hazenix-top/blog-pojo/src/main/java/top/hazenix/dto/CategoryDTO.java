@@ -16,4 +16,5 @@ public class CategoryDTO {
     private String name;
     private Integer status;
     private Integer sort;
+    private String slug;
 }

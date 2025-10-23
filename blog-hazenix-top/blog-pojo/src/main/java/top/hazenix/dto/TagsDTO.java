@@ -9,4 +9,6 @@ import java.util.List;
 public class TagsDTO {
     private String name;
     private String slug;
+    private Integer sort;
+    private Integer status;
 }

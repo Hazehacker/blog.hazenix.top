@@ -66,14 +66,18 @@ public class CommentsServiceImpl implements CommentsService {
         for(Comments comments:list){
             CommentsVO commentsVO = new CommentsVO();
             BeanUtils.copyProperties(comments,commentsVO);
-            //设置评论者头像
-            String avatar = userMapper.getById(comments.getUserId()).getAvatar();
-            commentsVO.setAvatar(avatar);
-            Article article = Article.builder()
-                            .id(comments.getArticleId())
-                    .title(articleMapper.getById(comments.getArticleId()).getTitle())
-                                    .build();
-            commentsVO.setArticle(article);
+            if (comments.getUserId()!=null) {
+                //设置评论者头像
+                String avatar = userMapper.getById(comments.getUserId()).getAvatar();
+                commentsVO.setAvatar(avatar);
+            }
+            if (comments.getArticleId()!=null) {
+                Article article = Article.builder()
+                                .id(comments.getArticleId())
+                        .title(articleMapper.getById(comments.getArticleId()).getTitle())
+                                        .build();
+                commentsVO.setArticle(article);
+            }
             User replyPerson = new User();
             if (comments.getReplyId() != null) {
                 replyPerson.setId(comments.getReplyId());

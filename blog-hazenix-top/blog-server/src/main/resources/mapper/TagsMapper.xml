@@ -3,9 +3,9 @@
 <mapper namespace="top.hazenix.mapper.TagsMapper">
     <insert id="insert">
         insert into tags
-        (name,slug,create_time,update_time)
+        (name,slug,sort,status,create_time,update_time)
         values
-        (#{name},#{slug},#{createTime},#{updateTime})
+        (#{name},#{slug},#{sort},#{status},#{createTime},#{updateTime})
     </insert>
     <update id="update">
         update tags
@@ -15,6 +15,12 @@
             </if>
             <if test="slug != null">
                 slug = #{slug},
+            </if>
+            <if test="sort != null">
+                sort = #{sort},
+            </if>
+            <if test="status != null">
+                status = #{status},
             </if>
             <if test="updateTime != null">
                 update_time = #{updateTime},
@@ -36,7 +42,8 @@
     </select>
     <select id="getListByArticleId" resultType="java.lang.Integer">
         select *
-        from article_tags where article_id = #{id};
+        from article_tags where article_id = #{id}
+        order by sort desc
     </select>
     <select id="getById" resultType="top.hazenix.entity.Tags">
         select * from tags where id = #{id}
@@ -47,6 +54,10 @@
             <if test="keyword != null and keyword != ''">
                 and name like concat('%',#{keyword},'%')
             </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
         </where>
+        order by sort desc
     </select>
 </mapper>

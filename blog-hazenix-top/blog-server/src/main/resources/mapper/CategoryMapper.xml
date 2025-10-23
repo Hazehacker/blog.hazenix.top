@@ -3,9 +3,9 @@
 <mapper namespace="top.hazenix.mapper.CategoryMapper">
     <insert id="insert">
         insert into category
-        (name,status,sort,create_time,update_time)
+        (name,status,sort,slug,create_time,update_time)
         values
-        (#{name},#{status},#{sort},#{createTime},#{updateTime})
+        (#{name},#{status},#{sort},#{slug},#{createTime},#{updateTime})
     </insert>
     <update id="update">
         update category
@@ -18,6 +18,9 @@
             </if>
             <if test="sort != null">
                 sort = #{sort},
+            </if>
+            <if test="slug != null">
+                slug = #{slug},
             </if>
 
             <if test="updateTime != null">
@@ -49,5 +52,6 @@
                 and status = #{status}
             </if>
         </where>
+        order by sort desc
     </select>
 </mapper>

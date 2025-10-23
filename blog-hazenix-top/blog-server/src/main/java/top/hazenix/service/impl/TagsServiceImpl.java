@@ -33,9 +33,9 @@ public class TagsServiceImpl implements TagsService {
      * @return
      */
     @Override
-    public PageResult pageQuery(Integer page, Integer pageSize, String keyword) {
+    public PageResult pageQuery(Integer page, Integer pageSize, String keyword ,Integer status) {
         PageHelper.startPage(page,pageSize);
-        Page<Category> pageRes = tagsMapper.pageQuery(keyword);
+        Page<Category> pageRes = tagsMapper.pageQuery(keyword,status);
         return new PageResult(pageRes.getTotal(),pageRes.getResult());
     }
 
@@ -47,6 +47,9 @@ public class TagsServiceImpl implements TagsService {
     public void addTag(TagsDTO tagsDTO) {
         Tags tags = new Tags();
         BeanUtils.copyProperties(tagsDTO,tags);
+        if(tags.getStatus()==null){
+            tags.setStatus(1);//默认禁用
+        }
         tagsMapper.insert(tags);
     }
 

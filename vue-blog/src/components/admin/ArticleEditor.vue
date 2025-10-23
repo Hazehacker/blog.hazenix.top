@@ -386,7 +386,7 @@ const beforeImageUpload = (file) => {
 // 图片上传成功
 const handleImageUpload = (response) => {
   if (response.code === 200) {
-    form.coverImage = response.data.url
+    form.coverImage = response.data
     ElMessage.success('图片上传成功')
   } else {
     ElMessage.error('图片上传失败')

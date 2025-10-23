@@ -32,10 +32,11 @@ public class TagsController {
     public Result<PageResult> list(
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer pageSize,
-            String keyword
+            String keyword,
+            Integer status
     ) {
         log.info("分页查询标签列表");
-        PageResult pageResult = tagsService.pageQuery(page,pageSize,keyword);
+        PageResult pageResult = tagsService.pageQuery(page,pageSize,keyword,status);
         return Result.success(pageResult);
     }
 
@@ -56,7 +57,7 @@ public class TagsController {
      * @param tagsDTO
      * @return
      */
-    @PostMapping("/{id}")
+    @PutMapping("/{id}")
     public Result updateTag(@PathVariable Long id,@RequestBody TagsDTO tagsDTO){
         log.info("更新制定标签");
         tagsService.updateTag(id,tagsDTO);
@@ -83,7 +84,11 @@ public class TagsController {
     @DeleteMapping("/batch")
     public Result deleteTags(@RequestBody DeleteTagsRequestDTO deleteTagsRequestDTO){
         log.info("批量删除标签");
-        tagsService.deleteTags(deleteTagsRequestDTO);
+        try {
+            tagsService.deleteTags(deleteTagsRequestDTO);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return Result.success();
     }
 

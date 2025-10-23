@@ -65,9 +65,9 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="description" label="描述" min-width="200">
+        <el-table-column prop="slug" label="URL标识符" min-width="200">
           <template #default="{ row }">
-            <span class="text-gray-600 dark:text-gray-400">{{ row.description || '-' }}</span>
+            <span class="text-gray-600 dark:text-gray-400">{{ row.slug || '-' }}</span>
           </template>
         </el-table-column>
 
@@ -152,13 +152,13 @@
           />
         </el-form-item>
 
-        <el-form-item label="分类描述" prop="description">
+        <el-form-item label="slug" prop="slug">
           <el-input
-            v-model="form.description"
+            v-model="form.slug"
             type="textarea"
-            :rows="3"
-            placeholder="请输入分类描述"
-            maxlength="200"
+            :rows="1"
+            placeholder="请输入该分类的URL标识符"
+            maxlength="50"
             show-word-limit
           />
         </el-form-item>
@@ -187,8 +187,8 @@
 
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="form.status">
-            <el-radio value="active">启用</el-radio>
-            <el-radio value="inactive">禁用</el-radio>
+            <el-radio value="0">启用</el-radio>
+            <el-radio value="1">禁用</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
@@ -239,7 +239,7 @@ const dialogTitle = computed(() => currentCategory.value ? '编辑分类' : '新
 // 表单数据
 const form = reactive({
   name: '',
-
+  slug: '',
   sort: 0,
   status: 0
 })
@@ -284,7 +284,7 @@ const loadCategories = async () => {
       ...searchForm
     }
     const response = await adminApi.getCategories(params)
-    categories.value = response.data.list
+    categories.value = response.data.records
     total.value = response.data.total
   } catch (error) {
     console.error('加载分类列表失败:', error)
@@ -339,10 +339,9 @@ const handleEdit = (category) => {
   currentCategory.value = { ...category }
   Object.assign(form, {
     name: category.name,
-    // description: category.description || '',
-    // color: category.color || '#3B82F6',
     sort: category.sort || 0,
-    status: category.status || 0
+    slug: category.slug || '',
+    status: category.status === null ? 0 : category.status
   })
   dialogVisible.value = true
 }
@@ -350,7 +349,7 @@ const handleEdit = (category) => {
 // 切换分类状态
 const handleToggleStatus = async (category) => {
   try {
-    const newStatus = category.status === 0 ? 1 : 0
+    const newStatus = category.status === null ? 1 : (category.status === 0 ? 1 : 0)
     await adminApi.updateCategory(category.id, { status: newStatus })
     ElMessage.success(`${newStatus === 0 ? '启用' : '禁用'}成功`)
     loadCategories()
@@ -444,9 +443,8 @@ const handleSave = async () => {
 const resetForm = () => {
   Object.assign(form, {
     name: '',
-    // description: '',
-    // color: '#3B82F6',
     sort: 0,
+    slug:'',
     status: 0
   })
   if (formRef.value) {

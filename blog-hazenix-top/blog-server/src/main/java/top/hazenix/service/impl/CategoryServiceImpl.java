@@ -72,6 +72,7 @@ public class CategoryServiceImpl implements CategoryService {
     public void deleteCategory(Integer id) {
         //如果这个分类关联了文章，就不能删除
         Integer count = articleMapper.countByIds(Collections.singletonList(id));
+
         if(count != 0){
             throw new DeleteNotAllowedException("当前分类关联了文章，不能删除");
         }
