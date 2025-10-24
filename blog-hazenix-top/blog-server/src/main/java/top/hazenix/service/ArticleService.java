@@ -32,4 +32,8 @@ public interface ArticleService {
     List<ArticleShortVO> getPopularArticles(int i);
 
     void updateArticleView(Long id);
+
+    void likeArticle(Long id);
+
+    void favoriteArticle(Long id);
 }

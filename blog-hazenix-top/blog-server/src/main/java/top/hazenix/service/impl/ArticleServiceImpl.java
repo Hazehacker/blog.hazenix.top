@@ -12,6 +12,7 @@ import top.hazenix.dto.ArticleTagsDTO;
 import top.hazenix.entity.Article;
 import top.hazenix.entity.Category;
 import top.hazenix.entity.Tags;
+import top.hazenix.entity.UserArticle;
 import top.hazenix.mapper.*;
 import top.hazenix.query.ArticleListQuery;
 import top.hazenix.result.PageResult;
@@ -36,6 +37,8 @@ public class ArticleServiceImpl implements ArticleService {
     private ArticleTagsMapper articleTagsMapper;
     @Autowired
     private CommentsMapper commentsMapper;
+    @Autowired
+    private UserArticleMapper userArticleMapper;
 
     /**
      * 获取最新点的文章列表
@@ -192,6 +195,138 @@ public class ArticleServiceImpl implements ArticleService {
                 .viewCount(article.getViewCount()+1)
                 .build();
         articleMapper.update(articleUse);
+    }
+
+    /**
+     * 用户点赞文章
+     * @param id
+     */
+    @Override
+    public void likeArticle(Long id) {
+        //获得当前用户的id
+        Long userId = BaseContext.getCurrentId();
+
+        //如果用户没登录，就直接增加点赞数后返回
+        if(userId == null){//TODO 不确定没登录的用户判断逻辑是不是这个（是否userId是null）（登录功能做了之后再看看）
+            Article article = Article.builder()
+                    .id(id)
+                    .likeCount(articleMapper.getById(id).getLikeCount()+1)
+                    .build();
+            articleMapper.update(article);
+            return;
+        }else{
+            //查询关联表中是否已经有了这个用户和这篇文章的数据
+            UserArticle userArticle = userArticleMapper.getByUserIdAndArticleId(userId,id);
+            if(userArticle != null){
+                Article article = Article.builder()
+                        .id(id)
+                        .build();
+
+                //已经有了，执行更新逻辑
+                Integer isLiked = userArticle.getIsLiked();
+                if(isLiked == 1){
+                    //已经点过赞了，执行取消点赞逻辑
+                    userArticle.setIsLiked(0);
+                    userArticleMapper.update(userArticle);
+                    //并减少文章的点赞数
+//                    Article article = Article.builder()
+//                            .id(id)
+//                            .likeCount(articleMapper.getById(id).getLikeCount()-1)
+//                            .build();
+//                    articleMapper.update(article);
+                    article.setLikeCount(articleMapper.getById(id).getLikeCount()-1);
+                }else{
+                    //没有点过赞，执行点赞逻辑；并增加文章的点赞数
+                    userArticle.setIsLiked(1);
+                    userArticleMapper.update(userArticle);
+//                    Article article = Article.builder()
+//                            .id(id)
+//                            .likeCount(articleMapper.getById(id).getLikeCount()+1)
+//                            .build();
+//                    articleMapper.update(article);
+                    article.setLikeCount(articleMapper.getById(id).getLikeCount()+1);
+                }
+
+                articleMapper.update(article);
+
+
+
+            }else{
+                //还没有条目，执行插入；文章点赞数增加
+                UserArticle userArticleInsertUse = UserArticle.builder()
+                        .userId(userId)
+                        .articleId(id)
+                        .isLiked(1)
+                        .isFavorite(0)
+                        .build();
+                userArticleMapper.insert(userArticleInsertUse);
+                Article article = Article.builder()
+                            .id(id)
+                            .likeCount(articleMapper.getById(id).getLikeCount()+1)
+                            .build();
+                articleMapper.update(article);
+            }
+        }
+
+    }
+
+    /**
+     * 用户收藏文章
+     * @param id
+     */
+    @Override
+    public void favoriteArticle(Long id) {
+        //获得当前用户的id
+        Long userId = BaseContext.getCurrentId();
+
+        //如果用户没登录，不能收藏
+        if(userId == null){//TODO 不确定没登录的用户判断逻辑是不是这个（是否userId是null）（登录功能做了之后再看看）
+            throw new RuntimeException("登录后才能收藏文章");
+
+        }else{
+            //查询关联表中是否已经有了这个用户和这篇文章的数据
+            UserArticle userArticle = userArticleMapper.getByUserIdAndArticleId(userId,id);
+            if(userArticle != null){
+                Article article = Article.builder()
+                        .id(id)
+                        .build();
+
+                //已经有了，执行更新逻辑
+                Integer isFavorite = userArticle.getIsLiked();
+                if(isFavorite == 1){
+                    //已经收藏了，执行取消收藏逻辑
+                    userArticle.setIsLiked(0);
+                    userArticleMapper.update(userArticle);
+                    //并减少文章的点赞数
+                    article.setFavoriteCount(articleMapper.getById(id).getFavoriteCount()-1);
+                }else{
+                    //没有收藏，执行收藏逻辑；并增加文章的收藏数
+                    userArticle.setIsLiked(1);
+                    userArticleMapper.update(userArticle);
+
+                    article.setFavoriteCount(articleMapper.getById(id).getFavoriteCount()+1);
+                }
+
+                articleMapper.update(article);
+
+
+
+            }else{
+                //还没有条目，执行插入；文章收藏数增加
+                UserArticle userArticleInsertUse = UserArticle.builder()
+                        .userId(userId)
+                        .articleId(id)
+                        .isLiked(0)
+                        .isFavorite(1)
+                        .build();
+                userArticleMapper.insert(userArticleInsertUse);
+                Article article = Article.builder()
+                        .id(id)
+                        .likeCount(articleMapper.getById(id).getFavoriteCount()+1)
+                        .build();
+                articleMapper.update(article);
+            }
+        }
     }
 
     /**

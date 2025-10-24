@@ -131,21 +131,21 @@ public class ArticleController {
 
 
     /**
-     * 用户点赞文章
+     * 用户点赞文章/取消点赞文章
      * @param id
      * @return
      */
     @PostMapping("/{id}/like")
     public Result likeArticle(@PathVariable Long id){
-        log.info("点赞文章");
-        //TODO 添加isLiked属性，建一个user_article表(user_id,article_id,is_liked,is_favorite)
+        log.info("点赞/取消点赞文章:{}",id);
+        //添加isLiked属性，建一个user_article表(user_id,article_id,is_liked,is_favorite)
+
         //TODO 查询的时候文章列表、文章详细信息的时候带上线程里面的id，然后查user_article表，如果当前用户的iS_liked字段为1，
         // 则返回值中的isLiked设为1
-        //isLiked 1已点赞  0未点赞
 
-        //TODO 用户点赞或者收藏之后再往user_article表插入数据，不然每次添加文章和新增用户都会插入一堆条目（浪费空间，很多用不到）
+        //用户点赞或者收藏之后再往user_article表插入数据，不然每次添加文章和新增用户都会插入一堆条目（浪费空间，很多用不到）
 
-//        articleService.likeArticle(id);
+        articleService.likeArticle(id);
         return Result.success();
     }
 
@@ -157,16 +157,14 @@ public class ArticleController {
     @PostMapping("/{id}/favorite")
     public Result favoriteArticle(@PathVariable Long id){
         log.info("收藏文章:{}",id);
-        //TODO 添加isFavorite属性，建一个user_article表(user_id,article_id,is_liked,is_favorite)
-        // ,查询的时候文章列表、文章详细信息的时候带上线程里面的id，然后查user_article表，如果当前用户的iS_favorite字段为1，
+        //添加isFavorite属性，建一个user_article表(user_id,article_id,is_liked,is_favorite)
+        //TODO 查询的时候文章列表、文章详细信息的时候带上线程里面的id，然后查user_article表，如果当前用户的iS_favorite字段为1，
         // 则返回值中的isFavorite设为1
-        //isFavorite 1已收藏  0未收藏
 
+        //修改user_article关联表中的is_favorite字段
+        //增加或减少文章的收藏数
 
-        //TODO 修改user_article关联表中的is_favorite字段
-        // ；增加或减少文章的收藏数
-
-
+        articleService.favoriteArticle(id);
 
         return Result.success();
     }
