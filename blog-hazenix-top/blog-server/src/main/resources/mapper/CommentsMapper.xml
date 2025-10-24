@@ -22,6 +22,11 @@
 
     <select id="count" resultType="java.lang.Integer">
         select count(*) from comments
+        <where>
+            <if test="articleId != null">
+                and article_id = #{articleId}
+            </if>
+        </where>
     </select>
     <select id="getRecentComments" resultType="top.hazenix.vo.CommentShortVO">
         select id,username,content,create_time from comments order by create_time desc limit #{i}

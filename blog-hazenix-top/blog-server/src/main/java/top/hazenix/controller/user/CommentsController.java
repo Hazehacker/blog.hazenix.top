@@ -19,7 +19,14 @@ import java.util.List;
 @Slf4j
 public class CommentsController {
 
+    @Autowired
+    private CommentsService commentsService;
 
+
+    @GetMapping()
+    public Result getCommentListByArticleId(){
+        commentsService.getCommentListByArticleId();
+    }
 
 
 }

@@ -12,7 +12,7 @@ import top.hazenix.service.CategoryService;
 
 import javax.websocket.server.PathParam;
 
-@RestController
+@RestController("AdminCategoryController")
 @Slf4j
 @RequestMapping("/admin/categories")
 public class CategoryController {

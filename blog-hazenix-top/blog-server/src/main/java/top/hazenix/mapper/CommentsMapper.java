@@ -16,7 +16,7 @@ public interface CommentsMapper {
      * 统计评论总数
      * @return
      */
-    Integer count();
+    Integer count(Long articleId);
 
     /**
      * 获取最新评论列表

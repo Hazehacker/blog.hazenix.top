@@ -7,6 +7,7 @@ import springfox.documentation.oas.mappers.LicenseMapper;
 import top.hazenix.annotation.AutoFill;
 import top.hazenix.entity.Article;
 import top.hazenix.enumeration.OperationType;
+import top.hazenix.query.ArticleListQuery;
 import top.hazenix.vo.ArticleShortVO;
 
 import java.util.List;
@@ -72,4 +73,24 @@ public interface ArticleMapper {
      */
     void deleteByIds(List<Long> ids);
 
+    /**
+     * 获取文章列表（用于用户端）
+     * @param articleListQuery
+     * @return
+     */
+    List<Article> getArticleList(ArticleListQuery articleListQuery);
+
+    /**
+     * 根据slug获取文章(返回article对象)
+     * @param slug
+     * @return
+     */
+    Article getBySlug(String slug);
+
+    /**
+     * 获取热门文章(点赞量+阅读量前i篇的文章)
+     * @param i
+     * @return
+     */
+    List<Article> getPopularArticles(int i);
 }

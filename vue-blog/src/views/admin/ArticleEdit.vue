@@ -32,7 +32,7 @@ const tags = ref([])
 // 加载文章详情
 const fetchArticle = async () => {
   try {
-    const response = await adminApi.getArticleById(route.params.id)
+    const response = await adminApi.getArticle(route.params.id)
     article.value = response.data
   } catch (error) {
     console.error('获取文章详情失败:', error)

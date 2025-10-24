@@ -1,6 +1,7 @@
 package top.hazenix.service;
 
 import top.hazenix.dto.ArticleDTO;
+import top.hazenix.query.ArticleListQuery;
 import top.hazenix.result.PageResult;
 import top.hazenix.vo.ArticleDetailVO;
 import top.hazenix.vo.ArticleShortVO;
@@ -23,4 +24,12 @@ public interface ArticleService {
     void deleteArticle(Long id);
 
     void updateArticleStatus(Long id, Integer status);
+
+    List<ArticleDetailVO> getArticleList(ArticleListQuery articleListQuery);
+
+    ArticleDetailVO getArticleDetailBySlug(String slug);
+
+    List<ArticleShortVO> getPopularArticles(int i);
+
+    void updateArticleView(Long id);
 }

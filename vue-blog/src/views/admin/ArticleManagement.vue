@@ -87,11 +87,11 @@
             <div class="flex flex-wrap gap-1">
               <el-tag
                 v-for="tag in row.tags?.slice(0, 2)"
-                :key="tag.id"
+                :key="tag.id || tag"
                 size="small"
                 type="info"
               >
-                {{ tag.name }}
+                {{ tag.name || tag }}
               </el-tag>
               <span v-if="row.tags?.length > 2" class="text-xs text-gray-500">
                 +{{ row.tags.length - 2 }}

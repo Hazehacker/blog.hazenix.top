@@ -18,7 +18,7 @@ import top.hazenix.vo.ArticleShortVO;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-@RestController
+@RestController(("AdminArticleController"))
 @Slf4j
 @RequestMapping("/admin/articles")
 @ApiModel("文章相关接口")
@@ -42,7 +42,7 @@ public class ArticleController {
 
 
     /**
-     * 获取文章列表（支持筛选）
+     * 获取文章列表（分页展示支持筛选）
      * @return
      */
     //categoryID可以为空

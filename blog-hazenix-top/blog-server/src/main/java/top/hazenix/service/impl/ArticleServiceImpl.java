@@ -11,7 +11,9 @@ import top.hazenix.dto.ArticleDTO;
 import top.hazenix.dto.ArticleTagsDTO;
 import top.hazenix.entity.Article;
 import top.hazenix.entity.Category;
+import top.hazenix.entity.Tags;
 import top.hazenix.mapper.*;
+import top.hazenix.query.ArticleListQuery;
 import top.hazenix.result.PageResult;
 import top.hazenix.service.ArticleService;
 import top.hazenix.vo.ArticleDetailVO;
@@ -20,6 +22,7 @@ import top.hazenix.vo.ArticleShortVO;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ArticleServiceImpl implements ArticleService {
@@ -87,7 +90,18 @@ public class ArticleServiceImpl implements ArticleService {
         BeanUtils.copyProperties(article,articleDetailVO);
         //查询这篇文章对应的标签
         List<Integer> tagsId = tagsMapper.getListByArticleId(id);
-        articleDetailVO.setTagsId(tagsId);
+        List<Tags> tags = tagsId.stream()
+                .map(tagId -> {
+                    String tagName = tagsMapper.getById(tagId).getName();
+                    return Tags.builder()
+                            .id(Long.valueOf(tagId))
+                            .name(tagName)
+                            .build();
+                })
+                .collect(Collectors.toList());
+        articleDetailVO.setTags(tags);
+        articleDetailVO.setCategoryName(categoryMapper.getById(article.getCategoryId()).getName());
+        articleDetailVO.setCommentCount(commentsMapper.count(id));
 
         return articleDetailVO;
     }
@@ -103,6 +117,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     @Transactional
     public void addArticle(ArticleDTO articleDTO) {
+        //TODO (检验slug是否已经在数据库中存在)
         //插入article表
         Article article = new Article();
         BeanUtils.copyProperties(articleDTO,article);
@@ -165,6 +180,104 @@ public class ArticleServiceImpl implements ArticleService {
         article.setStatus(status);
         articleMapper.update(article);
     }
+    /**
+     * (用户浏览之后触发)更新文章浏览量
+     * @param id
+     */
+    @Override
+    public void updateArticleView(Long id) {
+        Article article = articleMapper.getById(id);
+        Article articleUse = Article.builder()
+                .id(id)
+                .viewCount(article.getViewCount()+1)
+                .build();
+        articleMapper.update(articleUse);
+    }
+
+    /**
+     * 获取文章列表(主要用于用户端)
+     * @param
+     * @return
+     */
+    @Override
+    public List<ArticleDetailVO> getArticleList(ArticleListQuery articleListQuery) {
+
+        List<Article> list = articleMapper.getArticleList(articleListQuery);
+        List<ArticleDetailVO> listRes = new ArrayList<>();
+        for(Article article:list){
+            ArticleDetailVO articleDetailVO = new ArticleDetailVO();
+            BeanUtils.copyProperties(article,articleDetailVO);
+            articleDetailVO.setCategoryName(categoryMapper.getById(article.getCategoryId()).getName());
+            List<Integer> tagIds = tagsMapper.getListByArticleId(article.getId());
+            List<Tags> tags = tagIds.stream()
+                    .map(tagId -> {
+                        String tagName = tagsMapper.getById(tagId).getName();
+                        return Tags.builder()
+                                .id(Long.valueOf(tagId))
+                                .name(tagName)
+                                .build();
+                    })
+                    .collect(Collectors.toList());
+            articleDetailVO.setTags(tags);
+            articleDetailVO.setCategoryName(categoryMapper.getById(article.getCategoryId()).getName());
+            articleDetailVO.setCommentCount(commentsMapper.count(article.getId()));
+            listRes.add(articleDetailVO);
+        }
+        return listRes;
+    }
+
+    /**
+     * 根据slug获取文章详情
+     * @param slug
+     * @return
+     */
+    @Override
+    public ArticleDetailVO getArticleDetailBySlug(String slug) {
+        Article article = articleMapper.getBySlug(slug);//【】
+        ArticleDetailVO articleDetailVO = new ArticleDetailVO();
+        BeanUtils.copyProperties(article,articleDetailVO);
+        //查询这篇文章对应的标签
+        List<Integer> tagsId = tagsMapper.getListByArticleId(article.getId());
+        List<Tags> tags = tagsId.stream()
+                .map(tagId -> {
+                    String tagName = tagsMapper.getById(tagId).getName();
+                    return Tags.builder()
+                            .id(Long.valueOf(tagId))
+                            .name(tagName)
+                            .build();
+                })
+                .collect(Collectors.toList());
+        articleDetailVO.setTags(tags);
+        articleDetailVO.setCategoryName(categoryMapper.getById(article.getCategoryId()).getName());
+        articleDetailVO.setCommentCount(commentsMapper.count(article.getId()));
+
+        return articleDetailVO;
+
+
+
+    }
+
+    /**
+     * 获取热门文章
+     * @param i
+     * @return
+     */
+    @Override
+    public List<ArticleShortVO> getPopularArticles(int i) {
+        List<Article> articleList = articleMapper.getPopularArticles(i);
+        List<ArticleShortVO> list = articleList.stream()
+                .map(article -> {
+                    ArticleShortVO articleShortVO = new ArticleShortVO();
+                    BeanUtils.copyProperties(article,articleShortVO);
+                    return articleShortVO;
+                })
+                .collect(Collectors.toList());
+        //不用添加category，热门排行榜展示用不到
+
+        return list;
+    }
+
+
 
     /**
      * 删除单个文章

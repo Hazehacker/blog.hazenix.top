@@ -20,8 +20,8 @@
       </div>
       
       <div class="flex items-center space-x-2">
-        <el-tag v-for="tag in article.tags" :key="tag.id" size="small">
-          {{ tag.name }}
+        <el-tag v-for="tag in article.tags" :key="tag.id || tag" size="small">
+          {{ tag.name || tag }}
         </el-tag>
       </div>
     </div>

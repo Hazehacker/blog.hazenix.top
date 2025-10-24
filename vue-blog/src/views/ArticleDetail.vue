@@ -12,12 +12,12 @@
             <ArticleMetadata
               :author-name="article.authorName || article.author"
               :created-at="article.createTime || article.createdAt"
-              :updated-at="article.updateTime || article.updatedAt"
+              :updated-at="article.updatedAt || article.updateTime"
               :views="article.viewCount || article.views"
               :likes="article.likeCount || article.likes"
               :comments="article.commentCount || article.comments"
               :content="article.content"
-              :category-name="article.categoryName || article.category?.name"
+              :category-name="getCategoryName(article)"
               :tags="article.tags"
             />
           </header>
@@ -118,9 +118,9 @@
               :key="tag.id || tag"
               size="small"
               class="tag-item"
-              @click="searchByTag(tag.name || tag)"
+              @click="searchByTag(getTagName(tag))"
             >
-              {{ tag.name || tag }}
+              {{ getTagName(tag) }}
             </el-tag>
           </div>
         </div>
@@ -168,6 +168,32 @@ const checkMobile = () => {
 const formatDate = (date) => {
   if (!date) return ''
   return dayjs(date).format('YYYY-MM-DD')
+}
+
+// 获取分类名称（兼容新的API格式）
+const getCategoryName = (article) => {
+  // 如果直接有categoryName字段，返回它
+  if (article.categoryName) {
+    return article.categoryName
+  }
+  // 如果有category对象，返回其name
+  if (article.category && article.category.name) {
+    return article.category.name
+  }
+  // 如果只有categoryId，需要从其他地方获取分类名称
+  // 这里可以根据需要实现从分类ID获取名称的逻辑
+  return ''
+}
+
+// 获取标签名称（兼容新的API格式）
+const getTagName = (tag) => {
+  // 如果tag是对象，返回name字段
+  if (typeof tag === 'object' && tag !== null) {
+    return tag.name
+  }
+  // 如果tag是ID，这里需要从标签列表中查找对应的名称
+  // 由于ArticleDetail页面可能没有加载所有标签，这里暂时返回ID
+  return tag
 }
 
 // 加载文章详情

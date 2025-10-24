@@ -159,6 +159,27 @@
   "data": {
     "id": 1,
     "title": "文章标题",
+    //"summary": "文章摘要",(暂时没加这个字段，后期可能会加上)
+    "content": "文章内容",
+    "categoryId": 1,
+    "categoryName": "分类名称",
+    "tags": [
+        {
+        "id": 1,
+        "name": "标签名称"
+        }
+    ],
+    "coverImage": "封面图片URL",//注意不一定每篇文章都有封面，大部分应该不加封面
+    "slug": "article-slug",
+    "status": 0,
+    "isTop": 0,
+    "viewCount": 100,
+    "likeCount": 50,
+    "favoriteCount":30,
+    "commentCount": 20,
+    "createTime": "2024-01-01T00:00:00Z",
+    "updateTime": "2024-01-01T00:00:00Z""id": 1,
+    "title": "文章标题",
     "summary": "文章摘要",
     "content": "文章内容",
     "status": 0,

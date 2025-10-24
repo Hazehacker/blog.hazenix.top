@@ -12,7 +12,7 @@ import top.hazenix.result.PageResult;
 import top.hazenix.result.Result;
 import top.hazenix.service.TagsService;
 
-@RestController
+@RestController("AdminTagsController")
 @Slf4j
 @RequestMapping("/admin/tags")
 public class TagsController {

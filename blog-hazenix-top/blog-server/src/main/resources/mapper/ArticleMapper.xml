@@ -83,4 +83,19 @@
         select count(id) from article where category_id in
                                           <foreach collection="ids" item="id" separator="," open="(" close=")">#{id}</foreach>
     </select>
+    <select id="getArticleList" resultType="top.hazenix.entity.Article">
+        select * from article
+        <where>
+            <if test="title != null and title != ''">title like concat('%',#{title},'%')</if>
+            <if test="categoryId != null">and category_id = #{categoryId}</if>
+            <if test="status != null">and status = #{status}</if>
+            <if test="tagId != null">and id in (select article_id from article_tags where tags_id = #{tagId})</if>
+        </where>
+    </select>
+    <select id="getBySlug" resultType="top.hazenix.entity.Article">
+        select * from article where slug = #{slug}
+    </select>
+    <select id="getPopularArticles" resultType="top.hazenix.entity.Article">
+        select * from article order by (like_count+view_count) desc limit #{i}
+    </select>
 </mapper>

@@ -185,9 +185,9 @@
                   size="small"
                   type="info"
                   class="tag-item"
-                  @click.stop="searchByTag(tag.name || tag)"
+                  @click.stop="searchByTag(getTagName(tag))"
                 >
-                  {{ tag.name || tag }}
+                  {{ getTagName(tag) }}
                 </el-tag>
                 <span v-if="article.tags.length > 3" class="more-tags">
                   +{{ article.tags.length - 3 }}
@@ -385,6 +385,17 @@ const handleCurrentChange = (page) => {
 // 跳转到文章详情
 const goToArticle = (id) => {
   router.push(`/article/${id}`)
+}
+
+// 获取标签名称（兼容新的API格式）
+const getTagName = (tag) => {
+  // 如果tag是对象，返回name字段
+  if (typeof tag === 'object' && tag !== null) {
+    return tag.name
+  }
+  // 如果tag是ID，从tags数组中查找对应的名称
+  const tagObj = tags.value.find(t => t.id === tag)
+  return tagObj ? tagObj.name : tag
 }
 
 // 按标签搜索
