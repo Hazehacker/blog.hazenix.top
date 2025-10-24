@@ -175,12 +175,16 @@
 
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Search, Refresh } from '@element-plus/icons-vue'
 import { adminApi } from '@/api/admin'
 import ToastUIEditor from '@/components/admin/ToastUIEditor.vue'
 
 
+
+// 路由
+const router = useRouter()
 
 // 响应式数据
 const loading = ref(false)
@@ -303,7 +307,8 @@ const handleEdit = (article) => {
 
 // 查看文章
 const handleView = (article) => {
-  window.open(`/article/${article.id}`, '_blank')
+  // 跳转到管理端查看文章页面
+  router.push(`/admin/articles/${article.id}`)
 }
 
 // 切换文章状态

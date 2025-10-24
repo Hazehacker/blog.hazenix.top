@@ -87,8 +87,8 @@
                 发布状态
               </label>
               <el-select v-model="form.status" class="w-full">
-                <el-option label="草稿" value="2" />
-                <el-option label="已发布" value="0" />
+                <el-option label="草稿" value=2 />
+                <el-option label="已发布" value=0 />
               </el-select>
             </div>
 

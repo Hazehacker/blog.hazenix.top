@@ -24,7 +24,7 @@ const routes = [
       { path: '/category/:id', name: 'CategoryDetail', component: () => import('@/views/CategoryDetail.vue'), meta: { title: '分类详情' }, props: true },
       { path: '/tags', name: 'TagList', component: () => import('@/views/TagList.vue'), meta: { title: '标签列表' } },
       { path: '/tag/:id', name: 'TagDetail', component: () => import('@/views/TagDetail.vue'), meta: { title: '标签详情' }, props: true },
-      { path: '/album', name: "Albun", component: () => import("@/views/Album.vue"), meta: { title: '相册' }, props: true }
+      { path: '/album', name: "Album", component: () => import("@/views/Album.vue"), meta: { title: '相册' }, props: true }
 
 
 
@@ -77,6 +77,13 @@ const routes = [
         name: 'AdminArticleCreate',
         component: () => import('@/views/admin/ArticleCreate.vue'),
         meta: { title: '新建文章' }
+      },
+      {
+        path: 'articles/:id',
+        name: 'AdminArticleView',
+        component: () => import('@/views/ArticleDetail.vue'),
+        meta: { title: '查看文章' },
+        props: true
       },
       {
         path: 'articles/:id/edit',
@@ -182,51 +189,51 @@ const router = createRouter({
   }
 })
 
-// // 路由守卫
-// router.beforeEach(async (to, from, next) => {
-//   const userStore = useUserStore()
-//   const token = getToken()
+// 路由守卫
+router.beforeEach(async (to, from, next) => {
+  // 临时禁用认证检查，直到登录功能完成
+  // const userStore = useUserStore()
+  // const token = getToken()
 
-//   // 设置页面标题
-//   if (to.meta.title) {
-//     document.title = `${to.meta.title} - Vue Blog`
-//   }
+  // 设置页面标题
+  if (to.meta.title) {
+    document.title = `${to.meta.title} - Vue Blog`
+  }
 
-//   // 检查是否需要认证
-//   if (to.meta.requiresAuth) {
-//     if (!token) {
-//       ElMessage.warning('请先登录')
-//       next({
-//         path: '/login',
-//         query: { redirect: to.fullPath }
-//       })
-//       return
-//     }
+  // 暂时跳过认证检查
+  // 检查是否需要认证
+  // if (to.meta.requiresAuth) {
+  //   if (!token) {
+  //     ElMessage.warning('请先登录')
+  //     next({
+  //       path: '/login',
+  //       query: { redirect: to.fullPath }
+  //     })
+  //     return
+  //   }
 
-//     // 检查用户信息是否存在
-//     if (!userStore.userInfo) {
-//       try {
-//         await userStore.getUserInfo()
-//       } catch (error) {
-//         console.error('获取用户信息失败:', error)
-//         ElMessage.error('获取用户信息失败，请重新登录')
-//         next('/login')
-//         return
-//       }
-//     }
+  //   // 检查用户信息是否存在
+  //   if (!userStore.userInfo) {
+  //     try {
+  //       await userStore.getUserInfo()
+  //     } catch (error) {
+  //       console.error('获取用户信息失败:', error)
+  //       ElMessage.error('获取用户信息失败，请重新登录')
+  //       next('/login')
+  //       return
+  //     }
+  //   }
 
-//     // 检查是否需要管理员权限
-//     if (to.meta.requiresAdmin && !userStore.userInfo?.isAdmin) {
-//       ElMessage.error('权限不足')
-//       next('/')
-//       return
-//     }
-//   }
+  //   // 检查是否需要管理员权限
+  //   if (to.meta.requiresAdmin && !userStore.userInfo?.isAdmin) {
+  //     ElMessage.error('权限不足')
+  //     next('/')
+  //     return
+  //   }
+  // }
 
-
-
-//   next()
-// })
+  next()
+})
 
 // 路由错误处理
 router.onError((error) => {

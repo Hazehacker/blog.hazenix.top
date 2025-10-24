@@ -804,16 +804,6 @@ const saveArticle = async (status) => {
     ElMessage.error('请输入文章标题')
     return
   }
-  if (!form.categoryId) {
-    ElMessage.error('请选择文章分类')
-    return
-  }
-
-  // 确保获取编辑器中的最新内容
-  if (editor.value) {
-    form.content = editor.value.getMarkdown()
-  }
-  
   if (!form.content.trim()) {
     ElMessage.error('请输入文章内容')
     return
@@ -825,12 +815,7 @@ const saveArticle = async (status) => {
       ...form,
       status
     }
-    console.log('准备保存文章数据:', articleData)
-    
-    // 发出保存事件并等待父组件处理
-    await new Promise((resolve, reject) => {
-      emit('save', articleData, resolve, reject)
-    })
+    emit('save', articleData)
   } catch (error) {
     console.error('保存文章失败:', error)
     ElMessage.error('保存失败')
