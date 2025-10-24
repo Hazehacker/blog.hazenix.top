@@ -6,8 +6,6 @@
       </h1>
       
       <ToastUIEditor
-        :categories="categories"
-        :tags="tags"
         @save="handleSave"
         @cancel="handleCancel"
       />

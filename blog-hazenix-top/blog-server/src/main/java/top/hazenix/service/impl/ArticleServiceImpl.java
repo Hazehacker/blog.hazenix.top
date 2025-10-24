@@ -105,6 +105,7 @@ public class ArticleServiceImpl implements ArticleService {
     public void addArticle(ArticleDTO articleDTO) {
         //插入article表
         Article article = new Article();
+        BeanUtils.copyProperties(articleDTO,article);
         article.setUserId(BaseContext.getCurrentId());
         if (article.getUserId() == null) {
             article.setUserId(1L);
@@ -113,25 +114,26 @@ public class ArticleServiceImpl implements ArticleService {
         article.setFavoriteCount(0);
         article.setViewCount(1);
         article.setIsTop(0);//默认不指定
-        BeanUtils.copyProperties(articleDTO,article);
         article.setStatus(articleDTO.getStatus());
         articleMapper.insert(article);
 
         Long id = article.getId();
         //插入article_tags表
-        List<Integer> tagIds = articleDTO.getTagIds();
-        List<ArticleTagsDTO> list = new ArrayList<>();
-        for(Integer tagId : tagIds){
-            //查询这个tagId对应的名字
-            String tagName = tagsMapper.getById(tagId).getName();
-            ArticleTagsDTO articleTagsDTO = ArticleTagsDTO.builder()
-                    .articleId(id)
-                    .tagsId(tagId)
-                    .tagsName(tagName)
-                    .build();
-            list.add(articleTagsDTO);
+        if (articleDTO.getTagIds()!=null && articleDTO.getTagIds().size()>0) {
+            List<Integer> tagIds = articleDTO.getTagIds();
+            List<ArticleTagsDTO> list = new ArrayList<>();
+            for(Integer tagId : tagIds){
+                //查询这个tagId对应的名字
+                String tagName = tagsMapper.getById(tagId).getName();
+                ArticleTagsDTO articleTagsDTO = ArticleTagsDTO.builder()
+                        .articleId(id)
+                        .tagsId(tagId)
+                        .tagsName(tagName)
+                        .build();
+                list.add(articleTagsDTO);
+            }
+            articleTagsMapper.insertBatch(list);
         }
-        articleTagsMapper.insertBatch(list);
 
 
     }

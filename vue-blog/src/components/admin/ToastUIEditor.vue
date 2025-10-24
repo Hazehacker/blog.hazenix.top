@@ -33,9 +33,9 @@
       </p>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8" :class="{ 'lg:grid-cols-1': isFullscreen }">
       <!-- 左侧：编辑器 -->
-      <div class="lg:col-span-2 space-y-6">
+      <div class="lg:col-span-3 space-y-6" :class="{ 'lg:col-span-1': isFullscreen }">
         <!-- 分类选择 -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
@@ -56,7 +56,7 @@
                 :value="category.id"
               />
             </el-select>
-            <el-button type="text" class="text-blue-600 hover:text-blue-800">
+            <el-button type="text" class="text-blue-600 hover:text-blue-800" @click="showCreateCategoryDialog">
               没有合适的分类?新建一个叭
             </el-button>
           </div>
@@ -80,10 +80,49 @@
 
         <!-- Toast UI Editor -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-            <i class="fas fa-edit mr-2"></i>
-            *内容:
-          </label>
+            <div class="flex justify-between items-center mb-3">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <i class="fas fa-edit mr-2"></i>
+                *内容:
+                </label>
+                <div class="flex items-center space-x-2">
+                  <!-- 预览模式切换 -->
+                  <div class="flex items-center space-x-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+                    <button 
+                      @click="setPreviewMode('markdown')"
+                      :class="[
+                        'px-3 py-1 text-sm rounded-md transition-colors',
+                        previewMode === 'markdown' 
+                          ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm' 
+                          : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                      ]"
+                    >
+                      Markdown
+                    </button>
+                    <button 
+                      @click="setPreviewMode('wysiwyg')"
+                      :class="[
+                        'px-3 py-1 text-sm rounded-md transition-colors',
+                        previewMode === 'wysiwyg' 
+                          ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm' 
+                          : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                      ]"
+                    >
+                      WYSIWYG
+                    </button>
+                  </div>
+                  <el-button 
+                    type="text" 
+                    @click="toggleFullscreen"
+                    class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                  >
+                    <i :class="isFullscreen ? 'fas fa-compress' : 'fas fa-expand'" class="mr-1"></i>
+                    {{ isFullscreen ? '退出全屏' : '全屏编辑' }}
+                  </el-button>
+                </div>
+          </div>
+          
+          <!-- 编辑器容器 -->
           <div class="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
             <div ref="editorRef" class="toast-ui-editor"></div>
           </div>
@@ -111,21 +150,21 @@
       </div>
 
       <!-- 右侧：设置 -->
-      <div class="space-y-6">
+      <div class="space-y-6" v-show="!isFullscreen">
         <!-- 发布设置 -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-          <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4 flex items-center">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
+          <h3 class="text-base font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center">
             <i class="fas fa-cog mr-2"></i>
             发布设置
           </h3>
           
-          <div class="space-y-4">
+          <div class="space-y-3">
             <!-- 状态 -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 发布状态
               </label>
-              <el-select v-model="form.status" class="w-full">
+              <el-select v-model="form.status" class="w-full" size="small">
                 <el-option label="草稿" value="2" />
                 <el-option label="已发布" value="0" />
               </el-select>
@@ -136,20 +175,25 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 标签
               </label>
-              <el-select
-                v-model="form.tagIds"
-                multiple
-                placeholder="选择标签"
-                class="w-full"
-                clearable
-              >
-                <el-option
-                  v-for="tag in tags"
-                  :key="tag.id"
-                  :label="tag.name"
-                  :value="tag.id"
-                />
-              </el-select>
+              <div class="flex items-center space-x-3">
+                <el-select
+                  v-model="form.tagIds"
+                  multiple
+                  placeholder="添加标签"
+                  class="flex-1"
+                  clearable
+                >
+                  <el-option
+                    v-for="tag in tags"
+                    :key="tag.id"
+                    :label="tag.name"
+                    :value="tag.id"
+                  />
+                </el-select>
+                <el-button type="text" class="text-blue-600 hover:text-blue-800" @click="showCreateTagDialog">
+                  新建标签
+                </el-button>
+              </div>
             </div>
 
             <!-- 封面图片 -->
@@ -190,8 +234,8 @@
         </div>
 
         <!-- SEO设置 -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-          <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4 flex items-center">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
+          <h3 class="text-base font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center">
             <i class="fas fa-search mr-2"></i>
             SEO设置
           </h3>
@@ -260,6 +304,102 @@
         </div>
       </div>
     </div>
+
+    <!-- 新建分类对话框 -->
+    <el-dialog
+      v-model="createCategoryDialogVisible"
+      title="新建分类"
+      width="500px"
+      :close-on-click-modal="false"
+      @close="handleCreateCategoryDialogClose"
+    >
+      <el-form
+        ref="createCategoryFormRef"
+        :model="createCategoryForm"
+        :rules="createCategoryRules"
+        label-width="80px"
+        @submit.prevent
+      >
+        <el-form-item label="分类名称" prop="name">
+          <el-input
+            v-model="createCategoryForm.name"
+            placeholder="请输入分类名称"
+            maxlength="50"
+            show-word-limit
+          />
+        </el-form-item>
+
+        <el-form-item label="URL标识符" prop="slug">
+          <el-input
+            v-model="createCategoryForm.slug"
+            placeholder="请输入URL标识符"
+            maxlength="50"
+            show-word-limit
+          />
+        </el-form-item>
+
+        <el-form-item label="排序" prop="sort">
+          <el-input-number
+            v-model="createCategoryForm.sort"
+            :min="0"
+            :max="9999"
+            controls-position="right"
+            style="width: 200px"
+          />
+        </el-form-item>
+
+        <el-form-item label="状态" prop="status">
+          <el-radio-group v-model="createCategoryForm.status">
+            <el-radio :value="0">启用</el-radio>
+            <el-radio :value="1">禁用</el-radio>
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <div class="flex justify-end space-x-3">
+          <el-button @click="handleCreateCategoryDialogClose">取消</el-button>
+          <el-button @click="handleCreateCategory" type="primary" :loading="creatingCategory">
+            创建
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
+
+    <!-- 新建标签对话框 -->
+    <el-dialog
+      v-model="createTagDialogVisible"
+      title="新建标签"
+      width="500px"
+      :close-on-click-modal="false"
+      @close="handleCreateTagDialogClose"
+    >
+      <el-form
+        ref="createTagFormRef"
+        :model="createTagForm"
+        :rules="createTagRules"
+        label-width="80px"
+        @submit.prevent
+      >
+        <el-form-item label="标签名称" prop="name">
+          <el-input
+            v-model="createTagForm.name"
+            placeholder="请输入标签名称"
+            maxlength="20"
+            show-word-limit
+          />
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <div class="flex justify-end space-x-3">
+          <el-button @click="handleCreateTagDialogClose">取消</el-button>
+          <el-button @click="handleCreateTag" type="primary" :loading="creatingTag">
+            创建
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -268,6 +408,7 @@ import { ref, reactive, computed, onMounted, onBeforeUnmount, nextTick } from 'v
 import { ElMessage } from 'element-plus'
 import { Upload } from '@element-plus/icons-vue'
 import { getToken } from '@/utils/auth'
+import { adminApi } from '@/api/admin'
 import Editor from '@toast-ui/editor'
 import '@toast-ui/editor/dist/toastui-editor.css'
 
@@ -276,14 +417,6 @@ const props = defineProps({
   article: {
     type: Object,
     default: null
-  },
-  categories: {
-    type: Array,
-    default: () => []
-  },
-  tags: {
-    type: Array,
-    default: () => []
   }
 })
 
@@ -295,6 +428,20 @@ const editorRef = ref()
 const fileInputRef = ref()
 const editor = ref(null)
 const saving = ref(false)
+const isFullscreen = ref(false)
+const previewMode = ref('markdown') // 'markdown' 或 'wysiwyg'
+
+// 分类相关
+const categories = ref([])
+const createCategoryDialogVisible = ref(false)
+const createCategoryFormRef = ref()
+const creatingCategory = ref(false)
+
+// 标签相关
+const tags = ref([])
+const createTagDialogVisible = ref(false)
+const createTagFormRef = ref()
+const creatingTag = ref(false)
 
 // 表单数据
 const form = reactive({
@@ -311,6 +458,38 @@ const form = reactive({
   keywords: ''
 })
 
+// 新建分类表单数据
+const createCategoryForm = reactive({
+  name: '',
+  slug: '',
+  sort: 0,
+  status: 0
+})
+
+// 新建分类表单验证规则
+const createCategoryRules = {
+  name: [
+    { required: true, message: '请输入分类名称', trigger: 'blur' },
+    { min: 1, max: 50, message: '分类名称长度在 1 到 50 个字符', trigger: 'blur' }
+  ],
+  sort: [
+    { required: true, message: '请输入排序值', trigger: 'blur' }
+  ]
+}
+
+// 新建标签表单数据
+const createTagForm = reactive({
+  name: ''
+})
+
+// 新建标签表单验证规则
+const createTagRules = {
+  name: [
+    { required: true, message: '请输入标签名称', trigger: 'blur' },
+    { min: 1, max: 20, message: '标签名称长度在 1 到 20 个字符', trigger: 'blur' }
+  ]
+}
+
 // 上传配置
 const uploadUrl = computed(() => `${import.meta.env.VITE_API_BASE_URL}/common/upload`)
 const uploadHeaders = computed(() => ({
@@ -319,6 +498,28 @@ const uploadHeaders = computed(() => ({
 
 // 计算属性
 const isEdit = computed(() => !!props.article)
+
+// 加载分类列表
+const loadCategories = async () => {
+  try {
+    const response = await adminApi.getCategories({ page: 1, pageSize: 100 })
+    categories.value = response.data.records || response.data.list || []
+  } catch (error) {
+    console.error('加载分类列表失败:', error)
+    ElMessage.error('加载分类列表失败')
+  }
+}
+
+// 加载标签列表
+const loadTags = async () => {
+  try {
+    const response = await adminApi.getTags({ page: 1, pageSize: 100 })
+    tags.value = response.data.records || response.data.list || []
+  } catch (error) {
+    console.error('加载标签列表失败:', error)
+    ElMessage.error('加载标签列表失败')
+  }
+}
 
 // 初始化表单
 const initForm = () => {
@@ -359,33 +560,52 @@ const initEditor = async () => {
   await nextTick()
   
   if (editorRef.value) {
-    editor.value = new Editor({
-      el: editorRef.value,
-      height: '600px',
-      initialEditType: 'markdown',
-      previewStyle: 'vertical',
-      initialValue: form.content,
-      usageStatistics: false,
-      toolbarItems: [
-        ['heading', 'bold', 'italic', 'strike'],
-        ['hr', 'quote'],
-        ['ul', 'ol', 'task', 'indent', 'outdent'],
-        ['table', 'image', 'link'],
-        ['code', 'codeblock'],
-        ['scrollSync']
-      ],
-      hooks: {
-        addImageBlobHook: (blob, callback) => {
-          // 处理编辑器中的图片上传
-          handleEditorImageUpload(blob, callback)
-        }
+    try {
+      // 如果编辑器已存在，先销毁
+      if (editor.value) {
+        editor.value.destroy()
+        editor.value = null
       }
-    })
-
-    // 监听内容变化
-    editor.value.on('change', () => {
-      form.content = editor.value.getMarkdown()
-    })
+      
+      // 清空容器
+      editorRef.value.innerHTML = ''
+      
+      editor.value = new Editor({
+        el: editorRef.value,
+        height: '800px',
+        initialEditType: 'markdown',
+        previewStyle: 'vertical', // 垂直分屏模式：左边编辑，右边预览
+        initialValue: form.content || '',
+        usageStatistics: false,
+        toolbarItems: [
+          ['heading', 'bold', 'italic', 'strike'],
+          ['hr', 'quote'],
+          ['ul', 'ol', 'task', 'indent', 'outdent'],
+          ['table', 'image', 'link'],
+          ['code', 'codeblock'],
+          ['scrollSync']
+        ],
+        events: {
+          change: () => {
+            // 内容变化时更新表单数据
+            if (editor.value) {
+              form.content = editor.value.getMarkdown()
+            }
+          }
+        },
+        hooks: {
+          addImageBlobHook: (blob, callback) => {
+            // 处理编辑器中的图片上传
+            handleEditorImageUpload(blob, callback)
+          }
+        }
+      })
+      
+      console.log('编辑器初始化成功')
+    } catch (error) {
+      console.error('编辑器初始化失败:', error)
+      ElMessage.error('编辑器初始化失败')
+    }
   }
 }
 
@@ -408,7 +628,7 @@ const beforeImageUpload = (file) => {
 // 图片上传成功
 const handleImageUpload = (response) => {
   if (response.code === 200) {
-    form.coverImage = response.data.url
+    form.coverImage = response.data
     ElMessage.success('图片上传成功')
   } else {
     ElMessage.error('图片上传失败')
@@ -420,7 +640,11 @@ const handleEditorImageUpload = async (blob, callback) => {
   try {
     // 创建FormData对象
     const formData = new FormData()
-    formData.append('file', blob, 'image.png')
+    
+    // 生成更好的文件名
+    const timestamp = Date.now()
+    const fileName = `image_${timestamp}.png`
+    formData.append('file', blob, fileName)
     
     // 使用fetch上传图片到服务器
     const response = await fetch(uploadUrl.value, {
@@ -433,7 +657,10 @@ const handleEditorImageUpload = async (blob, callback) => {
     
     if (result.code === 200) {
       // 上传成功，返回图片URL给编辑器
-      callback(result.data.url, '图片上传成功')
+      // Toast UI Editor的callback格式: callback(imageUrl, altText)
+      // 使用文件名作为alt文本，这样markdown会显示 ![文件名](URL)
+      const altText = fileName.replace(/\.[^/.]+$/, '') // 去掉文件扩展名
+      callback(result.data, altText)
       ElMessage.success('图片上传成功')
     } else {
       // 上传失败
@@ -451,6 +678,38 @@ const handleEditorImageUpload = async (blob, callback) => {
 const triggerFileUpload = () => {
   fileInputRef.value?.click()
 }
+
+// 设置预览模式
+const setPreviewMode = (mode) => {
+  previewMode.value = mode
+  if (editor.value) {
+    try {
+      // 切换编辑模式
+      if (mode === 'wysiwyg') {
+        editor.value.changeMode('wysiwyg')
+      } else {
+        editor.value.changeMode('markdown')
+      }
+    } catch (error) {
+      console.error('切换预览模式失败:', error)
+      // 如果切换失败，重新初始化编辑器
+      nextTick(() => {
+        initEditor()
+      })
+    }
+  }
+}
+
+// 切换全屏模式
+const toggleFullscreen = () => {
+  isFullscreen.value = !isFullscreen.value
+  // 重新调整编辑器高度
+  if (editor.value) {
+    const newHeight = isFullscreen.value ? 'calc(100vh - 200px)' : '800px'
+    editor.value.setHeight(newHeight)
+  }
+}
+
 
 // 处理文件导入
 const handleFileImport = (event) => {
@@ -478,28 +737,52 @@ const handleFileImport = (event) => {
   reader.onload = (e) => {
     try {
       const content = e.target.result
+      console.log('文件内容读取成功，长度:', content.length)
+      console.log('文件内容预览:', content.substring(0, 200) + '...')
       
       // 设置编辑器内容
       if (editor.value) {
-        editor.value.setMarkdown(content)
-        form.content = content
-        ElMessage.success('文件导入成功')
+        try {
+          // 先重置编辑器内容，避免transaction冲突
+          editor.value.reset()
+          // 使用setMarkdown方法设置内容
+          editor.value.setMarkdown(content)
+          form.content = content
+          ElMessage.success('文件导入成功，左右两边都已更新')
+          console.log('编辑器内容已更新')
+        } catch (error) {
+          console.error('设置编辑器内容失败:', error)
+          // 如果设置失败，尝试重新初始化编辑器
+          form.content = content
+          nextTick(() => {
+            initEditor()
+          })
+          ElMessage.success('文件已读取，编辑器将重新初始化')
+        }
       } else {
         // 如果编辑器还没初始化，先保存内容
         form.content = content
         ElMessage.success('文件已读取，编辑器初始化后将自动加载')
+        console.log('编辑器未初始化，内容已保存')
       }
     } catch (error) {
       console.error('文件读取失败:', error)
-      ElMessage.error('文件读取失败')
+      ElMessage.error('文件读取失败: ' + error.message)
     }
   }
   
-  reader.onerror = () => {
-    ElMessage.error('文件读取失败')
+  reader.onerror = (error) => {
+    console.error('文件读取错误:', error)
+    ElMessage.error('文件读取失败，请检查文件格式和编码')
   }
   
-  reader.readAsText(file, 'UTF-8')
+  // 使用UTF-8编码读取文件
+  try {
+    reader.readAsText(file, 'UTF-8')
+  } catch (error) {
+    console.error('开始读取文件时出错:', error)
+    ElMessage.error('无法读取文件: ' + error.message)
+  }
   
   // 清空文件输入，允许重复选择同一文件
   event.target.value = ''
@@ -521,6 +804,16 @@ const saveArticle = async (status) => {
     ElMessage.error('请输入文章标题')
     return
   }
+  if (!form.categoryId) {
+    ElMessage.error('请选择文章分类')
+    return
+  }
+
+  // 确保获取编辑器中的最新内容
+  if (editor.value) {
+    form.content = editor.value.getMarkdown()
+  }
+  
   if (!form.content.trim()) {
     ElMessage.error('请输入文章内容')
     return
@@ -532,12 +825,133 @@ const saveArticle = async (status) => {
       ...form,
       status
     }
-    emit('save', articleData)
+    console.log('准备保存文章数据:', articleData)
+    
+    // 发出保存事件并等待父组件处理
+    await new Promise((resolve, reject) => {
+      emit('save', articleData, resolve, reject)
+    })
   } catch (error) {
     console.error('保存文章失败:', error)
     ElMessage.error('保存失败')
   } finally {
     saving.value = false
+  }
+}
+
+// 显示新建分类对话框
+const showCreateCategoryDialog = () => {
+  createCategoryDialogVisible.value = true
+}
+
+// 关闭新建分类对话框
+const handleCreateCategoryDialogClose = () => {
+  createCategoryDialogVisible.value = false
+  resetCreateCategoryForm()
+}
+
+// 重置新建分类表单
+const resetCreateCategoryForm = () => {
+  Object.assign(createCategoryForm, {
+    name: '',
+    slug: '',
+    sort: 0,
+    status: 0
+  })
+  if (createCategoryFormRef.value) {
+    createCategoryFormRef.value.clearValidate()
+  }
+}
+
+// 创建分类
+const handleCreateCategory = async () => {
+  if (!createCategoryFormRef.value) return
+  
+  try {
+    await createCategoryFormRef.value.validate()
+    
+    creatingCategory.value = true
+    
+    const response = await adminApi.createCategory(createCategoryForm)
+    
+    ElMessage.success('分类创建成功')
+    
+    // 关闭对话框
+    createCategoryDialogVisible.value = false
+    
+    // 重新加载分类列表
+    await loadCategories()
+    
+    // 自动选择新创建的分类
+    if (response.data && response.data.id) {
+      form.categoryId = response.data.id
+    }
+    
+  } catch (error) {
+    if (error !== false) {
+      console.error('创建分类失败:', error)
+      ElMessage.error('创建分类失败')
+    }
+  } finally {
+    creatingCategory.value = false
+  }
+}
+
+// 显示新建标签对话框
+const showCreateTagDialog = () => {
+  createTagDialogVisible.value = true
+}
+
+// 关闭新建标签对话框
+const handleCreateTagDialogClose = () => {
+  createTagDialogVisible.value = false
+  resetCreateTagForm()
+}
+
+// 重置新建标签表单
+const resetCreateTagForm = () => {
+  Object.assign(createTagForm, {
+    name: ''
+  })
+  if (createTagFormRef.value) {
+    createTagFormRef.value.clearValidate()
+  }
+}
+
+// 创建标签
+const handleCreateTag = async () => {
+  if (!createTagFormRef.value) return
+  
+  try {
+    await createTagFormRef.value.validate()
+    
+    creatingTag.value = true
+    
+    const response = await adminApi.createTag(createTagForm)
+    
+    ElMessage.success('标签创建成功')
+    
+    // 关闭对话框
+    createTagDialogVisible.value = false
+    
+    // 重新加载标签列表
+    await loadTags()
+    
+    // 自动选择新创建的标签
+    if (response.data && response.data.id) {
+      if (!form.tagIds) {
+        form.tagIds = []
+      }
+      form.tagIds.push(response.data.id)
+    }
+    
+  } catch (error) {
+    if (error !== false) {
+      console.error('创建标签失败:', error)
+      ElMessage.error('创建标签失败')
+    }
+  } finally {
+    creatingTag.value = false
   }
 }
 
@@ -551,6 +965,8 @@ onBeforeUnmount(() => {
 // 初始化
 onMounted(async () => {
   initForm()
+  await loadCategories()
+  await loadTags()
   await initEditor()
 })
 </script>

@@ -1,8 +1,6 @@
 <template>
   <div class="article-create">
     <ToastUIEditor
-      :categories="categories"
-      :tags="tags"
       @save="handleSave"
       @cancel="handleCancel"
     />
@@ -37,14 +35,16 @@ const loadCategoriesAndTags = async () => {
 }
 
 // 保存文章
-const handleSave = async (articleData) => {
+const handleSave = async (articleData, resolve, reject) => {
   try {
     await adminApi.createArticle(articleData)
     ElMessage.success('文章创建成功')
     router.push('/admin/articles')
+    if (resolve) resolve()
   } catch (error) {
     console.error('创建文章失败:', error)
     ElMessage.error('创建文章失败，请重试')
+    if (reject) reject(error)
   }
 }
 

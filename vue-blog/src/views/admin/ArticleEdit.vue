@@ -6,8 +6,6 @@
     <ToastUIEditor
       v-else
       :article="article"
-      :categories="categories"
-      :tags="tags"
       @save="handleSave"
       @cancel="handleCancel"
     />
@@ -34,7 +32,7 @@ const tags = ref([])
 // 加载文章详情
 const fetchArticle = async () => {
   try {
-    const response = await adminApi.getArticleById(route.params.id)
+    const response = await adminApi.getArticle(route.params.id)
     article.value = response.data
   } catch (error) {
     console.error('获取文章详情失败:', error)
@@ -58,14 +56,16 @@ const loadCategoriesAndTags = async () => {
 }
 
 // 保存文章
-const handleSave = async (articleData) => {
+const handleSave = async (articleData, resolve, reject) => {
   try {
     await adminApi.updateArticle(route.params.id, articleData)
     ElMessage.success('文章更新成功')
     router.push('/admin/articles')
+    if (resolve) resolve()
   } catch (error) {
     console.error('更新文章失败:', error)
     ElMessage.error('更新文章失败，请重试')
+    if (reject) reject(error)
   }
 }
 

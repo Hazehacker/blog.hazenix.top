@@ -166,8 +166,6 @@
       <ToastUIEditor
         v-if="dialogVisible"
         :article="currentArticle"
-        :categories="categories"
-        :tags="tags"
         @save="handleSave"
         @cancel="handleDialogClose"
       />
