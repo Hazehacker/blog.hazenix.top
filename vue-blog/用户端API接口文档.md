@@ -481,51 +481,10 @@
 }
 ```
 
-### 5.4 点赞或取消点赞评论
-- **URL**: `POST /user/comments/{id}/like`
-- **描述**: 点赞或取消点赞评论
-- **认证**: 需要
-- **路径参数**:
-  - `id` (int): 评论ID
-- **响应示例**:
-```json
-{
-  "code": 200,
-  "msg": "点赞成功",
-  "data": {
-    "isLiked": true,
-    "likeCount": 6
-  }
-}
-```
 
-### 5.5 获取评论统计
-- **URL**: `GET /user/comments/stats`
-- **描述**: 获取评论统计数据
-- **认证**: 不需要
-- **请求参数**:
-  - `articleId` (int, 可选): 文章ID，不传则获取全局统计
-- **响应示例**:
-```json
-{
-  "code": 200,
-  "msg": "success",
-  "data": {
-    "totalComments": 150,
-    "approvedComments": 140,
-    "pendingComments": 10,
-    "articleComments": 20
-  }
-}
-```
 
-### 5.6 获取最新评论
-- **URL**: `GET /user/comments/latest`
-- **描述**: 获取最新评论列表
-- **认证**: 不需要
-- **请求参数**:
-  - `limit` (int, 可选): 限制数量，默认10
-- **响应示例**: 同5.1
+
+
 
 
 
@@ -540,7 +499,7 @@
 
 
 ### 7.1 获取用户收藏的文章
-- **URL**: `GET /user/collections`
+- **URL**: `GET /user/user/favorite`
 - **描述**: 获取用户收藏的文章列表
 - **认证**: 需要
 - **请求参数**:
@@ -548,14 +507,6 @@
   - `pageSize` (int, 可选): 每页数量，默认10
 - **响应示例**: 同2.1
 
-### 7.2 获取用户点赞的文章
-- **URL**: `GET /user/likes`
-- **描述**: 获取用户点赞的文章列表
-- **认证**: 需要
-- **请求参数**:
-  - `page` (int, 可选): 页码，默认1
-  - `pageSize` (int, 可选): 每页数量，默认10
-- **响应示例**: 同2.1
 
 ---
 

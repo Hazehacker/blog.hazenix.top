@@ -90,6 +90,7 @@
             <if test="categoryId != null">and category_id = #{categoryId}</if>
             <if test="status != null">and status = #{status}</if>
             <if test="tagId != null">and id in (select article_id from article_tags where tags_id = #{tagId})</if>
+            <if test="userId != null">and id in (select article_id from user_article where user_id = #{userId} and is_favorite = 1)</if>
         </where>
     </select>
     <select id="getBySlug" resultType="top.hazenix.entity.Article">

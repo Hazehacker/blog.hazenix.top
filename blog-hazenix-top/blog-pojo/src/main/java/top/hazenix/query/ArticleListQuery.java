@@ -14,4 +14,5 @@ public class ArticleListQuery {
     private Integer categoryId;
     private Long tagId;
     private Integer status;
+    private Long userId;
 }
