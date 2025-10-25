@@ -60,4 +60,26 @@
         </where>
         order by sort desc
     </select>
+    <select id="list" resultType="top.hazenix.vo.TagsVO">
+        select
+        t.id,
+        t.name,
+        count(at.tags_id) as articleCount
+        from
+        tags t
+        left join
+        article_tags at on t.id = at.tags_id
+        <where>
+            <if test="keyword != null and keyword != ''">
+                and t.name LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="status != null">
+                and t.status = #{status}
+            </if>
+        </where>
+        group by
+        t.id
+        order by
+        t.sort desc
+    </select>
 </mapper>

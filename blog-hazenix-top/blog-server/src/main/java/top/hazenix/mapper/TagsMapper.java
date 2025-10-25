@@ -9,6 +9,7 @@ import top.hazenix.dto.TagsDTO;
 import top.hazenix.entity.Category;
 import top.hazenix.entity.Tags;
 import top.hazenix.enumeration.OperationType;
+import top.hazenix.vo.TagsVO;
 
 import java.util.List;
 
@@ -19,7 +20,7 @@ public interface TagsMapper {
      * 统计文章标签数量
      * @return
      */
-    Integer count();
+    Integer count(Integer tagId);
 
     /**
      * 根据文章id获取标签id列表
@@ -41,6 +42,13 @@ public interface TagsMapper {
      * @return
      */
     Page<Category> pageQuery(String keyword,Integer status);
+
+    /**
+     * 获取标签列表
+     * @param keyword
+     * @return
+     */
+    List<TagsVO> list(String keyword, Integer status);
 
     /**
      * 新增标签

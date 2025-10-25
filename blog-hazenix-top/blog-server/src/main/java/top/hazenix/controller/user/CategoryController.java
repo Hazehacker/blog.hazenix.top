@@ -11,6 +11,7 @@ import top.hazenix.query.ArticleListQuery;
 import top.hazenix.result.Result;
 import top.hazenix.service.ArticleService;
 import top.hazenix.service.CategoryService;
+import top.hazenix.vo.ArticleDetailVO;
 import top.hazenix.vo.CategoryVO;
 
 import java.util.List;
@@ -36,7 +37,11 @@ public class CategoryController {
         return Result.success(list);
     }
 
-
+    /**
+     * 获取某个分类下的文章列表
+     * @param id
+     * @return
+     */
     @GetMapping("/{id}/articles")
     public Result getCategoryArticles(@PathVariable Integer id){
         log.info("获取分类文章列表:{}",id);
@@ -44,8 +49,8 @@ public class CategoryController {
                 .categoryId(id)
                 .status(0)
                 .build();
-        articleService.getArticleList(articleListQuery);
-        return Result.success();
+        List<ArticleDetailVO> list = articleService.getArticleList(articleListQuery);
+        return Result.success(list);
     }
 
 

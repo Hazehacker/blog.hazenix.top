@@ -30,7 +30,7 @@ public class ReportServiceImpl implements ReportService {
     public StatisticVO getStatistiic() {
         Integer totalArticles = articleMapper.count();
         Integer totalCategories = categoryMapper.count();
-        Integer totalTags = tagsMapper.count();
+        Integer totalTags = tagsMapper.count(null);
         Integer totalComments = commentsMapper.count(null);
 
 

@@ -14,6 +14,7 @@ import top.hazenix.mapper.ArticleTagsMapper;
 import top.hazenix.mapper.TagsMapper;
 import top.hazenix.result.PageResult;
 import top.hazenix.service.TagsService;
+import top.hazenix.vo.TagsVO;
 
 import java.util.Collections;
 import java.util.List;
@@ -80,6 +81,16 @@ public class TagsServiceImpl implements TagsService {
             throw new DeleteNotAllowedException("当前标签关联了文章，不能删除");
         }
         tagsMapper.deleteBatch(Collections.singletonList(id));
+    }
+
+    /**
+     * 获取标签列表（用户端）
+     * @return
+     */
+    @Override
+    public List<TagsVO> getTagsList() {
+       List<TagsVO> list = tagsMapper.list(null,0);
+       return list;
     }
 
 

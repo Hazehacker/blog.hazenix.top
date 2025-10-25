@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryVO {
+public class TagsVO {
     private Integer id;
     private String name;
+    private Integer articleCount;
 }

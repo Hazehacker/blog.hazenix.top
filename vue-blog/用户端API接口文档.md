@@ -351,55 +351,25 @@
     {
       "id": 1,
       "name": "前端开发",
-      "description": "前端技术相关文章",
-      "color": "#3B82F6",
-      "articleCount": 15,
-      "createTime": "2024-01-01T00:00:00Z"
+
     },
     {
       "id": 2,
       "name": "后端开发",
-      "description": "后端技术相关文章",
-      "color": "#10B981",
-      "articleCount": 12,
-      "createTime": "2024-01-01T00:00:00Z"
     }
   ]
 }
 ```
 
-### 3.2 获取分类详情
-- **URL**: `GET /user/categories/{id}`
-- **描述**: 获取指定分类的详细信息
-- **认证**: 不需要
-- **路径参数**:
-  - `id` (int): 分类ID
-- **响应示例**:
-```json
-{
-  "code": 200,
-  "msg": "success",
-  "data": {
-    "id": 1,
-    "name": "前端开发",
-    "description": "前端技术相关文章",
-    "color": "#3B82F6",
-    "articleCount": 15,
-    "createTime": "2024-01-01T00:00:00Z",
-    "updateTime": "2024-01-01T00:00:00Z"
-  }
-}
-```
 
-### 3.3 获取分类下的文章列表
+
+### 3.2 获取分类下的文章列表
 - **URL**: `GET /user/categories/{id}/articles`
 - **描述**: 获取指定分类下的文章列表
 - **认证**: 不需要
 - **路径参数**:
   - `id` (int): 分类ID
 - **请求参数**:
-  - `page` (int, 可选): 页码，默认1
-  - `pageSize` (int, 可选): 每页数量，默认10
 - **响应示例**: 同2.1
 
 ---
@@ -421,40 +391,20 @@
       "id": 1,
       "name": "Vue3",
       "articleCount": 8,
-      "createTime": "2024-01-01T00:00:00Z"
     },
     {
       "id": 2,
       "name": "JavaScript",
       "articleCount": 15,
-      "createTime": "2024-01-01T00:00:00Z"
     }
   ]
 }
 ```
 
-### 4.2 获取标签详情
-- **URL**: `GET /user/tags/{id}`
-- **描述**: 获取指定标签的详细信息
-- **认证**: 不需要
-- **路径参数**:
-  - `id` (int): 标签ID
-- **响应示例**:
-```json
-{
-  "code": 200,
-  "msg": "success",
-  "data": {
-    "id": 1,
-    "name": "Vue3",
-    "articleCount": 8,
-    "createTime": "2024-01-01T00:00:00Z",
-    "updateTime": "2024-01-01T00:00:00Z"
-  }
-}
-```
 
-### 4.3 获取标签下的文章列表
+
+
+### 4.2 获取标签下的文章列表
 - **URL**: `GET /user/tags/{id}/articles`
 - **描述**: 获取指定标签下的文章列表
 - **认证**: 不需要
