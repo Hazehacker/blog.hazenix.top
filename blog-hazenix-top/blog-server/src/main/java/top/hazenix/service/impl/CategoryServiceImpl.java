@@ -14,6 +14,7 @@ import top.hazenix.mapper.ArticleMapper;
 import top.hazenix.mapper.CategoryMapper;
 import top.hazenix.result.PageResult;
 import top.hazenix.service.CategoryService;
+import top.hazenix.vo.CategoryVO;
 
 import java.util.Collections;
 import java.util.List;
@@ -92,6 +93,16 @@ public class CategoryServiceImpl implements CategoryService {
             throw new DeleteNotAllowedException("存在分类关联了文章，不能删除");
         }
         categoryMapper.deleteBatch(ids);
+    }
+
+    /**
+     * 获取分类列表
+     * @return
+     */
+    @Override
+    public List<CategoryVO> getCategoryList() {
+         List<CategoryVO> list = categoryMapper.getCategoryList(null);
+         return list;
     }
 
 

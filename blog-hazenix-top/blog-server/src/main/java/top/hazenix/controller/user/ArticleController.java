@@ -28,6 +28,8 @@ public class ArticleController {
     @GetMapping
     public Result getArticleList(ArticleListQuery articleListQuery){
         log.info("获取文章列表");
+        //由于用于用户端，只返回不是草稿的文章
+        articleListQuery.setStatus(0);
         List<ArticleDetailVO> list = articleService.getArticleList(articleListQuery);
         return Result.success(list);
     }

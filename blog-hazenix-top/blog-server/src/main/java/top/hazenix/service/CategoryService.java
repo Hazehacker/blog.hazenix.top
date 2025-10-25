@@ -3,6 +3,9 @@ package top.hazenix.service;
 import top.hazenix.dto.CategoryDTO;
 import top.hazenix.dto.DeleteCategoryRequestDTO;
 import top.hazenix.result.PageResult;
+import top.hazenix.vo.CategoryVO;
+
+import java.util.List;
 
 public interface CategoryService {
     PageResult pageQuery(Integer page, Integer pageSize, String keyword, Integer status);
@@ -14,4 +17,6 @@ public interface CategoryService {
     void deleteCategory(Integer id);
 
     void deleteCategories(DeleteCategoryRequestDTO deleteCategoryRequestDTO);
+
+    List<CategoryVO> getCategoryList();
 }

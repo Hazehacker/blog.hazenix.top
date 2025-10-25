@@ -65,6 +65,11 @@ public class CategoryController {
         return Result.success();
     }
 
+    /**
+     * 删除分类
+     * @param id
+     * @return
+     */
     @DeleteMapping("/{id}")
     public Result deleteCategory(@PathVariable Integer id){
         log.info("删除分类：{}",id);
@@ -72,6 +77,11 @@ public class CategoryController {
         return Result.success();
     }
 
+    /**
+     * 批量删除分类
+     * @param deleteCategoryRequestDTO
+     * @return
+     */
     @DeleteMapping("/batch")
     public Result deleteCategories(@RequestBody DeleteCategoryRequestDTO deleteCategoryRequestDTO){
         log.info("删除分类：{}",deleteCategoryRequestDTO);

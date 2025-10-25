@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
 import top.hazenix.annotation.AutoFill;
 import top.hazenix.entity.Category;
 import top.hazenix.enumeration.OperationType;
+import top.hazenix.vo.CategoryVO;
 
 import java.util.List;
 
@@ -27,12 +28,19 @@ public interface CategoryMapper {
     Category getById(Integer categoryId);
 
     /**
-     * 分页查询获取分类列表
+     * (分页查询)获取分类列表
      * @param keyword
      * @param status
      * @return
      */
     Page<Category> pageQuery(String keyword, Integer status);
+
+
+    /**
+     * 获取分类列表
+     * @return
+     */
+    List<CategoryVO> getCategoryList(String name);
 
     /**
      * 创建分类
@@ -55,4 +63,7 @@ public interface CategoryMapper {
      * @param ids
      */
     void deleteBatch(List<Integer> ids);
+
+
+
 }
