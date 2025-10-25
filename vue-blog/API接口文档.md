@@ -432,37 +432,25 @@
     "list": [
       {
         "id": 1,
-        //"author": "评论者",
-        "username":"评论者",
         "content": "评论内容",
-        "status": "pending",
-        //"ip": "192.168.1.1",
+        "userId":3,
+        "username": "评论者昵称",
         "avatar": "头像URL",
-        "article": {
-          "id": 1,
-          "title": "文章标题"
-        },
-        "replyTo": {
-          "id": 2,
-          "author": "被回复者",
-          //"avatar": "头像URL"
-        },
-        "createTime": "2024-01-01T00:00:00Z",
-        //"updatedAt": "2024-01-01T00:00:00Z"
+        "articleId":2,
+        "articleTitle":"测试文章",
+        "replyId":2,
+        "replyUsername":"野猫",
+        "status":0,
+        "createTime": "2024-01-01T00:00:00Z"
       }
     ],
     "total": 100,
-    "page": 1,
-    "pageSize": 20
+
   }
 }
 ```
+* 备注：status字段 0正常  1已删除
 
-### 5.2 获取评论详情
-- **URL**: `GET /admin/comments/{id}`
-- **描述**: 获取指定评论的详细信息
-- **路径参数**:
-  - `id` (int): 评论ID
 
 ### 5.3 更新评论状态
 - **URL**: `PATCH /admin/comments/{id}/status`

@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="top.hazenix.mapper.CommentsMapper">
+    <insert id="insert">
+        insert into comments
+        (article_id,user_id,username,reply_id,reply_username,content,status,create_time)
+        values
+            (#{articleId},#{userId},#{username},#{replyId},{replyUsername},#{content},#{status},#{createTime})
+    </insert>
     <update id="deleteBatch">
         update comments
         set status = 1
@@ -41,5 +47,17 @@
                 and status = #{status}
             </if>
         </where>
+    </select>
+    <select id="list" resultType="top.hazenix.entity.Comments">
+        select * from comments
+        <where>
+            <if test="articleId != null">
+                article_id = #{articleId}
+            </if>
+            <if test="status != null">
+                status = #{status}
+            </if>
+        </where>
+        order by create_time desc
     </select>
 </mapper>

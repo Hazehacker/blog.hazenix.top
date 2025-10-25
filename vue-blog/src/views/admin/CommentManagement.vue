@@ -84,18 +84,18 @@
           <template #default="{ row }">
             <div class="max-w-xs">
               <p class="text-gray-900 dark:text-gray-100 line-clamp-2">{{ row.content }}</p>
-              <div v-if="row.replyTo" class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                回复: {{ row.replyTo.username }}
+              <div v-if="row.replyId" class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                回复: {{ row.replyUsername }}
               </div>
             </div>
           </template>
         </el-table-column>
 
-        <el-table-column prop="article" label="所属文章" width="200">
+        <el-table-column prop="articleTitle" label="所属文章" width="200">
           <template #default="{ row }">
             <div class="max-w-xs">
               <p class="text-sm text-gray-900 dark:text-gray-100 line-clamp-1">
-                {{ row.article?.title || '-' }}
+                {{ row.articleTitle || '-' }}
               </p>
             </div>
           </template>
@@ -188,7 +188,7 @@
             class="w-12 h-12 rounded-full"
           />
           <div>
-            <h3 class="font-medium text-gray-900 dark:text-gray-100">{{ currentComment.author }}</h3>
+            <h3 class="font-medium text-gray-900 dark:text-gray-100">{{ currentComment.username }}</h3>
             <p class="text-sm text-gray-500 dark:text-gray-400">
               {{ formatDate(currentComment.createTime) }}
             </p>
@@ -202,21 +202,16 @@
         </div>
 
         <!-- 所属文章 -->
-        <div v-if="currentComment.article" class="p-4 bg-white dark:bg-gray-800 rounded-lg border">
+        <div v-if="currentComment.articleTitle" class="p-4 bg-white dark:bg-gray-800 rounded-lg border">
           <h4 class="font-medium text-gray-900 dark:text-gray-100 mb-2">所属文章</h4>
-          <p class="text-gray-700 dark:text-gray-300">{{ currentComment.article.title }}</p>
+          <p class="text-gray-700 dark:text-gray-300">{{ currentComment.articleTitle }}</p>
         </div>
 
         <!-- 回复信息 -->
-        <div v-if="currentComment.replyTo" class="p-4 bg-white dark:bg-gray-800 rounded-lg border">
+        <div v-if="currentComment.replyId" class="p-4 bg-white dark:bg-gray-800 rounded-lg border">
           <h4 class="font-medium text-gray-900 dark:text-gray-100 mb-2">回复对象</h4>
           <div class="flex items-center space-x-2">
-            <img
-              :src="currentComment.replyTo.avatar || defaultAvatar"
-              alt="头像"
-              class="w-8 h-8 rounded-full"
-            />
-            <span class="text-gray-700 dark:text-gray-300">{{ currentComment.replyTo.username }}</span>
+            <span class="text-gray-700 dark:text-gray-300">{{ currentComment.replyUsername }}</span>
           </div>
         </div>
 
@@ -340,7 +335,7 @@ const loadComments = async () => {
       ...searchForm
     }
     const response = await adminApi.getComments(params)
-    comments.value = response.data.records
+    comments.value = response.data.list
     total.value = response.data.total
   } catch (error) {
     console.error('加载评论列表失败:', error)

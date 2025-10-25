@@ -6,6 +6,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.hazenix.context.BaseContext;
+import top.hazenix.dto.CommentsDTO;
 import top.hazenix.entity.Article;
 import top.hazenix.entity.Category;
 import top.hazenix.entity.Comments;
@@ -19,6 +21,7 @@ import top.hazenix.vo.CommentShortVO;
 import top.hazenix.vo.CommentsVO;
 
 import javax.xml.stream.events.Comment;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -72,18 +75,10 @@ public class CommentsServiceImpl implements CommentsService {
                 commentsVO.setAvatar(avatar);
             }
             if (comments.getArticleId()!=null) {
-                Article article = Article.builder()
-                                .id(comments.getArticleId())
-                        .title(articleMapper.getById(comments.getArticleId()).getTitle())
-                                        .build();
-                commentsVO.setArticle(article);
+                commentsVO.setArticleTitle(articleMapper.getById(comments.getArticleId()).getTitle());
             }
-            User replyPerson = new User();
-            if (comments.getReplyId() != null) {
-                replyPerson.setId(comments.getReplyId());
-                replyPerson.setUsername(comments.getReplyUsername());
-                commentsVO.setReplyPerson(replyPerson);
-            }
+
+
             resList.add(commentsVO);
         }
 
@@ -97,6 +92,54 @@ public class CommentsServiceImpl implements CommentsService {
     @Override
     public void deleteComments(List<Long> ids) {
         commentsMapper.deleteBatch(ids);
+    }
+
+    /**
+     * 获取评论列表（用户端根据文章id获取）
+     * @param commentsDTO
+     */
+    @Override
+    public List<CommentsVO> getCommentsList(CommentsDTO commentsDTO) {
+        commentsDTO.setStatus(0);
+        List<Comments> list = commentsMapper.list(commentsDTO);
+        List<CommentsVO> resList = new ArrayList<>();
+        for(Comments comments:list){
+            CommentsVO commentsVO = new CommentsVO();
+            BeanUtils.copyProperties(comments,commentsVO);
+            if (comments.getUserId()!=null) {
+                //设置评论者头像
+                String avatar = userMapper.getById(comments.getUserId()).getAvatar();
+                commentsVO.setAvatar(avatar);
+            }
+            if (comments.getArticleId()!=null) {
+                commentsVO.setArticleTitle(articleMapper.getById(comments.getArticleId()).getTitle());
+            }
+
+
+            resList.add(commentsVO);
+        }
+        return resList;
+    }
+
+    /**
+     * 用户新增评论
+     * @param commentsDTO
+     */
+    @Override
+    public void addComments(CommentsDTO commentsDTO) {
+        Comments comments  = new Comments();
+        BeanUtils.copyProperties(commentsDTO,comments);
+        comments.setUserId(BaseContext.getCurrentId());
+        if(commentsDTO.getReplyId()!=null){
+            if (userMapper.getById(commentsDTO.getReplyId())!=null) {
+                comments.setReplyUsername(userMapper.getById(commentsDTO.getReplyId()).getUsername());
+            }else{
+                throw new RuntimeException("不存在该被回复者");
+            }
+        }
+        comments.setStatus(0);
+        comments.setCreateTime(LocalDateTime.now());//comments表没有update_time字段，直接这边填充
+        commentsMapper.insert(comments);
     }
 
 

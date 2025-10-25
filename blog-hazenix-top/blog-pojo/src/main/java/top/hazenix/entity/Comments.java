@@ -20,7 +20,6 @@ public class Comments {
     private Long replyId;
     private String replyUsername;
     private String content;
-    private Integer likeCount;
     private Integer status;
     private LocalDateTime createTime;
 

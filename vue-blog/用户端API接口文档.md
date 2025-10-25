@@ -425,52 +425,7 @@
 - **认证**: 不需要
 - **请求参数**:
   - `articleId` (int, 可选): 文章ID
-  - `page` (int, 可选): 页码，默认1
-  - `pageSize` (int, 可选): 每页数量，默认10
-  - `status` (string, 可选): 状态 (approved/pending/rejected)，默认approved
-  - `sortBy` (string, 可选): 排序字段 (createTime/likeCount)，默认createTime
-  - `sortOrder` (string, 可选): 排序方向 (asc/desc)，默认desc
-- **响应示例**:
-```json
-{
-  "code": 200,
-  "msg": "success",
-  "data": {
-    "records": [
-      {
-        "id": 1,
-        "content": "评论内容",
-        "nickname": "评论者昵称",
-        "email": "评论者邮箱",
-        "avatar": "头像URL",
-        "status": "approved",
-        "likeCount": 5,
-        "isLiked": false,
-        "article": {
-          "id": 1,
-          "title": "文章标题"
-        },
-        "replyTo": {
-          "id": 2,
-          "nickname": "被回复者昵称"
-        },
-        "createTime": "2024-01-01T00:00:00Z"
-      }
-    ],
-    "total": 50,
-    "current": 1,
-    "size": 10,
-    "pages": 5
-  }
-}
-```
-
-### 5.2 获取评论详情
-- **URL**: `GET /user/comments/{id}`
-- **描述**: 获取指定评论的详细信息
-- **认证**: 不需要
-- **路径参数**:
-  - `id` (int): 评论ID
+  - `status` (string, 可选): 状态 (0正常/1不展示)
 - **响应示例**:
 ```json
 {
@@ -479,26 +434,20 @@
   "data": {
     "id": 1,
     "content": "评论内容",
-    "nickname": "评论者昵称",
-    "email": "评论者邮箱",
+    "userId":3,
+    "username": "评论者昵称",
     "avatar": "头像URL",
-    "status": "approved",
-    "likeCount": 5,
-    "isLiked": false,
-    "article": {
-      "id": 1,
-      "title": "文章标题"
-    },
-    "replyTo": {
-      "id": 2,
-      "nickname": "被回复者昵称"
-    },
+    "articleId":2,
+    "replyId":2,
+    "replyUsername":"野猫",
     "createTime": "2024-01-01T00:00:00Z"
   }
 }
 ```
 
-### 5.3 创建评论
+
+
+### 5.2 创建评论
 - **URL**: `POST /user/comments`
 - **描述**: 创建新评论
 - **认证**: 不需要
@@ -507,12 +456,12 @@
 {
   "articleId": 1,
   "content": "评论内容",
-  "nickname": "评论者昵称",
-  "email": "评论者邮箱",
-  "parentId": null,
-  "replyTo": ""
+  "username": "评论者昵称",
+  "replyId": 3
 }
 ```
+* 备注：被评论者不一定存在，比如直接评论文章的评论就没有被评论者
+
 - **响应示例**:
 ```json
 {
@@ -521,9 +470,12 @@
   "data": {
     "id": 1,
     "content": "评论内容",
-    "nickname": "评论者昵称",
-    "email": "评论者邮箱",
-    "status": "pending",
+    "userId":3,
+    "username": "评论者昵称",
+    "avatar": "头像URL",
+    "articleId":2,
+    "replyId":2,
+    "replyUsername":"野猫",
     "createTime": "2024-01-01T00:00:00Z"
   }
 }

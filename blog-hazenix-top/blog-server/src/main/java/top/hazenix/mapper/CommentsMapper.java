@@ -3,6 +3,7 @@ package top.hazenix.mapper;
 
 import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Mapper;
+import top.hazenix.dto.CommentsDTO;
 import top.hazenix.entity.Category;
 import top.hazenix.entity.Comments;
 import top.hazenix.vo.CommentShortVO;
@@ -34,6 +35,13 @@ public interface CommentsMapper {
     Page<Comments> pageQuery(String keyword, Integer status);
 
     /**
+     * 获取评论列表（可以根据文章id和评论状态动态查询）
+     * @param commentsDTO
+     * @return
+     */
+    List<Comments> list(CommentsDTO commentsDTO);
+
+    /**
      * 批量删除评论
      * @param ids
      */
@@ -44,4 +52,10 @@ public interface CommentsMapper {
      * @param ids
      */
     void deleteByArticleIds(List<Long> ids);
+
+    /**
+     * 新增评论
+     * @param comments
+     */
+    void insert(Comments comments);
 }
