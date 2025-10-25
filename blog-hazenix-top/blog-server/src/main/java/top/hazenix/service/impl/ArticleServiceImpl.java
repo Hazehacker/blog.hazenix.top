@@ -105,7 +105,14 @@ public class ArticleServiceImpl implements ArticleService {
         articleDetailVO.setTags(tags);
         articleDetailVO.setCategoryName(categoryMapper.getById(article.getCategoryId()).getName());
         articleDetailVO.setCommentCount(commentsMapper.count(id));
-
+        Long userId = BaseContext.getCurrentId();
+        if(userId != null){
+            UserArticle userArticle = userArticleMapper.getByUserIdAndArticleId(userId, id);
+            if(userArticle != null){
+                articleDetailVO.setIsLiked(userArticle.getIsLiked());
+                articleDetailVO.setIsFavorite(userArticle.getIsFavorite());
+            }
+        }
         return articleDetailVO;
     }
     //还有什么能比自己手搓博客更爽的呢？tell me looking in my eyes
@@ -337,6 +344,11 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public List<ArticleDetailVO> getArticleList(ArticleListQuery articleListQuery) {
 
+
+        //后面查询user_article表要用到
+        Long userId = BaseContext.getCurrentId();
+
+
         List<Article> list = articleMapper.getArticleList(articleListQuery);
         List<ArticleDetailVO> listRes = new ArrayList<>();
         for(Article article:list){
@@ -356,6 +368,18 @@ public class ArticleServiceImpl implements ArticleService {
             articleDetailVO.setTags(tags);
             articleDetailVO.setCategoryName(categoryMapper.getById(article.getCategoryId()).getName());
             articleDetailVO.setCommentCount(commentsMapper.count(article.getId()));
+
+
+            //查询user_article表(查询文章列表、文章详细信息的时候带上线程里面的id，然后查user_article表，如果当前用户的iS_liked字段为1，
+            // 则返回值中的isLiked设为1)
+            if(userId != null){
+                UserArticle userArticle = userArticleMapper.getByUserIdAndArticleId(userId, article.getId());
+                if(userArticle != null){
+                    articleDetailVO.setIsLiked(userArticle.getIsLiked());
+                    articleDetailVO.setIsFavorite(userArticle.getIsFavorite());
+                }
+            }
+
             listRes.add(articleDetailVO);
         }
         return listRes;
@@ -386,6 +410,14 @@ public class ArticleServiceImpl implements ArticleService {
         articleDetailVO.setCategoryName(categoryMapper.getById(article.getCategoryId()).getName());
         articleDetailVO.setCommentCount(commentsMapper.count(article.getId()));
 
+        Long userId = BaseContext.getCurrentId();
+        if(userId != null){
+            UserArticle userArticle = userArticleMapper.getByUserIdAndArticleId(userId, article.getId());
+            if(userArticle != null){
+                articleDetailVO.setIsLiked(userArticle.getIsLiked());
+                articleDetailVO.setIsFavorite(userArticle.getIsFavorite());
+            }
+        }
         return articleDetailVO;
 
 
