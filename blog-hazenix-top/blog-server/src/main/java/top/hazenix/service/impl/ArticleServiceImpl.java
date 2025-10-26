@@ -93,7 +93,7 @@ public class ArticleServiceImpl implements ArticleService {
         ArticleDetailVO articleDetailVO = new ArticleDetailVO();
         BeanUtils.copyProperties(article,articleDetailVO);
         //查询这篇文章对应的标签
-        List<Integer> tagsId = tagsMapper.getListByArticleId(id);
+        List<Integer> tagsId = articleTagsMapper.getListByArticleId(id);
         List<Tags> tags = tagsId.stream()
                 .map(tagId -> {
                     String tagName = tagsMapper.getById(tagId).getName();
@@ -116,8 +116,7 @@ public class ArticleServiceImpl implements ArticleService {
         }
         return articleDetailVO;
     }
-    //还有什么能比自己手搓博客更爽的呢？tell me looking in my eyes
-    //成就感真的太强了，写个功能都爽死
+
 
 
 
@@ -357,38 +356,41 @@ public class ArticleServiceImpl implements ArticleService {
         List<ArticleDetailVO> listRes = new ArrayList<>();
         for(Article article:list){
             ArticleDetailVO articleDetailVO = new ArticleDetailVO();
+
+            BeanUtils.copyProperties(article,articleDetailVO);
+            articleDetailVO.setCategoryName(categoryMapper.getById(article.getCategoryId()).getName());
+            List<Integer> tagIds = null;
             try {
-                BeanUtils.copyProperties(article,articleDetailVO);
-                articleDetailVO.setCategoryName(categoryMapper.getById(article.getCategoryId()).getName());
-                List<Integer> tagIds = tagsMapper.getListByArticleId(article.getId());
-                List<Tags> tags = tagIds.stream()
-                        .map(tagId -> {
-                            String tagName = tagsMapper.getById(tagId).getName();
-                            return Tags.builder()
-                                    .id(Long.valueOf(tagId))
-                                    .name(tagName)
-                                    .build();
-                        })
-                        .collect(Collectors.toList());
-                articleDetailVO.setTags(tags);
-                articleDetailVO.setCategoryName(categoryMapper.getById(article.getCategoryId()).getName());
-                articleDetailVO.setCommentCount(commentsMapper.count(article.getId()));
-
-
-                //查询user_article表(查询文章列表、文章详细信息的时候带上线程里面的id，然后查user_article表，如果当前用户的iS_liked字段为1，
-                // 则返回值中的isLiked设为1)
-                if(userId != null){
-                    UserArticle userArticle = userArticleMapper.getByUserIdAndArticleId(userId, article.getId());
-                    if(userArticle != null){
-                        articleDetailVO.setIsLiked(userArticle.getIsLiked());
-                        articleDetailVO.setIsFavorite(userArticle.getIsFavorite());
-                    }
-                }
-
-                listRes.add(articleDetailVO);
-            } catch (BeansException e) {
+                tagIds = articleTagsMapper.getListByArticleId(article.getId());
+            } catch (Exception e) {
                 e.printStackTrace();
             }
+            List<Tags> tags = tagIds.stream()
+                    .map(tagId -> {
+                        String tagName = tagsMapper.getById(tagId).getName();
+                        return Tags.builder()
+                                .id(Long.valueOf(tagId))
+                                .name(tagName)
+                                .build();
+                    })
+                    .collect(Collectors.toList());
+            articleDetailVO.setTags(tags);
+            articleDetailVO.setCategoryName(categoryMapper.getById(article.getCategoryId()).getName());
+            articleDetailVO.setCommentCount(commentsMapper.count(article.getId()));
+
+
+            //查询user_article表(查询文章列表、文章详细信息的时候带上线程里面的id，然后查user_article表，如果当前用户的iS_liked字段为1，
+            // 则返回值中的isLiked设为1)
+            if(userId != null){
+                UserArticle userArticle = userArticleMapper.getByUserIdAndArticleId(userId, article.getId());
+                if(userArticle != null){
+                    articleDetailVO.setIsLiked(userArticle.getIsLiked());
+                    articleDetailVO.setIsFavorite(userArticle.getIsFavorite());
+                }
+            }
+
+            listRes.add(articleDetailVO);
+
         }
         return listRes;
     }
@@ -404,7 +406,7 @@ public class ArticleServiceImpl implements ArticleService {
         ArticleDetailVO articleDetailVO = new ArticleDetailVO();
         BeanUtils.copyProperties(article,articleDetailVO);
         //查询这篇文章对应的标签
-        List<Integer> tagsId = tagsMapper.getListByArticleId(article.getId());
+        List<Integer> tagsId = articleTagsMapper.getListByArticleId(article.getId());
         List<Tags> tags = tagsId.stream()
                 .map(tagId -> {
                     String tagName = tagsMapper.getById(tagId).getName();

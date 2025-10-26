@@ -22,12 +22,7 @@ public interface TagsMapper {
      */
     Integer count(Integer tagId);
 
-    /**
-     * 根据文章id获取标签id列表
-     * @param id
-     * @return
-     */
-    List<Integer> getListByArticleId(Long id);
+
 
     /**
      * 根据id查询标签（返回tags对象）

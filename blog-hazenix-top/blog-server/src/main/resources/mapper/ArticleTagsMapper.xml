@@ -25,4 +25,8 @@
             #{id}
         </foreach>
     </select>
+    <select id="getListByArticleId" resultType="java.lang.Integer">
+        select tags_id
+        from article_tags where article_id = #{id}
+    </select>
 </mapper>
