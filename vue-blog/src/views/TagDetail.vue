@@ -89,12 +89,11 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { useArticleStore } from '@/stores/article'
+import { getTagArticles } from '@/api/tag'
 import ArticleCard from '@/components/article/ArticleCard.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 
 const route = useRoute()
-const articleStore = useArticleStore()
 
 // 响应式数据
 const loading = ref(false)
@@ -123,19 +122,28 @@ const fetchTagArticles = async () => {
   
   loading.value = true
   try {
-    const response = await articleStore.getArticlesByTag({
-      tagId: route.params.id,
+    const response = await getTagArticles(route.params.id, {
       page: currentPage.value,
       pageSize: pageSize
     })
     
     articles.value = response.data || []
-    totalPages.value = response.totalPages || 1
-    totalArticles.value = response.total || 0
+    totalArticles.value = articles.value.length
     
-    // 获取标签信息
-    if (response.tag) {
-      tag.value = response.tag
+    // 设置标签信息（从第一篇文章获取或使用默认值）
+    if (articles.value.length > 0 && articles.value[0].tags) {
+      const tagInfo = articles.value[0].tags.find(t => t.id == route.params.id)
+      if (tagInfo) {
+        tag.value = {
+          name: tagInfo.name,
+          id: route.params.id
+        }
+      }
+    } else {
+      tag.value = {
+        name: '标签',
+        id: route.params.id
+      }
     }
   } catch (error) {
     console.error('获取标签文章失败:', error)

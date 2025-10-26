@@ -142,7 +142,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Star, Share, Collection } from '@element-plus/icons-vue'
-import { getArticleDetail, getRelatedArticles, likeArticle as likeArticleApi, collectArticle as collectArticleApi } from '@/api/article'
+import { getArticleDetail, getRelatedArticles, likeArticle as likeArticleApi, favoriteArticle as favoriteArticleApi, incrementViewCount } from '@/api/article'
 import { useArticleStore } from '@/stores/article'
 import MarkdownRenderer from '@/components/article/MarkdownRenderer.vue'
 import CommentList from '@/components/article/CommentList.vue'
@@ -202,6 +202,9 @@ const loadArticle = async () => {
   try {
     const res = await getArticleDetail(articleId)
     article.value = res.data
+    
+    // 增加浏览量
+    await incrementViewCount(articleId)
     
     // 加载相关文章
     await loadRelatedArticles()
@@ -307,11 +310,11 @@ const collectArticle = async () => {
   if (!article.value) return
   
   try {
-    await collectArticleApi(articleId)
+    await favoriteArticleApi(articleId)
     article.value.isCollected = !article.value.isCollected
     ElMessage.success(article.value.isCollected ? '收藏成功' : '取消收藏')
   } catch (error) {
-    console.error('Collect article failed:', error)
+    console.error('Favorite article failed:', error)
     ElMessage.error('操作失败')
   }
 }

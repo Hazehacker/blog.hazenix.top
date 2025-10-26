@@ -5,9 +5,9 @@ export const commentApi = {
     // 获取评论列表
     getCommentList(params = {}) {
         return request({
-            url: '/api/comments',
+            url: '/user/comments',
             method: 'get',
-            params  // { articleId, page, pageSize, status, sortBy, sortOrder }
+            params  // { articleId, status }
         })
     },
 
@@ -22,7 +22,7 @@ export const commentApi = {
     // 创建评论
     createComment(data) {
         return request({
-            url: '/api/comments',
+            url: '/user/comments',
             method: 'post',
             data
         })

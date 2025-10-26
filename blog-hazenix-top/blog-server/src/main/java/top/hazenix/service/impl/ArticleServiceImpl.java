@@ -3,6 +3,7 @@ package top.hazenix.service.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -350,37 +351,44 @@ public class ArticleServiceImpl implements ArticleService {
 
 
         List<Article> list = articleMapper.getArticleList(articleListQuery);
+        if(list == null){
+            throw new RuntimeException("不存在相关文章");
+        }
         List<ArticleDetailVO> listRes = new ArrayList<>();
         for(Article article:list){
             ArticleDetailVO articleDetailVO = new ArticleDetailVO();
-            BeanUtils.copyProperties(article,articleDetailVO);
-            articleDetailVO.setCategoryName(categoryMapper.getById(article.getCategoryId()).getName());
-            List<Integer> tagIds = tagsMapper.getListByArticleId(article.getId());
-            List<Tags> tags = tagIds.stream()
-                    .map(tagId -> {
-                        String tagName = tagsMapper.getById(tagId).getName();
-                        return Tags.builder()
-                                .id(Long.valueOf(tagId))
-                                .name(tagName)
-                                .build();
-                    })
-                    .collect(Collectors.toList());
-            articleDetailVO.setTags(tags);
-            articleDetailVO.setCategoryName(categoryMapper.getById(article.getCategoryId()).getName());
-            articleDetailVO.setCommentCount(commentsMapper.count(article.getId()));
+            try {
+                BeanUtils.copyProperties(article,articleDetailVO);
+                articleDetailVO.setCategoryName(categoryMapper.getById(article.getCategoryId()).getName());
+                List<Integer> tagIds = tagsMapper.getListByArticleId(article.getId());
+                List<Tags> tags = tagIds.stream()
+                        .map(tagId -> {
+                            String tagName = tagsMapper.getById(tagId).getName();
+                            return Tags.builder()
+                                    .id(Long.valueOf(tagId))
+                                    .name(tagName)
+                                    .build();
+                        })
+                        .collect(Collectors.toList());
+                articleDetailVO.setTags(tags);
+                articleDetailVO.setCategoryName(categoryMapper.getById(article.getCategoryId()).getName());
+                articleDetailVO.setCommentCount(commentsMapper.count(article.getId()));
 
 
-            //查询user_article表(查询文章列表、文章详细信息的时候带上线程里面的id，然后查user_article表，如果当前用户的iS_liked字段为1，
-            // 则返回值中的isLiked设为1)
-            if(userId != null){
-                UserArticle userArticle = userArticleMapper.getByUserIdAndArticleId(userId, article.getId());
-                if(userArticle != null){
-                    articleDetailVO.setIsLiked(userArticle.getIsLiked());
-                    articleDetailVO.setIsFavorite(userArticle.getIsFavorite());
+                //查询user_article表(查询文章列表、文章详细信息的时候带上线程里面的id，然后查user_article表，如果当前用户的iS_liked字段为1，
+                // 则返回值中的isLiked设为1)
+                if(userId != null){
+                    UserArticle userArticle = userArticleMapper.getByUserIdAndArticleId(userId, article.getId());
+                    if(userArticle != null){
+                        articleDetailVO.setIsLiked(userArticle.getIsLiked());
+                        articleDetailVO.setIsFavorite(userArticle.getIsFavorite());
+                    }
                 }
-            }
 
-            listRes.add(articleDetailVO);
+                listRes.add(articleDetailVO);
+            } catch (BeansException e) {
+                e.printStackTrace();
+            }
         }
         return listRes;
     }

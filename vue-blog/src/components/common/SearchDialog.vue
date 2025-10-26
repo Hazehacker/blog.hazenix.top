@@ -11,14 +11,26 @@
       </template>
     </el-input>
     
+    <!-- 快速搜索选项 -->
+    <div class="mb-4">
+      <el-button 
+        type="primary" 
+        plain 
+        @click="goToSearchPage"
+        class="w-full"
+      >
+        进入搜索页面查看更多结果
+      </el-button>
+    </div>
+    
     <div v-loading="loading" class="max-h-96 overflow-y-auto">
       <div v-for="article in searchResults" :key="article.id" 
            class="p-3 border-b hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
            @click="goToArticle(article)">
         <h4 class="font-semibold text-gray-900 dark:text-white">{{ article.title }}</h4>
-        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ article.summary }}</p>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ article.summary || '暂无摘要' }}</p>
         <div class="flex items-center gap-2 mt-2 text-xs text-gray-500">
-          <span>{{ article.author }}</span>
+          <span>{{ article.author || '匿名' }}</span>
           <span>{{ formatDate(article.createTime) }}</span>
         </div>
       </div>
@@ -55,8 +67,11 @@ const handleSearch = async () => {
   
   loading.value = true
   try {
-    const res = await getArticleList({ keyword: searchKeyword.value, page: 1, pageSize: 10 })
-    searchResults.value = res.data.records || []
+    const res = await getArticleList({ 
+      keyword: searchKeyword.value, 
+      status: '0' // 只搜索正常状态的文章
+    })
+    searchResults.value = res.data || []
   } catch (error) {
     console.error('Search failed:', error)
     ElMessage.error('搜索失败')
@@ -68,6 +83,15 @@ const handleSearch = async () => {
 
 const goToArticle = (article) => {
   router.push(`/article/${article.id}`)
+  visible.value = false
+}
+
+const goToSearchPage = () => {
+  if (searchKeyword.value.trim()) {
+    router.push(`/search?q=${encodeURIComponent(searchKeyword.value)}`)
+  } else {
+    router.push('/search')
+  }
   visible.value = false
 }
 

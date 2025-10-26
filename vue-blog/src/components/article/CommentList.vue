@@ -217,12 +217,11 @@ const loadComments = async () => {
   try {
     const response = await getComments({
       articleId: props.articleId,
-      page: currentPage.value,
-      pageSize: pageSize.value
+      status: '0' // 只显示正常状态的评论
     })
     
-    comments.value = response.data.records || response.data
-    totalComments.value = response.data.total || response.data.length
+    comments.value = response.data || []
+    totalComments.value = comments.value.length
   } catch (error) {
     console.error('加载评论失败:', error)
     ElMessage.error('加载评论失败')
@@ -240,8 +239,10 @@ const submitComment = async () => {
     
     submitting.value = true
     const response = await createComment({
-      ...commentForm,
-      articleId: props.articleId
+      articleId: props.articleId,
+      content: commentForm.content,
+      username: commentForm.nickname,
+      replyId: commentForm.parentId
     })
     
     ElMessage.success('评论发表成功')

@@ -41,7 +41,10 @@
     <select id="count" resultType="java.lang.Integer">
         select count(*) from category
     </select>
-    <select id="getById" resultType="top.hazenix.entity.Category"></select>
+    <select id="getById" resultType="top.hazenix.entity.Category">
+        select * from category
+        where id = #{categoryId}
+    </select>
     <select id="pageQuery" resultType="top.hazenix.entity.Category">
         select * from category
         <where>

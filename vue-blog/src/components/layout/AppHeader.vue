@@ -13,6 +13,7 @@
       <router-link to="/categories" class="hover:text-primary">分类</router-link>
       <router-link to="/tags" class="hover:text-primary">标签</router-link>
       <router-link to="/album" class="hover:text-primary">相册</router-link>
+      <router-link to="/search" class="hover:text-primary">搜索</router-link>
     </nav>
     
     <div class="flex items-center space-x-4">
@@ -32,6 +33,7 @@
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item command="profile">个人中心</el-dropdown-item>
+            <el-dropdown-item command="favorites">我的收藏</el-dropdown-item>
             <el-dropdown-item command="logout">退出登录</el-dropdown-item>
           </el-dropdown-menu>
         </template>
@@ -88,6 +90,10 @@ const handleCommand = (command) => {
   if (command === 'logout') {
     userStore.logout()
     router.push('/')
+  } else if (command === 'favorites') {
+    router.push('/favorites')
+  } else if (command === 'profile') {
+    router.push('/profile')
   }
 }
 </script>

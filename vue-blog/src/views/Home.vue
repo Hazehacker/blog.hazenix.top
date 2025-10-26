@@ -18,10 +18,21 @@
       </div>
     </div>
     
-    <!-- 最新文章列表 -->
-    <div class="mt-24">
-      <h2 class="text-3xl font-bold mb-8">最新文章</h2>
-      <ArticleList :articles="latestArticles" />
+    <!-- 内容区域 -->
+    <div class="mt-24 grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- 最新文章列表 -->
+      <div class="lg:col-span-2">
+        <h2 class="text-3xl font-bold mb-8">最新文章</h2>
+        <ArticleList :articles="latestArticles" />
+      </div>
+      
+      <!-- 侧边栏 -->
+      <div class="lg:col-span-1">
+        <div class="space-y-8">
+          <!-- 热门文章 -->
+          <PopularArticles />
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -31,13 +42,18 @@ import { ref, onMounted } from 'vue'
 import { getArticleList } from '@/api/article'
 import ArticleList from '@/components/article/ArticleList.vue'
 import UserCard from '@/components/common/UserCard.vue'
+import PopularArticles from '@/components/article/PopularArticles.vue'
 
 const latestArticles = ref([])
 
 onMounted(async () => {
   try {
-    const res = await getArticleList({ page: 1, pageSize: 10 })
-    latestArticles.value = res.data.records || []
+    const res = await getArticleList({ 
+      status: '0', // 只显示正常状态的文章
+      page: 1, 
+      pageSize: 10 
+    })
+    latestArticles.value = res.data || []
   } catch (error) {
     console.error('Failed to load articles:', error)
     // 使用mock数据作为fallback

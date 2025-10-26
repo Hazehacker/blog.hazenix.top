@@ -5,16 +5,16 @@ export const articleApi = {
     // 获取文章列表
     getArticleList(params = {}) {
         return request({
-            url: '/api/articles',
+            url: '/user/articles',
             method: 'get',
-            params  // { page, pageSize, categoryId, tagId, keyword, status, sortBy, sortOrder }
+            params  // { keyword, categoryId, tagId, status }
         })
     },
 
     // 获取文章详情
     getArticleDetail(id) {
         return request({
-            url: `/api/articles/${id}`,
+            url: `/user/articles/${id}`,
             method: 'get'
         })
     },
@@ -22,7 +22,7 @@ export const articleApi = {
     // 根据slug获取文章
     getArticleBySlug(slug) {
         return request({
-            url: `/api/articles/slug/${slug}`,
+            url: `/user/articles/slug/${slug}`,
             method: 'get'
         })
     },
@@ -30,7 +30,7 @@ export const articleApi = {
     // 搜索文章
     searchArticles(keyword, params = {}) {
         return request({
-            url: '/api/articles/search',
+            url: '/user/articles',
             method: 'get',
             params: { keyword, ...params }
         })
@@ -83,15 +83,15 @@ export const articleApi = {
     // 点赞文章
     likeArticle(id) {
         return request({
-            url: `/api/articles/${id}/like`,
+            url: `/user/articles/${id}/like`,
             method: 'post'
         })
     },
 
     // 收藏文章
-    collectArticle(id) {
+    favoriteArticle(id) {
         return request({
-            url: `/api/articles/${id}/collect`,
+            url: `/user/articles/${id}/favorite`,
             method: 'post'
         })
     },
@@ -99,7 +99,7 @@ export const articleApi = {
     // 获取相关文章
     getRelatedArticles(id, params = {}) {
         return request({
-            url: `/api/articles/${id}/related`,
+            url: `/user/articles/${id}/related`,
             method: 'get',
             params
         })
@@ -108,7 +108,7 @@ export const articleApi = {
     // 获取热门文章
     getPopularArticles(params = {}) {
         return request({
-            url: '/api/articles/popular',
+            url: '/user/articles/popular',
             method: 'get',
             params
         })
@@ -143,8 +143,8 @@ export const articleApi = {
     // 增加文章浏览量
     incrementViewCount(id) {
         return request({
-            url: `/api/articles/${id}/view`,
-            method: 'post'
+            url: `/user/articles/${id}/view`,
+            method: 'put'
         })
     },
 
@@ -196,4 +196,8 @@ export function collectArticle(id) {
 
 export function getRelatedArticles(id, params = {}) {
     return articleApi.getRelatedArticles(id, params)
+}
+
+export function getPopularArticles(params = {}) {
+    return articleApi.getPopularArticles(params)
 }

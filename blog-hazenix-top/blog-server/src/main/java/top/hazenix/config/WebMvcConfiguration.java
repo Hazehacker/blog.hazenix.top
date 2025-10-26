@@ -54,25 +54,71 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
      * 通过knife4j生成接口文档的相关配置
      * @return
      */
+//    @Bean
+//    public Docket docket() {
+//        ApiInfo apiInfo = new ApiInfoBuilder()
+//                .title("个人博客项目接口测试")
+//                .version("2.0")
+//                .description("个人博客项目接口测试")
+//                .build();
+//        Docket docket = new Docket(DocumentationType.SWAGGER_2)
+//                .apiInfo(apiInfo)
+//                .select()
+//                //扫描的包要写对
+//                .apis(RequestHandlerSelectors.basePackage("top.hazenix.controller"))
+//                .paths(PathSelectors.any())
+//                .build();
+//        return docket;
+//    }
     @Bean
-    public Docket docket() {
+    public Docket docketAdmin() {
+        log.info("准备生成接口文档");
         ApiInfo apiInfo = new ApiInfoBuilder()
                 .title("个人博客项目接口测试")
                 .version("2.0")
                 .description("个人博客项目接口测试")
                 .build();
         Docket docket = new Docket(DocumentationType.SWAGGER_2)
+                .groupName("管理端接口")
                 .apiInfo(apiInfo)
                 .select()
                 //扫描的包要写对
-                .apis(RequestHandlerSelectors.basePackage("top.hazenix.controller"))
+                .apis(RequestHandlerSelectors.basePackage("top.hazenix.controller.admin"))
+                .paths(PathSelectors.any())
+                .build();
+        return docket;
+    }
+    @Bean
+    public Docket docketUser() {
+        log.info("准备生成接口文档");
+        ApiInfo apiInfo = new ApiInfoBuilder()
+                .title("个人博客项目接口测试")
+                .version("2.0")
+                .description("个人博客项目接口测试")
+                .build();
+        Docket docket = new Docket(DocumentationType.SWAGGER_2)
+                .groupName("用户端接口")
+                .apiInfo(apiInfo)
+                .select()
+                //扫描的包要写对
+                .apis(RequestHandlerSelectors.basePackage("top.hazenix.controller.user"))
                 .paths(PathSelectors.any())
                 .build();
         return docket;
     }
 
+
+
+
+
+
+
+
+
+
     /**
-     * (knife4j)给doc.html设置静态资源映射
+     * (knife4j)给doc.html设置静态
+     * 资源映射
      * @param registry
      */
     protected void addResourceHandlers(ResourceHandlerRegistry registry) {

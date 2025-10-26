@@ -261,24 +261,15 @@ const loadArticles = async () => {
   loading.value = true
   try {
     const params = {
-      page: pagination.page,
-      pageSize: pagination.pageSize,
       keyword: searchForm.keyword,
       categoryId: searchForm.categoryId,
       tagId: searchForm.tagId,
-      sortBy: searchForm.sortBy,
-      timeRange: searchForm.timeRange
+      status: '0' // 只显示正常状态的文章
     }
 
-    let response
-    if (searchForm.keyword) {
-      response = await searchArticles(searchForm.keyword, params)
-    } else {
-      response = await getArticleList(params)
-    }
-
-    articles.value = response.data.records || response.data
-    total.value = response.data.total || response.data.length
+    const response = await getArticleList(params)
+    articles.value = response.data || []
+    total.value = articles.value.length
   } catch (error) {
     console.error('Failed to load articles:', error)
     ElMessage.error('加载文章列表失败')

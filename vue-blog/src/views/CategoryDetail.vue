@@ -83,12 +83,11 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { useArticleStore } from '@/stores/article'
+import { getCategoryArticles } from '@/api/category'
 import ArticleCard from '@/components/article/ArticleCard.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 
 const route = useRoute()
-const articleStore = useArticleStore()
 
 // 响应式数据
 const loading = ref(false)
@@ -117,19 +116,22 @@ const fetchCategoryArticles = async () => {
   
   loading.value = true
   try {
-    const response = await articleStore.getArticlesByCategory({
-      categoryId: route.params.id,
-      page: currentPage.value,
-      pageSize: pageSize
-    })
+    const response = await getCategoryArticles(route.params.id)
     
     articles.value = response.data || []
-    totalPages.value = response.totalPages || 1
-    totalArticles.value = response.total || 0
+    totalArticles.value = articles.value.length
     
-    // 获取分类信息
-    if (response.category) {
-      category.value = response.category
+    // 设置分类信息（从第一篇文章获取或使用默认值）
+    if (articles.value.length > 0 && articles.value[0].categoryName) {
+      category.value = {
+        name: articles.value[0].categoryName,
+        id: route.params.id
+      }
+    } else {
+      category.value = {
+        name: '分类',
+        id: route.params.id
+      }
     }
   } catch (error) {
     console.error('获取分类文章失败:', error)

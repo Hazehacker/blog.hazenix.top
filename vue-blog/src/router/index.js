@@ -12,10 +12,10 @@ const routes = [
   {
     path: '/',
     component: () => import('@/components/layout/AppLayout.vue'),
-    meta: {
-      requiresAuth: true,
-      title: '主页'
-    },
+    // meta: {
+    //   requiresAuth: true,
+    //   title: '主页'
+    // },
     children: [
       { path: '/home', name: 'Home', component: () => import('@/views/Home.vue'), meta: { title: '主页' } },
       { path: '/articles', name: 'ArticleList', component: () => import('@/views/ArticleList.vue'), meta: { title: '文章列表' } },
@@ -24,7 +24,8 @@ const routes = [
       { path: '/category/:id', name: 'CategoryDetail', component: () => import('@/views/CategoryDetail.vue'), meta: { title: '分类详情' }, props: true },
       { path: '/tags', name: 'TagList', component: () => import('@/views/TagList.vue'), meta: { title: '标签列表' } },
       { path: '/tag/:id', name: 'TagDetail', component: () => import('@/views/TagDetail.vue'), meta: { title: '标签详情' }, props: true },
-      { path: '/album', name: "Album", component: () => import("@/views/Album.vue"), meta: { title: '相册' }, props: true }
+      { path: '/album', name: "Album", component: () => import("@/views/Album.vue"), meta: { title: '相册' }, props: true },
+      { path: '/favorites', name: 'UserFavorites', component: () => import('@/views/UserFavorites.vue'), meta: { title: '我的收藏', requiresAuth: true } }
 
 
 
@@ -48,6 +49,13 @@ const routes = [
     name: 'Register',
     component: () => import('@/views/Register.vue'),
     meta: { title: '注册', requiresGuest: true }
+  },
+
+  {
+    path: '/search',
+    name: 'Search',
+    component: () => import('@/views/Search.vue'),
+    meta: { title: '搜索' }
   },
 
   // 管理端路由
