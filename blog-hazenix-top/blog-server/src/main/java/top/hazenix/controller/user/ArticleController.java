@@ -51,7 +51,7 @@ public class ArticleController {
      * @param slug
      * @return
      */
-    @GetMapping("/{slug}")
+    @GetMapping("/slug/{slug}")
     public Result getArticleDetail(@PathVariable String slug){
         log.info("获取文章详情");
         ArticleDetailVO articleDetailVO = articleService.getArticleDetailBySlug(slug);

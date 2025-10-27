@@ -94,16 +94,18 @@ public class ArticleServiceImpl implements ArticleService {
         BeanUtils.copyProperties(article,articleDetailVO);
         //查询这篇文章对应的标签
         List<Integer> tagsId = articleTagsMapper.getListByArticleId(id);
-        List<Tags> tags = tagsId.stream()
-                .map(tagId -> {
-                    String tagName = tagsMapper.getById(tagId).getName();
-                    return Tags.builder()
-                            .id(Long.valueOf(tagId))
-                            .name(tagName)
-                            .build();
-                })
-                .collect(Collectors.toList());
-        articleDetailVO.setTags(tags);
+        if (tagsId != null) {
+            List<Tags> tags = tagsId.stream()
+                    .map(tagId -> {
+                        String tagName = tagsMapper.getById(tagId).getName();
+                        return Tags.builder()
+                                .id(Long.valueOf(tagId))
+                                .name(tagName)
+                                .build();
+                    })
+                    .collect(Collectors.toList());
+            articleDetailVO.setTags(tags);
+        }
         articleDetailVO.setCategoryName(categoryMapper.getById(article.getCategoryId()).getName());
         articleDetailVO.setCommentCount(commentsMapper.count(id));
         Long userId = BaseContext.getCurrentId();
@@ -403,20 +405,25 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public ArticleDetailVO getArticleDetailBySlug(String slug) {
         Article article = articleMapper.getBySlug(slug);//【】
+        if(article == null){
+            throw new RuntimeException("不存在该文章");
+        }
         ArticleDetailVO articleDetailVO = new ArticleDetailVO();
         BeanUtils.copyProperties(article,articleDetailVO);
         //查询这篇文章对应的标签
         List<Integer> tagsId = articleTagsMapper.getListByArticleId(article.getId());
-        List<Tags> tags = tagsId.stream()
-                .map(tagId -> {
-                    String tagName = tagsMapper.getById(tagId).getName();
-                    return Tags.builder()
-                            .id(Long.valueOf(tagId))
-                            .name(tagName)
-                            .build();
-                })
-                .collect(Collectors.toList());
-        articleDetailVO.setTags(tags);
+        if (tagsId != null) {
+            List<Tags> tags = tagsId.stream()
+                    .map(tagId -> {
+                        String tagName = tagsMapper.getById(tagId).getName();
+                        return Tags.builder()
+                                .id(Long.valueOf(tagId))
+                                .name(tagName)
+                                .build();
+                    })
+                    .collect(Collectors.toList());
+            articleDetailVO.setTags(tags);
+        }
         articleDetailVO.setCategoryName(categoryMapper.getById(article.getCategoryId()).getName());
         articleDetailVO.setCommentCount(commentsMapper.count(article.getId()));
 
