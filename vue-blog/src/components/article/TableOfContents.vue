@@ -1,7 +1,7 @@
 <template>
-  <div class="toc-container">
+  <div class="toc-container" style="margin-top: 50px;">
     <!-- 滚动进度 -->
-    <div v-if="!isMobile" class="scroll-progress">
+    <div v-if="!isMobile" class="scroll-progress" @click="scrollToTop">
       <div class="progress-text">
         {{ scrollProgress }}% ↑ 返回顶部
       </div>
@@ -31,7 +31,7 @@
             <a
               :href="`#${item.id}`"
               class="toc-link"
-              @click="handleTocClick(item.id)"
+              @click.prevent="handleTocClick(item.id)"
             >
               {{ item.text }}
             </a>
@@ -47,19 +47,33 @@
       </p>
     </div>
 
+    <!-- 文章统计信息 -->
+    <div v-if="!isMobile && article" class="article-stats" style="display: flex;padding-left: 40px;">
+      <div class="stats-item" style="display: flex;width: 50%;">
+        <el-icon class="stats-icon"><View /></el-icon>
+        <span class="stats-text">  {{ article.viewCount || article.views || 0 }}</span>
+      </div>
+      <div class="stats-item" style="display: flex;width: 50%;margin-bottom: 8px;">
+        <el-icon class="stats-icon"><ChatDotRound /></el-icon>
+        <span class="stats-text"> {{ article.commentCount || article.comments || 0 }}</span>
+      </div>
+    </div>
+
     <!-- 互动按钮 -->
     <div v-if="!isMobile" class="toc-actions">
-      <div class="action-item">
-        <el-icon class="action-icon"><Star /></el-icon>
-        <span class="action-text">0</span>
+      <div class="action-item" @click="handleLike" :class="{ 'liked': article?.isLiked }">
+        <el-icon class="action-icon" :class="{ 'text-yellow-500': article?.isLiked }">
+          <Star />
+        </el-icon>
+        <span class="action-text">{{ article?.likeCount || article?.likes || 0 }}</span>
       </div>
-      <div class="action-item">
-        <el-icon class="action-icon"><ChatDotRound /></el-icon>
-        <span class="action-text">0</span>
+      <div class="action-item" @click="handleCollect" :class="{ 'collected': article?.isCollected }">
+        <el-icon class="action-icon"><Collection /></el-icon>
+        <span class="action-text">{{ article?.isCollected ? '已收藏' : '收藏' }}</span>
       </div>
-      <div class="action-item">
+      <div class="action-item" @click="handleShare">
         <el-icon class="action-icon"><Share /></el-icon>
-        <span class="action-text">0</span>
+        <span class="action-text">分享</span>
       </div>
     </div>
   </div>
@@ -67,7 +81,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
-import { Document, Star, ChatDotRound, Share } from '@element-plus/icons-vue'
+import { Document, Star, Collection, Share, View, ChatDotRound } from '@element-plus/icons-vue'
 
 const props = defineProps({
   content: {
@@ -77,10 +91,14 @@ const props = defineProps({
   isMobile: {
     type: Boolean,
     default: false
+  },
+  article: {
+    type: Object,
+    default: null
   }
 })
 
-const emit = defineEmits(['toc-click'])
+const emit = defineEmits(['toc-click', 'like', 'collect', 'share'])
 
 const tocItems = ref([])
 const activeId = ref('')
@@ -98,7 +116,9 @@ const parseToc = (content) => {
     if (match) {
       const level = match[1].length
       const text = match[2].trim()
-      const id = `heading-${index}-${text.toLowerCase().replace(/[^\w\u4e00-\u9fa5]/g, '-')}`
+      // 改进的ID生成逻辑，支持中文字符
+      const id = generateId(text)
+      console.log('TOC parse:', text, '->', id)
       
       headings.push({
         id,
@@ -109,7 +129,32 @@ const parseToc = (content) => {
     }
   })
   
+  console.log('Generated TOC items:', headings)
   return headings
+}
+
+// 生成ID的函数，支持中文字符
+const generateId = (text) => {
+  if (!text) return ''
+  
+  // 移除HTML标签
+  const cleanText = text.replace(/<[^>]*>/g, '')
+  
+  // 转换为小写
+  let id = cleanText.toLowerCase()
+  
+  // 替换空格和特殊字符为连字符，但保留中文字符
+  id = id.replace(/[\s\u3000\u00a0]+/g, '-') // 替换各种空格
+         .replace(/[^\w\u4e00-\u9fa5-]/g, '') // 保留字母、数字、中文、连字符
+         .replace(/-+/g, '-') // 合并多个连字符
+         .replace(/^-|-$/g, '') // 移除首尾连字符
+  
+  // 如果ID为空，使用索引作为fallback
+  if (!id) {
+    id = `heading-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+  }
+  
+  return id
 }
 
 // 更新目录
@@ -119,16 +164,24 @@ const updateToc = () => {
 
 // 处理目录点击
 const handleTocClick = (id) => {
+  console.log('TOC clicked:', id)
   activeId.value = id
   emit('toc-click', id)
   
   // 滚动到对应位置
   const element = document.getElementById(id)
+  console.log('Found element:', element)
+  
   if (element) {
     element.scrollIntoView({ 
       behavior: 'smooth',
       block: 'start'
     })
+  } else {
+    console.warn('Element not found for ID:', id)
+    // 尝试查找所有标题元素进行调试
+    const allHeadings = document.querySelectorAll('h1, h2, h3, h4, h5, h6')
+    console.log('All headings:', Array.from(allHeadings).map(h => ({ id: h.id, text: h.textContent })))
   }
 }
 
@@ -166,6 +219,21 @@ const scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
+// 处理点赞
+const handleLike = () => {
+  emit('like')
+}
+
+// 处理收藏
+const handleCollect = () => {
+  emit('collect')
+}
+
+// 处理分享
+const handleShare = () => {
+  emit('share')
+}
+
 onMounted(() => {
   updateToc()
   window.addEventListener('scroll', handleScroll)
@@ -184,18 +252,20 @@ watch(() => props.content, () => {
 <style scoped>
 .toc-container {
   @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700;
+  position: relative;
+  z-index: 10;
 }
 
 .scroll-progress {
-  @apply p-4 border-b border-gray-200 dark:border-gray-700;
+  @apply p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20;
 }
 
 .progress-text {
-  @apply text-sm text-gray-600 dark:text-gray-400 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors;
+  @apply text-sm text-gray-600 dark:text-gray-400 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium;
 }
 
 .toc-header {
-  @apply p-4 border-b border-gray-200 dark:border-gray-700;
+  @apply p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50;
 }
 
 .toc-title {
@@ -255,20 +325,46 @@ watch(() => props.content, () => {
   @apply p-4 text-center;
 }
 
+.article-stats {
+  @apply p-4 border-t border-gray-200 dark:border-gray-700 space-y-2;
+}
+
+.stats-item {
+  @apply flex items-center text-sm text-gray-600 dark:text-gray-400;
+}
+
+.stats-icon {
+  @apply mr-2 text-gray-500 dark:text-gray-500;
+}
+
+.stats-text {
+  @apply font-medium;
+}
+
 .toc-actions {
-  @apply p-4 border-t border-gray-200 dark:border-gray-700 flex justify-around;
+  @apply p-4 border-t border-gray-200 dark:border-gray-700 flex justify-between;
+  gap: 0.5rem;
 }
 
 .action-item {
-  @apply flex flex-col items-center cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors;
+  @apply flex flex-col items-center cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700;
+  flex: 1;
+}
+
+.action-item.liked {
+  @apply text-yellow-500 hover:text-yellow-600;
+}
+
+.action-item.collected {
+  @apply text-green-500 hover:text-green-600;
 }
 
 .action-icon {
-  @apply text-lg mb-1;
+  @apply text-lg mb-0.5;
 }
 
 .action-text {
-  @apply text-xs;
+  @apply text-xs font-medium;
 }
 
 /* 移动端适配 */
@@ -277,6 +373,7 @@ watch(() => props.content, () => {
     @apply rounded-none border-x-0;
   }
   
+  .article-stats,
   .toc-actions {
     @apply hidden;
   }

@@ -50,10 +50,25 @@ onMounted(async () => {
   try {
     const res = await getArticleList({ 
       status: '0', // 只显示正常状态的文章
-      page: 1, 
-      pageSize: 10 
+      page: 1,
+      pageSize: 6 // 首页只显示6篇文章
     })
-    latestArticles.value = res.data || []
+    console.log('Home page articles response:', res)
+    
+    // 处理不同的响应格式
+    if (res && res.data) {
+      if (Array.isArray(res.data)) {
+        latestArticles.value = res.data
+      } else if (res.data.records) {
+        latestArticles.value = res.data.records
+      } else if (res.data.list) {
+        latestArticles.value = res.data.list
+      } else {
+        latestArticles.value = res.data
+      }
+    } else {
+      latestArticles.value = []
+    }
   } catch (error) {
     console.error('Failed to load articles:', error)
     // 使用mock数据作为fallback

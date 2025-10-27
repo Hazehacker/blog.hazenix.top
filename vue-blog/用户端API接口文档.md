@@ -351,16 +351,17 @@
     {
       "id": 1,
       "name": "前端开发",
-
+      "articleCount":3
     },
     {
       "id": 2,
       "name": "后端开发",
+      "articleCount":4
     }
   ]
 }
 ```
-
+备注：如果articleCount为0，就不展示这个分类
 
 
 ### 3.2 获取分类下的文章列表

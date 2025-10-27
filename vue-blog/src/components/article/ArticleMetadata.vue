@@ -1,70 +1,60 @@
 <template>
   <div class="article-metadata">
-    <!-- 作者信息 -->
-    <div class="metadata-item">
-      <el-icon class="metadata-icon"><User /></el-icon>
-      <span class="metadata-label">作者：</span>
-      <span class="metadata-value">{{ authorName || '未知' }}</span>
+    <!-- 元数据信息水平排列 -->
+    <div class="metadata-row">
+      <!-- 作者信息 -->
+      <div class="metadata-item">
+        <el-icon class="metadata-icon"><User /></el-icon>
+        <span class="metadata-value">{{ authorName || '未知' }}</span>
+      </div>
+
+      <!-- 发布时间 -->
+      <div class="metadata-item">
+        <el-icon class="metadata-icon"><Calendar /></el-icon>
+        <span class="metadata-value">{{ formatDate(createdAt) }}</span>
+      </div>
+
+
+
+      <!-- 阅读量 -->
+      <div class="metadata-item">
+        <el-icon class="metadata-icon"><View /></el-icon>
+        <span class="metadata-value">{{ views || 0 }} views</span>
+      </div>
+
+      <!-- 预计阅读时长 -->
+      <div class="metadata-item">
+        <el-icon class="metadata-icon"><Clock /></el-icon>
+        <span class="metadata-value">预计阅读时长 {{ estimatedReadingTime }} 分钟</span>
+      </div>
     </div>
 
-    <!-- 发布时间 -->
-    <div class="metadata-item">
-      <el-icon class="metadata-icon"><Calendar /></el-icon>
-      <span class="metadata-label">发布时间：</span>
-      <span class="metadata-value">{{ formatDate(createdAt) }}</span>
-    </div>
-
-    <!-- 更新时间 -->
-    <div v-if="updatedAt && updatedAt !== createdAt" class="metadata-item">
-      <el-icon class="metadata-icon"><Edit /></el-icon>
-      <span class="metadata-label">更新时间：</span>
-      <span class="metadata-value">{{ formatDate(updatedAt) }}</span>
-    </div>
-
-    <!-- 浏览量 -->
-    <div class="metadata-item">
-      <el-icon class="metadata-icon"><View /></el-icon>
-      <span class="metadata-label">浏览量：</span>
-      <span class="metadata-value">{{ views || 0 }}</span>
-    </div>
-
-    <!-- 点赞数 -->
-    <div class="metadata-item">
-      <el-icon class="metadata-icon"><Star /></el-icon>
-      <span class="metadata-label">点赞：</span>
-      <span class="metadata-value">{{ likes || 0 }}</span>
-    </div>
-
-    <!-- 评论数 -->
-    <div class="metadata-item">
-      <el-icon class="metadata-icon"><ChatDotRound /></el-icon>
-      <span class="metadata-label">评论：</span>
-      <span class="metadata-value">{{ comments || 0 }}</span>
-    </div>
-
-    <!-- 分类 -->
-    <div v-if="categoryName" class="metadata-item">
-      <el-icon class="metadata-icon"><Folder /></el-icon>
-      <span class="metadata-label">分类：</span>
-      <el-tag type="primary" size="small" class="metadata-tag">
-        {{ categoryName }}
-      </el-tag>
-    </div>
-
-    <!-- 标签 -->
-    <div v-if="tags && tags.length > 0" class="metadata-tags">
-      <el-icon class="metadata-icon"><PriceTag /></el-icon>
-      <span class="metadata-label">标签：</span>
-      <div class="tags-container">
-        <el-tag
-          v-for="tag in tags"
-          :key="tag.id || tag"
-          size="small"
-          type="info"
-          class="tag-item"
-        >
-          {{ tag.name || tag }}
+    <!-- 分类和标签 -->
+    <div class="metadata-tags-row">
+      <!-- 分类 -->
+      <div v-if="categoryName" class="metadata-item">
+        <el-icon class="metadata-icon"><Folder /></el-icon>
+        <span class="metadata-label">分类：</span>
+        <el-tag type="primary" size="small" class="metadata-tag">
+          {{ categoryName }}
         </el-tag>
+      </div>
+
+      <!-- 标签 -->
+      <div v-if="tags && tags.length > 0" class="metadata-item">
+        <el-icon class="metadata-icon"><PriceTag /></el-icon>
+        <span class="metadata-label">标签：</span>
+        <div class="tags-container">
+          <el-tag
+            v-for="tag in tags"
+            :key="tag.id || tag"
+            size="small"
+            type="info"
+            class="tag-item"
+          >
+            {{ tag.name || tag }}
+          </el-tag>
+        </div>
       </div>
     </div>
   </div>
@@ -80,7 +70,8 @@ import {
   Star, 
   ChatDotRound, 
   Folder, 
-  PriceTag 
+  PriceTag,
+  Clock
 } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
 
@@ -116,6 +107,10 @@ const props = defineProps({
   tags: {
     type: Array,
     default: () => []
+  },
+  content: {
+    type: String,
+    default: ''
   }
 })
 
@@ -124,11 +119,39 @@ const formatDate = (date) => {
   if (!date) return ''
   return dayjs(date).format('YYYY-MM-DD HH:mm')
 }
+
+// 计算预计阅读时长（按中文阅读速度每分钟300字计算）
+const estimatedReadingTime = computed(() => {
+  if (!props.content) return 0
+  
+  // 移除Markdown标记，只计算纯文本长度
+  const textContent = props.content
+    .replace(/#{1,6}\s+/g, '') // 移除标题标记
+    .replace(/\*\*(.*?)\*\*/g, '$1') // 移除粗体标记
+    .replace(/\*(.*?)\*/g, '$1') // 移除斜体标记
+    .replace(/`(.*?)`/g, '$1') // 移除代码标记
+    .replace(/\[(.*?)\]\(.*?\)/g, '$1') // 移除链接标记
+    .replace(/!\[.*?\]\(.*?\)/g, '') // 移除图片标记
+    .replace(/\n+/g, ' ') // 将换行符替换为空格
+    .trim()
+  
+  const wordCount = textContent.length
+  const readingTime = Math.ceil(wordCount / 300) // 每分钟300字
+  return Math.max(1, readingTime) // 最少1分钟
+})
 </script>
 
 <style scoped>
 .article-metadata {
-  @apply space-y-3 text-sm;
+  @apply space-y-4 text-sm;
+}
+
+.metadata-row {
+  @apply flex flex-wrap items-center gap-4 text-gray-600 dark:text-gray-400;
+}
+
+.metadata-tags-row {
+  @apply flex flex-wrap items-center gap-4;
 }
 
 .metadata-item {
@@ -136,7 +159,7 @@ const formatDate = (date) => {
 }
 
 .metadata-icon {
-  @apply mr-2 text-gray-500 dark:text-gray-500;
+  @apply mr-1 text-gray-500 dark:text-gray-500;
 }
 
 .metadata-label {
@@ -144,15 +167,15 @@ const formatDate = (date) => {
 }
 
 .metadata-value {
-  @apply text-gray-900 dark:text-gray-100;
+  @apply text-gray-900 dark:text-gray-100 font-medium;
+}
+
+.metadata-text {
+  @apply text-gray-500 dark:text-gray-400;
 }
 
 .metadata-tag {
   @apply ml-1;
-}
-
-.metadata-tags {
-  @apply flex items-start;
 }
 
 .tags-container {
@@ -165,8 +188,12 @@ const formatDate = (date) => {
 
 /* 移动端适配 */
 @media (max-width: 768px) {
-  .article-metadata {
-    @apply space-y-2;
+  .metadata-row {
+    @apply flex-col items-start gap-2;
+  }
+  
+  .metadata-tags-row {
+    @apply flex-col items-start gap-2;
   }
   
   .metadata-item {

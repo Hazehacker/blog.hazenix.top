@@ -74,21 +74,6 @@
         </el-select>
             </div>
 
-            <!-- 排序方式 -->
-            <div class="filter-item">
-              <label class="filter-label">排序</label>
-              <el-select
-                v-model="searchForm.sortBy"
-                placeholder="排序方式"
-                @change="handleFilter"
-                class="filter-select"
-              >
-                <el-option label="最新发布" value="createTime" />
-                <el-option label="最多浏览" value="viewCount" />
-                <el-option label="最多点赞" value="likeCount" />
-                <el-option label="最多评论" value="commentCount" />
-              </el-select>
-            </div>
 
             <!-- 时间范围 -->
             <div class="filter-item">
@@ -216,7 +201,7 @@
 
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Search, Refresh, User, Calendar, View, ChatDotRound } from '@element-plus/icons-vue'
 import { getArticleList, searchArticles } from '@/api/article'
@@ -227,6 +212,7 @@ import { formatDate, formatNumber, generateSummary } from '@/utils/helpers'
 import { setSEO } from '@/utils/seo'
 
 const router = useRouter()
+const route = useRoute()
 
 
 // 响应式数据
@@ -241,7 +227,6 @@ const searchForm = reactive({
   keyword: '',
   categoryId: '',
   tagId: '',
-  sortBy: 'createTime',
   timeRange: ''
 })
 
@@ -264,12 +249,37 @@ const loadArticles = async () => {
       keyword: searchForm.keyword,
       categoryId: searchForm.categoryId,
       tagId: searchForm.tagId,
-      status: '0' // 只显示正常状态的文章
+      status: '0', // 只显示正常状态的文章
+      page: pagination.page,
+      pageSize: pagination.pageSize
     }
 
     const response = await getArticleList(params)
-    articles.value = response.data || []
-    total.value = articles.value.length
+    console.log('Article list response:', response)
+    
+    // 处理不同的响应格式
+    if (response && response.data) {
+      if (Array.isArray(response.data)) {
+        // 如果data直接是数组
+        articles.value = response.data
+        total.value = response.total || response.data.length
+      } else if (response.data.records) {
+        // 如果data包含records字段（分页格式）
+        articles.value = response.data.records
+        total.value = response.data.total || response.data.records.length
+      } else if (response.data.list) {
+        // 如果data包含list字段
+        articles.value = response.data.list
+        total.value = response.data.total || response.data.list.length
+      } else {
+        // 其他格式，尝试直接使用data
+        articles.value = response.data
+        total.value = response.total || response.data.length
+      }
+    } else {
+      articles.value = []
+      total.value = 0
+    }
   } catch (error) {
     console.error('Failed to load articles:', error)
     ElMessage.error('加载文章列表失败')
@@ -307,7 +317,9 @@ const loadArticles = async () => {
 const loadCategories = async () => {
   try {
     const response = await getCategoryList()
-    categories.value = response.data || []
+    // 过滤掉文章数量为0的分类
+    const allCategories = response.data || []
+    categories.value = allCategories.filter(category => category.articleCount > 0)
   } catch (error) {
     console.error('Failed to load categories:', error)
     // Mock数据
@@ -354,7 +366,6 @@ const handleReset = () => {
     keyword: '',
     categoryId: '',
     tagId: '',
-    sortBy: 'createTime',
     timeRange: ''
   })
   pagination.page = 1
@@ -395,6 +406,47 @@ const searchByTag = (tagName) => {
   handleFilter()
 }
 
+// 处理URL查询参数
+const handleRouteQuery = () => {
+  const query = route.query
+  
+  // 处理标签ID参数（优先处理）
+  if (query.tagId) {
+    searchForm.tagId = query.tagId
+  }
+  // 处理标签名称参数
+  else if (query.tag) {
+    // 如果URL中有tag参数，尝试从标签名称找到对应的ID
+    const tagName = decodeURIComponent(query.tag)
+    const tag = tags.value.find(t => t.name === tagName)
+    if (tag) {
+      searchForm.tagId = tag.id
+    } else {
+      // 如果标签列表还没加载，先设置名称，等标签加载后再处理
+      searchForm.tagId = tagName
+    }
+  }
+  
+  // 处理分类参数
+  if (query.category) {
+    const categoryName = decodeURIComponent(query.category)
+    const category = categories.value.find(c => c.name === categoryName)
+    if (category) {
+      searchForm.categoryId = category.id
+    }
+  }
+  
+  // 处理关键词参数
+  if (query.keyword) {
+    searchForm.keyword = decodeURIComponent(query.keyword)
+  }
+  
+  // 处理时间范围参数
+  if (query.timeRange) {
+    searchForm.timeRange = query.timeRange
+  }
+}
+
 // 设置SEO信息
 const setPageSEO = () => {
   setSEO({
@@ -411,11 +463,20 @@ const setPageSEO = () => {
   })
 }
 
-onMounted(() => {
+onMounted(async () => {
   setPageSEO()
+  
+  // 先加载分类和标签数据
+  await Promise.all([
+    loadCategories(),
+    loadTags()
+  ])
+  
+  // 处理URL查询参数
+  handleRouteQuery()
+  
+  // 最后加载文章列表
   loadArticles()
-  loadCategories()
-  loadTags()
 })
 </script>
 

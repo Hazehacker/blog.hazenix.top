@@ -7,7 +7,13 @@ export const articleApi = {
         return request({
             url: '/user/articles',
             method: 'get',
-            params  // { keyword, categoryId, tagId, status }
+            params: {
+                sortBy: 'createTime', // 默认按创建时间排序
+                sortOrder: 'desc',    // 默认降序（最新的在前）
+                page: params.page || 1,
+                pageSize: params.pageSize || 10,
+                ...params  // { keyword, categoryId, tagId, status, sortBy, sortOrder }
+            }
         })
     },
 
@@ -96,7 +102,7 @@ export const articleApi = {
         })
     },
 
-    // 获取相关文章
+    // 获取相关文章(暂时不用)
     getRelatedArticles(id, params = {}) {
         return request({
             url: `/user/articles/${id}/related`,
@@ -191,7 +197,7 @@ export function likeArticle(id) {
 }
 
 export function collectArticle(id) {
-    return articleApi.collectArticle(id)
+    return articleApi.favoriteArticle(id)
 }
 
 export function getRelatedArticles(id, params = {}) {
@@ -200,4 +206,8 @@ export function getRelatedArticles(id, params = {}) {
 
 export function getPopularArticles(params = {}) {
     return articleApi.getPopularArticles(params)
+}
+
+export function incrementViewCount(id) {
+    return articleApi.incrementViewCount(id)
 }

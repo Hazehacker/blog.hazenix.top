@@ -7,7 +7,11 @@ export const userApi = {
         return request({
             url: '/user/user/favorite',
             method: 'get',
-            params  // { page, pageSize }
+            params: {
+                sortBy: 'createTime', // 默认按创建时间排序
+                sortOrder: 'desc',    // 默认降序（最新的在前）
+                ...params  // { page, pageSize }
+            }
         })
     }
 }

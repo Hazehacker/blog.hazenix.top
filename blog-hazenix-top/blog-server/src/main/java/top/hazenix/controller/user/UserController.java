@@ -28,6 +28,7 @@ public class UserController {
 
     @GetMapping("/favorite")
     public Result getFavoriteCollections(){
+        //TODO 登录功能做出来之后再测试
         ArticleListQuery articleListQuery = ArticleListQuery.builder()
                 .status(0)
                 .userId(BaseContext.getCurrentId())

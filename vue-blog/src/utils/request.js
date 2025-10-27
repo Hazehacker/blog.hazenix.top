@@ -33,18 +33,36 @@ request.interceptors.response.use(
         return res;
     },
     error => {
-        if (error.response) {
-            if (error.response.status === 404) {
-                ElMessage.error('未找到请求接口 ')
-            } else if (error.response.status === 500) {
-                ElMessage.error('系统异常，请查看后端控制台报错')
-            } else {
-                console.error(error.message)
-            }
-        } else {
-            //处理网络请求失败的情况：
-            ElMessage.error('网络请求失败，请检查网络连接');
+        console.error('API请求错误:', error)
 
+        if (error.response) {
+            const status = error.response.status
+            const url = error.config?.url
+            console.error(`请求失败: ${status} - ${url}`)
+
+            if (status === 404) {
+                ElMessage.error(`接口不存在: ${url}`)
+            } else if (status === 500) {
+                ElMessage.error('服务器内部错误，请查看后端控制台')
+            } else if (status === 401) {
+                ElMessage.error('未授权，请重新登录')
+            } else if (status === 403) {
+                ElMessage.error('权限不足')
+            } else {
+                ElMessage.error(`请求失败 (${status})`)
+            }
+        } else if (error.code === 'ECONNREFUSED') {
+            console.error('连接被拒绝，请检查后端服务是否启动')
+            ElMessage.error('无法连接到服务器，请检查后端服务是否启动')
+        } else if (error.code === 'ENOTFOUND') {
+            console.error('域名解析失败')
+            ElMessage.error('网络连接失败，请检查网络设置')
+        } else if (error.message.includes('timeout')) {
+            console.error('请求超时')
+            ElMessage.error('请求超时，请检查网络连接')
+        } else {
+            console.error('网络请求失败:', error.message)
+            ElMessage.error('网络请求失败，请检查网络连接')
         }
         return Promise.reject(error)
     }

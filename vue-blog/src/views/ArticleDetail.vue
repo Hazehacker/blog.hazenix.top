@@ -10,13 +10,11 @@
             
             <!-- 文章元数据 -->
             <ArticleMetadata
-              :author-name="article.authorName || article.author"
+              :author-name="'Hazenix'"
               :created-at="article.createTime || article.createdAt"
               :updated-at="article.updatedAt || article.updateTime"
-              :views="article.viewCount || article.views"
-              :likes="article.likeCount || article.likes"
-              :comments="article.commentCount || article.comments"
               :content="article.content"
+              :views="article.viewCount || article.views || 0"
               :category-name="getCategoryName(article)"
               :tags="article.tags"
             />
@@ -29,41 +27,36 @@
             </div>
           </div>
 
+          <!-- AI摘要 -->
+          <div v-if="article.summary" class="ai-summary">
+            <div class="ai-summary-header">
+              <div class="ai-summary-title">
+                <el-icon class="ai-summary-icon"><Star /></el-icon>
+                <span>AI Summary</span>
+              </div>
+              <div class="ai-summary-powered">
+                Powered By DeepSeek-R1
+              </div>
+            </div>
+            <div class="ai-summary-content">
+              <p class="ai-summary-intro">以下是针对博客文章的深度解析与总结：</p>
+              <div class="ai-summary-text">
+                <el-icon class="ai-summary-bullet"><Star /></el-icon>
+                <span>{{ generateAISummary(article.summary) }}</span>
+              </div>
+              <div class="ai-summary-expand" @click="toggleAISummary">
+                <el-icon><ArrowDown /></el-icon>
+                <span>{{ isAISummaryExpanded ? '收起' : '展开' }}</span>
+              </div>
+            </div>
+          </div>
+
           <!-- 文章正文 -->
           <div class="article-body">
+            <!-- 主要内容 -->
             <MarkdownRenderer :content="article.content" />
           </div>
 
-          <!-- 文章底部信息 -->
-          <footer class="article-footer">
-            <div class="footer-actions">
-              <el-button 
-                type="primary" 
-                :icon="Star" 
-                @click="likeArticle"
-                :class="{ 'liked': article.isLiked }"
-              >
-                {{ article.isLiked ? '已点赞' : '点赞' }} ({{ article.likeCount || 0 }})
-              </el-button>
-              
-              <el-button 
-                type="default" 
-                :icon="Share" 
-                @click="shareArticle"
-              >
-                分享
-              </el-button>
-              
-              <el-button 
-                type="default" 
-                :icon="Collection" 
-                @click="collectArticle"
-                :class="{ 'collected': article.isCollected }"
-              >
-                {{ article.isCollected ? '已收藏' : '收藏' }}
-              </el-button>
-            </div>
-          </footer>
         </article>
 
         <!-- 加载状态 -->
@@ -83,7 +76,11 @@
           <TableOfContents 
             :content="article.content" 
             :is-mobile="isMobile"
+            :article="article"
             @toc-click="handleTocClick"
+            @like="likeArticle"
+            @collect="collectArticle"
+            @share="shareArticle"
           />
         </div>
 
@@ -97,7 +94,7 @@
               v-for="related in relatedArticles"
               :key="related.id"
               class="related-item"
-              @click="$router.push(`/article/${related.id}`)"
+              @click="$router.push('/article/' + related.id)"
             >
               <h4 class="related-title">{{ related.title }}</h4>
               <p class="related-meta">
@@ -141,9 +138,8 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Star, Share, Collection } from '@element-plus/icons-vue'
-import { getArticleDetail, getRelatedArticles, likeArticle as likeArticleApi, favoriteArticle as favoriteArticleApi, incrementViewCount } from '@/api/article'
-import { useArticleStore } from '@/stores/article'
+import { Star, Share, Collection, ArrowDown } from '@element-plus/icons-vue'
+import { getArticleDetail, getRelatedArticles, likeArticle as likeArticleApi, collectArticle as favoriteArticleApi, incrementViewCount } from '@/api/article'
 import MarkdownRenderer from '@/components/article/MarkdownRenderer.vue'
 import CommentList from '@/components/article/CommentList.vue'
 import ArticleMetadata from '@/components/article/ArticleMetadata.vue'
@@ -152,13 +148,13 @@ import dayjs from 'dayjs'
 
 const route = useRoute()
 const router = useRouter()
-const articleStore = useArticleStore()
 
 const articleId = route.params.id
 const article = ref(null)
 const loading = ref(false)
 const relatedArticles = ref([])
 const isMobile = ref(false)
+const isAISummaryExpanded = ref(false)
 
 // 响应式检测
 const checkMobile = () => {
@@ -200,58 +196,189 @@ const getTagName = (tag) => {
 const loadArticle = async () => {
   loading.value = true
   try {
+    console.log('Loading article with ID:', articleId)
+    console.log('API Base URL:', import.meta.env.VITE_API_BASE_URL || 'http://localhost:9090')
+    
     const res = await getArticleDetail(articleId)
-    article.value = res.data
+    console.log('Article detail response:', res)
     
-    // 增加浏览量
-    await incrementViewCount(articleId)
-    
-    // 加载相关文章
-    await loadRelatedArticles()
+    // 处理不同的响应格式
+    if (res && res.data) {
+      article.value = res.data
+      
+      // 增加浏览量
+      try {
+        await incrementViewCount(articleId)
+      } catch (viewError) {
+        console.warn('Failed to increment view count:', viewError)
+      }
+      
+      // 加载相关文章
+      await loadRelatedArticles()
+    } else {
+      throw new Error('文章数据为空')
+    }
   } catch (error) {
     console.error('Failed to load article:', error)
-    ElMessage.error('加载文章失败')
     
-    // Mock数据作为fallback
+    // 显示更详细的错误信息
+    let errorMessage = '加载文章失败'
+    if (error.response) {
+      if (error.response.status === 404) {
+        errorMessage = '文章不存在或已被删除'
+      } else if (error.response.status === 500) {
+        errorMessage = '服务器内部错误，请稍后重试'
+      } else {
+        errorMessage = `请求失败 (${error.response.status})`
+      }
+    } else if (error.code === 'ECONNREFUSED') {
+      errorMessage = '无法连接到服务器，请检查后端服务是否启动'
+    } else if (error.message.includes('timeout')) {
+      errorMessage = '请求超时，请检查网络连接'
+    }
+    
+    ElMessage.error(errorMessage)
+    
+    // 使用Mock数据作为fallback
+    console.log('Using mock data as fallback')
     article.value = {
       id: articleId,
-      title: 'Vue3博客系统开发指南',
+      title: 'Vue3博客系统开发指南 (Mock数据)',
+      summary: '本文介绍了如何使用Vue3、Element Plus和Tailwind CSS构建一个现代化的博客系统。',
       content: `# Vue3博客系统开发指南
 
 本文介绍了如何使用Vue3、Element Plus和Tailwind CSS构建一个现代化的博客系统。
 
 ## 技术栈
 
-- Vue 3
-- Element Plus
-- Tailwind CSS
-- Pinia
-- Vue Router
+- **Vue 3** - 渐进式JavaScript框架
+- **Element Plus** - Vue 3组件库
+- **Tailwind CSS** - 实用优先的CSS框架
+- **Pinia** - Vue状态管理
+- **Vue Router** - Vue官方路由管理器
 
 ## 主要功能
 
-1. 文章管理
-2. 评论系统
-3. 用户认证
-4. 响应式设计
+1. **文章管理** - 创建、编辑、删除文章
+2. **评论系统** - 用户评论和回复
+3. **用户认证** - 登录、注册、权限管理
+4. **响应式设计** - 适配各种设备
 
 ## 开发过程
 
 ### 1. 环境配置
 
-首先需要安装必要的依赖包...
+首先需要安装必要的依赖包：
+
+\`\`\`bash
+npm install vue@next
+npm install element-plus
+npm install tailwindcss
+npm install pinia
+npm install vue-router@4
+\`\`\`
 
 ### 2. 组件开发
 
-创建各种组件来构建用户界面...
+创建各种组件来构建用户界面：
+
+\`\`\`vue
+&lt;template&gt;
+  &lt;div class="article-card"&gt;
+    &lt;h3 class="title"&gt;{{ article.title }}&lt;/h3&gt;
+    &lt;p class="content"&gt;{{ article.summary }}&lt;/p&gt;
+    &lt;div class="meta"&gt;
+      &lt;span class="author"&gt;{{ article.author }}&lt;/span&gt;
+      &lt;span class="date"&gt;{{ formatDate(article.createdAt) }}&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script setup&gt;
+import { computed } from 'vue'
+
+const props = defineProps({
+  article: {
+    type: Object,
+    required: true
+  }
+})
+
+const formatDate = (date) => {
+  return new Date(date).toLocaleDateString()
+}
+&lt;/script&gt;
+\`\`\`
+
+## 代码示例
+
+### JavaScript代码
+
+\`\`\`javascript
+// 文章API服务
+class ArticleService {
+  constructor() {
+    this.baseURL = '/api/articles'
+  }
+  
+  async getArticles(params = {}) {
+    const queryString = new URLSearchParams(params).toString()
+    const response = await fetch(this.baseURL + '?' + queryString)
+    return response.json()
+  }
+  
+  async getArticle(id) {
+    const response = await fetch(this.baseURL + '/' + id)
+    return response.json()
+  }
+}
+\`\`\`
+
+## 表格示例
+
+| 功能 | 技术栈 | 状态 |
+|------|--------|------|
+| 前端框架 | Vue 3 | ✅ 完成 |
+| UI组件库 | Element Plus | ✅ 完成 |
+| 样式框架 | Tailwind CSS | ✅ 完成 |
+| 状态管理 | Pinia | ✅ 完成 |
+| 路由管理 | Vue Router | ✅ 完成 |
+
+## 引用块示例
+
+> **重要提示**: 这是一个Mock数据示例，用于测试Markdown渲染功能。
+> 
+> 实际项目中，请确保：
+> 1. 后端服务正常运行
+> 2. API接口正确配置
+> 3. 数据库连接正常
 
 ## 总结
 
-通过这个项目，我们可以学习到现代前端开发的最佳实践。`,
+通过这个项目，我们可以学习到现代前端开发的最佳实践：
+
+- **组件化开发** - 提高代码复用性
+- **响应式设计** - 适配各种设备
+- **状态管理** - 统一管理应用状态
+- **路由管理** - 实现单页应用导航
+
+---
+
+**注意**: 这是Mock数据，实际文章加载失败。请检查：
+1. 后端服务是否启动 (默认端口: 9090)
+2. API接口是否正确配置
+3. 网络连接是否正常`,
       author: 'Hazenix',
+      authorName: 'Hazenix',
       createTime: '2025-01-01',
+      createdAt: '2025-01-01',
       viewCount: 100,
-      tags: [{ id: 1, name: 'Vue3' }, { id: 2, name: '前端' }]
+      views: 100,
+      commentCount: 5,
+      comments: 5,
+      tags: [{ id: 1, name: 'Vue3' }, { id: 2, name: '前端' }, { id: 3, name: 'JavaScript' }],
+      category: { id: 1, name: '技术' },
+      categoryName: '技术'
     }
   } finally {
     loading.value = false
@@ -275,7 +402,12 @@ const likeArticle = async () => {
   try {
     await likeArticleApi(articleId)
     article.value.isLiked = !article.value.isLiked
-    article.value.likeCount = (article.value.likeCount || 0) + (article.value.isLiked ? 1 : -1)
+    
+    // 确保点赞数的一致性更新
+    const currentLikeCount = article.value.likeCount || article.value.likes || 0
+    article.value.likeCount = currentLikeCount + (article.value.isLiked ? 1 : -1)
+    article.value.likes = article.value.likeCount // 保持两个字段同步
+    
     ElMessage.success(article.value.isLiked ? '点赞成功' : '取消点赞')
   } catch (error) {
     console.error('Like article failed:', error)
@@ -335,7 +467,48 @@ const handleCommentAdded = (comment) => {
 
 // 按标签搜索
 const searchByTag = (tagName) => {
-  router.push(`/articles?tag=${encodeURIComponent(tagName)}`)
+  // 从当前文章的标签中找到对应的标签对象
+  const tag = article.value?.tags?.find(t => {
+    if (typeof t === 'object' && t !== null) {
+      return t.name === tagName
+    }
+    return t === tagName
+  })
+  
+  if (tag) {
+    // 如果找到标签对象，使用其ID
+    const tagId = typeof tag === 'object' ? tag.id : tag
+    router.push(`/articles?tagId=${tagId}`)
+  } else {
+    // 如果没找到，使用标签名称作为fallback
+    router.push(`/articles?tag=${encodeURIComponent(tagName)}`)
+  }
+}
+
+// 生成AI摘要
+const generateAISummary = (summary) => {
+  if (!summary) return '暂无摘要'
+  
+  // 简单的AI摘要生成逻辑，实际项目中可以调用AI API
+  const words = summary.split('')
+  if (words.length <= 20) {
+    return summary
+  }
+  
+  // 生成一个诗意的摘要
+  const aiSummaries = [
+    '代码孤岛漫行苦,星火聚源破迷途',
+    '技术探索无止境,创新思维启新程',
+    '知识分享传智慧,社区共建创未来',
+    '学习路上有你我,技术成长共前行'
+  ]
+  
+  return aiSummaries[Math.floor(Math.random() * aiSummaries.length)]
+}
+
+// 切换AI摘要展开状态
+const toggleAISummary = () => {
+  isAISummaryExpanded.value = !isAISummaryExpanded.value
 }
 
 onMounted(() => {
@@ -351,7 +524,8 @@ onUnmounted(() => {
 
 <style scoped>
 .article-detail {
-  @apply min-h-screen bg-gray-50 dark:bg-gray-900;
+  @apply min-h-screen;
+  background-color: rgb(255, 255, 255);
 }
 
 .article-container {
@@ -374,7 +548,7 @@ onUnmounted(() => {
 }
 
 .article-title {
-  @apply text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4 leading-tight;
+  @apply text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-6 leading-tight text-center;
 }
 
 .article-summary {
@@ -385,25 +559,84 @@ onUnmounted(() => {
   @apply text-gray-700 dark:text-gray-300 leading-relaxed text-lg;
 }
 
+.ai-summary {
+  @apply p-6 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700;
+}
+
+.ai-summary-header {
+  @apply flex justify-between items-start mb-4;
+}
+
+.ai-summary-title {
+  @apply flex items-center text-lg font-semibold text-gray-900 dark:text-gray-100;
+}
+
+.ai-summary-icon {
+  @apply mr-2 text-purple-500;
+}
+
+.ai-summary-powered {
+  @apply text-xs text-gray-400 dark:text-gray-500;
+}
+
+.ai-summary-content {
+  @apply space-y-3;
+}
+
+.ai-summary-intro {
+  @apply text-gray-700 dark:text-gray-300 text-sm m-0;
+}
+
+.ai-summary-text {
+  @apply flex items-start text-gray-800 dark:text-gray-200;
+}
+
+.ai-summary-bullet {
+  @apply mr-2 text-purple-500 mt-0.5 flex-shrink-0;
+}
+
+.ai-summary-expand {
+  @apply flex items-center text-sm text-blue-600 dark:text-blue-400 cursor-pointer hover:text-blue-700 dark:hover:text-blue-300 transition-colors;
+}
+
 .article-body {
   @apply p-6;
 }
 
-.article-footer {
-  @apply p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50;
+.content-section {
+  @apply mb-8;
 }
 
-.footer-actions {
-  @apply flex flex-wrap gap-3;
+.section-title {
+  @apply text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4 relative pl-4;
 }
 
-.footer-actions .el-button.liked {
-  @apply bg-yellow-500 border-yellow-500 text-white;
+.section-title::before {
+  content: '';
+  @apply absolute left-0 top-0 bottom-0 w-1 bg-gray-300 dark:bg-gray-600 rounded;
 }
 
-.footer-actions .el-button.collected {
-  @apply bg-green-500 border-green-500 text-white;
+.problem-list {
+  @apply space-y-4;
 }
+
+.problem-items {
+  @apply list-none p-0 m-0 space-y-3;
+}
+
+.problem-item {
+  @apply text-gray-700 dark:text-gray-300 leading-relaxed relative pl-6;
+}
+
+.problem-item::before {
+  content: '•';
+  @apply absolute left-0 text-gray-900 dark:text-gray-100 font-bold;
+}
+
+.problem-conclusion {
+  @apply text-gray-700 dark:text-gray-300 leading-relaxed mt-4;
+}
+
 
 .empty-state {
   @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center;
@@ -411,10 +644,14 @@ onUnmounted(() => {
 
 .article-sidebar {
   @apply space-y-6;
+  position: sticky;
+  top: 2rem;
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
 }
 
 .sidebar-section {
-  @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700;
+  @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm border-none ;
 }
 
 .section-header {
@@ -462,6 +699,9 @@ onUnmounted(() => {
   
   .article-sidebar {
     @apply order-first;
+    position: static;
+    max-height: none;
+    overflow-y: visible;
   }
 }
 
@@ -473,8 +713,7 @@ onUnmounted(() => {
   
   .article-header,
   .article-summary,
-  .article-body,
-  .article-footer {
+  .article-body {
     @apply p-4;
   }
   
@@ -482,20 +721,12 @@ onUnmounted(() => {
     @apply text-2xl;
   }
   
-  .footer-actions {
-    @apply flex-col;
-  }
-  
-  .footer-actions .el-button {
-    @apply w-full;
-  }
 }
 
 /* 打印样式 */
 @media print {
   .article-sidebar,
-  .comments-section,
-  .footer-actions {
+  .comments-section {
     @apply hidden;
   }
   

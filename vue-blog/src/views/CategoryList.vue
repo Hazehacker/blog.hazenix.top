@@ -37,7 +37,9 @@ const loadCategories = async () => {
   loading.value = true
   try {
     const res = await getCategoryList()
-    categories.value = res.data || []
+    // 过滤掉文章数量为0的分类
+    const allCategories = res.data || []
+    categories.value = allCategories.filter(category => category.articleCount > 0)
   } catch (error) {
     console.error('Failed to load categories:', error)
     // Mock数据作为fallback
