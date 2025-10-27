@@ -52,11 +52,21 @@
         select * from comments
         <where>
             <if test="articleId != null">
-                article_id = #{articleId}
+                and article_id = #{articleId}
             </if>
             <if test="status != null">
-                status = #{status}
+                and status = #{status}
             </if>
+            <if test="content != null">
+                and content = #{content}
+            </if>
+             <if test="username != null">
+                and username = #{username}
+            </if>
+             <if test="replyId != null">
+                and reply_id = #{replyId}
+            </if>
+
         </where>
         order by create_time desc
     </select>

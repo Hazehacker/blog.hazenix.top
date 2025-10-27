@@ -99,8 +99,7 @@ public class CommentsServiceImpl implements CommentsService {
      * @param commentsDTO
      */
     @Override
-    public List<CommentsVO> getCommentsList(CommentsDTO commentsDTO) {
-        commentsDTO.setStatus(0);
+    public List<CommentsVO> getCommentsList(CommentsDTO commentsDTO) {commentsDTO.setStatus(0);
         List<Comments> list = commentsMapper.list(commentsDTO);
         List<CommentsVO> resList = new ArrayList<>();
         for(Comments comments:list){

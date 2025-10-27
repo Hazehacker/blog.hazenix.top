@@ -41,6 +41,7 @@ public class CommentsController {
     @PostMapping
     public Result addComment(@RequestBody CommentsDTO commentsDTO){
         log.info("用户新增评论：{}",commentsDTO);
+        //TODO 登录功能做出来之后再测试
         commentsService.addComments(commentsDTO);
         return Result.success();
     }
