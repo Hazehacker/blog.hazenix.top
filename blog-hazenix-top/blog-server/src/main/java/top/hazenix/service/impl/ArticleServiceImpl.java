@@ -90,6 +90,9 @@ public class ArticleServiceImpl implements ArticleService {
     @Transactional
     public ArticleDetailVO getArticleDetail(Long id) {
         Article article = articleMapper.getById(id);
+        if(article == null){
+            throw new RuntimeException("不存在该文章");
+        }
         ArticleDetailVO articleDetailVO = new ArticleDetailVO();
         BeanUtils.copyProperties(article,articleDetailVO);
         //查询这篇文章对应的标签
@@ -352,7 +355,7 @@ public class ArticleServiceImpl implements ArticleService {
 
 
         List<Article> list = articleMapper.getArticleList(articleListQuery);
-        if(list == null){
+        if(list == null || list.size() == 0){
             throw new RuntimeException("不存在相关文章");
         }
         List<ArticleDetailVO> listRes = new ArrayList<>();

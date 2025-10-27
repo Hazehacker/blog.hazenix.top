@@ -141,7 +141,7 @@ public class ArticleController {
         //添加isLiked属性，建一个user_article表(user_id,article_id,is_liked,is_favorite)
 
         //用户点赞或者收藏之后再往user_article表插入数据，不然每次添加文章和新增用户都会插入一堆条目（浪费空间，很多用不到）
-
+        //TODO 登录功能做完之后测试这个接口
         articleService.likeArticle(id);
         return Result.success();
     }
@@ -158,7 +158,7 @@ public class ArticleController {
 
         //修改user_article关联表中的is_favorite字段
         //增加或减少文章的收藏数
-
+        //TODO 登录功能做完之后测试这个接口
         articleService.favoriteArticle(id);
 
         return Result.success();
