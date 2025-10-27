@@ -58,12 +58,17 @@
         order by sort desc
     </select>
     <select id="getCategoryList" resultType="top.hazenix.vo.CategoryVO">
-        select id,name from category
-        <where>
-            <if test="name != null">
-                and name like concat('%',#{name},'%')
-            </if>
-        </where>
-        order by sort desc
+        select
+        c.id,
+        c.name,
+        count(a.id) as articleCount
+        from
+        category c
+        left join
+        article a on c.id = a.category_id
+        group by
+        c.id
+        order by
+        c.sort desc
     </select>
 </mapper>

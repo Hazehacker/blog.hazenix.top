@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class CategoryVO {
     private Integer id;
     private String name;
+    private Integer articleCount;
 }
