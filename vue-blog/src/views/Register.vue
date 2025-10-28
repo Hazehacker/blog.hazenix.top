@@ -30,7 +30,7 @@
       </el-form>
       
       <div class="text-center">
-        <router-link to="/login" class="text-primary">已有账号？立即登录</router-link>
+        <span class="text-primary cursor-pointer" @click="goToLogin">已有账号？立即登录</span>
       </div>
     </el-card>
   </div>
@@ -79,13 +79,23 @@ const handleRegister = async () => {
   await formRef.value.validate()
   loading.value = true
   try {
-    await userStore.register(registerForm.value)
-    ElMessage.success('注册成功，请登录')
-    router.push('/login')
+    // 只发送API需要的参数
+    const registerData = {
+      username: registerForm.value.username,
+      email: registerForm.value.email,
+      password: registerForm.value.password
+    }
+    await userStore.register(registerData)
+    ElMessage.success('注册成功')
+    router.push('/')
   } catch (error) {
-    ElMessage.error('注册失败')
+    ElMessage.error(error.message || '注册失败')
   } finally {
     loading.value = false
   }
+}
+
+const goToLogin = () => {
+  router.push('/')
 }
 </script>

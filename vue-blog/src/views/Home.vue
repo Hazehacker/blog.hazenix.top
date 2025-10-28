@@ -39,14 +39,38 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
+import { ElMessage } from 'element-plus'
 import { getArticleList } from '@/api/article'
 import ArticleList from '@/components/article/ArticleList.vue'
 import UserCard from '@/components/common/UserCard.vue'
 import PopularArticles from '@/components/article/PopularArticles.vue'
 
+const route = useRoute()
+const router = useRouter()
+const userStore = useUserStore()
 const latestArticles = ref([])
 
+// 处理Google登录回调
+const handleGoogleCallback = async () => {
+  const code = route.query.code
+  if (code) {
+    try {
+      await userStore.googleLogin(code)
+      ElMessage.success('Google登录成功')
+      // 清除URL中的code参数
+      router.replace({ path: '/home', query: {} })
+    } catch (error) {
+      ElMessage.error('Google登录失败: ' + (error.message || '未知错误'))
+      console.error('Google login callback error:', error)
+    }
+  }
+}
+
 onMounted(async () => {
+  // 首先处理Google回调
+  await handleGoogleCallback()
   try {
     const res = await getArticleList({ 
       status: '0', // 只显示正常状态的文章

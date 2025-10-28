@@ -32,6 +32,9 @@ public class User implements Serializable {
     //邮箱
     private String email;
 
+    //refreshToken
+    private String refreshToken;
+
     //头像
     private String avatar;
 

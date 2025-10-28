@@ -38,20 +38,20 @@ logging:
 blog:
   jwt:
     # 设置jwt签名加密时使用的秘钥
-    admin-secret-key: itcast
+    admin-secret-key: ${blog.jwt.admin-secret-key}
     # 设置jwt过期时间
     admin-ttl: 43200000
     # 设置前端传递过来的令牌名称
-    admin-token-name: token
+    admin-token-name: ${blog.jwt.admin-token-name}
     enable: ${blog.jwt.enable}
 
     # 用户端jwt令牌相关配置
     # 设置jwt签名加密时使用的秘钥
-    user-secret-key: itheima
+    user-secret-key: ${blog.jwt.user-secret-key}
     # 设置jwt过期时间
     user-ttl: 43200000
     # 设置前端传递过来的令牌名称
-    user-token-name: authentication
+    user-token-name: ${blog.jwt.user-token-name}
   wechat:
     appid: ${blog.wechat.appid}
     secret: ${blog.wechat.secret}
@@ -67,3 +67,13 @@ blog:
     access-key-id: ${blog.alioss.access-key-id}
     access-key-secret: ${blog.alioss.access-key-secret}
     bucket-name: ${blog.alioss.bucket-name}
+  google:
+    authorization:
+      client:
+        id: ${blog.google.authorization.client.id}
+        secret: ${blog.google.authorization.client.secret}
+      redirect:
+        url: ${blog.google.authorization.redirect.url}
+      application:
+        name: ${blog.google.authorization.application.name}
+      scope: ${blog.google.authorization.scope}

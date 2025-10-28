@@ -9,13 +9,19 @@ import org.springframework.web.bind.annotation.*;
 import top.hazenix.constant.JwtClaimsConstant;
 import top.hazenix.context.BaseContext;
 import top.hazenix.dto.UserLoginDTO;
+import top.hazenix.entity.User;
+import top.hazenix.properties.JwtProperties;
 import top.hazenix.query.ArticleListQuery;
 import top.hazenix.result.Result;
 import top.hazenix.service.ArticleService;
+import top.hazenix.service.UserService;
 import top.hazenix.utils.JwtUtil;
 import top.hazenix.vo.ArticleDetailVO;
 import top.hazenix.vo.UserLoginVO;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -25,6 +31,9 @@ import java.util.List;
 public class UserController {
     @Autowired
     private ArticleService articleService;
+    @Autowired
+    private UserService userService;
+
 
     @GetMapping("/favorite")
     public Result getFavoriteCollections(){
@@ -38,28 +47,59 @@ public class UserController {
     }
 
     /**
-     * 用户登录
+     * 用户使用邮箱登录
      * @param userLoginDTO
      * @return
      */
     @PostMapping("/login")
     public Result<UserLoginVO> login(@RequestBody UserLoginDTO userLoginDTO){
-//        log.info("用户登录:{}",userLoginDTO);
-//        User user = userService.login(userLoginDTO);
-//        HashMap<String,Object> claims = new HashMap<>();
-//        claims.put(JwtClaimsConstant.USER_ID,user.getId());
-//        String token = JwtUtil.createJWT(jwtProperties.getUserSecretKey(),jwtProperties.getUserTtl(),claims);
-//        UserLoginVO userLoginVO = UserLoginVO.builder()
-//                .id(user.getId())
-//                .openid(user.getOpenid())
-//                .token(token)
-//                .build();
-//        try {
-//            return Result.success(userLoginVO);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-        return null;
+        log.info("用户登录:{}",userLoginDTO);
+        UserLoginVO userLoginVO = userService.login(userLoginDTO);
+        return Result.success(userLoginVO);
+    }
+
+    /**
+     * 用户使用邮箱注册账号
+     * @param userLoginDTO
+     * @return
+     */
+    @PostMapping("/register")
+    public Result<UserLoginVO> register(@RequestBody UserLoginDTO userLoginDTO){
+        log.info("用户注册:{}",userLoginDTO);
+        UserLoginVO userLoginVO = userService.register(userLoginDTO);
+        return Result.success(userLoginVO);
+    }
+
+    @PostMapping("/logout")
+    public Result logout(HttpServletRequest request){
+        log.info("用户退出登录");
+        userService.logout(request);
+        return Result.success();
+    }
+
+
+
+
+    /**
+     * 生成用户授权URL，将用户重定向到gooogle登录页面进行身份验证
+     * @return
+     * @throws GeneralSecurityException
+     * @throws IOException
+     */
+    @GetMapping("/google/url")
+    public Result getUrl() throws GeneralSecurityException, IOException {
+        return Result.success(userService.authorizingUrl());
+    }
+
+    /**
+     * 获取用户授权信息（用code换取）
+     * @param code
+     * @return
+     */
+    @GetMapping("/google/callback")
+    public Result handleCallback(@RequestParam String code) throws GeneralSecurityException, IOException {
+        UserLoginVO userLoginVO = userService.authorizingWithCode(code);
+        return Result.success(userLoginVO);
     }
 
 

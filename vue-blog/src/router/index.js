@@ -36,13 +36,7 @@ const routes = [
 
 
 
-  // 用户认证路由
-  {
-    path: '/login',
-    name: 'Login',
-    component: () => import('@/views/Login.vue'),
-    meta: { title: '登录', requiresGuest: true }
-  },
+  // 用户认证路由 - 移除独立登录页面，使用登录对话框
 
   {
     path: '/register',

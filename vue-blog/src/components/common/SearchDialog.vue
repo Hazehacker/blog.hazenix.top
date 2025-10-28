@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="visible" title="搜索文章" width="600px">
+  <el-dialog v-model="visible" title="搜索文章" width="600px" :z-index="999999" :modal="true" :append-to-body="true">
     <el-input
       v-model="searchKeyword"
       placeholder="输入关键词搜索..."
@@ -98,7 +98,9 @@ const goToSearchPage = () => {
 // 暴露方法给父组件调用
 defineExpose({
   open: () => {
+    console.log('SearchDialog open method called, visible:', visible.value)
     visible.value = true
+    console.log('SearchDialog visible set to:', visible.value)
   }
 })
 </script>

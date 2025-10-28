@@ -137,6 +137,10 @@
             >
               点击上传
             </el-button>
+            <div class="mt-1 text-xs text-gray-500 dark:text-gray-500">
+              <i class="fas fa-info-circle mr-1"></i>
+              导入时会自动检测并上传文档中的图片到服务器
+            </div>
             <!-- 隐藏的文件输入 -->
             <input
               ref="fileInputRef"
@@ -411,6 +415,7 @@ import { getToken } from '@/utils/auth'
 import { adminApi } from '@/api/admin'
 import Editor from '@toast-ui/editor'
 import '@toast-ui/editor/dist/toastui-editor.css'
+import { batchProcessMarkdownImages, extractImageUrls } from '@/utils/markdownImageProcessor'
 
 // Props
 const props = defineProps({
@@ -712,7 +717,7 @@ const toggleFullscreen = () => {
 
 
 // 处理文件导入
-const handleFileImport = (event) => {
+const handleFileImport = async (event) => {
   const file = event.target.files[0]
   if (!file) return
 
@@ -734,11 +739,29 @@ const handleFileImport = (event) => {
 
   // 读取文件内容
   const reader = new FileReader()
-  reader.onload = (e) => {
+  reader.onload = async (e) => {
     try {
       const content = e.target.result
       console.log('文件内容读取成功，长度:', content.length)
       console.log('文件内容预览:', content.substring(0, 200) + '...')
+      
+      // 检查是否有图片需要处理
+      const imageUrls = extractImageUrls(content)
+      let processedContent = content
+      
+      if (imageUrls.length > 0) {
+        ElMessage.info(`检测到 ${imageUrls.length} 张图片，开始自动上传处理...`)
+        
+        try {
+          // 处理图片自动上传
+          processedContent = await batchProcessMarkdownImages(content)
+          ElMessage.success('图片自动上传处理完成！')
+        } catch (error) {
+          console.error('图片处理失败:', error)
+          ElMessage.warning('图片自动上传失败，将使用原始内容')
+          processedContent = content
+        }
+      }
       
       // 设置编辑器内容
       if (editor.value) {
@@ -746,14 +769,14 @@ const handleFileImport = (event) => {
           // 先重置编辑器内容，避免transaction冲突
           editor.value.reset()
           // 使用setMarkdown方法设置内容
-          editor.value.setMarkdown(content)
-          form.content = content
+          editor.value.setMarkdown(processedContent)
+          form.content = processedContent
           ElMessage.success('文件导入成功，左右两边都已更新')
           console.log('编辑器内容已更新')
         } catch (error) {
           console.error('设置编辑器内容失败:', error)
           // 如果设置失败，尝试重新初始化编辑器
-          form.content = content
+          form.content = processedContent
           nextTick(() => {
             initEditor()
           })
@@ -761,7 +784,7 @@ const handleFileImport = (event) => {
         }
       } else {
         // 如果编辑器还没初始化，先保存内容
-        form.content = content
+        form.content = processedContent
         ElMessage.success('文件已读取，编辑器初始化后将自动加载')
         console.log('编辑器未初始化，内容已保存')
       }

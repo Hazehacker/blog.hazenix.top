@@ -13,7 +13,6 @@
       <router-link to="/categories" class="hover:text-primary">分类</router-link>
       <router-link to="/tags" class="hover:text-primary">标签</router-link>
       <router-link to="/album" class="hover:text-primary">相册</router-link>
-      <router-link to="/search" class="hover:text-primary">搜索</router-link>
     </nav>
     
     <div class="flex items-center space-x-4">
@@ -39,15 +38,13 @@
         </template>
       </el-dropdown>
       
-      <el-button v-else link @click="router.push('/login')">
+      <el-button v-else link @click="openLogin">
         <el-icon><User/></el-icon>
       </el-button>
       
       <ThemeToggle />
     </div>
     
-    <!-- 搜索对话框 -->
-    <SearchDialog ref="searchDialogRef" />
   </header>
 </template>
 
@@ -56,12 +53,10 @@ import { ref } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
 import ThemeToggle from '@/components/common/ThemeToggle.vue'
-import SearchDialog from '@/components/common/SearchDialog.vue'
 import { Search, User } from '@element-plus/icons-vue'
 
 const userStore = useUserStore()
 const router = useRouter()
-const searchDialogRef = ref()
 import avatarFallback from '@/assets/img/avatar.jpg'
 import githubImg from '@/assets/img/githubLogo.png'
 import csdnImg from '@/assets/img/csdnLogo.png'
@@ -74,7 +69,13 @@ const onAvatarError = (e) => {
 }
 
 const openSearch = () => {
-  searchDialogRef.value?.open()
+  // 触发搜索对话框打开事件
+  window.dispatchEvent(new CustomEvent('open-search-dialog'))
+}
+
+const openLogin = () => {
+  // 触发登录对话框打开事件
+  window.dispatchEvent(new CustomEvent('open-login-dialog'))
 }
 
 //点击按钮之后，打开github
