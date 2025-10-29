@@ -25,6 +25,7 @@ const routes = [
       { path: '/tags', name: 'TagList', component: () => import('@/views/TagList.vue'), meta: { title: '标签列表' } },
       { path: '/tag/:id', name: 'TagDetail', component: () => import('@/views/TagDetail.vue'), meta: { title: '标签详情' }, props: true },
       { path: '/album', name: "Album", component: () => import("@/views/Album.vue"), meta: { title: '相册' }, props: true },
+      { path: '/friend-links', name: 'FriendLinks', component: () => import('@/views/FriendLinks.vue'), meta: { title: '友情链接' } },
       { path: '/favorites', name: 'UserFavorites', component: () => import('@/views/UserFavorites.vue'), meta: { title: '我的收藏', requiresAuth: true } }
 
 
@@ -167,7 +168,7 @@ const routes = [
     path: '/about',
     name: 'About',
     component: () => import('@/views/About.vue'),
-    meta: { title: '关于我们' }
+    meta: { title: '关于我' }
   },
 
   // 404页面

@@ -108,7 +108,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { View, Star, ChatDotRound, Clock, Delete } from '@element-plus/icons-vue'
 import { getFavoriteArticles } from '@/api/user'
-import { favoriteArticle } from '@/api/article'
+import { collectArticle } from '@/api/article'
 import dayjs from 'dayjs'
 
 const router = useRouter()
@@ -167,7 +167,7 @@ const removeFavorite = async (articleId) => {
       type: 'warning'
     })
     
-    await favoriteArticle(articleId)
+    await collectArticle(articleId)
     ElMessage.success('已取消收藏')
     loadFavoriteArticles()
   } catch (error) {

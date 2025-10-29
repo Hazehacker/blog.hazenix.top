@@ -16,5 +16,5 @@ public class LinkQueryDTO {
     @Builder.Default
     private Integer page = 1;
     @Builder.Default
-    private Integer pageSize = 10;
+    private Integer pageSize = 20;
 }

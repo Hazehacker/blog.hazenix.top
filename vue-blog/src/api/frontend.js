@@ -7,7 +7,12 @@ export const frontendApi = {
     // ========== 友链相关 ==========
     // 获取友链列表（前台）
     getLinks(params = {}) {
-        return request.get(`${FRONTEND_BASE_URL}/user/links`, { params })
+        return request.get('/user/links', { params })
+    },
+
+    // 申请友链（用户端）
+    applyLink(data) {
+        return request.post('/user/links/apply', data)
     },
 
     // ========== 文章相关 ==========

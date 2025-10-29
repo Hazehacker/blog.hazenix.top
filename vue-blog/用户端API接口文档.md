@@ -495,11 +495,109 @@
 
 ---
 
-## 7. 用户相关接口
+## 7. 友链相关接口
+
+### 7.1 获取友链列表
+- **URL**: `GET /user/links`
+- **描述**: 获取友链列表（只返回状态为正常的友链）
+- **认证**: 不需要
+- **请求参数**:
+  - `status` (int, 可选): 状态筛选，默认0（只返回正常状态的友链）
+  - `sort` (string, 可选): 排序方式，asc升序 desc降序，默认asc
+- **响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "success",
+  "data": [
+    {
+      "id": 1,
+      "name": "Vue.js",
+      "description": "渐进式JavaScript框架",
+      "url": "https://vuejs.org",
+      "avatar": "https://vuejs.org/images/logo.png",
+      "sort": 1,
+      "status": 0,
+      "createTime": "2024-01-01T10:00:00Z"
+    },
+    {
+      "id": 2,
+      "name": "Element Plus",
+      "description": "基于Vue 3的桌面端组件库",
+      "url": "https://element-plus.org",
+      "avatar": "https://element-plus.org/images/element-plus-logo-small.svg",
+      "sort": 2,
+      "status": 0,
+      "createTime": "2024-01-01T11:00:00Z"
+    }
+  ]
+}
+```
+
+### 7.2 申请友链
+- **URL**: `POST /user/links/apply`
+- **描述**: 用户申请友情链接
+- **认证**: 不需要
+- **请求体**:
+```json
+{
+  "name": "网站名称",
+  "description": "网站描述",
+  "url": "https://example.com",
+  "avatar": "https://example.com/logo.png"
+}
+```
+- **请求参数说明**:
+  - `name` (string, 必填): 网站名称，最大48字符
+  - `description` (string, 可选): 网站描述，最大255字符
+  - `url` (string, 必填): 网站地址，必须是有效URL
+  - `avatar` (string, 可选): 友链头像URL，最大600字符
+- **响应示例**:
+```json
+{
+  "code": 200,
+  "msg": "友链申请提交成功，请等待审核",
+  "data": {
+    "id": 3,
+    "name": "示例网站",
+    "description": "这是一个示例网站",
+    "url": "https://example.com",
+    "avatar": "https://example.com/logo.png",
+    "status": 1,
+    "createTime": "2024-01-01T12:00:00Z"
+  }
+}
+```
+- **错误响应示例**:
+```json
+{
+  "code": 400,
+  "msg": "网站名称不能为空",
+  "data": null
+}
+```
+```json
+{
+  "code": 400,
+  "msg": "网站地址格式不正确",
+  "data": null
+}
+```
+```json
+{
+  "code": 400,
+  "msg": "网站名称长度不能超过48个字符",
+  "data": null
+}
+```
+
+---
+
+## 8. 用户相关接口
 
 
 
-### 7.1 获取用户收藏的文章
+### 8.1 获取用户收藏的文章
 - **URL**: `GET /user/user/favorite`
 - **描述**: 获取用户收藏的文章列表
 - **认证**: 需要
@@ -546,6 +644,17 @@ const createComment = async (commentData) => {
     return response.data
   } catch (error) {
     console.error('创建评论失败:', error)
+    throw error
+  }
+}
+
+// 申请友链
+const applyLink = async (linkData) => {
+  try {
+    const response = await axios.post('/user/links/apply', linkData)
+    return response.data
+  } catch (error) {
+    console.error('申请友链失败:', error)
     throw error
   }
 }

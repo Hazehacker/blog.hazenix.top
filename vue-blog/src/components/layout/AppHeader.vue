@@ -13,6 +13,31 @@
       <router-link to="/categories" class="hover:text-primary">分类</router-link>
       <router-link to="/tags" class="hover:text-primary">标签</router-link>
       <router-link to="/album" class="hover:text-primary">相册</router-link>
+      
+      <!-- 更多下拉菜单 -->
+      <el-dropdown @command="handleMoreCommand" trigger="hover" class="more-dropdown">
+        <span class="hover:text-primary cursor-pointer flex items-center more-trigger ">
+          更多
+          <el-icon class="ml-1"><ArrowDown /></el-icon>
+        </span>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item command="friend-links">
+              <el-icon class="mr-2"><Link /></el-icon>
+              友情链接
+            </el-dropdown-item>
+            <el-dropdown-item command="about">
+              <el-icon class="mr-2"><InfoFilled /></el-icon>
+              关于我
+            </el-dropdown-item>
+            <!-- 统计页面暂时不添加 -->
+            <!-- <el-dropdown-item command="stats">
+              <el-icon class="mr-2"><DataAnalysis /></el-icon>
+              统计
+            </el-dropdown-item> -->
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
     </nav>
     
     <div class="flex items-center space-x-4">
@@ -53,7 +78,7 @@ import { ref } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
 import ThemeToggle from '@/components/common/ThemeToggle.vue'
-import { Search, User } from '@element-plus/icons-vue'
+import { Search, User, ArrowDown, Link, InfoFilled } from '@element-plus/icons-vue'
 
 const userStore = useUserStore()
 const router = useRouter()
@@ -97,4 +122,46 @@ const handleCommand = (command) => {
     router.push('/profile')
   }
 }
+
+const handleMoreCommand = (command) => {
+  if (command === 'friend-links') {
+    router.push('/friend-links')
+  } else if (command === 'about') {
+    router.push('/about')
+  }
+}
 </script>
+
+<style scoped>
+/* 移除更多下拉菜单的默认边框样式 */
+.more-dropdown :deep(.el-dropdown) {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.more-dropdown :deep(.el-dropdown__caret-button) {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.more-trigger {
+  font-size:16px; 
+  color:#4B5563;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+/* 确保更多选项的样式与其他导航项一致 */
+.more-dropdown {
+  display: inline-block;
+}
+
+.more-dropdown:hover .more-trigger {
+  color: var(--el-color-primary);
+}
+</style>

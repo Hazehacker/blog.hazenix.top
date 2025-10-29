@@ -1,0 +1,1 @@
+import{W as t}from"./index-BjRrW_j8.js";function a(){return t({url:"/user/tags",method:"get"})}function g(e,r={}){return t({url:`/user/tags/${e}/articles`,method:"get",params:r})}export{g as a,a as g};
