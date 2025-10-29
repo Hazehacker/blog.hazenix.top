@@ -5,7 +5,7 @@ export const commentApi = {
     // 获取评论列表
     getCommentList(params = {}) {
         return request({
-            url: '/user/comments',
+            url: '/user/comments/list',
             method: 'get',
             params  // { articleId, status }
         })

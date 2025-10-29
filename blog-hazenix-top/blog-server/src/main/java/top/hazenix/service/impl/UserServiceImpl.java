@@ -151,6 +151,9 @@ public class UserServiceImpl implements UserService {
         // 获取当前JWT token
         //TODO 后面加redis了再开启
 //        String token = request.getHeader(jwtProperties.getUserTokenName());
+//        if(token == null){
+//            throw new RuntimeException("当前用户还未登录");
+//        }
 //        if (StringUtils.isNotBlank(token)) {
 //            // 将token加入黑名单，设置过期时间
 //            String key = "jwt:blacklist:" + getTokenSignature(token);

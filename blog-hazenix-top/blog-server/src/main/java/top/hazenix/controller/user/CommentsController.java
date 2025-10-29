@@ -26,7 +26,7 @@ public class CommentsController {
     /**
      * 获取评论列表(用户端)
      */
-    @GetMapping
+    @GetMapping("/list")
     public Result getCommentsList(CommentsDTO commentsDTO){
         log.info("获取评论列表:{}",commentsDTO);
         List<CommentsVO> listRes = commentsService.getCommentsList(commentsDTO);

@@ -39,11 +39,7 @@ public class JwtTokenUserInterceptor implements HandlerInterceptor {
      */
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         log.info("JWT User Interceptor 执行: URI = {}", request.getRequestURI());
-        //TODO 后面删掉
-        if(1 ==1 ){
-            //暂时不开启jwt，直接放行
-            return true;
-        }
+
         //判断当前拦截到的是Controller的方法还是其他资源
         if (!(handler instanceof HandlerMethod)) {
             //当前拦截到的不是动态方法，直接放行
@@ -64,6 +60,10 @@ public class JwtTokenUserInterceptor implements HandlerInterceptor {
             Long userId = Long.valueOf(claims.get(JwtClaimsConstant.USER_ID).toString());
             BaseContext.setCurrentId(userId);
             log.info("当前用户id：{}", userId);
+            //如果id不为1，就不是管理员，不放行
+            if(userId != 1L){
+                return false;
+            }
             //3、通过，放行
             return true;
         } catch (Exception ex) {

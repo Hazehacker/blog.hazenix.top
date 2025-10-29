@@ -7,10 +7,34 @@
       </h3>
     </div>
 
-    <!-- 评论输入框 -->
-    <div v-if="showCommentForm" class="comment-form">
+    <!-- 未登录用户提示 -->
+    <div v-if="!isLoggedIn" class="login-prompt">
+      <div class="prompt-content">
+        <el-icon class="prompt-icon"><Warning /></el-icon>
+        <span class="prompt-text">登录后才能发表评论</span>
+        <el-button type="primary" size="small" @click="openLoginDialog">
+          立即登录
+        </el-button>
+      </div>
+    </div>
+
+    <!-- 评论输入框（仅登录用户可见） -->
+    <div v-if="isLoggedIn && showCommentForm" class="comment-form">
       <div class="form-header">
-        <h4 class="form-title">发表评论</h4>
+        <div class="form-user-info">
+          <el-avatar :size="32" :src="userInfo?.avatar">
+            {{ userInfo?.username?.charAt(0) || 'U' }}
+          </el-avatar>
+          <span class="form-username">{{ userInfo?.username || '用户' }}</span>
+        </div>
+        <el-button 
+          v-if="commentForm.parentId" 
+          type="text" 
+          size="small"
+          @click="cancelReply"
+        >
+          取消回复
+        </el-button>
       </div>
       
       <el-form :model="commentForm" :rules="commentRules" ref="commentFormRef">
@@ -19,28 +43,10 @@
             v-model="commentForm.content"
             type="textarea"
             :rows="4"
-            placeholder="请输入您的评论..."
+            :placeholder="commentForm.replyTo ? `回复 @${commentForm.replyTo}:` : '请输入您的评论...'"
             maxlength="500"
             show-word-limit
             class="comment-textarea"
-          />
-        </el-form-item>
-        
-        <el-form-item prop="nickname">
-          <el-input
-            v-model="commentForm.nickname"
-            placeholder="请输入昵称"
-            maxlength="20"
-            class="comment-nickname"
-          />
-        </el-form-item>
-        
-        <el-form-item prop="email">
-          <el-input
-            v-model="commentForm.email"
-            placeholder="请输入邮箱（可选）"
-            type="email"
-            class="comment-email"
           />
         </el-form-item>
         
@@ -57,6 +63,14 @@
       </el-form>
     </div>
 
+    <!-- 发表评论按钮（登录用户且未显示表单时） -->
+    <div v-if="isLoggedIn && !showCommentForm" class="comment-form-toggle">
+      <el-button type="primary" @click="showCommentForm = true">
+        <el-icon class="mr-1"><Edit /></el-icon>
+        发表评论
+      </el-button>
+    </div>
+
     <!-- 评论列表 -->
     <div class="comments-container">
       <div v-if="loading" class="loading-container">
@@ -65,7 +79,11 @@
       
       <div v-else-if="comments.length === 0" class="empty-comments">
         <el-empty description="暂无评论，快来抢沙发吧！">
-          <el-button type="primary" @click="showCommentForm = true">
+          <el-button 
+            v-if="isLoggedIn" 
+            type="primary" 
+            @click="showCommentForm = true"
+          >
             发表评论
           </el-button>
         </el-empty>
@@ -77,70 +95,38 @@
           :key="comment.id"
           class="comment-item"
         >
+          <!-- 头像 -->
           <div class="comment-avatar">
-            <el-avatar :size="40" :src="comment.avatar">
-              {{ comment.nickname?.charAt(0) || 'U' }}
+            <el-avatar :size="40" :src="comment.avatar || comment.avatarUrl">
+              {{ (comment.username || comment.nickname)?.charAt(0) || 'U' }}
             </el-avatar>
           </div>
           
+          <!-- 评论内容 -->
           <div class="comment-content">
-            <div class="comment-header">
+            <!-- 用户名 -->
               <div class="comment-author">
-                <span class="author-name">{{ comment.nickname || '匿名用户' }}</span>
-                <span class="comment-time">{{ formatTime(comment.createTime) }}</span>
-              </div>
-              
-              <div class="comment-actions">
-                <el-button 
-                  type="text" 
-                  size="small"
-                  @click="replyToComment(comment)"
-                >
-                  回复
-                </el-button>
-                <el-button 
-                  type="text" 
-                  size="small"
-                  @click="likeComment(comment)"
-                  :class="{ 'liked': comment.isLiked }"
-                >
-                  <el-icon class="mr-1"><Star /></el-icon>
-                  {{ comment.likeCount || 0 }}
-                </el-button>
-              </div>
+              <span class="author-name">{{ comment.username || comment.nickname || '匿名用户' }}</span>
             </div>
             
+            <!-- 评论文本 -->
             <div class="comment-text">
+              <span v-if="comment.replyId && comment.replyUsername" class="reply-prefix">
+                回复 @{{ comment.replyUsername }}:
+              </span>
               {{ comment.content }}
             </div>
             
-            <!-- 回复列表 -->
-            <div v-if="comment.replies && comment.replies.length > 0" class="replies">
-              <div
-                v-for="reply in comment.replies"
-                :key="reply.id"
-                class="reply-item"
+            <!-- 时间戳和回复链接 -->
+            <div class="comment-meta">
+              <span class="comment-time">{{ formatTime(comment.createTime) }}</span>
+              <span 
+                v-if="isLoggedIn"
+                class="reply-link" 
+                @click="replyToComment(comment)"
               >
-                <div class="reply-avatar">
-                  <el-avatar :size="32" :src="reply.avatar">
-                    {{ reply.nickname?.charAt(0) || 'U' }}
-                  </el-avatar>
-                </div>
-                
-                <div class="reply-content">
-                  <div class="reply-header">
-                    <span class="reply-author">{{ reply.nickname || '匿名用户' }}</span>
-                    <span class="reply-time">{{ formatTime(reply.createTime) }}</span>
-                  </div>
-                  
-                  <div class="reply-text">
-                    <span v-if="reply.replyTo" class="reply-to">
-                      @{{ reply.replyTo }} 
+                回复
                     </span>
-                    {{ reply.content }}
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -163,10 +149,12 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import { ChatDotRound, Star } from '@element-plus/icons-vue'
+import { ChatDotRound, Edit, Warning } from '@element-plus/icons-vue'
+import { useUserStore } from '@/stores/user'
 import { getComments, createComment, likeComment as likeCommentApi } from '@/api/comment'
+import dayjs from 'dayjs'
 
 const props = defineProps({
   articleId: {
@@ -176,6 +164,11 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['comment-added'])
+
+// 用户状态
+const userStore = useUserStore()
+const isLoggedIn = computed(() => !!userStore.token)
+const userInfo = computed(() => userStore.userInfo)
 
 // 响应式数据
 const loading = ref(false)
@@ -190,8 +183,6 @@ const commentFormRef = ref(null)
 // 评论表单
 const commentForm = reactive({
   content: '',
-  nickname: '',
-  email: '',
   parentId: null,
   replyTo: ''
 })
@@ -201,14 +192,12 @@ const commentRules = {
   content: [
     { required: true, message: '请输入评论内容', trigger: 'blur' },
     { min: 1, max: 500, message: '评论长度在 1 到 500 个字符', trigger: 'blur' }
-  ],
-  nickname: [
-    { required: true, message: '请输入昵称', trigger: 'blur' },
-    { min: 1, max: 20, message: '昵称长度在 1 到 20 个字符', trigger: 'blur' }
-  ],
-  email: [
-    { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
   ]
+}
+
+// 打开登录对话框
+const openLoginDialog = () => {
+  window.dispatchEvent(new Event('open-login-dialog'))
 }
 
 // 加载评论列表
@@ -220,8 +209,22 @@ const loadComments = async () => {
       status: '0' // 只显示正常状态的评论
     })
     
-    comments.value = response.data || []
+    // 处理响应数据，可能是数组或对象
+    let commentList = []
+    if (Array.isArray(response.data)) {
+      commentList = response.data
+    } else if (response.data?.list) {
+      commentList = response.data.list
+      totalComments.value = response.data.total || response.data.list.length
+    } else if (response.data) {
+      // 如果是单个对象，转为数组
+      commentList = [response.data]
+    }
+    
+    comments.value = commentList
+    if (!totalComments.value) {
     totalComments.value = comments.value.length
+    }
   } catch (error) {
     console.error('加载评论失败:', error)
     ElMessage.error('加载评论失败')
@@ -232,6 +235,12 @@ const loadComments = async () => {
 
 // 提交评论
 const submitComment = async () => {
+  if (!isLoggedIn.value) {
+    ElMessage.warning('请先登录')
+    openLoginDialog()
+    return
+  }
+
   if (!commentFormRef.value) return
   
   try {
@@ -241,19 +250,25 @@ const submitComment = async () => {
     const response = await createComment({
       articleId: props.articleId,
       content: commentForm.content,
-      username: commentForm.nickname,
-      replyId: commentForm.parentId
+      replyId: commentForm.parentId || null,
+      // 如果后端需要username，可以从userInfo中获取
+      // username: userInfo.value?.username || userInfo.value?.nickname
     })
     
     ElMessage.success('评论发表成功')
     resetCommentForm()
     showCommentForm.value = false
-    loadComments()
+    await loadComments()
     emit('comment-added', response.data)
   } catch (error) {
     if (error !== false) { // 不是表单验证错误
       console.error('发表评论失败:', error)
+      if (error.response?.status === 401) {
+        ElMessage.error('登录已过期，请重新登录')
+        openLoginDialog()
+      } else {
       ElMessage.error('发表评论失败')
+      }
     }
   } finally {
     submitting.value = false
@@ -266,12 +281,16 @@ const cancelComment = () => {
   showCommentForm.value = false
 }
 
+// 取消回复
+const cancelReply = () => {
+  commentForm.parentId = null
+  commentForm.replyTo = ''
+}
+
 // 重置评论表单
 const resetCommentForm = () => {
   Object.assign(commentForm, {
     content: '',
-    nickname: '',
-    email: '',
     parentId: null,
     replyTo: ''
   })
@@ -280,13 +299,33 @@ const resetCommentForm = () => {
 
 // 回复评论
 const replyToComment = (comment) => {
+  if (!isLoggedIn.value) {
+    ElMessage.warning('请先登录')
+    openLoginDialog()
+    return
+  }
+
   commentForm.parentId = comment.id
-  commentForm.replyTo = comment.nickname
+  commentForm.replyTo = comment.username || comment.nickname || '用户'
   showCommentForm.value = true
+  
+  // 滚动到评论表单
+  setTimeout(() => {
+    const formElement = document.querySelector('.comment-form')
+    if (formElement) {
+      formElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    }
+  }, 100)
 }
 
 // 点赞评论
 const likeComment = async (comment) => {
+  if (!isLoggedIn.value) {
+    ElMessage.warning('请先登录')
+    openLoginDialog()
+    return
+  }
+
   try {
     await likeCommentApi(comment.id)
     comment.isLiked = !comment.isLiked
@@ -309,27 +348,25 @@ const handleCurrentChange = (page) => {
   loadComments()
 }
 
-// 格式化时间
+// 格式化时间 - 使用 YYYY-MM-DD HH:mm 格式
 const formatTime = (timeString) => {
   if (!timeString) return ''
   
-  const date = new Date(timeString)
-  const now = new Date()
-  const diff = now - date
-  
-  if (diff < 60000) return '刚刚'
-  if (diff < 3600000) return `${Math.floor(diff / 60000)}分钟前`
-  if (diff < 86400000) return `${Math.floor(diff / 3600000)}小时前`
-  if (diff < 604800000) return `${Math.floor(diff / 86400000)}天前`
-  
-  return date.toLocaleDateString('zh-CN', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
+  try {
+    return dayjs(timeString).format('YYYY-MM-DD HH:mm')
+  } catch (error) {
+    console.error('时间格式化失败:', error)
+    return timeString
+  }
 }
+
+// 监听用户登录状态变化
+watch(isLoggedIn, (newVal) => {
+  if (!newVal && showCommentForm.value) {
+    showCommentForm.value = false
+    resetCommentForm()
+  }
+})
 
 onMounted(() => {
   loadComments()
@@ -349,31 +386,54 @@ onMounted(() => {
   @apply text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center;
 }
 
+/* 登录提示 */
+.login-prompt {
+  @apply mb-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600;
+}
+
+.prompt-content {
+  @apply flex items-center gap-3;
+}
+
+.prompt-icon {
+  @apply text-orange-500 text-xl;
+}
+
+.prompt-text {
+  @apply flex-1 text-gray-700 dark:text-gray-300;
+}
+
+/* 评论表单 */
 .comment-form {
-  @apply mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg;
+  @apply mb-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600;
 }
 
 .form-header {
-  @apply mb-4;
+  @apply flex items-center justify-between mb-4;
 }
 
-.form-title {
-  @apply text-lg font-medium text-gray-900 dark:text-gray-100;
+.form-user-info {
+  @apply flex items-center gap-2;
+}
+
+.form-username {
+  @apply text-sm font-medium text-gray-700 dark:text-gray-300;
 }
 
 .comment-textarea {
   @apply mb-4;
 }
 
-.comment-nickname,
-.comment-email {
-  @apply mb-4;
-}
-
 .form-actions {
-  @apply flex justify-end space-x-3;
+  @apply flex justify-end gap-3;
 }
 
+/* 发表评论按钮 */
+.comment-form-toggle {
+  @apply mb-6;
+}
+
+/* 评论列表 */
 .comments-container {
   @apply mb-6;
 }
@@ -387,11 +447,11 @@ onMounted(() => {
 }
 
 .comments-list {
-  @apply space-y-6;
+  @apply space-y-0;
 }
 
 .comment-item {
-  @apply flex space-x-4;
+  @apply flex gap-3 py-4 border-b border-gray-100 dark:border-gray-700 last:border-b-0;
 }
 
 .comment-avatar {
@@ -402,76 +462,38 @@ onMounted(() => {
   @apply flex-1 min-w-0;
 }
 
-.comment-header {
-  @apply flex items-center justify-between mb-2;
-}
-
 .comment-author {
-  @apply flex items-center space-x-2;
+  @apply mb-1;
 }
 
 .author-name {
-  @apply font-medium text-gray-900 dark:text-gray-100;
-}
-
-.comment-time {
-  @apply text-sm text-gray-500 dark:text-gray-400;
-}
-
-.comment-actions {
-  @apply flex items-center space-x-2;
-}
-
-.comment-actions .el-button {
-  @apply text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400;
-}
-
-.comment-actions .liked {
-  @apply text-yellow-500 dark:text-yellow-400;
+  @apply text-sm font-medium text-gray-900 dark:text-gray-100;
 }
 
 .comment-text {
-  @apply text-gray-700 dark:text-gray-300 leading-relaxed;
+  @apply text-gray-700 dark:text-gray-300 leading-relaxed mb-2 text-sm;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
-.replies {
-  @apply mt-4 space-y-3;
+.reply-prefix {
+  @apply text-blue-600 dark:text-blue-400 font-medium mr-1;
 }
 
-.reply-item {
-  @apply flex space-x-3;
+.comment-meta {
+  @apply flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400;
 }
 
-.reply-avatar {
-  @apply flex-shrink-0;
+.comment-time {
+  @apply text-xs;
 }
 
-.reply-content {
-  @apply flex-1 min-w-0;
-}
-
-.reply-header {
-  @apply flex items-center space-x-2 mb-1;
-}
-
-.reply-author {
-  @apply font-medium text-gray-800 dark:text-gray-200;
-}
-
-.reply-time {
-  @apply text-sm text-gray-500 dark:text-gray-400;
-}
-
-.reply-text {
-  @apply text-gray-600 dark:text-gray-400 leading-relaxed;
-}
-
-.reply-to {
-  @apply text-blue-600 dark:text-blue-400 font-medium;
+.reply-link {
+  @apply text-blue-600 dark:text-blue-400 cursor-pointer hover:text-blue-700 dark:hover:text-blue-300 transition-colors;
 }
 
 .comment-pagination {
-  @apply flex justify-center;
+  @apply flex justify-center mt-6;
 }
 
 /* 移动端适配 */
@@ -481,19 +503,16 @@ onMounted(() => {
   }
   
   .comment-item {
-    @apply space-x-3;
+    @apply gap-2 py-3;
   }
   
-  .comment-header {
-    @apply flex-col items-start space-y-2;
-  }
-  
-  .comment-actions {
-    @apply w-full justify-end;
+  .comment-avatar :deep(.el-avatar) {
+    width: 32px !important;
+    height: 32px !important;
   }
   
   .form-actions {
-    @apply flex-col space-x-0 space-y-2;
+    @apply flex-col;
   }
   
   .form-actions .el-button {
