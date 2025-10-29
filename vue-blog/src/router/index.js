@@ -119,6 +119,12 @@ const routes = [
         meta: { title: '更新记录' }
       },
       {
+        path: 'links',
+        name: 'AdminLinks',
+        component: () => import('@/views/admin/LinkManagement.vue'),
+        meta: { title: '友链管理' }
+      },
+      {
         path: 'settings',
         name: 'AdminSettings',
         component: () => import('@/views/admin/Settings.vue'),

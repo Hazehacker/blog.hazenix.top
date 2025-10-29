@@ -139,6 +139,12 @@
               <div class="text-sm">管理评论</div>
             </div>
           </el-button>
+          <el-button @click="$router.push('/admin/links')" class="h-16">
+            <div class="text-center">
+              <el-icon size="24" class="mb-2"><Link /></el-icon>
+              <div class="text-sm">友链管理</div>
+            </div>
+          </el-button>
         </div>
       </div>
     </div>
@@ -147,7 +153,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { Document, Collection, PriceTag, ChatDotRound } from '@element-plus/icons-vue'
+import { Document, Collection, PriceTag, ChatDotRound, Link } from '@element-plus/icons-vue'
 import { adminApi } from '@/api/admin'
 
 // 统计数据

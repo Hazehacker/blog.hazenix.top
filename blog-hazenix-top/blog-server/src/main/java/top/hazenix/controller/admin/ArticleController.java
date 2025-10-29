@@ -18,7 +18,7 @@ import top.hazenix.vo.ArticleShortVO;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-@RestController(("AdminArticleController"))
+@RestController("AdminArticleController")
 @Slf4j
 @RequestMapping("/admin/articles")
 @ApiModel("文章相关接口")

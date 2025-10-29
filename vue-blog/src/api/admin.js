@@ -184,6 +184,42 @@ export const adminApi = {
     return request.delete(`${ADMIN_BASE_URL}/updates/batch`, { data: { ids } })
   },
 
+  // ========== 友链管理 ==========
+  // 获取友链列表
+  getLinks(params = {}) {
+    return request.get(`${ADMIN_BASE_URL}/links`, { params })
+  },
+
+  // 获取友链详情
+  getLink(id) {
+    return request.get(`${ADMIN_BASE_URL}/links/${id}`)
+  },
+
+  // 创建友链
+  createLink(data) {
+    return request.post(`${ADMIN_BASE_URL}/links`, data)
+  },
+
+  // 更新友链
+  updateLink(id, data) {
+    return request.put(`${ADMIN_BASE_URL}/links/${id}`, data)
+  },
+
+  // 删除友链
+  deleteLink(id) {
+    return request.delete(`${ADMIN_BASE_URL}/links/${id}`)
+  },
+
+  // 批量删除友链
+  batchDeleteLinks(ids) {
+    return request.delete(`${ADMIN_BASE_URL}/links/batch`, { data: { ids } })
+  },
+
+  // 更新友链状态
+  updateLinkStatus(id, status) {
+    return request.put(`${ADMIN_BASE_URL}/links/${id}/status`, { status })
+  },
+
   // ========== 文件上传 ==========
   // 上传图片
   uploadImage(file) {
