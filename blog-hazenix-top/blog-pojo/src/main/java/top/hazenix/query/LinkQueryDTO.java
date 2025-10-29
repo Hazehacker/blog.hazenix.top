@@ -13,6 +13,8 @@ import lombok.NoArgsConstructor;
 public class LinkQueryDTO {
     private String keyword;
     private Integer status;
-    private Integer page;
-    private Integer pageSize;
+    @Builder.Default
+    private Integer page = 1;
+    @Builder.Default
+    private Integer pageSize = 10;
 }

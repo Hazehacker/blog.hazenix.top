@@ -10,16 +10,16 @@
     <update id="updateLink">
         update link
         <set>
-            <if test="name != null">
+            <if test="name != null and name != null">
                 name = #{name},
             </if>
-            <if test="description != null">
+            <if test="description != null and description != ''">
                 description = #{description},
             </if>
-            <if test="url != null">
+            <if test="url != null and url != ''">
                 url = #{url},
             </if>
-            <if test="avatar != null">
+            <if test="avatar != null and avatar != ''">
                 avatar = #{avatar},
             </if>
             <if test="status != null">
@@ -36,7 +36,6 @@
         <foreach item="id" collection="list" separator="," close=")" open="(" >
             #{id}
         </foreach>
-        />
     </delete>
 
     <select id="pageQuery" resultType="top.hazenix.entity.Link">

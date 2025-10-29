@@ -85,6 +85,10 @@ public class LinkServiceImpl implements LinkService {
         linkMapper.deleteLinks(Collections.singletonList(id));
     }
 
+    /**
+     * 批量删除友链
+     * @param deleteLinksRequestDTO
+     */
     @Override
     public void deleteLinks(DeleteLinksRequestDTO deleteLinksRequestDTO) {
         List<Long> ids = deleteLinksRequestDTO.getIds();
