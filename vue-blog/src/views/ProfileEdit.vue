@@ -22,7 +22,7 @@
                   昵称
                 </label>
                 <input
-                  v-model="form.nickname"
+                  v-model="form.username"
                   type="text"
                   class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                   placeholder="请输入昵称"
@@ -42,16 +42,27 @@
               </div>
             </div>
 
-            <div class="mt-6">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                个人简介
-              </label>
-              <textarea
-                v-model="form.bio"
-                rows="4"
-                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                placeholder="请输入个人简介"
-              ></textarea>
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">性别</label>
+                <select
+                  v-model="form.gender"
+                  class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                >
+                  <option :value="0">保密</option>
+                  <option :value="1">男</option>
+                  <option :value="2">女</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">头像地址</label>
+                <input
+                  v-model="form.avatar"
+                  type="text"
+                  class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  placeholder="请输入头像URL"
+                />
+              </div>
             </div>
           </div>
 
@@ -138,9 +149,10 @@ const submitLoading = ref(false)
 
 // 表单数据
 const form = reactive({
-  nickname: '',
+  username: '',
   email: '',
-  bio: '',
+  gender: 0,
+  avatar: '',
   currentPassword: '',
   newPassword: '',
   confirmPassword: ''
@@ -152,9 +164,10 @@ const fetchUserInfo = async () => {
     await userStore.getUserInfo()
     const userInfo = userStore.userInfo || {}
     
-    form.nickname = userInfo.nickname || ''
+    form.username = userInfo.username || ''
     form.email = userInfo.email || ''
-    form.bio = userInfo.bio || ''
+    form.gender = userInfo.gender ?? 0
+    form.avatar = userInfo.avatar || ''
   } catch (error) {
     console.error('获取用户信息失败:', error)
     ElMessage.error('获取用户信息失败')
@@ -200,9 +213,10 @@ const handleSubmit = async () => {
   submitLoading.value = true
   try {
     const updateData = {
-      nickname: form.nickname,
+      username: form.username,
       email: form.email,
-      bio: form.bio
+      gender: form.gender,
+      avatar: form.avatar
     }
 
     // 如果修改了密码，添加密码字段

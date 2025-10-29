@@ -200,46 +200,47 @@ const router = createRouter({
 
 // 路由守卫
 router.beforeEach(async (to, from, next) => {
-  // 临时禁用认证检查，直到登录功能完成
-  // const userStore = useUserStore()
-  // const token = getToken()
+  const userStore = useUserStore()
+  const token = getToken()
 
   // 设置页面标题
   if (to.meta.title) {
     document.title = `${to.meta.title} - Vue Blog`
   }
 
-  // 暂时跳过认证检查
+
   // 检查是否需要认证
-  // if (to.meta.requiresAuth) {
-  //   if (!token) {
-  //     ElMessage.warning('请先登录')
-  //     next({
-  //       path: '/login',
-  //       query: { redirect: to.fullPath }
-  //     })
-  //     return
-  //   }
+  if (to.meta.requiresAuth) {
+    if (!token) {
+      ElMessage.warning('请先登录')
+      next({
+        path: '/',
+        query: { login: '1', redirect: to.fullPath }
+      })
+      return
+    }
 
-  //   // 检查用户信息是否存在
-  //   if (!userStore.userInfo) {
-  //     try {
-  //       await userStore.getUserInfo()
-  //     } catch (error) {
-  //       console.error('获取用户信息失败:', error)
-  //       ElMessage.error('获取用户信息失败，请重新登录')
-  //       next('/login')
-  //       return
-  //     }
-  //   }
+    //   // 检查用户信息是否存在
+    if (!userStore.userInfo) {
+      try {
+        await userStore.getUserInfo()
+      } catch (error) {
+        console.error('获取用户信息失败:', error)
+        next({
+          path: '/',
+          query: { login: '1', redirect: to.fullPath }
+        })
+        return
+      }
+    }
 
-  //   // 检查是否需要管理员权限
-  //   if (to.meta.requiresAdmin && !userStore.userInfo?.isAdmin) {
-  //     ElMessage.error('权限不足')
-  //     next('/')
-  //     return
-  //   }
-  // }
+    //   // 检查是否需要管理员权限
+    if (to.meta.requiresAdmin && !userStore.userInfo?.isAdmin) {
+      ElMessage.error('权限不足')
+      next('/')
+      return
+    }
+  }
 
   next()
 })

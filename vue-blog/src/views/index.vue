@@ -59,11 +59,11 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 const goToLogin = () => {
-  router.push('/login');
+  router.push({ path: '/home', query: { login: '1' } });
 };
 
 const goToHome = () => {
-  router.push('/home');
+  router.push({ path: '/home', query: { fromIndex: 'true' } });
 };
 </script>
 

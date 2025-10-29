@@ -7,6 +7,7 @@ export const commentApi = {
         return request({
             url: '/user/comments/list',
             method: 'get',
+            isPublicResource: true, // 标记为公开资源，未登录用户也可以查看评论
             params  // { articleId, status }
         })
     },
@@ -129,7 +130,8 @@ export const commentApi = {
 export function getCommentList(articleId) {
     return request({
         url: `/api/articles/${articleId}/comments`,
-        method: 'get'
+        method: 'get',
+        isPublicResource: true // 标记为公开资源
     })
 }
 

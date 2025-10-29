@@ -7,6 +7,7 @@ export const articleApi = {
         return request({
             url: '/user/articles',
             method: 'get',
+            isPublicResource: true, // 标记为公开资源
             params: {
                 sortBy: 'createTime', // 默认按创建时间排序
                 sortOrder: 'desc',    // 默认降序（最新的在前）
@@ -21,7 +22,8 @@ export const articleApi = {
     getArticleDetail(id) {
         return request({
             url: `/user/articles/${id}`,
-            method: 'get'
+            method: 'get',
+            isPublicResource: true // 标记为公开资源
         })
     },
 
@@ -29,7 +31,8 @@ export const articleApi = {
     getArticleBySlug(slug) {
         return request({
             url: `/user/articles/slug/${slug}`,
-            method: 'get'
+            method: 'get',
+            isPublicResource: true // 标记为公开资源
         })
     },
 
@@ -38,6 +41,7 @@ export const articleApi = {
         return request({
             url: '/user/articles',
             method: 'get',
+            isPublicResource: true, // 标记为公开资源
             params: { keyword, ...params }
         })
     },
@@ -107,6 +111,7 @@ export const articleApi = {
         return request({
             url: `/user/articles/${id}/related`,
             method: 'get',
+            isPublicResource: true, // 标记为公开资源
             params
         })
     },
@@ -116,6 +121,7 @@ export const articleApi = {
         return request({
             url: '/user/articles/popular',
             method: 'get',
+            isPublicResource: true, // 标记为公开资源
             params
         })
     },
@@ -150,7 +156,8 @@ export const articleApi = {
     incrementViewCount(id) {
         return request({
             url: `/user/articles/${id}/view`,
-            method: 'put'
+            method: 'put',
+            isPublicResource: true // 标记为公开资源，即使未登录也可以增加浏览量
         })
     },
 

@@ -13,6 +13,9 @@
             <if test="username != null">
                 username = #{username},
             </if>
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
             <if test="phone != null">
                 phone = #{phone},
             </if>

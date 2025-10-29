@@ -60,10 +60,7 @@ public class JwtTokenUserInterceptor implements HandlerInterceptor {
             Long userId = Long.valueOf(claims.get(JwtClaimsConstant.USER_ID).toString());
             BaseContext.setCurrentId(userId);
             log.info("当前用户id：{}", userId);
-            //如果id不为1，就不是管理员，不放行
-            if(userId != 1L){
-                return false;
-            }
+
             //3、通过，放行
             return true;
         } catch (Exception ex) {

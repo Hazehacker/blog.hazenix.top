@@ -1,9 +1,11 @@
 package top.hazenix.service;
 
 
+import top.hazenix.dto.UserDTO;
 import top.hazenix.dto.UserLoginDTO;
 import top.hazenix.entity.User;
 import top.hazenix.vo.UserLoginVO;
+import top.hazenix.vo.UserVO;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -19,4 +21,10 @@ public interface UserService {
     UserLoginVO register(UserLoginDTO userLoginDTO);
 
     void logout(HttpServletRequest request);
+
+    UserVO getUserInfo();
+
+    UserVO updateProfile(UserDTO userDTO);
+
+    void updatePassword(UserDTO userDTO);
 }

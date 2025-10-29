@@ -40,7 +40,7 @@
       </el-dropdown>
     </nav>
     
-    <div class="flex items-center space-x-4">
+    <div class="flex items-center space-x-4" style="margin-right: 20px;">
       <el-button link @click="openSearch">
         <el-icon><Search /></el-icon>
       </el-button>
@@ -74,14 +74,15 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import ThemeToggle from '@/components/common/ThemeToggle.vue'
 import { Search, User, ArrowDown, Link, InfoFilled } from '@element-plus/icons-vue'
 
 const userStore = useUserStore()
 const router = useRouter()
+const route = useRoute()
 import avatarFallback from '@/assets/img/avatar.jpg'
 import githubImg from '@/assets/img/githubLogo.png'
 import csdnImg from '@/assets/img/csdnLogo.png'
@@ -130,6 +131,26 @@ const handleMoreCommand = (command) => {
     router.push('/about')
   }
 }
+
+// 当 URL 上带有 ?login=1 时，自动打开登录弹窗，并清理一次性参数
+const maybeOpenLoginFromQuery = () => {
+  if (route.query && route.query.login === '1') {
+    openLogin()
+    const { login, ...rest } = route.query
+    router.replace({ path: route.path, query: { ...rest } })
+  }
+}
+
+onMounted(() => {
+  maybeOpenLoginFromQuery()
+})
+
+watch(
+  () => route.query.login,
+  () => {
+    maybeOpenLoginFromQuery()
+  }
+)
 </script>
 
 <style scoped>

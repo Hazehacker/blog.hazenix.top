@@ -58,23 +58,13 @@
                     昵称
                   </label>
                   <input
-                    :value="userInfo.nickname || '未设置'"
+                    :value="userInfo.username || '未设置'"
                     disabled
                     class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
                   />
                 </div>
 
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    个人简介
-                  </label>
-                  <textarea
-                    :value="userInfo.bio || '未设置'"
-                    disabled
-                    rows="3"
-                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
-                  ></textarea>
-                </div>
+                
 
                 <div>
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">

@@ -1,5 +1,7 @@
 <template>
   <div class="py-16 md:py-24">
+    <!-- 主题切换引导 -->
+    <ThemeGuide v-model="showThemeGuide" />
     <div class="flex flex-col md:flex-row justify-between items-start gap-12">
       <div class="md:w-2/3">
         <h1 class="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white">
@@ -41,16 +43,20 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import { useThemeStore } from '@/stores/theme'
 import { ElMessage } from 'element-plus'
 import { getArticleList } from '@/api/article'
 import ArticleList from '@/components/article/ArticleList.vue'
 import UserCard from '@/components/common/UserCard.vue'
 import PopularArticles from '@/components/article/PopularArticles.vue'
+import ThemeGuide from '@/components/common/ThemeGuide.vue'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
+const themeStore = useThemeStore()
 const latestArticles = ref([])
+const showThemeGuide = ref(false)
 
 // 处理Google登录回调
 const handleGoogleCallback = async () => {
@@ -69,8 +75,34 @@ const handleGoogleCallback = async () => {
 }
 
 onMounted(async () => {
-  // 首先处理Google回调
+  // 先保存 fromIndex 参数，因为 Google 回调可能会清除 query 参数
+  const fromIndex = route.query.fromIndex === 'true'
+  
+  // 首先处理Google回调（可能会清除 query 参数）
   await handleGoogleCallback()
+  
+  // 检查是否从主页面跳转过来
+  if (fromIndex) {
+    // 如果是从主页面跳转过来的，设置为黑色模式
+    if (!themeStore.isDark) {
+      themeStore.toggleTheme()
+    }
+    // 清除查询参数，避免刷新页面时仍然保持黑色模式
+    router.replace({ path: '/home', query: {} })
+    
+    // 每次从主页面进入时都显示引导（延迟显示，给用户一些时间看到页面）
+    // 确保只在黑色模式下显示引导
+    setTimeout(() => {
+      if (themeStore.isDark) {
+        showThemeGuide.value = true
+      }
+    }, 1000)
+  } else {
+    // 如果不是从主页面跳转过来的，确保是白色模式（如果之前是黑色模式，则切换）
+    if (themeStore.isDark) {
+      themeStore.toggleTheme()
+    }
+  }
   try {
     const res = await getArticleList({ 
       status: '0', // 只显示正常状态的文章

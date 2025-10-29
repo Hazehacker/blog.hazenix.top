@@ -5,13 +5,19 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.*;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
 import top.hazenix.constant.JwtClaimsConstant;
+import top.hazenix.constant.MessageConstant;
+import top.hazenix.context.BaseContext;
+import top.hazenix.dto.UserDTO;
 import top.hazenix.dto.UserLoginDTO;
 import top.hazenix.entity.GoogleAuthorization;
 import top.hazenix.entity.User;
+import top.hazenix.exception.PasswordErrorException;
 import top.hazenix.mapper.UserMapper;
 import top.hazenix.properties.JwtProperties;
 import top.hazenix.service.UserService;
@@ -29,6 +35,7 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import top.hazenix.utils.JwtUtil;
 import top.hazenix.vo.UserLoginVO;
+import top.hazenix.vo.UserVO;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -58,8 +65,13 @@ public class UserServiceImpl implements UserService {
         if (user == null) {
             throw new RuntimeException("当前邮箱还未注册");
         }
-        if(!user.getPassword().equals(userLoginDTO.getPassword())){
+        //【数据库的密码是加密过的】
+        String processedPassword = DigestUtils.md5DigestAsHex(userLoginDTO.getPassword().getBytes());
+        if(!processedPassword.equals(user.getPassword())){
             throw new RuntimeException("邮箱或密码错误");
+        }
+        if(user.getStatus()!=null && user.getStatus()==1){
+            throw new RuntimeException("当前用户已被拉入黑名单");
         }
         user.setPassword("*");
 
@@ -95,14 +107,15 @@ public class UserServiceImpl implements UserService {
         if (userMapper.selectByEmail(userLoginDTO.getEmail()) != null){
             throw new RuntimeException("当前邮箱已注册过账号");
         }
-        //TODO【密码要先加密才能插入数据库】
+        //!!【密码要先加密才能插入数据库】
+        String processedPassword = DigestUtils.md5DigestAsHex(userLoginDTO.getPassword().getBytes());
 
 
         //插入user表
         User user = User.builder()
                 .username(userLoginDTO.getUsername())
                 .email(userLoginDTO.getEmail())
-                .password(userLoginDTO.getPassword())
+                .password(processedPassword)
                 .role(2)//默认普通用户
                 .lastLoginTime(LocalDateTime.now())
                 .build();
@@ -168,6 +181,29 @@ public class UserServiceImpl implements UserService {
 
 
     }
+
+    /**
+     * 获取当前用户信息
+     * @return
+     */
+    @Override
+    public UserVO getUserInfo() {
+        Long  userId = BaseContext.getCurrentId();
+        User user = userMapper.getById(userId);
+        if (user == null) {
+            throw new RuntimeException("当前用户不存在");
+        }
+        return UserVO.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .avatar(user.getAvatar())
+                .gender(user.getGender())
+                .email(user.getEmail())
+                .build();
+    }
+
+
+
     private String getTokenSignature(String token) {
         if (StringUtils.isBlank(token)) {
             return null;
@@ -281,6 +317,10 @@ public class UserServiceImpl implements UserService {
             userMapper.insert(user);
 
         }
+        //【处理status】
+        if(user.getStatus()!=null && user.getStatus()==1){
+            throw new RuntimeException("当前用户已被拉入黑名单");
+        }
 
         user.setLastLoginTime( LocalDateTime.now());
         if (refreshToken!=null) {//【注意这里要判断不为空，因为这个字段只有第一次会有】
@@ -307,6 +347,64 @@ public class UserServiceImpl implements UserService {
     }
 
 
+    /**
+     * 修改用户信息
+     * @param userDTO
+     * @return
+     */
+    @Override
+    public UserVO updateProfile(UserDTO userDTO) {
+        //验证邮箱格式
+        if (userDTO.getEmail() != null && !userDTO.getEmail().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
+            throw new RuntimeException("邮箱格式不正确");
+        }
+
+        //验证昵称长度不能超过个字30个字符
+        if (userDTO.getUsername() != null && userDTO.getUsername().length() > 30) {
+            throw new RuntimeException("昵称长度不能超过30个字符");
+        }
+
+
+        Long  userId = BaseContext.getCurrentId();
+        User user = new User();
+        BeanUtils.copyProperties(userDTO,user);
+        user.setId(userId);
+        userMapper.update(user);
+        //如果某个字段为空，是不会更新的
+        User userNow = userMapper.getById(userId);
+        UserVO userVO = UserVO.builder()
+                .id(userNow.getId())
+                .username(userNow.getUsername())
+                .avatar(userNow.getAvatar())
+                .gender(userNow.getGender())
+                .email(userNow.getEmail())
+                .build();
+        return userVO;
+    }
+
+    /**
+     * 修改用户密码
+     * @param userDTO
+     */
+    @Override
+    public void updatePassword(UserDTO userDTO) {
+        Long currentId = BaseContext.getCurrentId();
+        User user = userMapper.getById(currentId);
+        //【数据库的密码是加密过的】
+        String processedPassword = DigestUtils.md5DigestAsHex(userDTO.getCurrentPassword().getBytes());
+        if (!user.getPassword().equals(processedPassword)) {
+            throw new RuntimeException("当前密码填写错误");
+        }
+//        if (userDTO.getNewPassword().length() < 6 || userDTO.getNewPassword().length() > 20) {
+//            throw new RuntimeException("密码长度必须在6-20个字符之间");
+//        }
+        if(userDTO.getCurrentPassword().equals(userDTO.getNewPassword())){
+            throw new RuntimeException("新密码不能与当前密码相同");
+        }
+        String processedNewPassword = DigestUtils.md5DigestAsHex(userDTO.getNewPassword().getBytes());
+        user.setPassword(processedNewPassword);
+        userMapper.update(user);
+    }
 
 
 }

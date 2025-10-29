@@ -1,5 +1,5 @@
 <template>
-  <el-button link @click="themeStore.toggleTheme()">
+  <el-button link @click="themeStore.toggleTheme()" class="theme-toggle-button">
     <el-icon v-if="themeStore.isDark"><Moon /></el-icon>
     <el-icon v-else><Sunny /></el-icon>
   </el-button>

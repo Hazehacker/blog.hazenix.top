@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import top.hazenix.constant.JwtClaimsConstant;
 import top.hazenix.context.BaseContext;
+import top.hazenix.dto.UserDTO;
 import top.hazenix.dto.UserLoginDTO;
 import top.hazenix.entity.User;
 import top.hazenix.properties.JwtProperties;
@@ -18,6 +19,7 @@ import top.hazenix.service.UserService;
 import top.hazenix.utils.JwtUtil;
 import top.hazenix.vo.ArticleDetailVO;
 import top.hazenix.vo.UserLoginVO;
+import top.hazenix.vo.UserVO;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -100,6 +102,46 @@ public class UserController {
     public Result handleCallback(@RequestParam String code) throws GeneralSecurityException, IOException {
         UserLoginVO userLoginVO = userService.authorizingWithCode(code);
         return Result.success(userLoginVO);
+    }
+
+    /**
+     * 获取当前用户信息
+     * @return
+     */
+    @GetMapping("/userinfo")
+    public Result getUserInfo(){
+        log.info("获取用户信息");
+        UserVO userVO = userService.getUserInfo();
+        return Result.success(userVO);
+    }
+
+    /**
+     * 获取用户相关统计信息
+     * @return
+     */
+    @GetMapping("/stats")
+    public Result getStats(){
+        log.info("获取用户统计信息");
+        //TODO
+        return Result.success();
+    }
+
+    /**
+     * 修改用户信息
+     * @param userDTO
+     * @return
+     */
+    @PutMapping("/profile")
+    public Result updateProfile(@RequestBody UserDTO userDTO){
+        log.info("更新用户信息:{}",userDTO);
+        UserVO userVO = userService.updateProfile(userDTO);
+        return Result.success(userVO);
+    }
+    @PutMapping("/password")
+    public Result updatePassword(@RequestBody UserDTO userDTO){
+        log.info("更新用户密码:{}",userDTO);
+        userService.updatePassword(userDTO);
+        return Result.success();
     }
 
 

@@ -13,7 +13,12 @@ const request = axios.create({
 request.interceptors.request.use(config => {
     const token = getToken();
     if (token) {
-        config.headers['Authorization'] = `Bearer ${token}`;
+        // 后端拦截器读取的是 Authorization，且通常期望为纯 token
+        config.headers['Authorization'] = token;
+        // 兼容部分接口读取自定义 token 头
+        if (!config.headers['token']) {
+            config.headers['token'] = token;
+        }
     }
     config.headers['Content-Type'] = 'application/json;charset=utf-8';
     return config
@@ -38,6 +43,9 @@ request.interceptors.response.use(
         if (error.response) {
             const status = error.response.status
             const url = error.config?.url
+            // 判断是否为公开资源（不需要认证的API）
+            const isPublicResource = error.config?.isPublicResource || false
+
             console.error(`请求失败: ${status} - ${url}`)
 
             if (status === 404) {
@@ -45,7 +53,14 @@ request.interceptors.response.use(
             } else if (status === 500) {
                 ElMessage.error('服务器内部错误，请查看后端控制台')
             } else if (status === 401) {
-                ElMessage.error('未授权，请重新登录')
+                // 对于公开资源，不显示"未授权，请重新登录"的错误
+                // 允许用户继续访问，只是某些需要登录的功能可能不可用
+                if (!isPublicResource) {
+                    ElMessage.error('未授权，请重新登录')
+                } else {
+                    // 公开资源的401错误，静默处理或只记录日志
+                    console.warn('公开资源访问返回401，可能是token过期，但不影响访问')
+                }
             } else if (status === 403) {
                 ElMessage.error('权限不足')
             } else {
