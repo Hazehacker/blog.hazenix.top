@@ -38,3 +38,19 @@ export function googleAuthCallback(code) {
         params: { code }
     })
 }
+
+// GitHub第三方授权相关接口
+export function getGithubAuthUrl() {
+    return request({
+        url: '/user/user/github/url',
+        method: 'get'
+    })
+}
+
+export function githubAuthCallback(code) {
+    return request({
+        url: '/user/user/github/callback',
+        method: 'get',
+        params: { code }
+    })
+}

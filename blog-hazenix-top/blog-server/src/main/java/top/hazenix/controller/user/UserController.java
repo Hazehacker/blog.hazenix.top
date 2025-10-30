@@ -2,6 +2,7 @@ package top.hazenix.controller.user;
 
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,7 +92,17 @@ public class UserController {
      */
     @GetMapping("/google/url")
     public Result getUrl() throws GeneralSecurityException, IOException {
-        return Result.success(userService.authorizingUrl());
+        return Result.success(userService.getGoogleAuthorizingUrl());
+    }
+
+    /**
+     * 生成用户授权URL，将用户重定向到github登录页面进行身份验证
+     * （暂时不采用，直接前端跳转）
+     * @return
+     */
+    @GetMapping("/github/url")
+    public Result getGithubUrl(){
+        return Result.success(userService.getGithubAuthorizingUrl());
     }
 
     /**
@@ -100,8 +111,20 @@ public class UserController {
      * @return
      */
     @GetMapping("/google/callback")
-    public Result handleCallback(@RequestParam String code) throws GeneralSecurityException, IOException {
+    public Result handleGoogleCallback(@RequestParam String code) throws GeneralSecurityException, IOException {
         UserLoginVO userLoginVO = userService.authorizingWithCode(code);
+        return Result.success(userLoginVO);
+    }
+
+    /**
+     * 使用授权码获得登录token和用户信息
+     * @param code
+     * @return
+     * @throws JsonProcessingException
+     */
+    @GetMapping("/github/callback")
+    public Result handleGithubCallback(@RequestParam String code) throws JsonProcessingException {
+        UserLoginVO userLoginVO = userService.authorizingWithGithubCode(code);
         return Result.success(userLoginVO);
     }
 

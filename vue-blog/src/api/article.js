@@ -106,7 +106,7 @@ export const articleApi = {
         })
     },
 
-    // 获取相关文章(暂时不用)
+    // 获取相关文章
     getRelatedArticles(id, params = {}) {
         return request({
             url: `/user/articles/${id}/related`,

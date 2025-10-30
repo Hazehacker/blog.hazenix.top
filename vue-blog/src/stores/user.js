@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { getToken, setToken, removeToken } from '@/utils/auth'
-import { login as loginApi, register as registerApi, getUserInfo, googleAuthCallback } from '@/api/auth'
+import { login as loginApi, register as registerApi, getUserInfo, googleAuthCallback, getGithubAuthUrl, githubAuthCallback } from '@/api/auth'
 
 export const useUserStore = defineStore('user', {
     state: () => ({
@@ -51,6 +51,17 @@ export const useUserStore = defineStore('user', {
                 this.userInfo = res.data
             } else {
                 throw new Error(res.msg || 'Google登录失败')
+            }
+        },
+
+        async githubLogin(code) {
+            const res = await githubAuthCallback(code)
+            if (res.code === 200) {
+                this.token = res.data.token
+                setToken(res.data.token)
+                this.userInfo = res.data
+            } else {
+                throw new Error(res.msg || 'GitHub登录失败')
             }
         },
 

@@ -36,6 +36,28 @@ public interface ArticleMapper {
      * @return
      */
     Integer countByIds(List<Integer> ids);
+    /**
+     * 根据标签获取相关文章
+     * 【返回与当前文章有共同标签的文章，按照共同标签数排序】
+     * @param articleId 当前文章ID
+     * @param tagIds 标签ID列表
+     * @param limit 限制数量
+     * @return 相关文章列表
+     */
+    List<ArticleShortVO> getRelatedArticlesByTags(Long articleId,
+                                                  List<Integer> tagIds,
+                                                  Integer limit);
+
+    /**
+     * 根据分类获取相关文章
+     * @param articleId 当前文章ID
+     * @param categoryId 分类ID
+     * @param limit 限制数量
+     * @return 相关文章列表
+     */
+    List<ArticleShortVO> getRelatedArticlesByCategory(Long articleId,
+                                                      Integer categoryId,
+                                                      Integer limit);
 
 
 

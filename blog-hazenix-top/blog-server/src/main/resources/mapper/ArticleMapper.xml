@@ -100,4 +100,31 @@
     <select id="getPopularArticles" resultType="top.hazenix.entity.Article">
         select * from article order by (like_count+view_count) desc limit #{i}
     </select>
+    <select id="getRelatedArticlesByTags" resultType="top.hazenix.vo.ArticleShortVO">
+        SELECT a.id, a.title, a.create_time, a.like_count, a.favorite_count, a.view_count
+        FROM article a
+        JOIN (
+        SELECT at.article_id, COUNT(*) as common_tag_count
+        FROM article_tags at
+        WHERE at.tags_id IN
+        <foreach item="tagId" collection="tagIds" open="(" separator="," close=")">
+            #{tagId}
+        </foreach>
+        AND at.article_id != #{articleId}
+        GROUP BY at.article_id
+        ORDER BY common_tag_count DESC
+        LIMIT #{limit}
+        ) ranked ON a.id = ranked.article_id
+        WHERE a.status = 0
+        ORDER BY ranked.common_tag_count DESC
+    </select>
+    <select id="getRelatedArticlesByCategory" resultType="top.hazenix.vo.ArticleShortVO">
+        SELECT id, title, create_time, like_count, favorite_count, view_count
+        FROM article
+        WHERE id != #{articleId}
+          AND category_id = #{categoryId}
+          AND status = 0
+        ORDER BY create_time DESC
+            LIMIT #{limit}
+    </select>
 </mapper>

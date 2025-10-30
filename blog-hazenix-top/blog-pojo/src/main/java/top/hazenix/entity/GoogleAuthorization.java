@@ -14,7 +14,7 @@ import java.util.Collections;
 @NoArgsConstructor
 public class GoogleAuthorization {
     private GoogleClientSecrets googleClientSecrets;
-    private String applicationName;
+//    private String applicationName;
     private String redirectUrl;
     // 授权域
     private final static List<String> scopes = Collections.singletonList(

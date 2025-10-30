@@ -36,4 +36,6 @@ public interface ArticleService {
     void likeArticle(Long id);
 
     void favoriteArticle(Long id);
+
+    List<ArticleShortVO> getRelatedArticles(Long id,Integer limit);
 }

@@ -1,5 +1,8 @@
 package top.hazenix.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.*;
@@ -8,13 +11,19 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 import top.hazenix.constant.JwtClaimsConstant;
 import top.hazenix.constant.MessageConstant;
 import top.hazenix.context.BaseContext;
 import top.hazenix.dto.UserDTO;
 import top.hazenix.dto.UserLoginDTO;
+import top.hazenix.entity.GithubAuthorization;
 import top.hazenix.entity.GoogleAuthorization;
 import top.hazenix.entity.User;
 import top.hazenix.entity.UserArticle;
@@ -51,6 +60,8 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private GoogleAuthorization googleAuthorization;
+    @Autowired
+    private GithubAuthorization githubAuthorization;
     @Autowired
     private UserMapper userMapper;
     @Autowired
@@ -225,11 +236,11 @@ public class UserServiceImpl implements UserService {
 
 
     /**
-     * 生成用户授权URL，将用户重定向到gooogle登录页面进行身份验证
+     * 生成用户授权URL，将用户重定向到google登录页面进行身份验证
      * @return
      * @throws GeneralSecurityException
      */
-    public String authorizingUrl() throws GeneralSecurityException, IOException {
+    public String getGoogleAuthorizingUrl() throws GeneralSecurityException, IOException {
         //创建HTTP传输对象和JSON工厂对象，用于处理网络请求和JSON数据解析
         HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
         JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
@@ -246,7 +257,19 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * 使用授权码获得登录token
+     * 生成用户授权URL，将用户重定向到github登录页面进行身份验证
+     * @return
+     */
+    @Override
+    public String getGithubAuthorizingUrl() {
+        String url ="https://github.com/login/oauth/authorize?client_id=Ov23liBxnKosezLaP7Cv&scope=user:email";
+        return url;
+    }
+
+
+
+    /**
+     * 使用授权码获得登录token【google】
      * @param authorizationCode
      */
     public UserLoginVO authorizingWithCode(String authorizationCode) throws GeneralSecurityException, IOException {
@@ -315,7 +338,109 @@ public class UserServiceImpl implements UserService {
 
         }
 
+        UserLoginVO userLoginVO = loginLogic(email,username,avatar,refreshToken);
 
+        return userLoginVO;
+    }
+    /**
+     * 使用授权码获得登录token【github】
+     * @param
+     * @return
+     */
+    @Override
+    public UserLoginVO authorizingWithGithubCode(String authorizationCode) throws JsonProcessingException {
+        //安全性验证
+        if (StringUtils.isBlank(authorizationCode)) {
+            throw new IllegalArgumentException("未授权");
+        }
+        // 限制授权码长度，防止潜在的恶意输入
+        if (authorizationCode.length() > 2048) {
+            throw new IllegalArgumentException("Authorization code is too long");
+        }
+        // 1. 构建请求参数（用于获取 access_token）
+        RestTemplate restTemplate = new RestTemplate();
+
+
+        // GitHub 要求使用 application/x-www-form-urlencoded 格式
+//        HttpHeaders tokenHeaders = new HttpHeaders();
+        org.springframework.http.HttpHeaders tokenHeaders = new org.springframework.http.HttpHeaders();
+        //[这里要用spring的包里面的HttpHeaders，而不是google的]
+        tokenHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> tokenParams = new LinkedMultiValueMap<>();
+        tokenParams.add("client_id", githubAuthorization.getClientId());
+        tokenParams.add("client_secret", githubAuthorization.getClientSecret());
+        tokenParams.add("code", authorizationCode);
+        tokenParams.add("redirect_uri", githubAuthorization.getRedirectUrl());
+
+        // 2. 发送 POST 请求到 GitHub 获取 access_token
+        HttpEntity<MultiValueMap<String, String>> tokenRequest = new HttpEntity<>(tokenParams, tokenHeaders);
+
+        // GitHub 的 token 交换端点
+        ResponseEntity<String> tokenResponse = restTemplate.postForEntity(
+                "https://github.com/login/oauth/access_token",
+                tokenRequest,
+                String.class
+        );
+
+        // 3. 解析响应，获取 access_token
+        String tokenResponseBody = tokenResponse.getBody();
+        // GitHub 返回的是 query string 格式，例如：access_token=xxx&token_type=bearer&scope=read:user
+        String accessToken = parseAccessTokenFromQueryString(tokenResponseBody);
+
+        if (StringUtils.isBlank(accessToken)) {
+            throw new RuntimeException("Failed to get access token from GitHub");
+        }
+
+        // 4. 使用 access_token 获取用户信息
+//        HttpHeaders userHeaders = new HttpHeaders();
+        HttpHeaders userHeaders = new HttpHeaders();
+        userHeaders.setBearerAuth(accessToken);
+        HttpEntity<String> userRequest = new HttpEntity<>(userHeaders);
+
+        //[需要导入org.springframework.http.HttpMethod类]
+        ResponseEntity<String> userResponse = restTemplate.exchange(
+                "https://api.github.com/user",
+                HttpMethod.GET,
+                userRequest,
+                String.class
+        );
+
+        // 5. 解析用户信息
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode userNode = objectMapper.readTree(userResponse.getBody());
+
+        String email = userNode.get("email") != null ? userNode.get("email").asText() : null;
+        String username = userNode.get("name") != null ? userNode.get("name").asText() : userNode.get("login").asText();
+        String avatar = userNode.get("avatar_url") != null ? userNode.get("avatar_url").asText() : null;
+
+        // 6. 调用登录逻辑
+        UserLoginVO userLoginVO = loginLogic(email, username, avatar, null);
+
+        return userLoginVO;
+    }
+    /**
+     * 从 query string 格式解析 access_token
+     * @param queryString 例如: access_token=xxx&token_type=bearer&scope=read:user
+     * @return access_token 值
+     */
+    private String parseAccessTokenFromQueryString(String queryString) {
+        String[] pairs = queryString.split("&");
+        for (String pair : pairs) {
+            String[] keyValue = pair.split("=");
+            if (keyValue.length == 2 && "access_token".equals(keyValue[0])) {
+                return keyValue[1];
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * 提取出两个方法共同的登录逻辑
+     * @return
+     */
+    private UserLoginVO loginLogic(String email,String username,String avatar,String refreshToken){
         User user = userMapper.selectByEmail( email);
         if(user == null){//用户没登录过，就插入，并执行主键回填
             //插入user表
@@ -351,7 +476,6 @@ public class UserServiceImpl implements UserService {
                 .token(token)
                 .build();
         return userLoginVO;
-
     }
 
 
@@ -433,6 +557,8 @@ public class UserServiceImpl implements UserService {
                 .likeCount(likeCount)
                 .build();
     }
+
+
 
 
 }

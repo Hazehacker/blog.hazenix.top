@@ -77,3 +77,13 @@ blog:
       application:
         name: ${blog.google.authorization.application.name}
       scope: ${blog.google.authorization.scope}
+  github:
+    authorization:
+      client:
+        id: ${blog.github.authorization.client.id}
+        secret: ${blog.github.authorization.client.secret}
+      redirect:
+        url: ${blog.github.authorization.redirect.url}
+      application:
+        name: ${blog.github.authorization.application.name}
+      scope: ${blog.github.authorization.scope}

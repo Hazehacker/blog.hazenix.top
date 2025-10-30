@@ -74,12 +74,28 @@ const handleGoogleCallback = async () => {
   }
 }
 
+// 处理GitHub登录回调
+const handleGithubCallback = async () => {
+  const code = route.query.code
+  if (code) {
+    try {
+      await userStore.githubLogin(code)
+      ElMessage.success('GitHub登录成功')
+      router.replace({ path: '/home', query: {} })
+    } catch (error) {
+      ElMessage.error('GitHub登录失败: ' + (error.message || '未知错误'))
+      console.error('GitHub login callback error:', error)
+    }
+  }
+}
+
 onMounted(async () => {
   // 先保存 fromIndex 参数，因为 Google 回调可能会清除 query 参数
   const fromIndex = route.query.fromIndex === 'true'
   
   // 首先处理Google回调（可能会清除 query 参数）
   await handleGoogleCallback()
+  await handleGithubCallback()
   
   // 检查是否从主页面跳转过来
   if (fromIndex) {

@@ -44,7 +44,7 @@ public class GoogleAuthorizationConfig {
         // 构建bean
         return GoogleAuthorization.builder()
                 .googleClientSecrets(clientSecrets)
-                .applicationName(applicationName)
+//                .applicationName(applicationName)
                 .redirectUrl(redirectUrl)
                 .build();
     }

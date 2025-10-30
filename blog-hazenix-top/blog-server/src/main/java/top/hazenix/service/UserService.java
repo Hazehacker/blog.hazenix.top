@@ -1,6 +1,7 @@
 package top.hazenix.service;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import top.hazenix.dto.UserDTO;
 import top.hazenix.dto.UserLoginDTO;
 import top.hazenix.entity.User;
@@ -13,7 +14,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 public interface UserService {
-    String authorizingUrl() throws GeneralSecurityException, IOException;
+    String getGoogleAuthorizingUrl() throws GeneralSecurityException, IOException;
 
     UserLoginVO authorizingWithCode(String code) throws GeneralSecurityException, IOException;
 
@@ -30,4 +31,8 @@ public interface UserService {
     void updatePassword(UserDTO userDTO);
 
     UserStatisticsVO getStats();
+
+    String getGithubAuthorizingUrl();
+
+    UserLoginVO authorizingWithGithubCode(String code) throws JsonProcessingException;
 }

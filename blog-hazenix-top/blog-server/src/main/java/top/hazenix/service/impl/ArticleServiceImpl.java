@@ -342,6 +342,45 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     /**
+     * 获取和当前文章相关的文章的列表
+     * 基于标签和分类的混合推荐
+     * @param id
+     * @return
+     */
+    @Override
+    public List<ArticleShortVO> getRelatedArticles(Long id,Integer limit ) {
+        // 获取当前文章的信息
+        Article currentArticle = articleMapper.getById(id);
+        if (currentArticle == null) {
+            throw new RuntimeException("不存在该文章");
+        }
+
+
+        // 获取当前文章的标签
+        List<Integer> currentTagIds = articleTagsMapper.getListByArticleId(id);
+
+        // 基于标签查找相关文章
+        List<ArticleShortVO> relatedByTags = new ArrayList<>();
+        if (currentTagIds != null && !currentTagIds.isEmpty()) {
+            relatedByTags = articleMapper.getRelatedArticlesByTags(id, currentTagIds, limit);
+        }
+
+        // 如果基于标签的文章数量不足，补充同一分类下的文章
+        if (relatedByTags.size() < limit) {
+            int remaining = limit - relatedByTags.size();
+            List<ArticleShortVO> relatedByCategory = articleMapper.getRelatedArticlesByCategory(
+                    id, currentArticle.getCategoryId(), remaining);
+            relatedByTags.addAll(relatedByCategory);
+        }
+
+        // 去重并限制数量
+        return relatedByTags.stream()
+                .distinct()
+                .limit(limit)
+                .collect(Collectors.toList());
+    }
+
+    /**
      * 获取文章列表(主要用于用户端)
      * @param
      * @return

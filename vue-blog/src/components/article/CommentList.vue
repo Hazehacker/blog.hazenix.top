@@ -236,8 +236,7 @@ const loadComments = async () => {
 // 提交评论
 const submitComment = async () => {
   if (!isLoggedIn.value) {
-    ElMessage.warning('请先登录')
-    openLoginDialog()
+    ElMessage.warning('登录后才能发表评论')
     return
   }
 
@@ -251,8 +250,8 @@ const submitComment = async () => {
       articleId: props.articleId,
       content: commentForm.content,
       replyId: commentForm.parentId || null,
-      // 如果后端需要username，可以从userInfo中获取
-      // username: userInfo.value?.username || userInfo.value?.nickname
+      // 后端需要展示用户名，显式传入用户名（或昵称）
+      username: userInfo.value?.username || userInfo.value?.nickname
     })
     
     ElMessage.success('评论发表成功')
@@ -300,8 +299,7 @@ const resetCommentForm = () => {
 // 回复评论
 const replyToComment = (comment) => {
   if (!isLoggedIn.value) {
-    ElMessage.warning('请先登录')
-    openLoginDialog()
+    ElMessage.warning('登录后才能发表评论')
     return
   }
 

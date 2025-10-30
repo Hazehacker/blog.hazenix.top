@@ -27,6 +27,12 @@
             注册
           </el-button>
         </el-form-item>
+        <div class="flex items-center justify-center space-x-4 mt-4">
+          <el-button type="default" @click="handleGithubLogin">
+            <img src="@/assets/img/githubLogo.png" alt="GitHub" class="w-6 h-6 mr-2" />
+            GitHub 登录
+          </el-button>
+        </div>
       </el-form>
       
       <div class="text-center">
@@ -97,5 +103,20 @@ const handleRegister = async () => {
 
 const goToLogin = () => {
   router.push('/')
+}
+
+import { getGithubAuthUrl } from '@/api/auth'
+
+const handleGithubLogin = async () => {
+  try {
+    const res = await getGithubAuthUrl()
+    if (res.code === 200) {
+      window.location.href = res.data
+    } else {
+      ElMessage.error(res.msg || '获取GitHub授权URL失败')
+    }
+  } catch (error) {
+    ElMessage.error(error.message || '获取GitHub授权URL失败')
+  }
 }
 </script>

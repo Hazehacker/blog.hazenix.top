@@ -34,6 +34,13 @@ public class ArticleController {
         return Result.success(list);
     }
 
+    @GetMapping("/{id}/related")
+    public Result getRelatedArticles(@PathVariable Long id, Integer limit){
+        log.info("获取相关文章");
+        List<ArticleShortVO> list = articleService.getRelatedArticles(id,limit);
+        return Result.success(list);
+    }
+
     /**
      * 获取文章详情
      * @param id

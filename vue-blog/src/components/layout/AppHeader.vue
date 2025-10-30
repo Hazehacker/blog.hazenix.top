@@ -50,7 +50,7 @@
       <el-button link @click="openCSDN">
           <img :src="csdn" alt="CSDN" class="w-5 h-5 rounded-full" />
         </el-button>
-      <el-dropdown v-if="userStore.token" @command="handleCommand">
+      <el-dropdown v-if="userStore.token && userStore.userInfo" @command="handleCommand">
         <el-button link>
           <el-icon><User/></el-icon>
         </el-button>
