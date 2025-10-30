@@ -5,7 +5,7 @@
         insert into comments
         (article_id,user_id,username,reply_id,reply_username,content,status,create_time)
         values
-            (#{articleId},#{userId},#{username},#{replyId},{replyUsername},#{content},#{status},#{createTime})
+            (#{articleId},#{userId},#{username},#{replyId},#{replyUsername},#{content},#{status},#{createTime})
     </insert>
     <update id="deleteBatch">
         update comments
@@ -69,5 +69,8 @@
 
         </where>
         order by create_time desc
+    </select>
+    <select id="getCommentCountByUserId" resultType="java.lang.Integer">
+        select count(*) from comments where user_id = #{userId} and status = 0
     </select>
 </mapper>

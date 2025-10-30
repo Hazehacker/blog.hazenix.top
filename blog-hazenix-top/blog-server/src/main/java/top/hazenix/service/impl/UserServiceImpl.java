@@ -17,7 +17,10 @@ import top.hazenix.dto.UserDTO;
 import top.hazenix.dto.UserLoginDTO;
 import top.hazenix.entity.GoogleAuthorization;
 import top.hazenix.entity.User;
+import top.hazenix.entity.UserArticle;
 import top.hazenix.exception.PasswordErrorException;
+import top.hazenix.mapper.CommentsMapper;
+import top.hazenix.mapper.UserArticleMapper;
 import top.hazenix.mapper.UserMapper;
 import top.hazenix.properties.JwtProperties;
 import top.hazenix.service.UserService;
@@ -35,6 +38,7 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import top.hazenix.utils.JwtUtil;
 import top.hazenix.vo.UserLoginVO;
+import top.hazenix.vo.UserStatisticsVO;
 import top.hazenix.vo.UserVO;
 
 import javax.servlet.http.HttpServletRequest;
@@ -53,6 +57,10 @@ public class UserServiceImpl implements UserService {
     private JwtProperties jwtProperties;
     @Autowired
     private RedisTemplate redisTemplate;
+    @Autowired
+    private UserArticleMapper userArticleMapper;
+    @Autowired
+    private CommentsMapper commentsMapper;
 
     /**
      * 完成用户登录功能的相关逻辑
@@ -404,6 +412,26 @@ public class UserServiceImpl implements UserService {
         String processedNewPassword = DigestUtils.md5DigestAsHex(userDTO.getNewPassword().getBytes());
         user.setPassword(processedNewPassword);
         userMapper.update(user);
+    }
+
+    /**
+     * 获取用户统计信息
+     * @return
+     */
+    @Override
+    public UserStatisticsVO getStats() {
+        Long currentId = BaseContext.getCurrentId();
+        if (currentId == null) {
+            throw new RuntimeException("当前用户未登录");
+        }
+        Integer favoriteCount = userArticleMapper.getFavoriteCount(currentId);
+        Integer likeCount = userArticleMapper.getLikeCount(currentId);
+        Integer commentsCount = commentsMapper.getCommentCountByUserId(currentId);
+        return UserStatisticsVO.builder()
+                .commentsCount(commentsCount)
+                .favoriteCount(favoriteCount)
+                .likeCount(likeCount)
+                .build();
     }
 
 

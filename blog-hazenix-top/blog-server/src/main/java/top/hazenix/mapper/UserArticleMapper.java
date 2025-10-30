@@ -26,4 +26,18 @@ public interface UserArticleMapper {
      * @param userArticleInsertUse
      */
     void insert(UserArticle userArticleInsertUse);
+
+    /**
+     * 获取当前用户收藏数
+     * @param userId
+     * @return
+     */
+    Integer getFavoriteCount(Long userId);
+
+    /**
+     * 获取当前用户点赞数
+     * @param userId
+     * @return
+     */
+    Integer getLikeCount(Long userId);
 }

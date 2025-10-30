@@ -108,9 +108,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="likeCount" label="点赞量" width="100" />
-        <el-table-column prop="favoriteCount" label="收藏量" width="100" />
-        <el-table-column prop="viewCount" label="浏览量" width="100" />
+
         <el-table-column prop="createTime" label="创建时间" width="180">
           <template #default="{ row }">
             {{ formatDate(row.createTime) }}

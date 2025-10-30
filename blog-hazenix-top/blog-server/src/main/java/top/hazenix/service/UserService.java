@@ -5,6 +5,7 @@ import top.hazenix.dto.UserDTO;
 import top.hazenix.dto.UserLoginDTO;
 import top.hazenix.entity.User;
 import top.hazenix.vo.UserLoginVO;
+import top.hazenix.vo.UserStatisticsVO;
 import top.hazenix.vo.UserVO;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,4 +28,6 @@ public interface UserService {
     UserVO updateProfile(UserDTO userDTO);
 
     void updatePassword(UserDTO userDTO);
+
+    UserStatisticsVO getStats();
 }

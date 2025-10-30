@@ -14,7 +14,7 @@ import java.util.List;
 public interface CommentsMapper {
 
     /**
-     * 统计评论总数
+     * 统计评论总数(统计某一篇文章)
      * @return
      */
     Integer count(Long articleId);
@@ -58,4 +58,11 @@ public interface CommentsMapper {
      * @param comments
      */
     void insert(Comments comments);
+
+    /**
+     * 根据用户id获取评论数量
+     * @param userId
+     * @return
+     */
+    Integer getCommentCountByUserId(Long userId);
 }

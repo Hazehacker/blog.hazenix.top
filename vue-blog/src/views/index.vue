@@ -49,17 +49,24 @@
         </button>
       </div>
     </div>
+    <!-- 登录弹窗（登陆页本地挂载） -->
+    <LoginDialog ref="loginDialogRef" />
   </div>
 </template>
 
 <script setup>
 import GalaxyBackground from '@/Backgrounds/Galaxy/Galaxy.vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import LoginDialog from '@/components/common/LoginDialog.vue';
 
 const router = useRouter();
+const loginDialogRef = ref();
 
 const goToLogin = () => {
-  router.push({ path: '/home', query: { login: '1' } });
+  if (loginDialogRef.value) {
+    loginDialogRef.value.open();
+  }
 };
 
 const goToHome = () => {

@@ -13,12 +13,8 @@ const request = axios.create({
 request.interceptors.request.use(config => {
     const token = getToken();
     if (token) {
-        // 后端拦截器读取的是 Authorization，且通常期望为纯 token
-        config.headers['Authorization'] = token;
-        // 兼容部分接口读取自定义 token 头
-        if (!config.headers['token']) {
-            config.headers['token'] = token;
-        }
+        // 后端JWT拦截器读取的是 authentication 请求头
+        config.headers['authentication'] = token;
     }
     config.headers['Content-Type'] = 'application/json;charset=utf-8';
     return config

@@ -19,6 +19,7 @@ import top.hazenix.service.UserService;
 import top.hazenix.utils.JwtUtil;
 import top.hazenix.vo.ArticleDetailVO;
 import top.hazenix.vo.UserLoginVO;
+import top.hazenix.vo.UserStatisticsVO;
 import top.hazenix.vo.UserVO;
 
 import javax.servlet.http.HttpServletRequest;
@@ -122,8 +123,8 @@ public class UserController {
     @GetMapping("/stats")
     public Result getStats(){
         log.info("获取用户统计信息");
-        //TODO
-        return Result.success();
+        UserStatisticsVO userStatisticsVO = userService.getStats();
+        return Result.success(userStatisticsVO);
     }
 
     /**

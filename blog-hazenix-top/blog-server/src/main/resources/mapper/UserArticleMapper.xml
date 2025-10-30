@@ -21,4 +21,10 @@
     <select id="getByUserIdAndArticleId" resultType="top.hazenix.entity.UserArticle">
         select * from user_article where user_id = #{userId} and article_id = #{articleId}
     </select>
+    <select id="getFavoriteCount" resultType="java.lang.Integer">
+        select count(*) from user_article where is_favorite = 1 and user_id = #{userId}
+    </select>
+    <select id="getLikeCount" resultType="java.lang.Integer">
+        select count(*) from user_article where is_liked = 1 and user_id = #{userId}
+    </select>
 </mapper>

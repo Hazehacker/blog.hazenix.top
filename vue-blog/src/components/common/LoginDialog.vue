@@ -130,12 +130,13 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
 import { getGoogleAuthUrl } from '@/api/auth'
 
 const router = useRouter()
+const route = useRoute()
 const userStore = useUserStore()
 const formRef = ref()
 const loading = ref(false)
@@ -240,8 +241,13 @@ const handleLogin = async () => {
     await userStore.login(loginData)
     ElMessage.success('登录成功')
     closeDialog()
-    // 刷新当前页面以更新用户状态
-    window.location.reload()
+    // 登录后跳转：优先使用 redirect 参数，其次回到主页
+    const redirectTarget = route?.query?.redirect
+    if (typeof redirectTarget === 'string' && redirectTarget) {
+      router.replace(redirectTarget)
+    } else {
+      router.replace('/home')
+    }
   } catch (error) {
     if (error.message) {
       ElMessage.error(error.message)

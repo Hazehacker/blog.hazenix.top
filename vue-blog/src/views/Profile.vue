@@ -42,41 +42,16 @@
 
                 <div>
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    注册时间
+                     性别
                   </label>
                   <input
-                    :value="formatDate(userInfo.createdAt)"
-                    disabled
+                    :value="userInfo.gender === 0 ? '保密' : userInfo.gender === 1 ? '男' : '女'"
                     class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
                   />
                 </div>
               </div>
 
-              <div class="space-y-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    昵称
-                  </label>
-                  <input
-                    :value="userInfo.username || '未设置'"
-                    disabled
-                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
-                  />
-                </div>
-
-                
-
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    用户角色
-                  </label>
-                  <input
-                    :value="userInfo.isAdmin ? '管理员' : '普通用户'"
-                    disabled
-                    class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
-                  />
-                </div>
-              </div>
+     
             </div>
           </div>
 
@@ -92,9 +67,9 @@
                     <i class="fas fa-file-alt text-blue-600 dark:text-blue-400"></i>
                   </div>
                   <div class="ml-4">
-                    <p class="text-sm font-medium text-blue-600 dark:text-blue-400">我的文章</p>
+                    <p class="text-sm font-medium text-blue-600 dark:text-blue-400">我的收藏</p>
                     <p class="text-2xl font-bold text-blue-900 dark:text-blue-100">
-                      {{ userStats.articlesCount || 0 }}
+                      {{ userStats.favoriteCount || 0 }}
                     </p>
                   </div>
                 </div>
@@ -117,12 +92,12 @@
               <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
                 <div class="flex items-center">
                   <div class="p-2 bg-purple-100 dark:bg-purple-800 rounded-lg">
-                    <i class="fas fa-eye text-purple-600 dark:text-purple-400"></i>
+                    <i class="fas fa-thumbs-up text-purple-600 dark:text-purple-400"></i>
                   </div>
                   <div class="ml-4">
-                    <p class="text-sm font-medium text-purple-600 dark:text-purple-400">总浏览量</p>
+                    <p class="text-sm font-medium text-purple-600 dark:text-purple-400">获赞数</p>
                     <p class="text-2xl font-bold text-purple-900 dark:text-purple-100">
-                      {{ userStats.totalViews || 0 }}
+                      {{ userStats.likeCount || 0 }}
                     </p>
                   </div>
                 </div>
@@ -149,6 +124,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
+import { getUserStats } from '@/api/user'
 
 const userStore = useUserStore()
 
@@ -156,9 +132,9 @@ const userStore = useUserStore()
 const loading = ref(true)
 const userInfo = ref({})
 const userStats = ref({
-  articlesCount: 0,
+  favoriteCount: 0,
   commentsCount: 0,
-  totalViews: 0
+  likeCount: 0
 })
 
 // 方法
@@ -168,8 +144,12 @@ const fetchUserInfo = async () => {
     userInfo.value = userStore.userInfo || {}
     
     // 获取用户统计信息
-    // const statsResponse = await getUserStats()
-    // userStats.value = statsResponse.data || {}
+    try {
+      const statsResponse = await getUserStats()
+      userStats.value = statsResponse.data || {}
+    } catch (e) {
+      console.warn('获取用户统计信息失败:', e)
+    }
   } catch (error) {
     console.error('获取用户信息失败:', error)
   } finally {
