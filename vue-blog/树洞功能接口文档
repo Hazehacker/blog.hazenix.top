@@ -1,0 +1,124 @@
+## 5. 评论相关接口
+
+### 5.1 获取树洞弹幕列表
+
+- **URL**: `GET /user/tree/list`
+- **描述**: 获取评论列表
+- **认证**: 不需要
+- **请求参数**：无
+- **响应示例**:
+
+```json
+{
+  "code": 200,
+  "msg": null,
+  "data": [
+    {
+        "user_id":2,
+        "username":"用户名",
+        "content":"弹幕内容",
+        "create_time":,
+    },
+    {
+        "user_id":3,
+        "username":"",
+        "content":"",
+        "create_time":"",
+    },
+
+      ]
+    }
+  ]
+}
+```
+
+
+
+### 5.2 发送弹幕
+
+- **URL**: `POST /user/tree`
+- **描述**: 用户发送弹幕
+- **认证**: 需要
+- **请求体**:
+
+```json
+{
+  "userId":7,
+  "username": "评论者昵称",
+  "content": "评论内容",
+}
+```
+
+
+
+- **响应示例**:
+
+```json
+{
+  "code": 200,
+  "msg": "评论发表成功",
+  "data": null
+}
+```
+
+
+
+
+## 5.管理端树洞弹幕管理接口
+
+### 5.1 获取弹幕列表
+
+- **URL**: `GET /admin/tree`
+- **描述**: 获取评论列表，支持分页和筛选
+- **请求参数**:
+  - `page` (int): 页码，默认1
+  - `pageSize` (int): 每页数量，默认20
+  - `keyword` (string, 可选): 搜索关键词
+  - `status` (string, 可选): 状态 (pending/approved/rejected)
+  - `username` (int, 可选): 用户名
+- **响应示例**:
+
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "": [
+      {
+        "id": 1,
+        "user_id":3,
+        "username":"用户名",
+        "content":"弹幕内容",
+        "status":0,
+        "createTime": "2024-01-01T00:00:00Z"
+      }
+    ],
+    "total": 100,
+
+  }
+}
+```
+
+* 备注：status字段 0正常  1已删除
+
+
+
+### 5.2 删除弹幕
+
+- **URL**: `DELETE /admin/tree/{id}`
+- **描述**: 删除指定评论
+- **路径参数**:
+  - `id` (int): 评论ID
+
+### 5.3 批量删除弹幕
+
+- **URL**: `DELETE /admin/tree/batch`
+- **描述**: 批量删除评论
+- **请求体**:
+
+```json
+{
+  "ids": [1, 2, 3]
+}
+```
+

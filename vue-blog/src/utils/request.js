@@ -16,7 +16,11 @@ request.interceptors.request.use(config => {
         // 后端JWT拦截器读取的是 authentication 请求头
         config.headers['authentication'] = token;
     }
-    config.headers['Content-Type'] = 'application/json;charset=utf-8';
+    // 如果请求中没有设置Content-Type，则默认设置为application/json
+    // 对于文件上传，应该让axios自动设置multipart/form-data（包含boundary）
+    if (!config.headers['Content-Type'] && !(config.data instanceof FormData)) {
+        config.headers['Content-Type'] = 'application/json;charset=utf-8';
+    }
     return config
 }, error => {
     return Promise.reject(error)

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.hazenix.mapper.TreeCommentsMapper">
+    <insert id="insert">
+        insert into
+            tree_comments(user_id,username,content,status,create_time)
+        values(#{userId},#{username},#{content},#{status},#{createTime})
+    </insert>
+    <delete id="deleteTreeComments">
+        delete from tree_comments
+        where id in
+        <foreach collection="ids" item="id" close=")" open="(" separator="," >
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="listBulletScreens" resultType="top.hazenix.entity.TreeComments">
+        select * from tree_comments
+        where status = 0
+        order by create_time desc
+    </select>
+    <select id="pageQuery" resultType="top.hazenix.entity.TreeComments">
+        select * from tree_comments
+        <if test="keyword != null">
+            and content like concat('%',#{keyword},'%')
+        </if>
+        <if test="status != null">
+            and status = #{status}
+        </if>
+        <if test="username != null and username != ''">
+            and username like concat('%',#{username},'%')
+        </if>
+        order by create_time desc
+    </select>
+</mapper>

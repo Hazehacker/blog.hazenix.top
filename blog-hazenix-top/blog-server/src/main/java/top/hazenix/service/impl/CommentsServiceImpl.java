@@ -22,9 +22,7 @@ import top.hazenix.vo.CommentsVO;
 
 import javax.xml.stream.events.Comment;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class CommentsServiceImpl implements CommentsService {
@@ -101,6 +99,10 @@ public class CommentsServiceImpl implements CommentsService {
     @Override
     public List<CommentsVO> getCommentsList(CommentsDTO commentsDTO) {commentsDTO.setStatus(0);
         List<Comments> list = commentsMapper.list(commentsDTO);
+        //如果没有评论，下面的步骤就不用进行了
+        if(list == null || list.size()==0){
+            return null;
+        }
         List<CommentsVO> resList = new ArrayList<>();
         for(Comments comments:list){
             CommentsVO commentsVO = new CommentsVO();
@@ -110,14 +112,34 @@ public class CommentsServiceImpl implements CommentsService {
                 String avatar = userMapper.getById(comments.getUserId()).getAvatar();
                 commentsVO.setAvatar(avatar);
             }
-            if (comments.getArticleId()!=null) {
-                commentsVO.setArticleTitle(articleMapper.getById(comments.getArticleId()).getTitle());
-            }
-
-
+            //用户端返回值不需要文章标题
+//            if (comments.getArticleId()!=null) {
+//                commentsVO.setArticleTitle(articleMapper.getById(comments.getArticleId()).getTitle());
+//            }
             resList.add(commentsVO);
         }
-        return resList;
+
+        //构建一个map存储评论
+        Map<Long,CommentsVO> commentVOMap = new HashMap<>();
+        for(CommentsVO commentsVO:resList){
+            commentVOMap.put(commentsVO.getId(),commentsVO);
+        }
+        //构件树：找到评论的父节点，加入父节点的replies
+        List<CommentsVO> rootCommentsVOList = new ArrayList<>();
+        for(CommentsVO commentsVO:resList){
+            if(commentsVO.getParentId()==null){
+                rootCommentsVOList.add(commentsVO);
+            }else{
+                //加入父节点的 replies
+                CommentsVO parent = commentVOMap.get(commentsVO.getParentId());
+                if(parent != null){
+                    parent.getReplies().add(commentsVO);
+                }
+            }
+        }
+
+
+        return rootCommentsVOList;
     }
 
     /**

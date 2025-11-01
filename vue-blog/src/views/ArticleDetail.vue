@@ -94,7 +94,7 @@
               v-for="related in relatedArticles"
               :key="related.id"
               class="related-item"
-              @click="$router.push('/article/' + related.id)"
+              @click="goToArticle(related.id)"
             >
               <h4 class="related-title">{{ related.title }}</h4>
               <p class="related-meta">
@@ -135,7 +135,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Star, Share, Collection, ArrowDown } from '@element-plus/icons-vue'
@@ -149,12 +149,13 @@ import dayjs from 'dayjs'
 const route = useRoute()
 const router = useRouter()
 
-const articleId = route.params.id
+const articleId = computed(() => route.params.id)
 const article = ref(null)
 const loading = ref(false)
 const relatedArticles = ref([])
 const isMobile = ref(false)
 const isAISummaryExpanded = ref(false)
+const shouldScrollToTop = ref(false)
 
 // 响应式检测
 const checkMobile = () => {
@@ -196,10 +197,10 @@ const getTagName = (tag) => {
 const loadArticle = async () => {
   loading.value = true
   try {
-    console.log('Loading article with ID:', articleId)
+    console.log('Loading article with ID:', articleId.value)
     console.log('API Base URL:', import.meta.env.VITE_API_BASE_URL || 'http://localhost:9090')
     
-    const res = await getArticleDetail(articleId)
+    const res = await getArticleDetail(articleId.value)
     console.log('Article detail response:', res)
     
     // 处理不同的响应格式
@@ -208,13 +209,19 @@ const loadArticle = async () => {
       
       // 增加浏览量
       try {
-        await incrementViewCount(articleId)
+        await incrementViewCount(articleId.value)
       } catch (viewError) {
         console.warn('Failed to increment view count:', viewError)
       }
       
       // 加载相关文章
       await loadRelatedArticles()
+      
+      // 如果是从路由变化触发的，滚动到顶部
+      if (shouldScrollToTop.value) {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+        shouldScrollToTop.value = false
+      }
     } else {
       throw new Error('文章数据为空')
     }
@@ -242,7 +249,7 @@ const loadArticle = async () => {
     // 使用Mock数据作为fallback
     console.log('Using mock data as fallback')
     article.value = {
-      id: articleId,
+      id: articleId.value,
       title: 'Vue3博客系统开发指南 (Mock数据)',
       summary: '本文介绍了如何使用Vue3、Element Plus和Tailwind CSS构建一个现代化的博客系统。',
       content: `# Vue3博客系统开发指南
@@ -388,7 +395,7 @@ class ArticleService {
 // 加载相关文章
 const loadRelatedArticles = async () => {
   try {
-    const res = await getRelatedArticles(articleId, { limit: 5 })
+    const res = await getRelatedArticles(articleId.value, { limit: 5 })
     relatedArticles.value = res.data
   } catch (error) {
     console.error('Failed to load related articles:', error)
@@ -400,7 +407,7 @@ const likeArticle = async () => {
   if (!article.value) return
   
   try {
-    await likeArticleApi(articleId)
+    await likeArticleApi(articleId.value)
     article.value.isLiked = !article.value.isLiked
     
     // 确保点赞数的一致性更新
@@ -442,7 +449,7 @@ const collectArticle = async () => {
   if (!article.value) return
   
   try {
-    await favoriteArticleApi(articleId)
+    await favoriteArticleApi(articleId.value)
     article.value.isCollected = !article.value.isCollected
     ElMessage.success(article.value.isCollected ? '收藏成功' : '取消收藏')
   } catch (error) {
@@ -463,6 +470,12 @@ const handleCommentAdded = (comment) => {
   if (article.value) {
     article.value.commentCount = (article.value.commentCount || 0) + 1
   }
+}
+
+// 跳转到指定文章
+const goToArticle = (articleId) => {
+  console.log('Navigating to article:', articleId)
+  router.push(`/article/${articleId}`)
 }
 
 // 按标签搜索
@@ -510,6 +523,20 @@ const generateAISummary = (summary) => {
 const toggleAISummary = () => {
   isAISummaryExpanded.value = !isAISummaryExpanded.value
 }
+
+// 监听路由参数变化
+watch(() => route.params.id, (newId, oldId) => {
+  console.log('Route params id changed:', oldId, '->', newId)
+  if (newId && newId !== oldId) {
+    console.log('Loading new article due to route change')
+    // 清空旧数据
+    article.value = null
+    relatedArticles.value = []
+    // 标记需要滚动到顶部
+    shouldScrollToTop.value = true
+    loadArticle()
+  }
+})
 
 onMounted(() => {
   checkMobile()

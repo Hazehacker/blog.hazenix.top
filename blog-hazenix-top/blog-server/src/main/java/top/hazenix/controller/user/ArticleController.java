@@ -165,7 +165,6 @@ public class ArticleController {
 
         //修改user_article关联表中的is_favorite字段
         //增加或减少文章的收藏数
-        //TODO 登录功能做完之后测试这个接口
         articleService.favoriteArticle(id);
 
         return Result.success();

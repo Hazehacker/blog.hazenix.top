@@ -27,10 +27,10 @@ public class CommentsController {
      * 获取评论列表(用户端)
      */
     @GetMapping("/list")
-    public Result getCommentsList(CommentsDTO commentsDTO){
+    public Result<List<CommentsVO>> getCommentsList(CommentsDTO commentsDTO){
         log.info("获取评论列表:{}",commentsDTO);
-        List<CommentsVO> listRes = commentsService.getCommentsList(commentsDTO);
-        return Result.success(listRes);
+        List<CommentsVO> commentTree = commentsService.getCommentsList(commentsDTO);
+        return Result.success(commentTree);
     }
 
     /**
@@ -41,7 +41,6 @@ public class CommentsController {
     @PostMapping
     public Result addComment(@RequestBody CommentsDTO commentsDTO){
         log.info("用户新增评论：{}",commentsDTO);
-        //TODO 登录功能做出来之后再测试
         commentsService.addComments(commentsDTO);
         return Result.success();
     }

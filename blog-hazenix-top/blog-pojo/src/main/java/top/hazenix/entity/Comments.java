@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 public class Comments {
     private Long id;
     private Long articleId;
+    private Long parentId;
     private Long userId;
     private String username;
     private Long replyId;

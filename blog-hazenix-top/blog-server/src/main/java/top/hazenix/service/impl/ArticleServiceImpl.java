@@ -292,7 +292,7 @@ public class ArticleServiceImpl implements ArticleService {
         Long userId = BaseContext.getCurrentId();
 
         //如果用户没登录，不能收藏
-        if(userId == null){//TODO 不确定没登录的用户判断逻辑是不是这个（是否userId是null）（登录功能做了之后再看看）
+        if(userId == null){
             throw new RuntimeException("登录后才能收藏文章");
 
         }else{

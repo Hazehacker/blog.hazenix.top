@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CommentsDTO {
     private Long articleId;
+    private Long parentId;
     private Integer status;
 
     //评论内容

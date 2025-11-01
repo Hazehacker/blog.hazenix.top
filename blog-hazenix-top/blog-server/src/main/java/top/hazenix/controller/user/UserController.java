@@ -39,9 +39,12 @@ public class UserController {
     private UserService userService;
 
 
+    /**
+     * 获取用户收藏的文章
+     * @return
+     */
     @GetMapping("/favorite")
     public Result getFavoriteCollections(){
-        //TODO 登录功能做出来之后再测试
         ArticleListQuery articleListQuery = ArticleListQuery.builder()
                 .status(0)
                 .userId(BaseContext.getCurrentId())
@@ -167,6 +170,9 @@ public class UserController {
         userService.updatePassword(userDTO);
         return Result.success();
     }
+
+
+
 
 
 }

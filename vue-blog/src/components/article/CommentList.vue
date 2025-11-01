@@ -18,8 +18,8 @@
       </div>
     </div>
 
-    <!-- 评论输入框（仅登录用户可见） -->
-    <div v-if="isLoggedIn && showCommentForm" class="comment-form">
+    <!-- 顶部评论输入框（仅登录用户可见，且非回复状态时显示） -->
+    <div v-if="isLoggedIn && showCommentForm && !activeReplyCommentId" class="comment-form">
       <div class="form-header">
         <div class="form-user-info">
           <el-avatar :size="32" :src="userInfo?.avatar">
@@ -37,9 +37,10 @@
         </el-button>
       </div>
       
-      <el-form :model="commentForm" :rules="commentRules" ref="commentFormRef">
+      <el-form :model="commentForm" :rules="commentRules" :ref="setCommentFormRef">
         <el-form-item prop="content">
           <el-input
+            ref="setCommentInputRef"
             v-model="commentForm.content"
             type="textarea"
             :rows="4"
@@ -48,6 +49,22 @@
             show-word-limit
             class="comment-textarea"
           />
+          <div class="emoji-toolbar">
+            <el-popover placement="top-start" trigger="click" :width="280" popper-class="emoji-popper" :teleported="true">
+              <template #reference>
+                <el-button text size="small">🙂 表情</el-button>
+              </template>
+              <div class="emoji-grid">
+                <button
+                  v-for="e in emojis"
+                  :key="e"
+                  type="button"
+                  class="emoji-btn"
+                  @click="insertEmoji(e)"
+                >{{ e }}</button>
+              </div>
+            </el-popover>
+          </div>
         </el-form-item>
         
         <div class="form-actions">
@@ -90,46 +107,26 @@
       </div>
       
       <div v-else class="comments-list">
-        <div
+        <CommentItem
           v-for="comment in comments"
           :key="comment.id"
-          class="comment-item"
-        >
-          <!-- 头像 -->
-          <div class="comment-avatar">
-            <el-avatar :size="40" :src="comment.avatar || comment.avatarUrl">
-              {{ (comment.username || comment.nickname)?.charAt(0) || 'U' }}
-            </el-avatar>
-          </div>
-          
-          <!-- 评论内容 -->
-          <div class="comment-content">
-            <!-- 用户名 -->
-              <div class="comment-author">
-              <span class="author-name">{{ comment.username || comment.nickname || '匿名用户' }}</span>
-            </div>
-            
-            <!-- 评论文本 -->
-            <div class="comment-text">
-              <span v-if="comment.replyId && comment.replyUsername" class="reply-prefix">
-                回复 @{{ comment.replyUsername }}:
-              </span>
-              {{ comment.content }}
-            </div>
-            
-            <!-- 时间戳和回复链接 -->
-            <div class="comment-meta">
-              <span class="comment-time">{{ formatTime(comment.createTime) }}</span>
-              <span 
-                v-if="isLoggedIn"
-                class="reply-link" 
-                @click="replyToComment(comment)"
-              >
-                回复
-                    </span>
-            </div>
-          </div>
-        </div>
+          :comment="comment"
+          :depth="0"
+          :is-logged-in="isLoggedIn"
+          :user-info="userInfo"
+          :active-reply-comment-id="activeReplyCommentId"
+          :comment-form="commentForm"
+          :comment-form-ref="commentFormRef"
+          :comment-input-ref="commentInputRef"
+          :emojis="emojis"
+          :comment-rules="commentRules"
+          :submitting="submitting"
+          :format-time="formatTime"
+          @reply="replyToComment"
+          @cancel-reply="cancelReply"
+          @submit="submitComment"
+          @insert-emoji="insertEmoji"
+        />
       </div>
     </div>
 
@@ -149,12 +146,13 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, watch } from 'vue'
+import { ref, reactive, computed, onMounted, watch, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import { ChatDotRound, Edit, Warning } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 import { getComments, createComment, likeComment as likeCommentApi } from '@/api/comment'
 import dayjs from 'dayjs'
+import CommentItem from './CommentItem.vue'
 
 const props = defineProps({
   articleId: {
@@ -179,6 +177,10 @@ const currentPage = ref(1)
 const pageSize = ref(10)
 const showCommentForm = ref(false)
 const commentFormRef = ref(null)
+// 当前激活的输入框引用（主评论或行内回复）
+const commentInputRef = ref(null)
+// 用于定位正在回复的评论（用于UI定位，不参与提交）
+const activeReplyCommentId = ref(null)
 
 // 评论表单
 const commentForm = reactive({
@@ -186,6 +188,17 @@ const commentForm = reactive({
   parentId: null,
   replyTo: ''
 })
+
+// 常用表情（Unicode），无需后端改动
+const emojis = [
+  '😀','😁','😂','🤣','😃','😄','😅','😊','😍','😘','😜','🤪','🤗','🤔','🤨','😎','😏','😮','🤯','🥹','😢','😭','😤','😡','👍','👎','👏','🙏','🙌','💪','🫶','💯','🎉','✨','🔥','🌟','💫','⚡','🧡','💙','💚','💖','🍻','☕','🍰','🍕','🍔','🍟','🍗','🍣','🍜','🍫','🍩','🍦','🍉','🍓','🥭',
+  // 动物和表情包常见替代（狗头/吃瓜等）
+  '🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🐷','🐔','🐧','🐣','😺','😹','😼','😾',
+  // 手势
+  '👉','👈','👇','👆','🖖','✌️','🤟','👌','🤌','🤝','👏','🫰',
+  // 其他趣味
+  '🤡','🤠','🥳','🫠','😇','🤤','🥱','🤒','🤕','🤧','🤑','😈','👻','💀','🤖'
+]
 
 // 表单验证规则
 const commentRules = {
@@ -200,13 +213,36 @@ const openLoginDialog = () => {
   window.dispatchEvent(new Event('open-login-dialog'))
 }
 
+// 设置输入框引用（主输入与回复输入共用此 setter）
+const setCommentInputRef = (el) => {
+  if (el) commentInputRef.value = el
+}
+
+// 在光标处插入表情
+const insertEmoji = (emoji) => {
+  const input = commentInputRef.value?.textarea
+  if (!input) {
+    commentForm.content += emoji
+    return
+  }
+  const start = input.selectionStart || 0
+  const end = input.selectionEnd || 0
+  const text = commentForm.content || ''
+  commentForm.content = text.slice(0, start) + emoji + text.slice(end)
+  // 将光标移动到插入后的末尾
+  nextTick(() => {
+    const pos = start + emoji.length
+    input.focus()
+    input.setSelectionRange(pos, pos)
+  })
+}
+
 // 加载评论列表
 const loadComments = async () => {
   loading.value = true
   try {
     const response = await getComments({
-      articleId: props.articleId,
-      status: '0' // 只显示正常状态的评论
+      articleId: props.articleId
     })
     
     // 处理响应数据，可能是数组或对象
@@ -222,8 +258,21 @@ const loadComments = async () => {
     }
     
     comments.value = commentList
+    
+    // 计算总评论数（包括所有回复）
+    const countAllComments = (comments) => {
+      let count = 0
+      for (const comment of comments) {
+        count += 1
+        if (comment.replies && comment.replies.length > 0) {
+          count += countAllComments(comment.replies)
+        }
+      }
+      return count
+    }
+    
     if (!totalComments.value) {
-    totalComments.value = comments.value.length
+      totalComments.value = countAllComments(commentList)
     }
   } catch (error) {
     console.error('加载评论失败:', error)
@@ -246,17 +295,22 @@ const submitComment = async () => {
     await commentFormRef.value.validate()
     
     submitting.value = true
-    const response = await createComment({
+    const payload = {
       articleId: props.articleId,
       content: commentForm.content,
-      replyId: commentForm.parentId || null,
-      // 后端需要展示用户名，显式传入用户名（或昵称）
+      // 后端会优先展示传入的昵称
       username: userInfo.value?.username || userInfo.value?.nickname
-    })
+    }
+    // 如果有parentId，说明是回复评论，需要传递replyId（被回复的评论ID）
+    if (commentForm.parentId) {
+      payload.replyId = commentForm.parentId
+    }
+    const response = await createComment(payload)
     
     ElMessage.success('评论发表成功')
     resetCommentForm()
     showCommentForm.value = false
+    activeReplyCommentId.value = null
     await loadComments()
     emit('comment-added', response.data)
   } catch (error) {
@@ -265,8 +319,10 @@ const submitComment = async () => {
       if (error.response?.status === 401) {
         ElMessage.error('登录已过期，请重新登录')
         openLoginDialog()
+      } else if (error.response?.data?.msg) {
+        ElMessage.error(error.response.data.msg)
       } else {
-      ElMessage.error('发表评论失败')
+        ElMessage.error('发表评论失败')
       }
     }
   } finally {
@@ -278,12 +334,15 @@ const submitComment = async () => {
 const cancelComment = () => {
   resetCommentForm()
   showCommentForm.value = false
+  activeReplyCommentId.value = null
 }
 
 // 取消回复
 const cancelReply = () => {
   commentForm.parentId = null
   commentForm.replyTo = ''
+  showCommentForm.value = false
+  activeReplyCommentId.value = null
 }
 
 // 重置评论表单
@@ -296,6 +355,11 @@ const resetCommentForm = () => {
   commentFormRef.value?.clearValidate()
 }
 
+// 由于回复表单位于 v-for 内部，使用函数 ref 保证拿到单个实例而不是数组
+const setCommentFormRef = (el) => {
+  commentFormRef.value = el
+}
+
 // 回复评论
 const replyToComment = (comment) => {
   if (!isLoggedIn.value) {
@@ -303,15 +367,17 @@ const replyToComment = (comment) => {
     return
   }
 
+  // 提交需要携带被回复的评论ID（不是用户ID）
   commentForm.parentId = comment.id
   commentForm.replyTo = comment.username || comment.nickname || '用户'
   showCommentForm.value = true
+  activeReplyCommentId.value = comment.id
   
-  // 滚动到评论表单
+  // 滚动到当前评论底部显示的表单
   setTimeout(() => {
-    const formElement = document.querySelector('.comment-form')
-    if (formElement) {
-      formElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    const commentEl = document.querySelector(`[data-comment-id="${comment.id}"]`)
+    if (commentEl) {
+      commentEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
     }
   }, 100)
 }
@@ -426,6 +492,43 @@ onMounted(() => {
   @apply flex justify-end gap-3;
 }
 
+/* 表情选择 */
+.emoji-toolbar {
+  @apply -mt-2 mb-2;
+}
+
+.emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px;
+  max-height: 220px;
+  overflow: auto;
+}
+
+.emoji-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  padding: 4px;
+}
+.emoji-btn:hover {
+  background-color: rgba(0,0,0,0.06);
+  border-radius: 6px;
+}
+
+/* 让弹层在小屏不超出视口 */
+:deep(.emoji-popper) {
+  max-width: calc(100vw - 32px);
+}
+
+@media (max-width: 640px) {
+  .emoji-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
 /* 发表评论按钮 */
 .comment-form-toggle {
   @apply mb-6;
@@ -492,6 +595,11 @@ onMounted(() => {
 
 .comment-pagination {
   @apply flex justify-center mt-6;
+}
+
+/* 行内回复表单样式 */
+.inline-reply-form {
+  @apply mt-2 p-3 bg-gray-50 dark:bg-gray-700/40 rounded-lg border border-gray-200 dark:border-gray-600;
 }
 
 /* 移动端适配 */

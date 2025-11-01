@@ -8,7 +8,7 @@ export const commentApi = {
             url: '/user/comments/list',
             method: 'get',
             isPublicResource: true, // 标记为公开资源，未登录用户也可以查看评论
-            params  // { articleId, status }
+            params  // { articleId }
         })
     },
 

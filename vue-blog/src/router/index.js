@@ -26,6 +26,7 @@ const routes = [
       { path: '/tag/:id', name: 'TagDetail', component: () => import('@/views/TagDetail.vue'), meta: { title: '标签详情' }, props: true },
       { path: '/album', name: "Album", component: () => import("@/views/Album.vue"), meta: { title: '相册' }, props: true },
       { path: '/friend-links', name: 'FriendLinks', component: () => import('@/views/FriendLinks.vue'), meta: { title: '友情链接' } },
+      { path: '/tree-hole', name: 'TreeHole', component: () => import('@/views/TreeHole/index.vue'), meta: { title: '心灵树洞' } },
       { path: '/favorites', name: 'UserFavorites', component: () => import('@/views/UserFavorites.vue'), meta: { title: '我的收藏', requiresAuth: true } }
 
 

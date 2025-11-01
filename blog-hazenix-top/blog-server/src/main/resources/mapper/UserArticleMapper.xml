@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="top.hazenix.mapper.UserArticleMapper">
     <insert id="insert">
-        insert into user_article(user_id, article_id, is_like, is_favorite) values (#{userId}, #{articleId}, #{isLike}, #{isFavorite})
+        insert into user_article(user_id, article_id, is_liked, is_favorite) values (#{userId}, #{articleId}, #{isLiked}, #{isFavorite})
     </insert>
     <update id="update">
         update user_article

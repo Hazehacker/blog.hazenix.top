@@ -421,28 +421,85 @@
 ## 5. 评论相关接口
 
 ### 5.1 获取评论列表
-- **URL**: `GET /user/comments`
+- **URL**: `GET /user/comments/list`
 - **描述**: 获取评论列表
 - **认证**: 不需要
 - **请求参数**:
   - `articleId` (int, 可选): 文章ID
-  - `status` (string, 可选): 状态 (0正常/1不展示)
 - **响应示例**:
 ```json
 {
   "code": 200,
-  "msg": "success",
-  "data": {
-    "id": 1,
-    "content": "评论内容",
-    "userId":3,
-    "username": "评论者昵称",
-    "avatar": "头像URL",
-    "articleId":2,
-    "replyId":2,
-    "replyUsername":"野猫",
-    "createTime": "2024-01-01T00:00:00Z"
-  }
+  "msg": null,
+  "data": [
+    {
+      "id": 20,
+      "parentId": null,
+      "userId": 2,
+      "username": "zhangsan1",
+      "avatar": "12345gjhsdgf",
+      "content": "阿巴阿巴",
+      "articleId": 34,
+      "replyId": null,
+      "replyUsername": null,
+      "createTime": "2025-10-30 21:29",
+      "replies": [
+        {
+          "id": 21,
+          "parentId": 20,
+          "userId": 2,
+          "username": "zhangsan1",
+          "avatar": "12345gjhsdgf",
+          "content": "何意味",
+          "articleId": 34,
+          "replyId": 2,
+          "replyUsername": "zhangsan1",
+          "createTime": "2025-10-30 21:30",
+          "replies": []
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "parentId": null,
+      "userId": 2,
+      "username": "zhangsan1",
+      "avatar": "12345gjhsdgf",
+      "content": "【】【】【】",
+      "articleId": 34,
+      "replyId": null,
+      "replyUsername": null,
+      "createTime": "2025-10-30 21:15",
+      "replies": [
+        {
+          "id": 19,
+          "parentId": 17,
+          "userId": 2,
+          "username": "zhangsan1",
+          "avatar": "12345gjhsdgf",
+          "content": "46546",
+          "articleId": 34,
+          "replyId": 2,
+          "replyUsername": "zhangsan1",
+          "createTime": "2025-10-30 21:28",
+          "replies": []
+        },
+        {
+          "id": 18,
+          "parentId": 17,
+          "userId": 2,
+          "username": "zhangsan1",
+          "avatar": "12345gjhsdgf",
+          "content": "898989",
+          "articleId": 34,
+          "replyId": 2,
+          "replyUsername": "zhangsan1",
+          "createTime": "2025-10-30 21:28",
+          "replies": []
+        }
+      ]
+    }
+  ]
 }
 ```
 

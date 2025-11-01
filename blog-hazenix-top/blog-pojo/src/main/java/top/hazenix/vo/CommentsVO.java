@@ -8,6 +8,8 @@ import top.hazenix.entity.Article;
 import top.hazenix.entity.User;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
@@ -16,6 +18,8 @@ import java.time.LocalDateTime;
 public class CommentsVO {
 
     private Long id;
+    //父级评论id
+    private Long parentId;
     //评论者id
     private Long userId;
     //评论者名称
@@ -35,10 +39,9 @@ public class CommentsVO {
     private String replyUsername;
     //评论状态
     private Integer status;
-
-//    private Article article;//填充id和title
-//    private User replyPerson;//填充id和username
-
     //评论时间
     private LocalDateTime createTime;
+    //子评论列表
+    private List<CommentsVO> replies = new ArrayList<>();
+
 }

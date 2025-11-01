@@ -13,6 +13,7 @@
       <router-link to="/categories" class="hover:text-primary">分类</router-link>
       <router-link to="/tags" class="hover:text-primary">标签</router-link>
       <router-link to="/album" class="hover:text-primary">相册</router-link>
+      <router-link to="/tree-hole" class="hover:text-primary">树洞</router-link>
       
       <!-- 更多下拉菜单 -->
       <el-dropdown @command="handleMoreCommand" trigger="hover" class="more-dropdown">

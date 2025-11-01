@@ -20,6 +20,33 @@ export const userApi = {
             url: '/user/user/stats',
             method: 'get'
         })
+    },
+    // 上传图片（用户端）
+    uploadImage(file) {
+        const formData = new FormData()
+        formData.append('file', file)
+        return request({
+            url: '/user/common/upload',
+            method: 'post',
+            data: formData
+            // 不设置Content-Type，让axios自动处理FormData，会自动添加multipart/form-data和boundary
+        })
+    },
+    // 更新用户资料
+    updateProfile(data) {
+        return request({
+            url: '/user/user/profile',
+            method: 'put',
+            data
+        })
+    },
+    // 修改密码
+    updatePassword(data) {
+        return request({
+            url: '/user/user/password',
+            method: 'put',
+            data
+        })
     }
 }
 
@@ -30,4 +57,16 @@ export function getFavoriteArticles(params = {}) {
 
 export function getUserStats() {
     return userApi.getUserStats()
+}
+
+export function uploadImage(file) {
+    return userApi.uploadImage(file)
+}
+
+export function updateProfile(data) {
+    return userApi.updateProfile(data)
+}
+
+export function updatePassword(data) {
+    return userApi.updatePassword(data)
 }
