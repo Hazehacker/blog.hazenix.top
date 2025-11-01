@@ -237,7 +237,7 @@ router.beforeEach(async (to, from, next) => {
 
     //   // 检查是否需要管理员权限
     if (to.meta.requiresAdmin && !userStore.userInfo?.isAdmin) {
-      ElMessage.error('权限不足')
+      ElMessage.error('您没有权限访问该页面')
       next('/')
       return
     }

@@ -1,0 +1,1 @@
+import{c as a,o as n,a as e,w as o,h as s,a7 as c,f as r}from"./index-BBqYyNLz.js";const _={class:"flex justify-center items-center py-8"},d={__name:"LoadingSpinner",setup(i){return(l,p)=>{const t=r("el-icon");return n(),a("div",_,[e(t,{class:"is-loading text-2xl text-primary"},{default:o(()=>[e(s(c))]),_:1})])}}};export{d as _};

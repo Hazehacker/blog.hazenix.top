@@ -21,6 +21,20 @@
       />
     </div>
     
+    <!-- 视频背景（仅在亮色模式下显示） -->
+    <div v-if="!themeStore.isDark" class="background-wrapper">
+      <video
+        ref="videoRef"
+        class="video-background"
+        autoplay
+        loop
+        muted
+        playsinline
+      >
+        <source src="@/assets/video/sunrise.mp4" type="video/mp4">
+      </video>
+    </div>
+    
     <!-- 输入区域 -->
     <div class="content_container" style="margin-top: 45px;">
       <div class="title">树洞</div>
@@ -31,7 +45,7 @@
           @blur="handleInputBlur"
           type="text" 
           placeholder="在这里留下自己的足迹吧..."
-          maxlength="64"
+          maxlength="50"
           :disabled="loading"
           @keyup.enter="addTreeHoleBtn"
         >
@@ -40,41 +54,34 @@
           @click="addTreeHoleBtn"
           :disabled="loading"
         >
-          <span class="submit-text">提交</span>
+          <span class="submit-text">发送</span>
         </button>
       </div>
       <!-- 字符计数提示 -->
       <div class="char-count" v-if="content.length > 0">
-        {{ content.length }}/64
+        {{ content.length }}/50
       </div>
     </div>
 
     <!-- 弹幕组件 -->
     <vue-danmaku 
+      ref="danmakuRef"
       :debounce="3000"
       random-channel
       :speeds="80"
       :channels="5"
       is-suspend
+      :autoplay="true"
       v-model:danmus="treeHoleList"
       use-slot
       loop
-      style="height:100vh; width:100vw;"
+      style="height:calc(100vh - 70px); width:100vw;"
     >
       <!-- 自定义弹幕样式 -->
       <template v-slot:dm="{ danmu }">
         <div class="barrage_container">
-          <div class="avatar_wrapper">
-            <el-avatar :src="danmu.avatar" :size="40">
-              <template #default>
-                {{ danmu.nickname ? danmu.nickname.charAt(0) : '匿' }}
-              </template>
-            </el-avatar>
-          </div>
-          <div class="content_wrapper">
-            <span class="nickname">{{ danmu.nickname }}：</span>
-            <span class="content">{{ danmu.content }}</span>
-          </div>
+          <span class="nickname">{{ danmu.nickname }}：</span>
+          <span class="content">{{ danmu.content }}</span>
         </div>
       </template>
     </vue-danmaku>
@@ -107,6 +114,8 @@ const loading = ref(false)          // 加载状态
 // 获取用户信息和主题信息
 const userStore = useUserStore()
 const themeStore = useThemeStore()
+const videoRef = ref(null)  // 视频引用
+const danmakuRef = ref(null)  // 弹幕组件引用
 
 /**
  * 获取默认头像
@@ -140,6 +149,7 @@ async function getTreeHole() {
           createTime: item.create_time
         }
       })
+      
     } else {
       ElMessage.error(res.msg || '获取数据失败')
     }
@@ -173,9 +183,9 @@ async function addTreeHoleBtn() {
     return
   }
 
-  // 验证长度（数据库限制64字符）
-  if (content.value.trim().length > 64) {
-    ElMessage.warning('内容不能超过64个字符')
+  // 验证长度
+  if (content.value.trim().length > 50) {
+    ElMessage.warning('内容不能超过50个字符')
     return
   }
 
@@ -262,13 +272,13 @@ onMounted(() => {
 <style scoped>
 .container {
   position: fixed;
-  top: 0;
+  top: 70px; /* 从导航栏下方开始 */
   left: 0;
   min-width: 100vw;
   width: 100vw;
-  height: 100vh;
+  height: calc(100vh - 70px);
   overflow: hidden;
-  z-index: 0;
+  z-index: 1; /* 低于导航栏(z-50) */
   transition: background-color 0.3s ease;
 }
 
@@ -290,6 +300,18 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   z-index: 0;
+}
+
+/* 视频背景样式 */
+.video-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;  /* 覆盖整个容器，保持宽高比 */
+  z-index: 0;
+  pointer-events: none;  /* 不影响鼠标事件 */
 }
 
 /* 输入区域样式 */
@@ -453,67 +475,30 @@ onMounted(() => {
 
 /* 弹幕项样式 */
 .barrage_container {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  position: relative;
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-  backdrop-filter: blur(15px);
-  transition: all 0.3s ease;
-  z-index: 5;
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+  backdrop-filter: blur(10px);
+  z-index: 100;
+  white-space: nowrap;
 }
 
 /* 暗色模式下的弹幕容器 */
 .container.dark-mode .barrage_container {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.container.dark-mode .barrage_container:hover {
-  background-color: rgba(255, 255, 255, 0.25);
 }
 
 /* 亮色模式下的弹幕容器 */
 .container.light-mode .barrage_container {
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 255, 255, 0.85);
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.container.light-mode .barrage_container:hover {
-  background-color: rgba(255, 255, 255, 1);
-}
-
-.barrage_container::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 0;
-  height: 0.2em;
-  border-radius: 0.1em;
-  background: linear-gradient(to right, #00c6ff, #0072ff);
-  transition: width 0.3s ease;
-}
-
-.barrage_container:hover::after {
-  width: 100%;
-}
-
-.avatar_wrapper {
-  flex-shrink: 0;
-}
-
-.content_wrapper {
-  margin-left: 0.5rem;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
 .nickname {
-  font-weight: bold;
-  margin-right: 0.25rem;
-  transition: color 0.3s ease;
+  /* font-weight: bold; */
+  font-size: 0.9rem;
 }
 
 /* 暗色模式下的昵称 */
@@ -527,8 +512,8 @@ onMounted(() => {
 }
 
 .content {
-  font-size: 1rem;
   transition: color 0.3s ease;
+  font-size: 0.9rem;
 }
 
 /* 暗色模式下的内容 */

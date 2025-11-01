@@ -12,6 +12,8 @@ const app = createApp(App)
 app.use(createPinia())
 app.use(ElementPlus)
 app.use(router)
-app.use(vueDanmaku)
+
+// 将 vue3-danmaku 组件注册为全局组件
+app.component('vue-danmaku', vueDanmaku)
 
 app.mount('#app')

@@ -133,7 +133,7 @@ const toggleSidebar = () => {
 
 // 返回前台
 const goToHome = () => {
-  router.push('/index')
+  router.push('/home')
 }
 
 // 用户操作

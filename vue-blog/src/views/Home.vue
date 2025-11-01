@@ -113,12 +113,8 @@ onMounted(async () => {
         showThemeGuide.value = true
       }
     }, 1000)
-  } else {
-    // 如果不是从主页面跳转过来的，确保是白色模式（如果之前是黑色模式，则切换）
-    if (themeStore.isDark) {
-      themeStore.toggleTheme()
-    }
   }
+  // 移除else分支 - 不再强制切换到亮色模式，保持用户当前的主题设置
   try {
     const res = await getArticleList({ 
       status: '0', // 只显示正常状态的文章

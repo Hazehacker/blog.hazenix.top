@@ -2,10 +2,7 @@ package top.hazenix.controller.user;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import top.hazenix.dto.TreeCommentsDTO;
 import top.hazenix.entity.TreeComments;
 import top.hazenix.result.Result;
@@ -28,7 +25,7 @@ public class TreeCommentsController {
         log.info("获取树洞弹幕列表");
         //返回体和实体类这里基本没差，不加vo了
         List<TreeComments> list = treeCommentsService.listBulletScreens();
-        return Result.success();
+        return Result.success(list);
     }
 
 
@@ -38,7 +35,7 @@ public class TreeCommentsController {
      * @return
      */
     @PostMapping
-    public Result addTreeComments(TreeCommentsDTO treeCommentsDTO){
+    public Result addTreeComments(@RequestBody TreeCommentsDTO treeCommentsDTO){
         log.info("添加树洞弹幕:{}", treeCommentsDTO);
         treeCommentsService.addTreeComments(treeCommentsDTO);
         return Result.success();
