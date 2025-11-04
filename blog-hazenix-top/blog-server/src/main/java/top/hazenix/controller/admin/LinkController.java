@@ -16,7 +16,7 @@ import java.util.List;
 
 @RestController("AdminLinkController")
 @Slf4j
-@RequestMapping("/admin/links")
+@RequestMapping("/api/admin/links")
 @ApiModel("友链相关接口")
 public class LinkController {
 

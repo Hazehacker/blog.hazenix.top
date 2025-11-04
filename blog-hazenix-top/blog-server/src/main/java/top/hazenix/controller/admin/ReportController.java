@@ -13,7 +13,7 @@ import top.hazenix.vo.StatisticVO;
 
 @RestController
 @Slf4j
-@RequestMapping("/admin")
+@RequestMapping("/api/admin")
 public class ReportController {
 
     @Autowired

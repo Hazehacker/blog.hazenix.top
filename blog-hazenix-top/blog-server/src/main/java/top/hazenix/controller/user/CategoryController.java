@@ -17,7 +17,7 @@ import top.hazenix.vo.CategoryVO;
 import java.util.List;
 
 @RestController("userCategoryController")
-@RequestMapping("/user/categories")
+@RequestMapping("/api/user/categories")
 @Slf4j
 public class CategoryController {
 

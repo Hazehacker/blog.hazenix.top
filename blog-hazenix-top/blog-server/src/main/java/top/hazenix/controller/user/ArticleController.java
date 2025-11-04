@@ -13,7 +13,7 @@ import top.hazenix.vo.ArticleShortVO;
 import java.util.List;
 
 @RestController("UserArticleController")
-@RequestMapping("/user/articles")
+@RequestMapping("/api/user/articles")
 @Slf4j
 public class ArticleController {
 

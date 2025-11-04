@@ -41,22 +41,22 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
     protected void addInterceptors(InterceptorRegistry registry) {
         log.info("开始注册自定义拦截器...");
         registry.addInterceptor(jwtTokenAdminInterceptor)
-                .addPathPatterns("/admin/**");
+                .addPathPatterns("/api/admin/**");
         registry.addInterceptor(jwtTokenUserInterceptor)
-                .addPathPatterns("/user/user/logout")
-                .addPathPatterns("/user/user/userinfo")
-                .addPathPatterns("/user/user/stats")
-                .addPathPatterns("/user/user/profile")
-                .addPathPatterns("/user/user/password")
-                .addPathPatterns("/user/user/favorite")
-                .addPathPatterns("/user/comments")
-                .addPathPatterns("/user/tree/**")
-                .addPathPatterns("/user/articles/{id}/favorite")
-                .excludePathPatterns("/user/tree/list")
-                .excludePathPatterns("/user/categories/**")
-                .excludePathPatterns("/user/comments/list/**")
-                .excludePathPatterns("/user/links/**")
-                .excludePathPatterns("/user/tags/**");
+                .addPathPatterns("/api/user/user/logout")
+                .addPathPatterns("/api/user/user/userinfo")
+                .addPathPatterns("/api/user/user/stats")
+                .addPathPatterns("/api/user/user/profile")
+                .addPathPatterns("/api/user/user/password")
+                .addPathPatterns("/api/user/user/favorite")
+                .addPathPatterns("/api/user/comments")
+                .addPathPatterns("/api/user/tree/**")
+                .addPathPatterns("/api/user/articles/{id}/favorite")
+                .excludePathPatterns("/api/user/tree/list")
+                .excludePathPatterns("/api/user/categories/**")
+                .excludePathPatterns("/api/user/comments/list/**")
+                .excludePathPatterns("/api/user/links/**")
+                .excludePathPatterns("/api/user/tags/**");
 
 
     }

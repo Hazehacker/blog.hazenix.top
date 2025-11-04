@@ -14,7 +14,7 @@ import javax.websocket.server.PathParam;
 
 @RestController("AdminCategoryController")
 @Slf4j
-@RequestMapping("/admin/categories")
+@RequestMapping("/api/admin/categories")
 public class CategoryController {
 
     @Autowired

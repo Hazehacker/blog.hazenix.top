@@ -14,7 +14,7 @@ import top.hazenix.utils.AliOssUtil;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/common")
+@RequestMapping("/api/common")
 @Slf4j
 public class WebController {
     @Autowired

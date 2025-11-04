@@ -14,7 +14,7 @@ import top.hazenix.service.TagsService;
 
 @RestController("AdminTagsController")
 @Slf4j
-@RequestMapping("/admin/tags")
+@RequestMapping("/api/admin/tags")
 public class TagsController {
 
     @Autowired
