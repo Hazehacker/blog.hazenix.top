@@ -5,7 +5,7 @@ export const userApi = {
     // 获取用户收藏的文章
     getFavoriteArticles(params = {}) {
         return request({
-            url: '/user/user/favorite',
+            url: '/api/user/user/favorite',
             method: 'get',
             params: {
                 sortBy: 'createTime', // 默认按创建时间排序
@@ -17,7 +17,7 @@ export const userApi = {
     // 获取当前登录用户的统计信息（收藏数、点赞数、评论数）
     getUserStats() {
         return request({
-            url: '/user/user/stats',
+            url: '/api/user/user/stats',
             method: 'get'
         })
     },
@@ -26,7 +26,7 @@ export const userApi = {
         const formData = new FormData()
         formData.append('file', file)
         return request({
-            url: '/user/common/upload',
+            url: '/api/user/common/upload',
             method: 'post',
             data: formData
             // 不设置Content-Type，让axios自动处理FormData，会自动添加multipart/form-data和boundary
@@ -35,7 +35,7 @@ export const userApi = {
     // 更新用户资料
     updateProfile(data) {
         return request({
-            url: '/user/user/profile',
+            url: '/api/user/user/profile',
             method: 'put',
             data
         })
@@ -43,7 +43,7 @@ export const userApi = {
     // 修改密码
     updatePassword(data) {
         return request({
-            url: '/user/user/password',
+            url: '/api/user/user/password',
             method: 'put',
             data
         })

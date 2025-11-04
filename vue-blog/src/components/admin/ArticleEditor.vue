@@ -285,7 +285,7 @@ const editorConfig = {
 
 // 配置图片上传
 editorConfig.MENU_CONF['uploadImage'] = {
-  server: `${import.meta.env.VITE_API_BASE_URL}/common/upload`,
+  server: `${import.meta.env.VITE_API_BASE_URL}/api/common/upload`,
   headers: {
     Authorization: `Bearer ${getToken()}`
   },
@@ -327,7 +327,7 @@ const form = reactive({
 })
 
 // 上传配置
-const uploadUrl = computed(() => `${import.meta.env.VITE_API_BASE_URL}/common/upload`)
+const uploadUrl = computed(() => `${import.meta.env.VITE_API_BASE_URL}/api/common/upload`)
 const uploadHeaders = computed(() => ({
   'Authorization': `Bearer ${getToken()}`
 }))

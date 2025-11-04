@@ -174,7 +174,7 @@ const rules = {
 const userStore = useUserStore()
 
 // 上传配置
-const uploadUrl = '/user/common/upload'
+const uploadUrl = '/api/user/common/upload'
 const uploadHeaders = computed(() => {
   const token = userStore.token
   return token ? { Authorization: `Bearer ${token}` } : {}

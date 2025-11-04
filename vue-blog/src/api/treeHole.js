@@ -5,7 +5,7 @@ export const treeHoleApi = {
     // 获取树洞弹幕列表（不需要认证）
     getTreeHoleList() {
         return request({
-            url: '/user/tree/list',
+            url: '/api/user/tree/list',
             method: 'get',
             isPublicResource: true  // 标记为公开资源，不需要认证
         })
@@ -14,7 +14,7 @@ export const treeHoleApi = {
     // 发送弹幕（需要认证）
     addTreeHole(data) {
         return request({
-            url: '/user/tree',
+            url: '/api/user/tree',
             method: 'post',
             data  // { userId, username, content }
         })
