@@ -207,7 +207,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Search, Refresh } from '@element-plus/icons-vue'
 import { adminApi } from '@/api/admin'
@@ -265,7 +265,7 @@ const rules = {
 }
 
 // 上传配置
-const uploadAction = '/api/common/upload'
+const uploadAction = computed(() => `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:9090'}/common/upload`)
 const uploadHeaders = {
   Authorization: `Bearer ${getToken()}`
 }

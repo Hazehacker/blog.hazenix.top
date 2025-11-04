@@ -17,7 +17,7 @@ import top.hazenix.vo.TagsVO;
 import java.util.List;
 
 @RestController("UserTagsController")
-@RequestMapping("/api/user/tags")
+@RequestMapping("/user/tags")
 @Slf4j
 public class TagsController {
 

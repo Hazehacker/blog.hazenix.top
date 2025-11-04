@@ -174,7 +174,7 @@ const rules = {
 const userStore = useUserStore()
 
 // 上传配置
-const uploadUrl = '/api/user/common/upload'
+const uploadUrl = computed(() => `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:9090'}/user/common/upload`)
 const uploadHeaders = computed(() => {
   const token = userStore.token
   return token ? { Authorization: `Bearer ${token}` } : {}

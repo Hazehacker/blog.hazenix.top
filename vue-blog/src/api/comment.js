@@ -5,7 +5,7 @@ export const commentApi = {
     // 获取评论列表
     getCommentList(params = {}) {
         return request({
-            url: '/api/user/comments/list',
+            url: '/user/comments/list',
             method: 'get',
             isPublicResource: true, // 标记为公开资源，未登录用户也可以查看评论
             params  // { articleId }
@@ -15,7 +15,7 @@ export const commentApi = {
     // 获取评论详情
     getCommentDetail(id) {
         return request({
-            url: `/api/admin/comments/${id}`,
+            url: `/api/comments/${id}`,
             method: 'get'
         })
     },
@@ -23,7 +23,7 @@ export const commentApi = {
     // 创建评论
     createComment(data) {
         return request({
-            url: '/api/user/comments',
+            url: '/user/comments',
             method: 'post',
             data
         })
@@ -32,7 +32,7 @@ export const commentApi = {
     // 更新评论
     updateComment(id, data) {
         return request({
-            url: `/api/admin/comments/${id}`,
+            url: `/api/comments/${id}`,
             method: 'put',
             data
         })
@@ -41,7 +41,7 @@ export const commentApi = {
     // 删除评论
     deleteComment(id) {
         return request({
-            url: `/api/admin/comments/${id}`,
+            url: `/api/comments/${id}`,
             method: 'delete'
         })
     },
@@ -49,7 +49,7 @@ export const commentApi = {
     // 批量删除评论
     batchDeleteComments(ids) {
         return request({
-            url: '/api/admin/comments/batch',
+            url: '/api/comments/batch',
             method: 'delete',
             data: { ids }
         })
@@ -58,7 +58,7 @@ export const commentApi = {
     // 点赞评论
     likeComment(id) {
         return request({
-            url: `/api/admin/comments/${id}/like`,
+            url: `/api/comments/${id}/like`,
             method: 'post'
         })
     },
@@ -66,7 +66,7 @@ export const commentApi = {
     // 审核评论
     approveComment(id) {
         return request({
-            url: `/api/admin/comments/${id}/approve`,
+            url: `/api/comments/${id}/approve`,
             method: 'patch'
         })
     },
@@ -74,7 +74,7 @@ export const commentApi = {
     // 拒绝评论
     rejectComment(id, reason = '') {
         return request({
-            url: `/api/admin/comments/${id}/reject`,
+            url: `/api/comments/${id}/reject`,
             method: 'patch',
             data: { reason }
         })
@@ -83,7 +83,7 @@ export const commentApi = {
     // 批量审核评论
     batchApproveComments(ids) {
         return request({
-            url: '/api/admin/comments/batch/approve',
+            url: '/api/comments/batch/approve',
             method: 'patch',
             data: { ids }
         })
@@ -92,7 +92,7 @@ export const commentApi = {
     // 批量拒绝评论
     batchRejectComments(ids, reason = '') {
         return request({
-            url: '/api/admin/comments/batch/reject',
+            url: '/api/comments/batch/reject',
             method: 'patch',
             data: { ids, reason }
         })
@@ -101,7 +101,7 @@ export const commentApi = {
     // 获取评论统计
     getCommentStats(articleId) {
         return request({
-            url: `/api/admin/comments/stats`,
+            url: `/api/comments/stats`,
             method: 'get',
             params: { articleId }
         })
@@ -110,7 +110,7 @@ export const commentApi = {
     // 获取最新评论
     getLatestComments(params = {}) {
         return request({
-            url: '/api/admin/comments/latest',
+            url: '/api/comments/latest',
             method: 'get',
             params
         })
@@ -119,14 +119,14 @@ export const commentApi = {
     // 获取热门评论
     getPopularComments(params = {}) {
         return request({
-            url: '/api/admin/comments/popular',
+            url: '/api/comments/popular',
             method: 'get',
             params
         })
     }
 }
 
-// 新的API函数
+// 导出API函数
 export function getComments(params = {}) {
     return commentApi.getCommentList(params)
 }

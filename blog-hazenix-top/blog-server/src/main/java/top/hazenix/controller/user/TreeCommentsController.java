@@ -11,7 +11,7 @@ import top.hazenix.service.TreeCommentsService;
 import java.util.List;
 
 @RestController("UserTreeCommentsController")
-@RequestMapping("/api/user/tree")
+@RequestMapping("/user/tree")
 @Slf4j
 public class TreeCommentsController {
     @Autowired

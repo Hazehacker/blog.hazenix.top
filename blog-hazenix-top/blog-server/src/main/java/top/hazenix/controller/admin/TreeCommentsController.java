@@ -20,7 +20,7 @@ import java.util.List;
 
 @RestController("AdminTreeCommentsController")
 @Slf4j
-@RequestMapping("/api/admin/tree")
+@RequestMapping("/admin/tree")
 @ApiModel("树洞相关接口")
 public class TreeCommentsController {
 

@@ -1,7 +1,7 @@
 import request from '@/utils/request'
 
 // 管理端API基础路径
-const ADMIN_BASE_URL = '/api/admin'
+const ADMIN_BASE_URL = '/admin'
 
 export const adminApi = {
   // 获取仪表盘统计数据
@@ -225,7 +225,7 @@ export const adminApi = {
   uploadImage(file) {
     const formData = new FormData()
     formData.append('file', file)
-    return request.post(`/api/common/upload`, formData, {
+    return request.post('/common/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
@@ -236,7 +236,7 @@ export const adminApi = {
   uploadFile(file) {
     const formData = new FormData()
     formData.append('file', file)
-    return request.post(`/api/common/upload`, formData, {
+    return request.post('/common/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }

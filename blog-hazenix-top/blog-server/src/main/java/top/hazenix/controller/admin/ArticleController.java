@@ -20,7 +20,7 @@ import java.util.List;
 
 @RestController("AdminArticleController")
 @Slf4j
-@RequestMapping("/api/admin/articles")
+@RequestMapping("/admin/articles")
 @ApiModel("文章相关接口")
 public class ArticleController {
 

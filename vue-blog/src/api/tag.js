@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function getTagList() {
     return request({
-        url: '/api/user/tags',
+        url: '/user/tags',
         method: 'get',
         isPublicResource: true // 标记为公开资源
     })
@@ -10,7 +10,7 @@ export function getTagList() {
 
 export function getTagArticles(id, params = {}) {
     return request({
-        url: `/api/user/tags/${id}/articles`,
+        url: `/user/tags/${id}/articles`,
         method: 'get',
         isPublicResource: true, // 标记为公开资源
         params

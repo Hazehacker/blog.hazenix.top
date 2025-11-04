@@ -15,7 +15,7 @@ import top.hazenix.vo.CommentsVO;
 import java.util.List;
 
 @RestController("UserCommentsController")
-@RequestMapping("/api/user/comments")
+@RequestMapping("/user/comments")
 @Slf4j
 public class CommentsController {
 

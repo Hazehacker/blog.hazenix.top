@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/user/user")
+@RequestMapping("/user/user")
 @Slf4j
 public class UserController {
     @Autowired

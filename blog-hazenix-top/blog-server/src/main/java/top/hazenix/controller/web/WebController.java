@@ -14,12 +14,13 @@ import top.hazenix.utils.AliOssUtil;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/api/common")
+@RequestMapping("/common")
 @Slf4j
 public class WebController {
     @Autowired
     private AliOssUtil aliOssUtil;
 
+    
     @PostMapping("/upload")
     public Result upload(MultipartFile file) {
         log.info("文件上传：{}",file.getOriginalFilename());

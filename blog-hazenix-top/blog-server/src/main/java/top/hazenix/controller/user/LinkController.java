@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController("UserLinkController")
 @Slf4j
-@RequestMapping("/api/user/links")
+@RequestMapping("/user/links")
 @ApiModel("友链相关接口")
 public class LinkController {
     @Autowired

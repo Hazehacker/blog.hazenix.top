@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 @RestController("AdminCommentsController")
-@RequestMapping("/api/admin/comments")
+@RequestMapping("/admin/comments")
 @Slf4j
 public class CommentsController {
 
