@@ -1,7 +1,7 @@
 <template>
   <header class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center py-6 bg-white dark:bg-gray-900/90 backdrop-blur-sm shadow-md" style="height: 70px;">
     <div class="flex items-center space-x-2" style="margin-left: 30px;">
-      <img :src="userStore.userInfo?.avatar || defaultAvatar" 
+      <img :src="avatarUrl" 
            alt="User avatar" 
            class="w-10 h-10 rounded-full"
            @error="onAvatarError" />
@@ -53,7 +53,10 @@
         </el-button>
       <el-dropdown v-if="userStore.token && userStore.userInfo" @command="handleCommand">
         <el-button link>
-          <el-icon><User/></el-icon>
+          <img :src="avatarUrl" 
+               alt="User avatar" 
+               class="w-8 h-8 rounded-full cursor-pointer"
+               @error="onAvatarError" />
         </el-button>
         <template #dropdown>
           <el-dropdown-menu>
@@ -75,7 +78,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useRouter, useRoute } from 'vue-router'
 import ThemeToggle from '@/components/common/ThemeToggle.vue'
@@ -91,9 +94,33 @@ const defaultAvatar = avatarFallback
 const github = githubImg
 const csdn = csdnImg
 
+// 计算头像URL，确保响应式更新
+const avatarUrl = computed(() => {
+  const avatar = userStore.userInfo?.avatar
+  // 调试信息：检查用户信息和头像
+  if (userStore.userInfo) {
+    console.log('用户信息:', userStore.userInfo)
+    console.log('头像URL:', avatar)
+  }
+  return avatar || defaultAvatar
+})
+
 const onAvatarError = (e) => {
+  console.warn('头像加载失败，使用默认头像')
   e.target.src = avatarFallback
 }
+
+// 监听用户信息变化，确保头像能够及时更新
+watch(
+  () => userStore.userInfo,
+  (newInfo) => {
+    if (newInfo) {
+      console.log('用户信息已更新:', newInfo)
+      console.log('头像字段:', newInfo.avatar)
+    }
+  },
+  { deep: true, immediate: true }
+)
 
 const openSearch = () => {
   // 触发搜索对话框打开事件
@@ -117,7 +144,8 @@ const openCSDN = () => {
 const handleCommand = (command) => {
   if (command === 'logout') {
     userStore.logout()
-    router.push('/')
+    // 退出登录后跳转到主页（index.vue），而不是 /home
+    router.replace('/home')
   } else if (command === 'favorites') {
     router.push('/favorites')
   } else if (command === 'profile') {

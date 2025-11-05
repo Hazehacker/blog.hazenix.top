@@ -129,7 +129,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
@@ -187,12 +187,70 @@ const backToMethodSelection = () => {
   showEmailForm.value = false
 }
 
+// 设置 Message z-index 高于登录框
+const setMessageZIndex = () => {
+  // 立即设置（如果元素已存在）
+  const messageContainer = document.getElementById('el-message-container')
+  if (messageContainer) {
+    messageContainer.style.zIndex = '10000000'
+  }
+  
+  const messages = document.querySelectorAll('.el-message')
+  messages.forEach(msg => {
+    if (msg instanceof HTMLElement) {
+      msg.style.zIndex = '10000000'
+    }
+  })
+  
+  // 使用 nextTick 确保 DOM 更新后再设置
+  nextTick(() => {
+    const container = document.getElementById('el-message-container')
+    if (container) {
+      container.style.zIndex = '10000000'
+    }
+    
+    const allMessages = document.querySelectorAll('.el-message')
+    allMessages.forEach(msg => {
+      if (msg instanceof HTMLElement) {
+        msg.style.zIndex = '10000000'
+      }
+    })
+  })
+  
+  // 如果还没有 observer，创建一个来监听新添加的 Message
+  if (!window.__messageObserver) {
+    const observer = new MutationObserver(() => {
+      const newMessages = document.querySelectorAll('.el-message')
+      newMessages.forEach(msg => {
+        if (msg instanceof HTMLElement) {
+          msg.style.zIndex = '10000000'
+        }
+      })
+      const container = document.getElementById('el-message-container')
+      if (container) {
+        container.style.zIndex = '10000000'
+      }
+    })
+    
+    // 观察 body 的变化
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    })
+    
+    // 保存 observer 以便清理
+    window.__messageObserver = observer
+  }
+}
+
 // 打开登录对话框
 const openDialog = () => {
   visible.value = true
   showEmailForm.value = false
   // 阻止背景滚动
   document.body.style.overflow = 'hidden'
+  // 设置 Message z-index
+  setMessageZIndex()
 }
 
 // 关闭登录对话框
@@ -201,6 +259,12 @@ const closeDialog = () => {
   showEmailForm.value = false
   // 恢复背景滚动
   document.body.style.overflow = ''
+  
+  // 清理 observer
+  if (window.__messageObserver) {
+    window.__messageObserver.disconnect()
+    delete window.__messageObserver
+  }
   
   // 重置表单
   loginForm.value = {
@@ -226,6 +290,10 @@ const handleLogin = async () => {
     // 验证验证码
     if (loginForm.value.captcha.toLowerCase() !== captchaCode.value.toLowerCase()) {
       ElMessage.error('验证码错误')
+      // 确保 Message 显示在登录框之上（延迟一下确保 DOM 已更新）
+      setTimeout(() => {
+        setMessageZIndex()
+      }, 10)
       refreshCaptcha()
       return
     }
@@ -239,6 +307,12 @@ const handleLogin = async () => {
     }
     
     await userStore.login(loginData)
+    // 登录成功后，获取完整的用户信息（包括头像）
+    try {
+      await userStore.getUserInfo()
+    } catch (error) {
+      console.warn('获取用户信息失败，但登录已成功:', error)
+    }
     ElMessage.success('登录成功')
     closeDialog()
     // 登录后跳转：优先使用 redirect 参数，其次回到主页
@@ -254,6 +328,10 @@ const handleLogin = async () => {
     } else {
       ElMessage.error('登录失败')
     }
+    // 确保 Message 显示在登录框之上（延迟一下确保 DOM 已更新）
+    setTimeout(() => {
+      setMessageZIndex()
+    }, 10)
     refreshCaptcha()
   } finally {
     loading.value = false
@@ -262,41 +340,79 @@ const handleLogin = async () => {
 
 // GitHub登录处理
 const handleGitHubLogin = async () => {
+  // 防止重复点击
+  if (githubLoading.value) {
+    return
+  }
+  
   try {
     githubLoading.value = true
+    // 构建重定向地址，确保指向 /home 路径，并添加 source 参数用于区分
+    const redirectUri = encodeURIComponent(`${window.location.origin}/home?source=github`)
+    // GitHub OAuth 授权地址，包含 client_id、scope 和 redirect_uri
+    const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=Ov23liBxnKosezLaP7Cv&scope=user:email&redirect_uri=${redirectUri}`
     
-    // 这里可以添加GitHub OAuth处理逻辑
-    // 目前先显示一个提示
-    ElMessage.info('GitHub登录功能正在开发中...')
-    
-    // 示例：重定向到GitHub OAuth
-    // const githubAuthUrl = 'https://github.com/login/oauth/authorize?client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_REDIRECT_URI'
-    // window.location.href = githubAuthUrl
+    console.log('跳转到 GitHub 授权页面:', githubAuthUrl)
+    // 跳转到 GitHub 授权页面
+    window.location.href = githubAuthUrl
   } catch (error) {
-    ElMessage.error('GitHub登录失败')
+    ElMessage.error('GitHub登录失败: ' + (error.message || '未知错误'))
     console.error('GitHub login error:', error)
-  } finally {
     githubLoading.value = false
   }
+  // 注意：跳转后页面会卸载，不需要在 finally 中重置 loading
 }
 
 // Google登录处理
 const handleGoogleLogin = async () => {
+  // 防止重复点击
+  if (googleLoading.value) {
+    return
+  }
+  
   try {
     googleLoading.value = true
     
-    // 获取Google授权URL，确保回调地址是/home
+    // 获取Google授权URL
     const res = await getGoogleAuthUrl()
-    const authUrl = res.data
+    let authUrl = res.data
     
+    // 确保回调地址包含 source 参数用于区分
+    // 尝试解析 URL 并修改 redirect_uri
+    try {
+      const url = new URL(authUrl)
+      let redirectUri = url.searchParams.get('redirect_uri')
+      
+      if (redirectUri) {
+        // 解码现有的 redirect_uri
+        const decodedUri = decodeURIComponent(redirectUri)
+        const redirectUrl = new URL(decodedUri)
+        // 添加 source 参数
+        redirectUrl.searchParams.set('source', 'google')
+        // 重新编码并设置
+        url.searchParams.set('redirect_uri', redirectUrl.toString())
+        authUrl = url.toString()
+      } else {
+        // 如果没有 redirect_uri，添加它
+        url.searchParams.set('redirect_uri', `${window.location.origin}/home?source=google`)
+        authUrl = url.toString()
+      }
+    } catch (urlError) {
+      // 如果 URL 解析失败，尝试简单替换或追加
+      console.warn('URL 解析失败，尝试简单处理:', urlError)
+      // 如果后端返回的 URL 已经是完整的，我们相信后端已经处理好了
+      // 否则，这里可能需要根据实际情况调整
+    }
+    
+    console.log('跳转到 Google 授权页面:', authUrl)
     // 重定向到Google授权页面
     window.location.href = authUrl
   } catch (error) {
-    ElMessage.error('获取Google授权链接失败')
+    ElMessage.error('获取Google授权链接失败: ' + (error.message || '未知错误'))
     console.error('Google login error:', error)
-  } finally {
     googleLoading.value = false
   }
+  // 注意：跳转后页面会卸载，不需要在 finally 中重置 loading
 }
 
 onMounted(() => {
@@ -793,5 +909,20 @@ defineExpose({
   .back-btn:hover {
     color: #fff;
   }
+}
+</style>
+
+<style>
+/* 确保异常提示信息显示在登录框之上 */
+#el-message-container,
+.el-message-container,
+.el-message {
+  z-index: 10000000 !important;
+}
+
+/* 确保所有 Message 相关元素都在登录框之上 */
+.el-message__wrapper,
+.el-message__content {
+  z-index: 10000000 !important;
 }
 </style>

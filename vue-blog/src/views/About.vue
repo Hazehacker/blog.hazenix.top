@@ -45,7 +45,7 @@
           <h3>联系方式</h3>
           <p>如果您有任何问题或建议，欢迎通过以下方式联系我：</p>
           <ul>
-            <li>邮箱：nolramqetyu575@gmail.com</li>
+            <li>邮箱：L3542495583@outlook.com</li>
             <li>GitHub：<a href="https://github.com/HazeHacker" target="_blank">Hazenix</a></li>
           </ul>
         </div>

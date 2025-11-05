@@ -47,7 +47,10 @@ export const useUserStore = defineStore('user', {
                 setToken(res.data.token)
                 // 处理登录响应：可能data包含user对象，也可能直接是user数据
                 const userData = res.data.user || res.data
+                console.log('登录响应数据:', res.data)
+                console.log('提取的用户数据:', userData)
                 this.userInfo = normalizeUserData(userData)
+                console.log('规范化后的用户信息:', this.userInfo)
             } else {
                 throw new Error(res.msg || '登录失败')
             }
@@ -70,7 +73,9 @@ export const useUserStore = defineStore('user', {
             const res = await getUserInfo()
             // 根据新的API响应格式处理
             if (res.code === 200) {
+                console.log('获取用户信息响应:', res.data)
                 this.userInfo = normalizeUserData(res.data)
+                console.log('更新后的用户信息:', this.userInfo)
             } else {
                 throw new Error(res.msg || '获取用户信息失败')
             }
@@ -91,9 +96,13 @@ export const useUserStore = defineStore('user', {
         async githubLogin(code) {
             const res = await githubAuthCallback(code)
             if (res.code === 200) {
+                // 根据接口文档，响应数据格式为：
+                // { code: 200, msg: "success", data: { id, userName, avatar, email, token } }
+                // token 和用户信息都在 data 对象中
                 this.token = res.data.token
                 setToken(res.data.token)
-                const userData = res.data.user || res.data
+                // 从 data 中提取用户信息（排除 token 字段）
+                const { token, ...userData } = res.data
                 this.userInfo = normalizeUserData(userData)
             } else {
                 throw new Error(res.msg || 'GitHub登录失败')

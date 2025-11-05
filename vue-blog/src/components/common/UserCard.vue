@@ -62,12 +62,12 @@ const avatarUrl = defaultAvatar
 const userInfo = computed(() => {
   return userStore.userInfo || {
     username: 'Hazenix',
-    bio: '热爱技术，享受生活',
+    bio: '心有所向，何惧山海',
     articleCount: 12,
     viewCount: 1280,
     commentCount: 56,
     github: 'https://github.com/HazeHacker',
-    email: '3542495583@qq.com'
+    email: 'L3542495583@outlook.com'
   }
 })
 </script>

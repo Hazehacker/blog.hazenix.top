@@ -231,3 +231,12 @@
         background: #718096;
     }
 }
+
+/* 确保 ElMessage 提示信息始终显示在登录框之上 */
+#el-message-container,
+.el-message-container,
+.el-message,
+.el-message__wrapper,
+.el-message__content {
+    z-index: 10000000 !important;
+}

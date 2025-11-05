@@ -127,6 +127,7 @@ public class UserController {
      */
     @GetMapping("/github/callback")
     public Result handleGithubCallback(@RequestParam String code) throws JsonProcessingException {
+        log.info("github第三方登录：{}",code);
         UserLoginVO userLoginVO = userService.authorizingWithGithubCode(code);
         return Result.success(userLoginVO);
     }

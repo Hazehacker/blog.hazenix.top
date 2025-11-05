@@ -262,7 +262,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public String getGithubAuthorizingUrl() {
-        String url ="https://github.com/login/oauth/authorize?client_id=Ov23liBxnKosezLaP7Cv&scope=user:email";
+        String url ="https://github.com/login/oauth/authorize?client_id=Ov23liBxnKosezLaP7Cv&scope=user,user:email";
         return url;
     }
 
@@ -443,6 +443,7 @@ public class UserServiceImpl implements UserService {
     private UserLoginVO loginLogic(String email,String username,String avatar,String refreshToken){
         User user = userMapper.selectByEmail( email);
         if(user == null){//用户没登录过，就插入，并执行主键回填
+            user = User.builder().build();
             //插入user表
             user.setUsername( username);
             user.setEmail( email);

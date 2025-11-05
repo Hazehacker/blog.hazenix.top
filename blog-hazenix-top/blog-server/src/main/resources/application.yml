@@ -1,9 +1,9 @@
 server:
-  port: 9090
+  port: ${blog.server.port}
 
 spring:
   profiles:
-    active: prod
+    active: dev
   main:
     allow-circular-references: true
   datasource:
@@ -29,13 +29,18 @@ mybatis:
 
 logging:
   level:
-    com:
-      blog:
+    top:
+      hazenix:
         mapper: debug
         service: info
         controller: debug
 
 blog:
+  baidu:
+    tgeo-coding-url: ${blog.baidu.tgeo-coding-url}
+    shop-lng: ${blog.baidu.shop-lng}
+    shop-lat: ${blog.baidu.shop-lat}
+    route-plan-url: ${blog.baidu.route-plan-url}
   jwt:
     # 设置jwt签名加密时使用的秘钥
     admin-secret-key: ${blog.jwt.admin-secret-key}

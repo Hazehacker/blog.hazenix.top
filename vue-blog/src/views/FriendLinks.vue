@@ -60,7 +60,7 @@
             <div class="mt-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
               <h4 class="font-medium text-gray-900 dark:text-gray-100 mb-2">其他联系方式：</h4>
               <div class="space-y-1 text-sm text-gray-600 dark:text-gray-400">
-                <p><strong>邮箱：</strong> nolramqetyu575@gmail.com</p>
+                <p><strong>邮箱：</strong> L3542495583@outlook.com</p>
                 
               </div>
             </div>

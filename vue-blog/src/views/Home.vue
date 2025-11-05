@@ -58,44 +58,74 @@ const themeStore = useThemeStore()
 const latestArticles = ref([])
 const showThemeGuide = ref(false)
 
-// 处理Google登录回调
-const handleGoogleCallback = async () => {
+// 处理OAuth回调 - 统一处理，通过 source 参数区分来源
+const handleOAuthCallback = async () => {
   const code = route.query.code
-  if (code) {
-    try {
-      await userStore.googleLogin(code)
-      ElMessage.success('Google登录成功')
-      // 清除URL中的code参数
-      router.replace({ path: '/home', query: {} })
-    } catch (error) {
-      ElMessage.error('Google登录失败: ' + (error.message || '未知错误'))
-      console.error('Google login callback error:', error)
-    }
+  const source = route.query.source // 'github' 或 'google'
+  
+  // 如果没有 code 参数，不处理
+  if (!code) {
+    return
   }
-}
-
-// 处理GitHub登录回调
-const handleGithubCallback = async () => {
-  const code = route.query.code
-  if (code) {
-    try {
+  
+  // 标记是否正在处理，避免重复处理
+  if (window._oauthCallbackProcessing) {
+    console.log('OAuth 回调正在处理中，跳过')
+    return
+  }
+  
+  window._oauthCallbackProcessing = true
+  
+  try {
+    // 根据 source 参数决定调用哪个登录方法
+    if (source === 'github') {
+      console.log('处理 GitHub OAuth 回调')
       await userStore.githubLogin(code)
       ElMessage.success('GitHub登录成功')
-      router.replace({ path: '/home', query: {} })
-    } catch (error) {
-      ElMessage.error('GitHub登录失败: ' + (error.message || '未知错误'))
-      console.error('GitHub login callback error:', error)
+    } else if (source === 'google') {
+      console.log('处理 Google OAuth 回调')
+      await userStore.googleLogin(code)
+      ElMessage.success('Google登录成功')
+    } else {
+      // 如果没有 source 参数，尝试通过 code 的特征判断
+      // 但为了安全，建议明确指定 source
+      console.warn('未指定 OAuth 来源，默认尝试 GitHub')
+      await userStore.githubLogin(code)
+      ElMessage.success('登录成功')
     }
+    
+    // 登录成功后，获取完整的用户信息（包括头像）
+    try {
+      await userStore.getUserInfo()
+    } catch (error) {
+      console.warn('获取用户信息失败，但登录已成功:', error)
+    }
+    
+    // 清除URL中的回调参数
+    const cleanQuery = { ...route.query }
+    delete cleanQuery.code
+    delete cleanQuery.source
+    router.replace({ path: '/home', query: cleanQuery })
+  } catch (error) {
+    ElMessage.error('第三方登录失败: ' + (error.message || '未知错误'))
+    console.error('OAuth callback error:', error)
+    // 即使登录失败，也清除URL中的回调参数
+    const cleanQuery = { ...route.query }
+    delete cleanQuery.code
+    delete cleanQuery.source
+    router.replace({ path: '/home', query: cleanQuery })
+  } finally {
+    // 清除处理标记
+    window._oauthCallbackProcessing = false
   }
 }
 
 onMounted(async () => {
-  // 先保存 fromIndex 参数，因为 Google 回调可能会清除 query 参数
-  const fromIndex = route.query.fromIndex === 'true'
+  // 先处理 OAuth 回调（如果有）
+  await handleOAuthCallback()
   
-  // 首先处理Google回调（可能会清除 query 参数）
-  await handleGoogleCallback()
-  await handleGithubCallback()
+  // 先保存 fromIndex 参数，因为回调可能会清除 query 参数
+  const fromIndex = route.query.fromIndex === 'true'
   
   // 检查是否从主页面跳转过来
   if (fromIndex) {

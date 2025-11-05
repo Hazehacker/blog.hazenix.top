@@ -258,27 +258,39 @@ const loadArticles = async () => {
     console.log('Article list response:', response)
     
     // 处理不同的响应格式
+    let articleList = []
     if (response && response.data) {
       if (Array.isArray(response.data)) {
         // 如果data直接是数组
-        articles.value = response.data
+        articleList = response.data
         total.value = response.total || response.data.length
       } else if (response.data.records) {
         // 如果data包含records字段（分页格式）
-        articles.value = response.data.records
+        articleList = response.data.records
         total.value = response.data.total || response.data.records.length
       } else if (response.data.list) {
         // 如果data包含list字段
-        articles.value = response.data.list
+        articleList = response.data.list
         total.value = response.data.total || response.data.list.length
       } else {
         // 其他格式，尝试直接使用data
-        articles.value = response.data
+        articleList = response.data
         total.value = response.total || response.data.length
       }
     } else {
-      articles.value = []
+      articleList = []
       total.value = 0
+    }
+    
+    // 过滤掉 id=1 的文章（留言板）
+    articles.value = articleList.filter(article => {
+      const articleId = article.id || article.articleId
+      return articleId !== 1 && articleId !== '1'
+    })
+    
+    // 更新总数（减去过滤掉的文章）
+    if (articleList.length > articles.value.length) {
+      total.value = Math.max(0, total.value - (articleList.length - articles.value.length))
     }
   } catch (error) {
     console.error('Failed to load articles:', error)

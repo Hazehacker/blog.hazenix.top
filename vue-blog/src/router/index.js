@@ -27,7 +27,9 @@ const routes = [
       { path: '/album', name: "Album", component: () => import("@/views/Album.vue"), meta: { title: '相册' }, props: true },
       { path: '/friend-links', name: 'FriendLinks', component: () => import('@/views/FriendLinks.vue'), meta: { title: '友情链接' } },
       { path: '/tree-hole', name: 'TreeHole', component: () => import('@/views/TreeHole/index.vue'), meta: { title: '心灵树洞' } },
-      { path: '/favorites', name: 'UserFavorites', component: () => import('@/views/UserFavorites.vue'), meta: { title: '我的收藏', requiresAuth: true } }
+      { path: '/favorites', name: 'UserFavorites', component: () => import('@/views/UserFavorites.vue'), meta: { title: '我的收藏', requiresAuth: true } },
+      { path: '/history', name: 'History', component: () => import('@/views/History.vue'), meta: { title: '本站历史' } },
+      { path: '/messageboard', name: 'MessageBoard', component: () => import('@/views/MessageBoard.vue'), meta: { title: '留言板' } }
 
 
 
@@ -170,6 +172,14 @@ const routes = [
     name: 'About',
     component: () => import('@/views/About.vue'),
     meta: { title: '关于我' }
+  },
+
+  // 关于此项目页面
+  {
+    path: '/about-project',
+    name: 'AboutProject',
+    component: () => import('@/views/AboutProject.vue'),
+    meta: { title: '关于此项目' }
   },
 
   // 404页面
