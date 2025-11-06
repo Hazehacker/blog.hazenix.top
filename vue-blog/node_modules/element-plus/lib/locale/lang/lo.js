@@ -13,7 +13,13 @@ var lo = {
       clear: "\u0EA5\u0EC9\u0EB2\u0E87",
       defaultLabel: "\u0EC0\u0E84\u0EB7\u0EC8\u0EAD\u0E87\u0EA1\u0EB7\u0EC0\u0EA5\u0EB7\u0EAD\u0E81\u0EAA\u0EB5",
       description: "\u0EAA\u0EB5\u0E9B\u0EB1\u0E94\u0E88\u0EB8\u0E9A\u0EB1\u0E99\u0EC1\u0EA1\u0EC8\u0E99 {color}. \u0E81\u0EBB\u0E94 enter \u0EC0\u0E9E\u0EB7\u0EC8\u0EAD\u0EC0\u0EA5\u0EB7\u0EAD\u0E81\u0EAA\u0EB5\u0EC3\u0EDD\u0EC8.",
-      alphaLabel: "\u0EC0\u0EA5\u0EB7\u0EAD\u0E81\u0E84\u0EC8\u0EB2\u0E84\u0EA7\u0EB2\u0EA1\u0EC2\u0E9B\u0EC8\u0E87\u0EC3\u0EAA"
+      alphaLabel: "\u0EC0\u0EA5\u0EB7\u0EAD\u0E81\u0E84\u0EC8\u0EB2\u0E84\u0EA7\u0EB2\u0EA1\u0EC2\u0E9B\u0EC8\u0E87\u0EC3\u0EAA",
+      alphaDescription: "alpha {alpha}, current color is {color}",
+      hueLabel: "pick hue value",
+      hueDescription: "hue {hue}, current color is {color}",
+      svLabel: "pick saturation and brightness value",
+      svDescription: "saturation {saturation}, brightness {brightness}, current color is {color}",
+      predefineDescription: "select {value} as the color"
     },
     datepicker: {
       now: "\u0E95\u0EAD\u0E99\u0E99\u0EB5\u0EC9",

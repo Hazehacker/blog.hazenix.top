@@ -408,7 +408,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, reactive, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Upload } from '@element-plus/icons-vue'
 import { getToken } from '@/utils/auth'
@@ -529,19 +529,45 @@ const loadTags = async () => {
 // 初始化表单
 const initForm = () => {
   if (props.article) {
+    // 处理 tagIds：如果 tags 是对象数组，提取 id；如果 tagIds 是 id 数组，直接使用
+    let tagIds = []
+    if (props.article.tagIds && Array.isArray(props.article.tagIds)) {
+      // 如果 tagIds 是 id 数组
+      tagIds = props.article.tagIds
+    } else if (props.article.tags && Array.isArray(props.article.tags)) {
+      // 如果 tags 是对象数组，提取 id
+      tagIds = props.article.tags.map(tag => {
+        if (typeof tag === 'object' && tag !== null && tag.id) {
+          return tag.id
+        }
+        return tag
+      })
+    }
+    
     Object.assign(form, {
       title: props.article.title || '',
       summary: props.article.summary || '',
       content: props.article.content || '',
-      status: props.article.status || '2',
-      categoryId: props.article.categoryId || '',
-      tagIds: props.article.tagIds || [],
+      status: String(props.article.status || '2'),
+      categoryId: props.article.categoryId || props.article.category?.id || '',
+      tagIds: tagIds,
       coverImage: props.article.coverImage || '',
       isTop: props.article.isTop || false,
       slug: props.article.slug || '',
       metaDescription: props.article.metaDescription || '',
       keywords: props.article.keywords || ''
     })
+    
+    // 如果编辑器已初始化，更新编辑器内容
+    if (editor.value && form.content) {
+      nextTick(() => {
+        try {
+          editor.value.setMarkdown(form.content)
+        } catch (error) {
+          console.error('设置编辑器内容失败:', error)
+        }
+      })
+    }
   } else {
     // 重置表单
     Object.assign(form, {
@@ -557,6 +583,17 @@ const initForm = () => {
       metaDescription: '',
       keywords: ''
     })
+    
+    // 清空编辑器内容
+    if (editor.value) {
+      nextTick(() => {
+        try {
+          editor.value.setMarkdown('')
+        } catch (error) {
+          console.error('清空编辑器内容失败:', error)
+        }
+      })
+    }
   }
 }
 
@@ -969,6 +1006,25 @@ onBeforeUnmount(() => {
     editor.value.destroy()
   }
 })
+
+// 监听 article prop 变化，重新初始化表单
+watch(() => props.article, (newArticle) => {
+  if (newArticle) {
+    initForm()
+    // 如果编辑器已初始化，更新编辑器内容
+    if (editor.value) {
+      nextTick(() => {
+        if (newArticle.content) {
+          try {
+            editor.value.setMarkdown(newArticle.content)
+          } catch (error) {
+            console.error('更新编辑器内容失败:', error)
+          }
+        }
+      })
+    }
+  }
+}, { deep: true, immediate: false })
 
 // 初始化
 onMounted(async () => {

@@ -13,7 +13,13 @@ var no = {
       clear: "T\xF8m",
       defaultLabel: "Fargevelger",
       description: "N\xE5v\xE6rende farge {color}, velg ny farge med Enter-tasten",
-      alphaLabel: "Velg verdi for gjennomsiktighet"
+      alphaLabel: "Velg verdi for gjennomsiktighet",
+      alphaDescription: "alpha {alpha}, current color is {color}",
+      hueLabel: "pick hue value",
+      hueDescription: "hue {hue}, current color is {color}",
+      svLabel: "pick saturation and brightness value",
+      svDescription: "saturation {saturation}, brightness {brightness}, current color is {color}",
+      predefineDescription: "select {value} as the color"
     },
     datepicker: {
       now: "N\xE5",

@@ -1,55 +1,44 @@
-import Color from '../utils/color';
-import type { PropType, Ref } from 'vue';
 declare const _default: import("vue").DefineComponent<{
-    colors: {
-        type: PropType<string[]>;
-        required: true;
+    readonly colors: {
+        readonly type: import("vue").PropType<string[]>;
+        readonly required: true;
+        readonly validator: ((val: unknown) => boolean) | undefined;
+        __epPropKey: true;
     };
-    color: {
-        type: PropType<Color>;
-        required: true;
+    readonly color: {
+        readonly type: import("vue").PropType<import("../utils/color").default>;
+        readonly required: true;
+        readonly validator: ((val: unknown) => boolean) | undefined;
+        __epPropKey: true;
     };
-    enableAlpha: {
-        type: BooleanConstructor;
-        required: true;
+    readonly enableAlpha: {
+        readonly type: import("vue").PropType<import("element-plus/es/utils").EpPropMergeType<BooleanConstructor, unknown, unknown>>;
+        readonly required: true;
+        readonly validator: ((val: unknown) => boolean) | undefined;
+        __epPropKey: true;
     };
-    disabled: BooleanConstructor;
-}, {
-    rgbaColors: Ref<Color[]>;
-    handleSelect: (index: number) => void;
-    ns: {
-        namespace: import("vue").ComputedRef<string>;
-        b: (blockSuffix?: string) => string;
-        e: (element?: string) => string;
-        m: (modifier?: string) => string;
-        be: (blockSuffix?: string, element?: string) => string;
-        em: (element?: string, modifier?: string) => string;
-        bm: (blockSuffix?: string, modifier?: string) => string;
-        bem: (blockSuffix?: string, element?: string, modifier?: string) => string;
-        is: {
-            (name: string, state: boolean | undefined): string;
-            (name: string): string;
-        };
-        cssVar: (object: Record<string, string>) => Record<string, string>;
-        cssVarName: (name: string) => string;
-        cssVarBlock: (object: Record<string, string>) => Record<string, string>;
-        cssVarBlockName: (name: string) => string;
+    readonly disabled: BooleanConstructor;
+}, {}, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, Record<string, any>, string, import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps, Readonly<import("vue").ExtractPropTypes<{
+    readonly colors: {
+        readonly type: import("vue").PropType<string[]>;
+        readonly required: true;
+        readonly validator: ((val: unknown) => boolean) | undefined;
+        __epPropKey: true;
     };
-}, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, Record<string, any>, string, import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps, Readonly<import("vue").ExtractPropTypes<{
-    colors: {
-        type: PropType<string[]>;
-        required: true;
+    readonly color: {
+        readonly type: import("vue").PropType<import("../utils/color").default>;
+        readonly required: true;
+        readonly validator: ((val: unknown) => boolean) | undefined;
+        __epPropKey: true;
     };
-    color: {
-        type: PropType<Color>;
-        required: true;
+    readonly enableAlpha: {
+        readonly type: import("vue").PropType<import("element-plus/es/utils").EpPropMergeType<BooleanConstructor, unknown, unknown>>;
+        readonly required: true;
+        readonly validator: ((val: unknown) => boolean) | undefined;
+        __epPropKey: true;
     };
-    enableAlpha: {
-        type: BooleanConstructor;
-        required: true;
-    };
-    disabled: BooleanConstructor;
+    readonly disabled: BooleanConstructor;
 }>>, {
-    disabled: boolean;
+    readonly disabled: boolean;
 }>;
 export default _default;

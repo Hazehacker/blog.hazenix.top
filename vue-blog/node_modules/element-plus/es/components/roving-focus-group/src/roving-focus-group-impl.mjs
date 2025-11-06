@@ -1,8 +1,8 @@
-import { defineComponent, ref, inject, computed, provide, readonly, toRef, unref, watch, renderSlot } from 'vue';
+import { defineComponent, ref, inject, computed, provide, readonly, toRef, unref, watch, nextTick, renderSlot } from 'vue';
 import { useEventListener } from '@vueuse/core';
 import { rovingFocusGroupProps, ROVING_FOCUS_COLLECTION_INJECTION_KEY as COLLECTION_INJECTION_KEY } from './roving-focus-group.mjs';
 import { ROVING_FOCUS_GROUP_INJECTION_KEY } from './tokens.mjs';
-import { focusFirst } from './utils.mjs';
+import { getFocusIntent, reorderArray, focusFirst } from './utils.mjs';
 import _export_sfc from '../../../_virtual/plugin-vue_export-helper.mjs';
 import { composeEventHandlers } from '../../../utils/dom/event.mjs';
 
@@ -70,6 +70,32 @@ const _sfc_main = defineComponent({
     const handleEntryFocus = (...args) => {
       emit("entryFocus", ...args);
     };
+    const onKeydown = (e) => {
+      const focusIntent = getFocusIntent(e);
+      if (focusIntent) {
+        e.preventDefault();
+        const items = getItems().filter((item) => item.focusable);
+        let elements = items.map((item) => item.ref);
+        switch (focusIntent) {
+          case "last": {
+            elements.reverse();
+            break;
+          }
+          case "prev":
+          case "next": {
+            if (focusIntent === "prev") {
+              elements.reverse();
+            }
+            const currentIdx = elements.indexOf(e.currentTarget);
+            elements = props.loop ? reorderArray(elements, currentIdx + 1) : elements.slice(currentIdx + 1);
+            break;
+          }
+        }
+        nextTick(() => {
+          focusFirst(elements);
+        });
+      }
+    };
     provide(ROVING_FOCUS_GROUP_INJECTION_KEY, {
       currentTabbedId: readonly(currentTabbedId),
       loop: toRef(props, "loop"),
@@ -84,7 +110,8 @@ const _sfc_main = defineComponent({
       onItemShiftTab,
       onBlur,
       onFocus,
-      onMousedown
+      onMousedown,
+      onKeydown
     });
     watch(() => props.currentTabId, (val) => {
       currentTabbedId.value = val != null ? val : null;

@@ -27,7 +27,6 @@ function draggable(element, options) {
     var _a;
     if (isDragging)
       return;
-    event.preventDefault();
     document.onselectstart = () => false;
     document.ondragstart = () => false;
     document.addEventListener("mousemove", moveFn);

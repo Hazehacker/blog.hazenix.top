@@ -2,9 +2,9 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-var popover$1 = require('./src/popover2.js');
+var popover$1 = require('./src/popover.js');
 var directive = require('./src/directive.js');
-var popover = require('./src/popover.js');
+var popover = require('./src/popover2.js');
 var install = require('../../utils/vue/install.js');
 
 const ElPopoverDirective = install.withInstallDirective(directive["default"], directive.VPopover);

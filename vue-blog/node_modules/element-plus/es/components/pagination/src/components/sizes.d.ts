@@ -1,4 +1,4 @@
-import type { ExtractPropTypes, __ExtractPublicPropTypes } from 'vue';
+import type { CSSProperties, ExtractPropTypes, __ExtractPublicPropTypes } from 'vue';
 import type Sizes from './sizes.vue';
 export declare const paginationSizesProps: {
     readonly pageSize: {
@@ -10,6 +10,12 @@ export declare const paginationSizesProps: {
     readonly pageSizes: import("element-plus/es/utils").EpPropFinalized<(new (...args: any[]) => number[]) | (() => number[]) | ((new (...args: any[]) => number[]) | (() => number[]))[], unknown, unknown, () => [10, 20, 30, 40, 50, 100], boolean>;
     readonly popperClass: {
         readonly type: import("vue").PropType<string>;
+        readonly required: false;
+        readonly validator: ((val: unknown) => boolean) | undefined;
+        __epPropKey: true;
+    };
+    readonly popperStyle: {
+        readonly type: import("vue").PropType<import("element-plus/es/utils").EpPropMergeType<(new (...args: any[]) => string | CSSProperties) | (() => string | CSSProperties) | ((new (...args: any[]) => string | CSSProperties) | (() => string | CSSProperties))[], unknown, unknown>>;
         readonly required: false;
         readonly validator: ((val: unknown) => boolean) | undefined;
         __epPropKey: true;

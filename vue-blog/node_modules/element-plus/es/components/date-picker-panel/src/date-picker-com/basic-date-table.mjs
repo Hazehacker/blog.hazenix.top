@@ -69,7 +69,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           (openBlock(true), createElementBlock(Fragment, null, renderList(unref(rows), (row, rowKey) => {
             return openBlock(), createElementBlock("tr", {
               key: rowKey,
-              class: normalizeClass(unref(getRowKls)(row[1]))
+              class: normalizeClass(unref(getRowKls)(_ctx.showWeekNumber ? row[2] : row[1]))
             }, [
               (openBlock(true), createElementBlock(Fragment, null, renderList(row, (cell, columnKey) => {
                 return openBlock(), createElementBlock("td", {

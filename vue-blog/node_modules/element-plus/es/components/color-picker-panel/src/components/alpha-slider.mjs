@@ -1,31 +1,44 @@
-import { defineComponent, openBlock, createElementBlock, normalizeClass, unref, createElementVNode, normalizeStyle } from 'vue';
-import { alphaSliderProps } from '../props/alpha-slider.mjs';
-import { useAlphaSlider, useAlphaSliderDOM } from '../composables/use-alpha-slider.mjs';
+import { defineComponent, computed, openBlock, createElementBlock, normalizeClass, unref, createElementVNode, normalizeStyle } from 'vue';
+import { alphaSliderProps } from '../props/slider.mjs';
+import { useSlider, useSliderDOM } from '../composables/use-slider.mjs';
 import _export_sfc from '../../../../_virtual/plugin-vue_export-helper.mjs';
+import { useLocale } from '../../../../hooks/use-locale/index.mjs';
 
-const COMPONENT_NAME = "ElColorAlphaSlider";
+const minValue = 0;
+const maxValue = 100;
 const __default__ = defineComponent({
-  name: COMPONENT_NAME
+  name: "ElColorAlphaSlider"
 });
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...__default__,
   props: alphaSliderProps,
   setup(__props, { expose }) {
     const props = __props;
-    const {
-      alpha,
-      alphaLabel,
+    const { currentValue, bar, thumb, handleDrag, handleClick, handleKeydown } = useSlider(props, { key: "alpha", minValue, maxValue });
+    const { rootKls, barKls, barStyle, thumbKls, thumbStyle, update } = useSliderDOM(props, {
+      namespace: "color-alpha-slider",
+      maxValue,
+      currentValue,
       bar,
       thumb,
       handleDrag,
-      handleClick,
-      handleKeydown
-    } = useAlphaSlider(props);
-    const { rootKls, barKls, barStyle, thumbKls, thumbStyle, update } = useAlphaSliderDOM(props, {
-      bar,
-      thumb,
-      handleDrag
+      getBackground
     });
+    const { t } = useLocale();
+    const ariaLabel = computed(() => t("el.colorpicker.alphaLabel"));
+    const ariaValuetext = computed(() => {
+      return t("el.colorpicker.alphaDescription", {
+        alpha: currentValue.value,
+        color: props.color.value
+      });
+    });
+    function getBackground() {
+      if (props.color && props.color.value) {
+        const { r, g, b } = props.color.toRgb();
+        return `linear-gradient(to right, rgba(${r}, ${g}, ${b}, 0) 0%, rgba(${r}, ${g}, ${b}, 1) 100%)`;
+      }
+      return "";
+    }
     expose({
       update,
       bar,
@@ -47,15 +60,16 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           ref: thumb,
           class: normalizeClass(unref(thumbKls)),
           style: normalizeStyle(unref(thumbStyle)),
-          "aria-label": unref(alphaLabel),
-          "aria-valuenow": unref(alpha),
+          "aria-label": unref(ariaLabel),
+          "aria-valuenow": unref(currentValue),
+          "aria-valuetext": unref(ariaValuetext),
           "aria-orientation": _ctx.vertical ? "vertical" : "horizontal",
-          "aria-valuemin": "0",
-          "aria-valuemax": "100",
+          "aria-valuemin": minValue,
+          "aria-valuemax": maxValue,
           role: "slider",
           tabindex: "0",
           onKeydown: unref(handleKeydown)
-        }, null, 46, ["aria-label", "aria-valuenow", "aria-orientation", "onKeydown"])
+        }, null, 46, ["aria-label", "aria-valuenow", "aria-valuetext", "aria-orientation", "onKeydown"])
       ], 2);
     };
   }

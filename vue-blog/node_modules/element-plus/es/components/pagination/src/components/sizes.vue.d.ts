@@ -12,6 +12,12 @@ declare const _default: import("vue").DefineComponent<{
         readonly validator: ((val: unknown) => boolean) | undefined;
         __epPropKey: true;
     };
+    readonly popperStyle: {
+        readonly type: import("vue").PropType<import("element-plus/es/utils").EpPropMergeType<(new (...args: any[]) => string | import("vue").CSSProperties) | (() => string | import("vue").CSSProperties) | ((new (...args: any[]) => string | import("vue").CSSProperties) | (() => string | import("vue").CSSProperties))[], unknown, unknown>>;
+        readonly required: false;
+        readonly validator: ((val: unknown) => boolean) | undefined;
+        __epPropKey: true;
+    };
     readonly disabled: BooleanConstructor;
     readonly teleported: BooleanConstructor;
     readonly size: {
@@ -33,6 +39,12 @@ declare const _default: import("vue").DefineComponent<{
     readonly pageSizes: import("element-plus/es/utils").EpPropFinalized<(new (...args: any[]) => number[]) | (() => number[]) | ((new (...args: any[]) => number[]) | (() => number[]))[], unknown, unknown, () => [10, 20, 30, 40, 50, 100], boolean>;
     readonly popperClass: {
         readonly type: import("vue").PropType<string>;
+        readonly required: false;
+        readonly validator: ((val: unknown) => boolean) | undefined;
+        __epPropKey: true;
+    };
+    readonly popperStyle: {
+        readonly type: import("vue").PropType<import("element-plus/es/utils").EpPropMergeType<(new (...args: any[]) => string | import("vue").CSSProperties) | (() => string | import("vue").CSSProperties) | ((new (...args: any[]) => string | import("vue").CSSProperties) | (() => string | import("vue").CSSProperties))[], unknown, unknown>>;
         readonly required: false;
         readonly validator: ((val: unknown) => boolean) | undefined;
         __epPropKey: true;

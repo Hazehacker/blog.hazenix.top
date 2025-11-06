@@ -3,10 +3,10 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 var tabs = require('./src/tabs.js');
-var tabPane$1 = require('./src/tab-pane2.js');
+var tabPane$1 = require('./src/tab-pane.js');
 var tabBar = require('./src/tab-bar.js');
 var tabNav = require('./src/tab-nav.js');
-var tabPane = require('./src/tab-pane.js');
+var tabPane = require('./src/tab-pane2.js');
 var constants = require('./src/constants.js');
 var install = require('../../utils/vue/install.js');
 

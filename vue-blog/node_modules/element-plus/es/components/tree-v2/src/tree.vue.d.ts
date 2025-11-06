@@ -127,11 +127,11 @@ declare const __VLS_component: import("vue").DefineComponent<{
     "onCurrent-change"?: ((data: import("element-plus").TreeNodeData, node: import("./types").TreeNode) => any) | undefined;
     "onNode-expand"?: ((data: import("element-plus").TreeNodeData, node: import("./types").TreeNode) => any) | undefined;
     onCheck?: ((data: import("element-plus").TreeNodeData, checkedInfo: import("./types").CheckedInfo) => any) | undefined;
-    "onNode-drop"?: ((data: import("element-plus").TreeNodeData, node: import("./types").TreeNode, e: DragEvent) => any) | undefined;
     "onCheck-change"?: ((data: import("element-plus").TreeNodeData, checked: boolean) => any) | undefined;
     "onNode-click"?: ((data: import("element-plus").TreeNodeData, node: import("./types").TreeNode, e: MouseEvent) => any) | undefined;
     "onNode-contextmenu"?: ((evt: Event, data: import("element-plus").TreeNodeData, node: import("./types").TreeNode) => any) | undefined;
     "onNode-collapse"?: ((data: import("element-plus").TreeNodeData, node: import("./types").TreeNode) => any) | undefined;
+    "onNode-drop"?: ((data: import("element-plus").TreeNodeData, node: import("./types").TreeNode, e: DragEvent) => any) | undefined;
 }, {
     readonly data: import("./types").TreeData;
     readonly height: number;

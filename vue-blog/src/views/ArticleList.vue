@@ -274,30 +274,26 @@ const loadArticles = async () => {
         total.value = response.data.total || response.data.list.length
       } else {
         // 其他格式，尝试直接使用data
-        articleList = response.data
-        total.value = response.total || response.data.length
+        articleList = Array.isArray(response.data) ? response.data : [response.data]
+        total.value = response.total || articleList.length
       }
     } else {
       articleList = []
       total.value = 0
     }
     
-    // 过滤掉 id=1 的文章（留言板）
-    articles.value = articleList.filter(article => {
-      const articleId = article.id || article.articleId
-      return articleId !== 1 && articleId !== '1'
-    })
-    
-    // 更新总数（减去过滤掉的文章）
-    if (articleList.length > articles.value.length) {
-      total.value = Math.max(0, total.value - (articleList.length - articles.value.length))
+    // 过滤掉 id=1 的文章（留言板专用）
+    articles.value = articleList.filter(article => article.id !== 1 && article.id !== '1')
+    // 更新总数（减去被过滤的文章）
+    if (articles.value.length !== articleList.length) {
+      total.value = total.value - (articleList.length - articles.value.length)
     }
   } catch (error) {
     console.error('Failed to load articles:', error)
     ElMessage.error('加载文章列表失败')
     
-    // Mock数据作为fallback
-    articles.value = [
+    // Mock数据作为fallback（过滤掉 id=1）
+    const mockArticles = [
       {
         id: 1,
         title: 'Vue3博客系统开发指南',
@@ -319,7 +315,9 @@ const loadArticles = async () => {
         tags: [{ id: 3, name: 'Element Plus' }, { id: 2, name: '前端' }]
       }
     ]
-    total.value = 2
+    // 过滤掉 id=1 的文章（留言板专用）
+    articles.value = mockArticles.filter(article => article.id !== 1 && article.id !== '1')
+    total.value = articles.value.length
   } finally {
     loading.value = false
   }

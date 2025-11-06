@@ -45,6 +45,7 @@ declare const __VLS_component: import("vue").DefineComponent<{
         label?: string;
         disabled?: string;
     }>, boolean>;
+    readonly type: import("element-plus/es/utils").EpPropFinalized<StringConstructor, "button" | "checkbox", unknown, "checkbox", boolean>;
 }, {}, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     "update:modelValue": (val: CheckboxGroupValueType) => void;
     change: (val: import("element-plus").CheckboxValueType[]) => void;
@@ -91,11 +92,13 @@ declare const __VLS_component: import("vue").DefineComponent<{
         label?: string;
         disabled?: string;
     }>, boolean>;
+    readonly type: import("element-plus/es/utils").EpPropFinalized<StringConstructor, "button" | "checkbox", unknown, "checkbox", boolean>;
 }>> & {
     "onUpdate:modelValue"?: ((val: CheckboxGroupValueType) => any) | undefined;
     onChange?: ((val: import("element-plus").CheckboxValueType[]) => any) | undefined;
 }, {
     readonly disabled: boolean;
+    readonly type: import("element-plus/es/utils").EpPropMergeType<StringConstructor, "button" | "checkbox", unknown>;
     readonly props: {
         value?: string;
         label?: string;

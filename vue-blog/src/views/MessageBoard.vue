@@ -1,5 +1,5 @@
 <template>
-  <div class="article-detail">
+  <div class="message-board">
     <div v-loading="loading" class="article-container">
       <!-- 文章内容 -->
       <main class="article-main">
@@ -20,6 +20,13 @@
             />
           </header>
 
+          <!-- 文章摘要 -->
+          <div v-if="article.summary" class="article-summary">
+            <div class="summary-content">
+              {{ article.summary }}
+            </div>
+          </div>
+
           <!-- 文章正文 -->
           <div class="article-body">
             <!-- 主要内容 -->
@@ -30,7 +37,7 @@
 
         <!-- 加载状态 -->
         <div v-else-if="!loading" class="empty-state">
-          <el-empty description="留言板加载中...">
+          <el-empty description="留言板内容加载中...">
             <el-button type="primary" @click="loadArticle">
               重新加载
             </el-button>
@@ -40,7 +47,7 @@
 
       <!-- 侧边栏 -->
       <aside class="article-sidebar">
-        <!-- 目录和操作按钮 -->
+        <!-- 目录 -->
         <div v-if="article?.content" class="sidebar-section">
           <TableOfContents 
             :content="article.content" 
@@ -51,6 +58,24 @@
             @collect="collectArticle"
             @share="shareArticle"
           />
+        </div>
+
+        <!-- 标签云 -->
+        <div v-if="article?.tags && article.tags.length > 0" class="sidebar-section">
+          <div class="section-header">
+            <h3 class="section-title">标签</h3>
+          </div>
+          <div class="tag-cloud">
+            <el-tag
+              v-for="tag in article.tags"
+              :key="tag.id || tag"
+              size="small"
+              class="tag-item"
+              @click="searchByTag(getTagName(tag))"
+            >
+              {{ getTagName(tag) }}
+            </el-tag>
+          </div>
         </div>
       </aside>
     </div>
@@ -98,7 +123,15 @@ const getCategoryName = (article) => {
   return ''
 }
 
-// 加载文章详情（留言板固定使用 id=1）
+// 获取标签名称（兼容新的API格式）
+const getTagName = (tag) => {
+  if (typeof tag === 'object' && tag !== null) {
+    return tag.name
+  }
+  return tag
+}
+
+// 加载文章详情（留言板使用 articleId=1）
 const loadArticle = async () => {
   loading.value = true
   try {
@@ -114,38 +147,23 @@ const loadArticle = async () => {
         console.warn('Failed to increment view count:', viewError)
       }
     } else {
-      throw new Error('文章数据为空')
+      throw new Error('留言板内容为空')
     }
   } catch (error) {
     console.error('Failed to load message board:', error)
     
-    // 如果文章不存在，显示默认内容
-    article.value = {
-      id: 1,
-      title: '留言板',
-      content: `# 留言板
-
-远方的朋友，想说点什么吗？
-
-从我的故事，到技术问题，或是日常闲聊
-
-这里永远欢迎你的评论！
-
-在这里留下你的文字吧~`,
-      author: 'Hazenix',
-      authorName: 'Hazenix',
-      createTime: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-      viewCount: 0,
-      views: 0,
-      commentCount: 0,
-      comments: 0,
-      tags: [],
-      category: null,
-      categoryName: ''
+    let errorMessage = '加载留言板失败'
+    if (error.response) {
+      if (error.response.status === 404) {
+        errorMessage = '留言板内容不存在，请先创建 id=1 的文章'
+      } else if (error.response.status === 500) {
+        errorMessage = '服务器内部错误，请稍后重试'
+      } else {
+        errorMessage = `请求失败 (${error.response.status})`
+      }
     }
     
-    ElMessage.warning('留言板内容加载失败，显示默认内容')
+    ElMessage.error(errorMessage)
   } finally {
     loading.value = false
   }
@@ -217,6 +235,23 @@ const handleCommentAdded = (comment) => {
   }
 }
 
+// 按标签搜索
+const searchByTag = (tagName) => {
+  const tag = article.value?.tags?.find(t => {
+    if (typeof t === 'object' && t !== null) {
+      return t.name === tagName
+    }
+    return t === tagName
+  })
+  
+  if (tag) {
+    const tagId = typeof tag === 'object' ? tag.id : tag
+    router.push(`/articles?tagId=${tagId}`)
+  } else {
+    router.push(`/articles?tag=${encodeURIComponent(tagName)}`)
+  }
+}
+
 onMounted(() => {
   checkMobile()
   window.addEventListener('resize', checkMobile)
@@ -229,7 +264,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.article-detail {
+.message-board {
   @apply min-h-screen;
   background-color: rgb(255, 255, 255);
 }
@@ -257,6 +292,14 @@ onUnmounted(() => {
   @apply text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-6 leading-tight text-center;
 }
 
+.article-summary {
+  @apply p-6 bg-blue-50 dark:bg-blue-900/20 border-b border-gray-200 dark:border-gray-700;
+}
+
+.summary-content {
+  @apply text-gray-700 dark:text-gray-300 leading-relaxed text-lg;
+}
+
 .article-body {
   @apply p-6;
 }
@@ -275,6 +318,22 @@ onUnmounted(() => {
 
 .sidebar-section {
   @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm border-none;
+}
+
+.section-header {
+  @apply p-4 border-b border-gray-200 dark:border-gray-700;
+}
+
+.section-title {
+  @apply text-lg font-semibold text-gray-900 dark:text-gray-100 m-0;
+}
+
+.tag-cloud {
+  @apply p-4 flex flex-wrap gap-2;
+}
+
+.tag-item {
+  @apply cursor-pointer transition-colors hover:bg-blue-100 dark:hover:bg-blue-900/30;
 }
 
 .comments-section {
@@ -303,6 +362,7 @@ onUnmounted(() => {
   }
   
   .article-header,
+  .article-summary,
   .article-body {
     @apply p-4;
   }
@@ -312,5 +372,4 @@ onUnmounted(() => {
   }
 }
 </style>
-
 

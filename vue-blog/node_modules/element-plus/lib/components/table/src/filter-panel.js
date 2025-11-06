@@ -230,7 +230,7 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
           class: vue.normalizeClass(_ctx.ns.e("bottom"))
         }, [
           vue.createElementVNode("button", {
-            class: vue.normalizeClass({ [_ctx.ns.is("disabled")]: _ctx.filteredValue.length === 0 }),
+            class: vue.normalizeClass(_ctx.ns.is("disabled", _ctx.filteredValue.length === 0)),
             disabled: _ctx.filteredValue.length === 0,
             type: "button",
             onClick: _ctx.handleConfirm
@@ -247,9 +247,7 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
         vue.createElementVNode("li", {
           class: vue.normalizeClass([
             _ctx.ns.e("list-item"),
-            {
-              [_ctx.ns.is("active")]: _ctx.isPropAbsent(_ctx.filterValue)
-            }
+            _ctx.ns.is("active", _ctx.isPropAbsent(_ctx.filterValue))
           ]),
           onClick: ($event) => _ctx.handleSelect(null)
         }, vue.toDisplayString(_ctx.t("el.table.clearFilter")), 11, ["onClick"]),

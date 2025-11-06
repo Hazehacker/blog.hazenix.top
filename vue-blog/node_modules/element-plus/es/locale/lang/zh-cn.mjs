@@ -9,7 +9,13 @@ var zhCn = {
       clear: "\u6E05\u7A7A",
       defaultLabel: "\u989C\u8272\u9009\u62E9\u5668",
       description: "\u5F53\u524D\u989C\u8272 {color}\uFF0C\u6309 Enter \u952E\u9009\u62E9\u65B0\u989C\u8272",
-      alphaLabel: "\u9009\u62E9\u900F\u660E\u5EA6\u7684\u503C"
+      alphaLabel: "\u9009\u62E9\u900F\u660E\u5EA6\u7684\u503C",
+      alphaDescription: "\u900F\u660E\u5EA6 {alpha}, \u5F53\u524D\u989C\u8272 {color}",
+      hueLabel: "\u9009\u62E9\u8272\u76F8\u503C",
+      hueDescription: "\u8272\u76F8 {hue}, \u5F53\u524D\u989C\u8272 {color}",
+      svLabel: "\u9009\u62E9\u9971\u548C\u5EA6\u4E0E\u660E\u5EA6\u7684\u503C",
+      svDescription: "\u9971\u548C\u5EA6 {saturation}, \u660E\u5EA6 {brightness}, \u5F53\u524D\u989C\u8272 {color}",
+      predefineDescription: "\u9009\u62E9 {value} \u4F5C\u4E3A\u989C\u8272"
     },
     datepicker: {
       now: "\u6B64\u523B",
@@ -87,11 +93,11 @@ var zhCn = {
       noData: "\u65E0\u6570\u636E",
       placeholder: "\u8BF7\u9009\u62E9"
     },
-    dropdown: {
-      toggleDropdown: "\u5207\u6362\u4E0B\u62C9\u9009\u9879"
-    },
     mention: {
       loading: "\u52A0\u8F7D\u4E2D"
+    },
+    dropdown: {
+      toggleDropdown: "\u5207\u6362\u4E0B\u62C9\u9009\u9879"
     },
     cascader: {
       noMatch: "\u65E0\u5339\u914D\u6570\u636E",

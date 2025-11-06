@@ -188,13 +188,19 @@ function useTree(props, emit) {
       });
     }
     keySet.add(node.key);
-    node.expanded = true;
-    emit(NODE_EXPAND, node.data, node);
+    const _node = getNode(node.key);
+    if (_node) {
+      _node.expanded = true;
+      emit(NODE_EXPAND, _node.data, _node);
+    }
   }
   function collapseNode(node) {
     expandedKeySet.value.delete(node.key);
-    node.expanded = false;
-    emit(NODE_COLLAPSE, node.data, node);
+    const _node = getNode(node.key);
+    if (_node) {
+      _node.expanded = false;
+      emit(NODE_COLLAPSE, _node.data, _node);
+    }
   }
   function isDisabled(node) {
     return !!node.disabled;

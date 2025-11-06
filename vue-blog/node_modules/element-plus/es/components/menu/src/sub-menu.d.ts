@@ -1,4 +1,4 @@
-import type { ExtractPropTypes, __ExtractPublicPropTypes } from 'vue';
+import type { CSSProperties, ExtractPropTypes, __ExtractPublicPropTypes } from 'vue';
 export declare const subMenuProps: {
     readonly index: {
         readonly type: import("vue").PropType<string>;
@@ -9,6 +9,12 @@ export declare const subMenuProps: {
     readonly showTimeout: NumberConstructor;
     readonly hideTimeout: NumberConstructor;
     readonly popperClass: StringConstructor;
+    readonly popperStyle: {
+        readonly type: import("vue").PropType<import("element-plus/es/utils").EpPropMergeType<(new (...args: any[]) => string | CSSProperties) | (() => string | CSSProperties) | ((new (...args: any[]) => string | CSSProperties) | (() => string | CSSProperties))[], unknown, unknown>>;
+        readonly required: false;
+        readonly validator: ((val: unknown) => boolean) | undefined;
+        __epPropKey: true;
+    };
     readonly disabled: BooleanConstructor;
     readonly teleported: import("element-plus/es/utils").EpPropFinalized<BooleanConstructor, unknown, unknown, undefined, boolean>;
     readonly popperOffset: NumberConstructor;
@@ -49,6 +55,12 @@ declare const _default: import("vue").DefineComponent<{
     readonly showTimeout: NumberConstructor;
     readonly hideTimeout: NumberConstructor;
     readonly popperClass: StringConstructor;
+    readonly popperStyle: {
+        readonly type: import("vue").PropType<import("element-plus/es/utils").EpPropMergeType<(new (...args: any[]) => string | CSSProperties) | (() => string | CSSProperties) | ((new (...args: any[]) => string | CSSProperties) | (() => string | CSSProperties))[], unknown, unknown>>;
+        readonly required: false;
+        readonly validator: ((val: unknown) => boolean) | undefined;
+        __epPropKey: true;
+    };
     readonly disabled: BooleanConstructor;
     readonly teleported: import("element-plus/es/utils").EpPropFinalized<BooleanConstructor, unknown, unknown, undefined, boolean>;
     readonly popperOffset: NumberConstructor;
@@ -88,6 +100,12 @@ declare const _default: import("vue").DefineComponent<{
     readonly showTimeout: NumberConstructor;
     readonly hideTimeout: NumberConstructor;
     readonly popperClass: StringConstructor;
+    readonly popperStyle: {
+        readonly type: import("vue").PropType<import("element-plus/es/utils").EpPropMergeType<(new (...args: any[]) => string | CSSProperties) | (() => string | CSSProperties) | ((new (...args: any[]) => string | CSSProperties) | (() => string | CSSProperties))[], unknown, unknown>>;
+        readonly required: false;
+        readonly validator: ((val: unknown) => boolean) | undefined;
+        __epPropKey: true;
+    };
     readonly disabled: BooleanConstructor;
     readonly teleported: import("element-plus/es/utils").EpPropFinalized<BooleanConstructor, unknown, unknown, undefined, boolean>;
     readonly popperOffset: NumberConstructor;

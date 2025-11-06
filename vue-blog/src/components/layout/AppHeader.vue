@@ -99,8 +99,8 @@ const avatarUrl = computed(() => {
   const avatar = userStore.userInfo?.avatar
   // 调试信息：检查用户信息和头像
   if (userStore.userInfo) {
-    console.log('用户信息:', userStore.userInfo)
-    console.log('头像URL:', avatar)
+    // console.log('用户信息:', userStore.userInfo)
+    // console.log('头像URL:', avatar)
   }
   return avatar || defaultAvatar
 })
@@ -115,8 +115,8 @@ watch(
   () => userStore.userInfo,
   (newInfo) => {
     if (newInfo) {
-      console.log('用户信息已更新:', newInfo)
-      console.log('头像字段:', newInfo.avatar)
+      // console.log('用户信息已更新:', newInfo)
+      // console.log('头像字段:', newInfo.avatar)
     }
   },
   { deep: true, immediate: true }

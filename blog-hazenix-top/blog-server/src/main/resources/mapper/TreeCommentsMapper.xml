@@ -21,15 +21,17 @@
     </select>
     <select id="pageQuery" resultType="top.hazenix.entity.TreeComments">
         select * from tree_comments
-        <if test="keyword != null">
-            and content like concat('%',#{keyword},'%')
-        </if>
-        <if test="status != null">
-            and status = #{status}
-        </if>
-        <if test="username != null and username != ''">
-            and username like concat('%',#{username},'%')
-        </if>
+        <where>
+            <if test="keyword != null">
+                and content like concat('%',#{keyword},'%')
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="username != null and username != ''">
+                and username like concat('%',#{username},'%')
+            </if>
+        </where>
         order by create_time desc
     </select>
 </mapper>

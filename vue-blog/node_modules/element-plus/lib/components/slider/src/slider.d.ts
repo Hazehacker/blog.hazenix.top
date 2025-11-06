@@ -46,7 +46,6 @@ export declare const sliderProps: {
     readonly range: BooleanConstructor;
     readonly vertical: BooleanConstructor;
     readonly height: StringConstructor;
-    readonly debounce: import("element-plus/es/utils").EpPropFinalized<NumberConstructor, unknown, unknown, 300, boolean>;
     readonly rangeStartLabel: import("element-plus/es/utils").EpPropFinalized<StringConstructor, unknown, unknown, undefined, boolean>;
     readonly rangeEndLabel: import("element-plus/es/utils").EpPropFinalized<StringConstructor, unknown, unknown, undefined, boolean>;
     readonly formatValueText: import("element-plus/es/utils").EpPropFinalized<(new (...args: any[]) => (val: number) => string) | (() => (val: number) => string) | {

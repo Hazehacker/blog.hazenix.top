@@ -2,40 +2,33 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-var vue = require('vue');
-var constants = require('./constants.js');
-var popper = require('./popper2.js');
-var pluginVue_exportHelper = require('../../../_virtual/plugin-vue_export-helper.js');
+var runtime = require('../../../utils/vue/props/runtime.js');
 
-const __default__ = vue.defineComponent({
-  name: "ElPopper",
-  inheritAttrs: false
-});
-const _sfc_main = /* @__PURE__ */ vue.defineComponent({
-  ...__default__,
-  props: popper.popperProps,
-  setup(__props, { expose }) {
-    const props = __props;
-    const triggerRef = vue.ref();
-    const popperInstanceRef = vue.ref();
-    const contentRef = vue.ref();
-    const referenceRef = vue.ref();
-    const role = vue.computed(() => props.role);
-    const popperProvides = {
-      triggerRef,
-      popperInstanceRef,
-      contentRef,
-      referenceRef,
-      role
-    };
-    expose(popperProvides);
-    vue.provide(constants.POPPER_INJECTION_KEY, popperProvides);
-    return (_ctx, _cache) => {
-      return vue.renderSlot(_ctx.$slots, "default");
-    };
+const Effect = {
+  LIGHT: "light",
+  DARK: "dark"
+};
+const roleTypes = [
+  "dialog",
+  "grid",
+  "group",
+  "listbox",
+  "menu",
+  "navigation",
+  "tooltip",
+  "tree"
+];
+const popperProps = runtime.buildProps({
+  role: {
+    type: String,
+    values: roleTypes,
+    default: "tooltip"
   }
 });
-var Popper = /* @__PURE__ */ pluginVue_exportHelper["default"](_sfc_main, [["__file", "popper.vue"]]);
+const usePopperProps = popperProps;
 
-exports["default"] = Popper;
+exports.Effect = Effect;
+exports.popperProps = popperProps;
+exports.roleTypes = roleTypes;
+exports.usePopperProps = usePopperProps;
 //# sourceMappingURL=popper.js.map

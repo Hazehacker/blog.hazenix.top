@@ -389,7 +389,7 @@ class Node {
     const newNodes = [];
     newData.forEach((item, index) => {
       const key = item[NODE_KEY];
-      const isNodeExists = !!key && oldData.findIndex((data) => (data == null ? void 0 : data[NODE_KEY]) === key) >= 0;
+      const isNodeExists = !!key && oldData.some((data) => (data == null ? void 0 : data[NODE_KEY]) === key);
       if (isNodeExists) {
         newDataMap[key] = { index, data: item };
       } else {

@@ -53,7 +53,8 @@ function useWatcher(owner, props_) {
       "labelClassName",
       "filterClassName",
       "showOverflowTooltip",
-      "tooltipFormatter"
+      "tooltipFormatter",
+      "resizable"
     ];
     const parentProps = ["showOverflowTooltip"];
     const aliases = {

@@ -73,7 +73,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(vue.unref(rows), (row, rowKey) => {
             return vue.openBlock(), vue.createElementBlock("tr", {
               key: rowKey,
-              class: vue.normalizeClass(vue.unref(getRowKls)(row[1]))
+              class: vue.normalizeClass(vue.unref(getRowKls)(_ctx.showWeekNumber ? row[2] : row[1]))
             }, [
               (vue.openBlock(true), vue.createElementBlock(vue.Fragment, null, vue.renderList(row, (cell, columnKey) => {
                 return vue.openBlock(), vue.createElementBlock("td", {

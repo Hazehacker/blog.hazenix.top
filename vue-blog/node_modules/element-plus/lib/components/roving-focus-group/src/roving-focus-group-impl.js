@@ -74,6 +74,32 @@ const _sfc_main = vue.defineComponent({
     const handleEntryFocus = (...args) => {
       emit("entryFocus", ...args);
     };
+    const onKeydown = (e) => {
+      const focusIntent = utils.getFocusIntent(e);
+      if (focusIntent) {
+        e.preventDefault();
+        const items = getItems().filter((item) => item.focusable);
+        let elements = items.map((item) => item.ref);
+        switch (focusIntent) {
+          case "last": {
+            elements.reverse();
+            break;
+          }
+          case "prev":
+          case "next": {
+            if (focusIntent === "prev") {
+              elements.reverse();
+            }
+            const currentIdx = elements.indexOf(e.currentTarget);
+            elements = props.loop ? utils.reorderArray(elements, currentIdx + 1) : elements.slice(currentIdx + 1);
+            break;
+          }
+        }
+        vue.nextTick(() => {
+          utils.focusFirst(elements);
+        });
+      }
+    };
     vue.provide(tokens.ROVING_FOCUS_GROUP_INJECTION_KEY, {
       currentTabbedId: vue.readonly(currentTabbedId),
       loop: vue.toRef(props, "loop"),
@@ -88,7 +114,8 @@ const _sfc_main = vue.defineComponent({
       onItemShiftTab,
       onBlur,
       onFocus,
-      onMousedown
+      onMousedown,
+      onKeydown
     });
     vue.watch(() => props.currentTabId, (val) => {
       currentTabbedId.value = val != null ? val : null;

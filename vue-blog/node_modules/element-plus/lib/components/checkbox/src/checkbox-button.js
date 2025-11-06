@@ -4,7 +4,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 var vue = require('vue');
 var constants = require('./constants.js');
-var checkbox = require('./checkbox2.js');
+var checkbox = require('./checkbox.js');
 var pluginVue_exportHelper = require('../../../_virtual/plugin-vue_export-helper.js');
 var useCheckbox = require('./composables/use-checkbox.js');
 var index = require('../../../hooks/use-namespace/index.js');

@@ -4,7 +4,6 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 var shared = require('@vue/shared');
 
-const FontGap = 3;
 const TEXT_ALIGN_RATIO_MAP = {
   left: [0, 0.5],
   start: [0, 0.5],
@@ -45,7 +44,7 @@ function useClips() {
       const contents = shared.isArray(content) ? content : [content];
       contents == null ? void 0 : contents.forEach((item, index) => {
         const [alignRatio, spaceRatio] = TEXT_ALIGN_RATIO_MAP[textAlign];
-        ctx.fillText(item != null ? item : "", contentWidth * alignRatio + space * spaceRatio, index * (mergedFontSize + FontGap * ratio));
+        ctx.fillText(item != null ? item : "", contentWidth * alignRatio + space * spaceRatio, index * (mergedFontSize + font.fontGap * ratio));
       });
     }
     const angle = Math.PI / 180 * Number(rotate);
@@ -100,6 +99,5 @@ function useClips() {
   return getClips;
 }
 
-exports.FontGap = FontGap;
 exports["default"] = useClips;
 //# sourceMappingURL=useClips.js.map

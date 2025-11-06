@@ -46,11 +46,8 @@ const RowRenderer = (props, {
   const depth = depthMap[_rowKey] || 0;
   const canExpand = Boolean(expandColumnKey);
   const isFixedRow = rowIndex < 0;
-  const kls = [ns.e("row"), rowKls, {
-    [ns.e(`row-depth-${depth}`)]: canExpand && rowIndex >= 0,
-    [ns.is("expanded")]: canExpand && expandedRowKeys.includes(_rowKey),
-    [ns.is("fixed")]: !depth && isFixedRow,
-    [ns.is("customized")]: Boolean(slots.row)
+  const kls = [ns.e("row"), rowKls, ns.is("expanded", canExpand && expandedRowKeys.includes(_rowKey)), ns.is("fixed", !depth && isFixedRow), ns.is("customized", Boolean(slots.row)), {
+    [ns.e(`row-depth-${depth}`)]: canExpand && rowIndex >= 0
   }];
   const onRowHover = hasFixedColumns ? onRowHovered : void 0;
   const _rowProps = {

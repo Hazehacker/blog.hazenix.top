@@ -24,9 +24,7 @@ const HeaderRenderer = ({
     columns,
     headerIndex
   };
-  const kls = [ns.e("header-row"), utils.tryCall(headerClass, param, ""), {
-    [ns.is("customized")]: Boolean(slots.header)
-  }];
+  const kls = [ns.e("header-row"), utils.tryCall(headerClass, param, ""), ns.is("customized", Boolean(slots.header))];
   const extraProps = {
     ...utils.tryCall(headerProps, param),
     columnsStyles,

@@ -100,9 +100,4 @@ var api = init(defaultConverter, { path: "/" });
 export {
   api as default
 };
-/*! Bundled license information:
-
-js-cookie/dist/js.cookie.mjs:
-  (*! js-cookie v3.0.5 | MIT *)
-*/
 //# sourceMappingURL=js-cookie.js.map

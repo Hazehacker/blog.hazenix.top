@@ -429,7 +429,7 @@ declare const _default: import("vue").DefineComponent<{
     getHalfCheckedNodes: () => TreeNodeData[];
     getHalfCheckedKeys: () => TreeKey[];
     setCurrentNode: (node: Node, shouldAutoExpandParent?: boolean) => void;
-    setCurrentKey: (key?: TreeKey, shouldAutoExpandParent?: boolean) => void;
+    setCurrentKey: (key?: TreeKey | null, shouldAutoExpandParent?: boolean) => void;
     t: import("element-plus/es/hooks").Translator;
     getNode: (data: TreeKey | TreeNodeData) => Node;
     remove: (data: TreeNodeData | Node) => void;
@@ -438,7 +438,21 @@ declare const _default: import("vue").DefineComponent<{
     insertAfter: (data: TreeNodeData, refNode: TreeKey | TreeNodeData | Node) => void;
     handleNodeExpand: (nodeData: TreeNodeData, node: Node, instance: ComponentInternalInstance) => void;
     updateKeyChildren: (key: TreeKey, data: TreeData) => void;
-}, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, string[], string, import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps, Readonly<import("vue").ExtractPropTypes<{
+}, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
+    'check-change': (data: any, checked: boolean, indeterminate: boolean) => any;
+    'current-change': (data: any | null, node: Node | null) => boolean;
+    'node-click': (data: any, node: Node, nodeInstance: ComponentInternalInstance | null, evt: MouseEvent) => any;
+    'node-contextmenu': (evt: Event, data: any, node: Node, nodeInstance: ComponentInternalInstance | null) => any;
+    'node-collapse': (data: any, node: Node, nodeInstance: ComponentInternalInstance | null) => any;
+    'node-expand': (data: any, node: Node, nodeInstance: ComponentInternalInstance | null) => any;
+    check: (data: any, checkedInfo: import("./tree.type").CheckedInfo) => any;
+    'node-drag-start': (node: Node, evt: DragEvent) => DragEvent;
+    'node-drag-end': (draggingNode: Node, dropNode: Node | null, dropType: import("./tree.type").NodeDropType, evt: DragEvent) => DragEvent;
+    'node-drop': (draggingNode: Node, dropNode: Node, dropType: Exclude<import("./tree.type").NodeDropType, "none">, evt: DragEvent) => DragEvent;
+    'node-drag-leave': (draggingNode: Node, oldDropNode: Node, evt: DragEvent) => DragEvent;
+    'node-drag-enter': (draggingNode: Node, dropNode: Node, evt: DragEvent) => DragEvent;
+    'node-drag-over': (draggingNode: Node, dropNode: Node, evt: DragEvent) => DragEvent;
+}, string, import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps, Readonly<import("vue").ExtractPropTypes<{
     data: {
         type: PropType<TreeData>;
         default: () => never[];
@@ -502,13 +516,25 @@ declare const _default: import("vue").DefineComponent<{
         type: PropType<string | import("vue").Component>;
     };
 }>> & {
-    [x: `on${Capitalize<string>}`]: ((...args: any[]) => any) | undefined;
+    "onCurrent-change"?: ((data: any, node: Node | null) => any) | undefined;
+    "onNode-expand"?: ((data: any, node: Node, nodeInstance: ComponentInternalInstance | null) => any) | undefined;
+    onCheck?: ((data: any, checkedInfo: import("./tree.type").CheckedInfo) => any) | undefined;
+    "onCheck-change"?: ((data: any, checked: boolean, indeterminate: boolean) => any) | undefined;
+    "onNode-click"?: ((data: any, node: Node, nodeInstance: ComponentInternalInstance | null, evt: MouseEvent) => any) | undefined;
+    "onNode-contextmenu"?: ((evt: Event, data: any, node: Node, nodeInstance: ComponentInternalInstance | null) => any) | undefined;
+    "onNode-collapse"?: ((data: any, node: Node, nodeInstance: ComponentInternalInstance | null) => any) | undefined;
+    "onNode-drag-start"?: ((node: Node, evt: DragEvent) => any) | undefined;
+    "onNode-drag-end"?: ((draggingNode: Node, dropNode: Node | null, dropType: import("./tree.type").NodeDropType, evt: DragEvent) => any) | undefined;
+    "onNode-drop"?: ((draggingNode: Node, dropNode: Node, dropType: "after" | "before" | "inner", evt: DragEvent) => any) | undefined;
+    "onNode-drag-leave"?: ((draggingNode: Node, oldDropNode: Node, evt: DragEvent) => any) | undefined;
+    "onNode-drag-enter"?: ((draggingNode: Node, dropNode: Node, evt: DragEvent) => any) | undefined;
+    "onNode-drag-over"?: ((draggingNode: Node, dropNode: Node, evt: DragEvent) => any) | undefined;
 }, {
     data: TreeData;
     props: import("./tree.type").TreeOptionProps;
+    lazy: boolean;
     draggable: boolean;
     checkStrictly: boolean;
-    lazy: boolean;
     checkOnClickNode: boolean;
     checkOnClickLeaf: boolean;
     accordion: boolean;

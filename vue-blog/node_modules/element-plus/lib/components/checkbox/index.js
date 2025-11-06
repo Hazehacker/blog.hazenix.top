@@ -2,11 +2,11 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-var checkbox$1 = require('./src/checkbox.js');
+var checkbox$1 = require('./src/checkbox2.js');
 var checkboxButton = require('./src/checkbox-button.js');
 var checkboxGroup$1 = require('./src/checkbox-group2.js');
 var checkboxGroup = require('./src/checkbox-group.js');
-var checkbox = require('./src/checkbox2.js');
+var checkbox = require('./src/checkbox.js');
 var constants = require('./src/constants.js');
 var install = require('../../utils/vue/install.js');
 

@@ -201,7 +201,7 @@ function treeCellPrefix({
     }, {
       default: () => {
         return [
-          h(ElIcon, { class: { [ns.is("loading")]: treeNode.loading } }, {
+          h(ElIcon, { class: ns.is("loading", treeNode.loading) }, {
             default: () => [h(icon)]
           })
         ];

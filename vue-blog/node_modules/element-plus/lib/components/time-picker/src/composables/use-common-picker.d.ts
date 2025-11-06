@@ -12,7 +12,6 @@ export declare const useCommonPicker: <P extends CommonPickerProps, E extends Co
         isValidValue?: ((date: DayOrDays) => boolean) | undefined;
         handleKeydownInput?: ((event: KeyboardEvent) => void) | undefined;
         parseUserInput?: ((value: UserInput) => DayOrDays) | undefined;
-        formatToString?: ((value: DayOrDays) => UserInput) | undefined;
         getRangeAvailableTime?: ((date: DayOrDays) => DayOrDays) | undefined;
         getDefaultValue?: (() => DayOrDays) | undefined;
         panelReady?: boolean | undefined;

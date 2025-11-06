@@ -13,7 +13,13 @@ var arEg = {
       clear: "\u0625\u0632\u0627\u0644\u0629",
       defaultLabel: "\u0625\u062E\u062A\u0631 \u0627\u0644\u0644\u0648\u0646",
       description: "\u0627\u0644\u0644\u0648\u0646 \u0627\u0644\u062D\u0627\u0644\u064A \u0647\u0648 {color}. \u0627\u0636\u0641\u0637 \u0627\u0646\u062A\u0631 \u0644\u0627\u062E\u062A\u064A\u0627\u0631 \u0644\u0648\u0646 \u062C\u062F\u064A\u062F",
-      alphaLabel: "pick alpha value"
+      alphaLabel: "pick alpha value",
+      alphaDescription: "alpha {alpha}, current color is {color}",
+      hueLabel: "pick hue value",
+      hueDescription: "hue {hue}, current color is {color}",
+      svLabel: "pick saturation and brightness value",
+      svDescription: "saturation {saturation}, brightness {brightness}, current color is {color}",
+      predefineDescription: "select {value} as the color"
     },
     datepicker: {
       now: "\u0627\u0644\u0622\u0646",

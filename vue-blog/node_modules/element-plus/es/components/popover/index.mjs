@@ -1,6 +1,6 @@
-import Popover from './src/popover2.mjs';
+import Popover from './src/popover.mjs';
 import PopoverDirective, { VPopover } from './src/directive.mjs';
-export { popoverEmits, popoverProps } from './src/popover.mjs';
+export { popoverEmits, popoverProps } from './src/popover2.mjs';
 import { withInstallDirective, withInstall } from '../../utils/vue/install.mjs';
 
 const ElPopoverDirective = withInstallDirective(PopoverDirective, VPopover);

@@ -1,5 +1,4 @@
 import type { WatermarkProps } from './watermark';
-export declare const FontGap = 3;
 /**
  * Get the clips of text content.
  * This is a lazy hook function since SSR no need this

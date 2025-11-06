@@ -66,6 +66,7 @@
     <!-- 弹幕组件 -->
     <vue-danmaku 
       ref="danmakuRef"
+      :key="danmakuKey"
       :debounce="3000"
       random-channel
       :speeds="80"
@@ -74,7 +75,6 @@
       :autoplay="true"
       v-model:danmus="treeHoleList"
       use-slot
-      loop
       style="height:calc(100vh - 70px); width:100vw;"
     >
       <!-- 自定义弹幕样式 -->
@@ -96,7 +96,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Loading } from '@element-plus/icons-vue'
 import { getTreeHoleList, addTreeHole } from '@/api/treeHole.js'
@@ -106,10 +106,18 @@ import { useThemeStore } from '@/stores/theme.js'
 import Galaxy from '@/Backgrounds/Galaxy/Galaxy.vue'
 
 // 响应式数据
-const treeHoleList = ref([])        // 树洞列表数据
-const isShowSubmit = ref(false)     // 控制提交按钮显示
-const content = ref('')             // 输入框内容
-const loading = ref(false)          // 加载状态
+const originalTreeHoleList = ref([])  // 原始弹幕列表（所有弹幕）
+const treeHoleList = ref([])          // 当前显示的弹幕列表
+const isShowSubmit = ref(false)       // 控制提交按钮显示
+const content = ref('')               // 输入框内容
+const loading = ref(false)            // 加载状态
+const isRefilling = ref(false)        // 是否正在重新填充，防止重复触发
+const checkInterval = ref(null)       // 检查定时器
+const lastDanmuCount = ref(0)         // 上次检查时的弹幕数量
+const lowDanmuStartTime = ref(null)   // 弹幕数量降到很低时的时间戳
+const lastRefillTime = ref(0)         // 上次重新填充的时间戳
+const isIntervalRunning = ref(false)  // 定时器是否正在运行，防止重复启动
+const danmakuKey = ref(0)             // 弹幕组件的key，用于强制重新渲染
 
 // 获取用户信息和主题信息
 const userStore = useUserStore()
@@ -138,8 +146,8 @@ async function getTreeHole() {
     const res = await getTreeHoleList()
     
     if (res.code === 200) {
-      // 转换数据格式
-      treeHoleList.value = (res.data || []).map(item => {
+      // 转换数据格式并保存到原始列表
+      const formattedList = (res.data || []).map(item => {
         const username = item.username || '匿名用户'
         return {
           id: item.id || item.user_id,
@@ -149,6 +157,17 @@ async function getTreeHole() {
           createTime: item.create_time
         }
       })
+      
+      originalTreeHoleList.value = formattedList
+      
+      // 如果是首次加载或当前弹幕列表为空，则填充弹幕
+      if (treeHoleList.value.length === 0) {
+        // 添加时间戳，确保组件认为这是新数据
+        treeHoleList.value = formattedList.map(item => ({
+          ...item,
+          _refreshTime: Date.now()
+        }))
+      }
       
     } else {
       ElMessage.error(res.msg || '获取数据失败')
@@ -160,6 +179,249 @@ async function getTreeHole() {
     loading.value = false
   }
 }
+
+/**
+ * 检查当前屏幕上是否有弹幕元素
+ */
+function checkDanmuElements() {
+  if (!danmakuRef.value) return 0
+  
+  try {
+    // 尝试获取弹幕容器元素
+    const container = danmakuRef.value.$el || danmakuRef.value
+    if (!container) return 0
+    
+    // 查找所有弹幕元素
+    // 尝试多种选择器来查找弹幕元素
+    const selectors = [
+      '.barrage_container',
+      '[class*="danmu"]',
+      '[class*="barrage"]',
+      'div[style*="position"]', // 弹幕通常有绝对定位
+    ]
+    
+    let danmuCount = 0
+    for (const selector of selectors) {
+      const elements = container.querySelectorAll(selector)
+      if (elements.length > 0) {
+        // 检查元素是否在可视区域内
+        const visibleElements = Array.from(elements).filter(el => {
+          const rect = el.getBoundingClientRect()
+          return rect.width > 0 && rect.height > 0
+        })
+        danmuCount = Math.max(danmuCount, visibleElements.length)
+      }
+    }
+    
+    return danmuCount
+  } catch (error) {
+    console.warn('检查弹幕元素时出错:', error)
+    return 0
+  }
+}
+
+/**
+ * 重新填充弹幕列表
+ */
+function refillDanmuList() {
+  // 如果正在重新填充或原始列表为空，则跳过
+  if (isRefilling.value || originalTreeHoleList.value.length === 0) {
+    return
+  }
+  
+  isRefilling.value = true
+  
+  // 先清空数组
+  treeHoleList.value = []
+  
+  // 等待一小段时间，确保组件处理完清空操作
+  setTimeout(() => {
+    // 更新组件的key，强制重新渲染组件
+    danmakuKey.value = Date.now()
+    
+    // 重新填充所有弹幕，为每个弹幕生成新的唯一ID，确保组件认为这是全新的数据
+    const timestamp = Date.now()
+    const newList = originalTreeHoleList.value.map((item, index) => ({
+      ...item,
+      // 生成新的唯一ID，使用原始ID + 时间戳 + 索引
+      id: `${item.id}_${timestamp}_${index}`,
+      // 添加一个时间戳字段，确保组件认为这是新数据
+      _refreshTime: timestamp
+    }))
+    
+    // 使用 nextTick 确保 DOM 更新完成
+    nextTick(() => {
+      treeHoleList.value = newList
+      lastDanmuCount.value = treeHoleList.value.length
+      lowDanmuStartTime.value = null  // 重置计时
+      lastRefillTime.value = Date.now()  // 记录重新填充的时间
+      
+      // 再次等待，确保组件重新渲染和数据绑定完成
+      setTimeout(() => {
+        // 尝试手动触发播放（如果组件支持）
+        if (danmakuRef.value) {
+          try {
+            // 先尝试恢复播放
+            if (typeof danmakuRef.value.play === 'function') {
+              danmakuRef.value.play()
+            }
+            // 或者尝试调用 start 方法
+            if (typeof danmakuRef.value.start === 'function') {
+              danmakuRef.value.start()
+            }
+            // 或者尝试调用 resume 方法
+            if (typeof danmakuRef.value.resume === 'function') {
+              danmakuRef.value.resume()
+            }
+          } catch (e) {
+            console.warn('启动弹幕播放失败:', e)
+          }
+        }
+        
+        isRefilling.value = false
+        console.log('弹幕已重新填充，数量:', treeHoleList.value.length)
+      }, 300)
+    })
+  }, 200)
+}
+
+/**
+ * 清除检查定时器
+ */
+function clearCheckInterval() {
+  if (checkInterval.value) {
+    clearInterval(checkInterval.value)
+    checkInterval.value = null
+  }
+  isIntervalRunning.value = false
+}
+
+/**
+ * 启动定时检查机制
+ * 定期检查弹幕状态，当所有弹幕播放完毕时重新填充
+ */
+function startCheckInterval() {
+  // 如果定时器已经在运行，先清除
+  if (isIntervalRunning.value) {
+    clearCheckInterval()
+  }
+  
+  // 如果没有弹幕数据，不启动定时器
+  if (originalTreeHoleList.value.length === 0) {
+    return
+  }
+  
+  // 标记定时器正在运行
+  isIntervalRunning.value = true
+  lastDanmuCount.value = treeHoleList.value.length
+  lowDanmuStartTime.value = null  // 重置计时
+  
+  // 每1秒检查一次弹幕状态
+  checkInterval.value = setInterval(() => {
+    // 如果正在重新填充，跳过本次检查
+    if (isRefilling.value) {
+      return
+    }
+    
+    // 检查当前弹幕列表长度
+    const currentLength = treeHoleList.value.length
+    const screenDanmuCount = checkDanmuElements()
+    const now = Date.now()
+    
+    // 如果弹幕列表为空，立即重新填充
+    if (currentLength === 0 && originalTreeHoleList.value.length > 0) {
+      console.log('弹幕列表为空，立即重新填充')
+      lowDanmuStartTime.value = null
+      // 清除定时器
+      clearCheckInterval()
+      // 重新填充弹幕
+      refillDanmuList()
+      // 重新启动定时器
+      setTimeout(() => {
+        startCheckInterval()
+      }, 2000)
+      return
+    }
+    
+    // 如果屏幕上弹幕数量很少（0-1条），开始计时
+    // 但需要确保不是刚刚重新填充后的短暂时间（给弹幕一些时间开始播放）
+    const timeSinceRefill = now - lastRefillTime.value
+    
+    // 如果距离上次重新填充不到5秒，不进行检测（给弹幕时间开始播放）
+    if (screenDanmuCount <= 1 && currentLength > 0 && timeSinceRefill >= 5000) {
+      // 如果还没有开始计时，记录开始时间
+      if (lowDanmuStartTime.value === null) {
+        lowDanmuStartTime.value = now
+        console.log('弹幕数量降到很低，开始计时。屏幕弹幕数:', screenDanmuCount, '数组长度:', currentLength, '距离上次填充:', Math.round(timeSinceRefill/1000) + '秒')
+      } else {
+        // 如果已经计时超过5秒，说明弹幕真的播放完了
+        const elapsed = now - lowDanmuStartTime.value
+        if (elapsed >= 5000) {
+          console.log('弹幕数量持续很低超过5秒，重新填充。屏幕弹幕数:', screenDanmuCount, '数组长度:', currentLength)
+          lowDanmuStartTime.value = null
+          // 清除定时器
+          clearCheckInterval()
+          // 重新填充弹幕
+          refillDanmuList()
+          // 等待重新填充完成后再启动定时器（给更多时间让弹幕开始播放）
+          setTimeout(() => {
+            startCheckInterval()
+          }, 5000)
+          return
+        }
+      }
+    } else {
+      // 如果弹幕数量增加了（>1条），重置计时
+      if (screenDanmuCount > 1) {
+        if (lowDanmuStartTime.value !== null) {
+          console.log('弹幕数量增加，重置计时。屏幕弹幕数:', screenDanmuCount)
+        }
+        lowDanmuStartTime.value = null
+      }
+      // 如果距离上次重新填充不到5秒，也重置计时（避免误判）
+      if (timeSinceRefill < 5000) {
+        lowDanmuStartTime.value = null
+      }
+    }
+    
+    // 更新上次的弹幕数量
+    lastDanmuCount.value = currentLength
+  }, 1000)
+}
+
+// 监听弹幕列表的变化
+watch(
+  () => treeHoleList.value.length,
+  (newLength, oldLength) => {
+    // 当弹幕列表从有变为空时，立即重新填充
+    if (oldLength > 0 && newLength === 0 && originalTreeHoleList.value.length > 0 && !isRefilling.value) {
+      console.log('弹幕列表变为空，立即重新填充')
+      refillDanmuList()
+    }
+  }
+)
+
+// 监听原始弹幕列表的变化，当有新数据时启动检查定时器
+watch(
+  () => originalTreeHoleList.value.length,
+  (newLength) => {
+    if (newLength > 0) {
+      // 只有在定时器未运行时才启动
+      if (!isIntervalRunning.value) {
+        // 延迟启动，避免重复触发
+        setTimeout(() => {
+          if (!isIntervalRunning.value && originalTreeHoleList.value.length > 0) {
+            startCheckInterval()
+          }
+        }, 100)
+      }
+    } else {
+      // 如果没有弹幕数据，清除定时器
+      clearCheckInterval()
+    }
+  },
+  { immediate: true }
+)
 
 /**
  * 处理输入框失焦
@@ -238,7 +500,17 @@ async function addTreeHoleBtn() {
       ElMessage.success(res.msg || '发表成功')
       content.value = ''           // 清空输入
       isShowSubmit.value = false   // 隐藏提交按钮
-      await getTreeHole()          // 刷新列表
+      
+      // 刷新列表
+      await getTreeHole()
+      
+      // 如果当前弹幕列表为空，立即填充新弹幕
+      if (treeHoleList.value.length === 0 && originalTreeHoleList.value.length > 0) {
+        treeHoleList.value = [...originalTreeHoleList.value]
+      } else if (treeHoleList.value.length > 0) {
+        // 如果当前有弹幕在播放，将新弹幕添加到原始列表即可
+        // 新弹幕会在当前弹幕播放完毕后自动加入（通过 play-end 事件）
+      }
     } else {
       ElMessage.error(res.msg || '发表失败')
     }
@@ -266,6 +538,13 @@ async function addTreeHoleBtn() {
 // 组件挂载时获取数据
 onMounted(() => {
   getTreeHole()
+})
+
+// 组件卸载时清理定时器
+onUnmounted(() => {
+  clearCheckInterval()
+  isRefilling.value = false
+  lowDanmuStartTime.value = null
 })
 </script>
 

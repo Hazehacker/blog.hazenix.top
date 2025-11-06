@@ -13,7 +13,13 @@ var ko = {
       clear: "\uCD08\uAE30\uD654",
       defaultLabel: "\uC0C9\uC0C1 \uC120\uD0DD\uAE30",
       description: "\uD604\uC7AC \uC0C9\uC0C1\uC740 {color}\uC785\uB2C8\uB2E4. Enter \uD0A4\uB97C \uB20C\uB7EC \uC0C8 \uC0C9\uC0C1\uC744 \uC120\uD0DD\uD569\uB2C8\uB2E4.",
-      alphaLabel: "pick alpha value"
+      alphaLabel: "pick alpha value",
+      alphaDescription: "alpha {alpha}, current color is {color}",
+      hueLabel: "pick hue value",
+      hueDescription: "hue {hue}, current color is {color}",
+      svLabel: "pick saturation and brightness value",
+      svDescription: "saturation {saturation}, brightness {brightness}, current color is {color}",
+      predefineDescription: "select {value} as the color"
     },
     datepicker: {
       now: "\uC9C0\uAE08",

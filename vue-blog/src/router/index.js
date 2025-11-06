@@ -129,6 +129,12 @@ const routes = [
         meta: { title: '友链管理' }
       },
       {
+        path: 'tree-holes',
+        name: 'AdminTreeHoles',
+        component: () => import('@/views/admin/TreeHoleManagement.vue'),
+        meta: { title: '树洞管理' }
+      },
+      {
         path: 'settings',
         name: 'AdminSettings',
         component: () => import('@/views/admin/Settings.vue'),

@@ -9,7 +9,13 @@ var ugCn = {
       clear: "\u0642\u06C7\u0631\u06C7\u0642\u062F\u0627\u0634",
       defaultLabel: "color picker",
       description: "current color is {color}. press enter to select a new color.",
-      alphaLabel: "pick alpha value"
+      alphaLabel: "pick alpha value",
+      alphaDescription: "alpha {alpha}, current color is {color}",
+      hueLabel: "pick hue value",
+      hueDescription: "hue {hue}, current color is {color}",
+      svLabel: "pick saturation and brightness value",
+      svDescription: "saturation {saturation}, brightness {brightness}, current color is {color}",
+      predefineDescription: "select {value} as the color"
     },
     datepicker: {
       now: "\u06BE\u0627\u0632\u0649\u0631\u0642\u0649 \u06CB\u0627\u0642\u0649\u062A",

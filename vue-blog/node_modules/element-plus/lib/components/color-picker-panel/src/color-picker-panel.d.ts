@@ -13,6 +13,7 @@ export declare const colorPickerPanelProps: {
         readonly validator: ((val: unknown) => boolean) | undefined;
         __epPropKey: true;
     };
+    readonly validateEvent: import("element-plus/es/utils").EpPropFinalized<BooleanConstructor, unknown, unknown, true, boolean>;
 };
 export declare const colorPickerPanelEmits: {
     "update:modelValue": (val: string | null) => boolean;

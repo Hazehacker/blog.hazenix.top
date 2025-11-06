@@ -1,47 +1,40 @@
-import type { PropType } from 'vue';
-import type Color from '../utils/color';
 declare const _default: import("vue").DefineComponent<{
-    color: {
-        type: PropType<Color>;
-        required: true;
+    readonly color: {
+        readonly type: import("vue").PropType<import("../utils/color").default>;
+        readonly required: true;
+        readonly validator: ((val: unknown) => boolean) | undefined;
+        __epPropKey: true;
     };
-    vertical: BooleanConstructor;
-    disabled: BooleanConstructor;
+    readonly vertical: BooleanConstructor;
+    readonly disabled: BooleanConstructor;
 }, {
-    bar: import("vue").Ref<HTMLElement | undefined>;
-    thumb: import("vue").Ref<HTMLElement | undefined>;
-    thumbLeft: import("vue").Ref<number>;
+    /**
+     * @description bar element ref
+     */
+    bar: import("vue").ShallowRef<HTMLElement | undefined>;
+    /**
+     * @description thumb element ref
+     */
+    thumb: import("vue").ShallowRef<HTMLElement | undefined>;
+    /**
+     * @description thumb top position, only for vertical slider
+     */
     thumbTop: import("vue").Ref<number>;
-    hueValue: import("vue").ComputedRef<any>;
-    handleClick: (event: MouseEvent | TouchEvent) => void;
+    /**
+     * @description update hue slider manually
+     */
     update: () => void;
-    ns: {
-        namespace: import("vue").ComputedRef<string>;
-        b: (blockSuffix?: string) => string;
-        e: (element?: string) => string;
-        m: (modifier?: string) => string;
-        be: (blockSuffix?: string, element?: string) => string;
-        em: (element?: string, modifier?: string) => string;
-        bm: (blockSuffix?: string, modifier?: string) => string;
-        bem: (blockSuffix?: string, element?: string, modifier?: string) => string;
-        is: {
-            (name: string, state: boolean | undefined): string;
-            (name: string): string;
-        };
-        cssVar: (object: Record<string, string>) => Record<string, string>;
-        cssVarName: (name: string) => string;
-        cssVarBlock: (object: Record<string, string>) => Record<string, string>;
-        cssVarBlockName: (name: string) => string;
-    };
 }, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, Record<string, any>, string, import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps, Readonly<import("vue").ExtractPropTypes<{
-    color: {
-        type: PropType<Color>;
-        required: true;
+    readonly color: {
+        readonly type: import("vue").PropType<import("../utils/color").default>;
+        readonly required: true;
+        readonly validator: ((val: unknown) => boolean) | undefined;
+        __epPropKey: true;
     };
-    vertical: BooleanConstructor;
-    disabled: BooleanConstructor;
+    readonly vertical: BooleanConstructor;
+    readonly disabled: BooleanConstructor;
 }>>, {
-    disabled: boolean;
-    vertical: boolean;
+    readonly disabled: boolean;
+    readonly vertical: boolean;
 }>;
 export default _default;

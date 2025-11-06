@@ -93,7 +93,7 @@ function createLoadingComponent(options, appContext) {
               class: [
                 ns.b("mask"),
                 data.customClass,
-                data.fullscreen ? "is-fullscreen" : ""
+                ns.is("fullscreen", data.fullscreen)
               ]
             }, [
               vue.h("div", {

@@ -2,11 +2,11 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-var popper$1 = require('./src/popper.js');
+var popper$1 = require('./src/popper2.js');
 var arrow = require('./src/arrow2.js');
 var trigger = require('./src/trigger2.js');
 var content = require('./src/content2.js');
-var popper = require('./src/popper2.js');
+var popper = require('./src/popper.js');
 var trigger$1 = require('./src/trigger.js');
 var content$1 = require('./src/content.js');
 var arrow$1 = require('./src/arrow.js');

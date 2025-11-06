@@ -1,1 +1,0 @@
-import{_ as e}from"./index-1BlqOf3s.js";function s(){return e({url:"/user/categories",method:"get",isPublicResource:!0})}function u(r){return e({url:`/user/categories/${r}/articles`,method:"get",isPublicResource:!0})}export{u as a,s as g};

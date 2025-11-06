@@ -849,8 +849,8 @@ declare const _default: import("vue").DefineComponent<{
     tableLayout: "fixed" | "auto";
     border: boolean;
     className: string;
-    fit: boolean;
     lazy: boolean;
+    fit: boolean;
     scrollbarAlwaysOn: boolean;
     allowDragLastColumn: boolean;
     treeProps: import("./table/defaults").TreeProps | undefined;

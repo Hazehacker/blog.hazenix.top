@@ -2,8 +2,8 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-var link$1 = require('./src/link2.js');
-var link = require('./src/link.js');
+var link$1 = require('./src/link.js');
+var link = require('./src/link2.js');
 var install = require('../../utils/vue/install.js');
 
 const ElLink = install.withInstall(link$1["default"]);

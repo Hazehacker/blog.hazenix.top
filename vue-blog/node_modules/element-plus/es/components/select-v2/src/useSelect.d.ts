@@ -8,9 +8,9 @@ declare const useSelect: (props: SelectV2Props, emit: SelectV2EmitFn) => {
     collapseTagSize: import("vue").ComputedRef<"default" | "small">;
     currentPlaceholder: import("vue").ComputedRef<string>;
     expanded: import("vue").Ref<boolean>;
-    emptyText: import("vue").ComputedRef<string | false | null>;
+    emptyText: import("vue").ComputedRef<string | null>;
     popupHeight: import("vue").ComputedRef<number>;
-    debounce: import("vue").ComputedRef<0 | 300>;
+    debounce: import("vue").ComputedRef<number>;
     allOptions: import("vue").ComputedRef<OptionType[]>;
     allOptionsValueMap: import("vue").ComputedRef<Map<any, any>>;
     filteredOptions: import("vue").Ref<({
@@ -89,7 +89,7 @@ declare const useSelect: (props: SelectV2Props, emit: SelectV2EmitFn) => {
     validateIcon: import("vue").ComputedRef<any>;
     showTagList: import("vue").ComputedRef<Option[]>;
     collapseTagList: import("vue").ComputedRef<Option[]>;
-    debouncedOnInputChange: import("lodash").DebouncedFunc<() => void>;
+    debouncedOnInputChange: import("@vueuse/shared").PromisifyFn<() => void>;
     deleteTag: (event: MouseEvent, option: Option) => void;
     getLabel: (option: Option) => any;
     getValue: (option: Option) => any;

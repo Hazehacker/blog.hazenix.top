@@ -1,1 +1,0 @@
-import{_ as e}from"./index-1BlqOf3s.js";function u(){return e({url:"/user/tags",method:"get",isPublicResource:!0})}function i(t,r={}){return e({url:`/user/tags/${t}/articles`,method:"get",isPublicResource:!0,params:r})}export{i as a,u as g};

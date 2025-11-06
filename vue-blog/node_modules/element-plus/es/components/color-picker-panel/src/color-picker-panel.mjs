@@ -17,6 +17,10 @@ const colorPickerPanelProps = buildProps({
   disabled: Boolean,
   predefine: {
     type: definePropType(Array)
+  },
+  validateEvent: {
+    type: Boolean,
+    default: true
   }
 });
 const colorPickerPanelEmits = {

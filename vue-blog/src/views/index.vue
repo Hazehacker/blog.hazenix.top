@@ -21,22 +21,22 @@
     <!-- 页面内容 -->
     <div class="absolute inset-0 flex flex-col items-center justify-center text-white z-10  pointer-events-auto">
       <nav class="flex items-center justify-between w-full max-w-4xl px-6 py-4 rounded-full bg-black/70 backdrop-blur-sm">
-        <div class="flex items-center space-x-2">
+        <a :href="githubUrl" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-2 hover:opacity-80 transition-opacity cursor-pointer">
           <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">...</svg>
-          <span class="font-bold">Vue Bits</span>
-        </div>
+          <span class="font-bold">GitHub</span>
+        </a>
         <div class="space-x-4">
-          <a href="#" class="hover:text-gray-300">Home</a>
-          <a href="#" class="hover:text-gray-300">Docs</a>
+          <router-link to="/home" class="hover:text-gray-300">Home</router-link>
+          <router-link to="/articles" class="hover:text-gray-300">Articles</router-link>
         </div>
       </nav>
 
-      <button class="mt-10 px-4 py-2 rounded-full bg-black/50 hover:bg-black/70 transition">
-        🌌 New Background
-      </button>
+      <!-- <button class="mt-10 px-4 py-2 rounded-full bg-black/50 hover:bg-black/70 transition">
+        🌌 welcome!
+      </button> -->
 
       <h1 class="text-4xl md:text-6xl font-bold mt-8 text-center leading-tight">
-        Hazenix's blog,<br />
+        Hazenix's blog<br />
         blog.hazenix.top
       </h1>
 
@@ -62,6 +62,9 @@ import LoginDialog from '@/components/common/LoginDialog.vue';
 
 const router = useRouter();
 const loginDialogRef = ref();
+
+// GitHub 連結
+const githubUrl = 'https://github.com/HazeHacker';
 
 const goToLogin = () => {
   if (loginDialogRef.value) {

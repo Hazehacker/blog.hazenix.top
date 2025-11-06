@@ -205,7 +205,7 @@ function treeCellPrefix({
     }, {
       default: () => {
         return [
-          vue.h(index$1.ElIcon, { class: { [ns.is("loading")]: treeNode.loading } }, {
+          vue.h(index$1.ElIcon, { class: ns.is("loading", treeNode.loading) }, {
             default: () => [vue.h(icon)]
           })
         ];

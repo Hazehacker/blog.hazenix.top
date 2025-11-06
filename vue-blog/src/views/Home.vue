@@ -8,10 +8,10 @@
           Hazenix's Blog
         </h1>
         <p class="mt-4 text-2xl md:text-3xl text-primary font-semibold">
-          Nothing but enthusiasm brightens up the endless years.
+          Only those who keep walking light up the long road of time
         </p>
         <p class="mt-6 text-lg text-gray-500 dark:text-gray-400">
-         道阻且长，行则将至
+         我会一直走，走到灯火通明
         </p>
       </div>
       

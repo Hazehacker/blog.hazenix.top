@@ -2,8 +2,8 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-var _switch$1 = require('./src/switch.js');
-var _switch = require('./src/switch2.js');
+var _switch$1 = require('./src/switch2.js');
+var _switch = require('./src/switch.js');
 var install = require('../../utils/vue/install.js');
 
 const ElSwitch = install.withInstall(_switch$1["default"]);

@@ -22,6 +22,7 @@ export declare const popperCoreConfigProps: {
 export type PopperCoreConfigProps = ExtractPropTypes<typeof popperCoreConfigProps>;
 export type PopperCoreConfigPropsPublic = __ExtractPublicPropTypes<typeof popperCoreConfigProps>;
 export declare const popperContentProps: {
+    readonly loop: BooleanConstructor;
     readonly ariaLabel: StringConstructor;
     readonly id: StringConstructor;
     readonly style: {
@@ -101,6 +102,7 @@ export declare const usePopperCoreConfigProps: {
 };
 /** @deprecated use `popperContentProps` instead, and it will be deprecated in the next major version */
 export declare const usePopperContentProps: {
+    readonly loop: BooleanConstructor;
     readonly ariaLabel: StringConstructor;
     readonly id: StringConstructor;
     readonly style: {

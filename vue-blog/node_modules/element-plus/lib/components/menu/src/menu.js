@@ -68,6 +68,9 @@ const menuProps = runtime.buildProps({
     default: "dark"
   },
   popperClass: String,
+  popperStyle: {
+    type: runtime.definePropType([String, Object])
+  },
   showTimeout: {
     type: Number,
     default: 300

@@ -9,7 +9,13 @@ var ru = {
       clear: "\u041E\u0447\u0438\u0441\u0442\u0438\u0442\u044C",
       defaultLabel: "color picker",
       description: "current color is {color}. press enter to select a new color.",
-      alphaLabel: "pick alpha value"
+      alphaLabel: "pick alpha value",
+      alphaDescription: "alpha {alpha}, current color is {color}",
+      hueLabel: "pick hue value",
+      hueDescription: "hue {hue}, current color is {color}",
+      svLabel: "pick saturation and brightness value",
+      svDescription: "saturation {saturation}, brightness {brightness}, current color is {color}",
+      predefineDescription: "select {value} as the color"
     },
     datepicker: {
       now: "\u0421\u0435\u0439\u0447\u0430\u0441",

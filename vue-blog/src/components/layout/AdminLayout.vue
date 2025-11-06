@@ -98,7 +98,8 @@ import {
   Link,
   ArrowLeft,
   Menu,
-  ArrowDown
+  ArrowDown,
+  ChatLineRound
 } from '@element-plus/icons-vue'
 import avatarFallback from '@/assets/img/avatar.jpg'
 
@@ -111,13 +112,14 @@ const defaultAvatar = avatarFallback
 
 // 菜单项配置
 const menuItems = [
-  { name: 'dashboard', path: '/admin', label: '仪表盘', icon: 'House' },
+  { name: 'dashboard', path: '/admin', label: '儀表盤', icon: 'House' },
   { name: 'articles', path: '/admin/articles', label: '文章管理', icon: 'Document' },
-  { name: 'categories', path: '/admin/categories', label: '分类管理', icon: 'Collection' },
-  { name: 'tags', path: '/admin/tags', label: '标签管理', icon: 'PriceTag' },
-  { name: 'comments', path: '/admin/comments', label: '评论管理', icon: 'ChatDotRound' },
-  { name: 'updates', path: '/admin/updates', label: '更新记录', icon: 'Clock' },
-  { name: 'links', path: '/admin/links', label: '友链管理', icon: 'Link' },
+  { name: 'categories', path: '/admin/categories', label: '分類管理', icon: 'Collection' },
+  { name: 'tags', path: '/admin/tags', label: '標籤管理', icon: 'PriceTag' },
+  { name: 'comments', path: '/admin/comments', label: '評論管理', icon: 'ChatDotRound' },
+  { name: 'tree-holes', path: '/admin/tree-holes', label: '樹洞管理', icon: 'ChatLineRound' },
+  { name: 'updates', path: '/admin/updates', label: '更新記錄', icon: 'Clock' },
+  { name: 'links', path: '/admin/links', label: '友鏈管理', icon: 'Link' },
 ]
 
 // 当前页面标题

@@ -21,6 +21,10 @@ const colorPickerPanelProps = runtime.buildProps({
   disabled: Boolean,
   predefine: {
     type: runtime.definePropType(Array)
+  },
+  validateEvent: {
+    type: Boolean,
+    default: true
   }
 });
 const colorPickerPanelEmits = {

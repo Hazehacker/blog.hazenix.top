@@ -13,7 +13,13 @@ var bg = {
       clear: "\u0418\u0437\u0447\u0438\u0441\u0442\u0438",
       defaultLabel: "color picker",
       description: "current color is {color}. press enter to select a new color.",
-      alphaLabel: "pick alpha value"
+      alphaLabel: "pick alpha value",
+      alphaDescription: "alpha {alpha}, current color is {color}",
+      hueLabel: "pick hue value",
+      hueDescription: "hue {hue}, current color is {color}",
+      svLabel: "pick saturation and brightness value",
+      svDescription: "saturation {saturation}, brightness {brightness}, current color is {color}",
+      predefineDescription: "select {value} as the color"
     },
     datepicker: {
       now: "\u0421\u0435\u0433\u0430",

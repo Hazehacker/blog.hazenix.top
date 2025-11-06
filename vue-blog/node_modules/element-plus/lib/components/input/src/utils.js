@@ -33,6 +33,10 @@ const CONTEXT_STYLE = [
   "box-sizing",
   "word-break"
 ];
+const looseToNumber = (val) => {
+  const n = Number.parseFloat(val);
+  return Number.isNaN(n) ? val : n;
+};
 function calculateNodeStyling(targetElement) {
   const style = window.getComputedStyle(targetElement);
   const boxSizing = style.getPropertyValue("box-sizing");
@@ -85,4 +89,5 @@ function calcTextareaHeight(targetElement, minRows = 1, maxRows) {
 }
 
 exports.calcTextareaHeight = calcTextareaHeight;
+exports.looseToNumber = looseToNumber;
 //# sourceMappingURL=utils.js.map

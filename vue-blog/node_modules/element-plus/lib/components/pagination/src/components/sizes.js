@@ -18,6 +18,9 @@ const paginationSizesProps = runtime.buildProps({
   popperClass: {
     type: String
   },
+  popperStyle: {
+    type: runtime.definePropType([String, Object])
+  },
   disabled: Boolean,
   teleported: Boolean,
   size: {

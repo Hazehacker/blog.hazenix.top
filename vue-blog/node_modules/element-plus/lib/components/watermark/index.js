@@ -2,8 +2,8 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-var watermark$1 = require('./src/watermark.js');
-var watermark = require('./src/watermark2.js');
+var watermark$1 = require('./src/watermark2.js');
+var watermark = require('./src/watermark.js');
 var install = require('../../utils/vue/install.js');
 
 const ElWatermark = install.withInstall(watermark$1["default"]);

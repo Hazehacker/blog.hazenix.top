@@ -1,133 +1,72 @@
-import { defineComponent, getCurrentInstance, ref, computed, watch, onMounted, openBlock, createElementBlock, normalizeClass, createElementVNode, normalizeStyle } from 'vue';
-import { draggable } from '../utils/draggable.mjs';
+import { defineComponent, computed, openBlock, createElementBlock, normalizeClass, unref, createElementVNode, normalizeStyle } from 'vue';
+import { hueSliderProps } from '../props/slider.mjs';
+import { useSlider, useSliderDOM } from '../composables/use-slider.mjs';
 import _export_sfc from '../../../../_virtual/plugin-vue_export-helper.mjs';
-import { useNamespace } from '../../../../hooks/use-namespace/index.mjs';
-import { getClientXY } from '../../../../utils/dom/position.mjs';
+import { useLocale } from '../../../../hooks/use-locale/index.mjs';
 
-const _sfc_main = defineComponent({
-  name: "ElColorHueSlider",
-  props: {
-    color: {
-      type: Object,
-      required: true
-    },
-    vertical: Boolean,
-    disabled: Boolean
-  },
-  setup(props) {
-    const ns = useNamespace("color-hue-slider");
-    const instance = getCurrentInstance();
-    const thumb = ref();
-    const bar = ref();
-    const thumbLeft = ref(0);
-    const thumbTop = ref(0);
-    const hueValue = computed(() => {
-      return props.color.get("hue");
-    });
-    watch(() => hueValue.value, () => {
-      update();
-    });
-    function handleClick(event) {
-      if (props.disabled)
-        return;
-      const target = event.target;
-      if (target !== thumb.value) {
-        handleDrag(event);
-      }
-    }
-    function handleDrag(event) {
-      if (!bar.value || !thumb.value || props.disabled)
-        return;
-      const el = instance.vnode.el;
-      const rect = el.getBoundingClientRect();
-      const { clientX, clientY } = getClientXY(event);
-      let hue;
-      if (!props.vertical) {
-        let left = clientX - rect.left;
-        left = Math.min(left, rect.width - thumb.value.offsetWidth / 2);
-        left = Math.max(thumb.value.offsetWidth / 2, left);
-        hue = Math.round((left - thumb.value.offsetWidth / 2) / (rect.width - thumb.value.offsetWidth) * 360);
-      } else {
-        let top = clientY - rect.top;
-        top = Math.min(top, rect.height - thumb.value.offsetHeight / 2);
-        top = Math.max(thumb.value.offsetHeight / 2, top);
-        hue = Math.round((top - thumb.value.offsetHeight / 2) / (rect.height - thumb.value.offsetHeight) * 360);
-      }
-      props.color.set("hue", hue);
-    }
-    function getThumbLeft() {
-      if (!thumb.value)
-        return 0;
-      const el = instance.vnode.el;
-      if (props.vertical)
-        return 0;
-      const hue = props.color.get("hue");
-      if (!el)
-        return 0;
-      return Math.round(hue * (el.offsetWidth - thumb.value.offsetWidth / 2) / 360);
-    }
-    function getThumbTop() {
-      if (!thumb.value)
-        return 0;
-      const el = instance.vnode.el;
-      if (!props.vertical)
-        return 0;
-      const hue = props.color.get("hue");
-      if (!el)
-        return 0;
-      return Math.round(hue * (el.offsetHeight - thumb.value.offsetHeight / 2) / 360);
-    }
-    function update() {
-      thumbLeft.value = getThumbLeft();
-      thumbTop.value = getThumbTop();
-    }
-    onMounted(() => {
-      if (!bar.value || !thumb.value || props.disabled)
-        return;
-      const dragConfig = {
-        drag: (event) => {
-          handleDrag(event);
-        },
-        end: (event) => {
-          handleDrag(event);
-        }
-      };
-      draggable(bar.value, dragConfig);
-      draggable(thumb.value, dragConfig);
-      update();
-    });
-    return {
+const minValue = 0;
+const maxValue = 360;
+const __default__ = defineComponent({
+  name: "ElColorHueSlider"
+});
+const _sfc_main = /* @__PURE__ */ defineComponent({
+  ...__default__,
+  props: hueSliderProps,
+  setup(__props, { expose }) {
+    const props = __props;
+    const { currentValue, bar, thumb, handleDrag, handleClick, handleKeydown } = useSlider(props, { key: "hue", minValue, maxValue });
+    const { rootKls, barKls, thumbKls, thumbStyle, thumbTop, update } = useSliderDOM(props, {
+      namespace: "color-hue-slider",
+      maxValue,
+      currentValue,
       bar,
       thumb,
-      thumbLeft,
+      handleDrag
+    });
+    const { t } = useLocale();
+    const ariaLabel = computed(() => t("el.colorpicker.hueLabel"));
+    const ariaValuetext = computed(() => {
+      return t("el.colorpicker.hueDescription", {
+        hue: currentValue.value,
+        color: props.color.value
+      });
+    });
+    expose({
+      bar,
+      thumb,
       thumbTop,
-      hueValue,
-      handleClick,
-      update,
-      ns
+      update
+    });
+    return (_ctx, _cache) => {
+      return openBlock(), createElementBlock("div", {
+        class: normalizeClass(unref(rootKls))
+      }, [
+        createElementVNode("div", {
+          ref_key: "bar",
+          ref: bar,
+          class: normalizeClass(unref(barKls)),
+          onClick: unref(handleClick)
+        }, null, 10, ["onClick"]),
+        createElementVNode("div", {
+          ref_key: "thumb",
+          ref: thumb,
+          class: normalizeClass(unref(thumbKls)),
+          style: normalizeStyle(unref(thumbStyle)),
+          "aria-label": unref(ariaLabel),
+          "aria-valuenow": unref(currentValue),
+          "aria-valuetext": unref(ariaValuetext),
+          "aria-orientation": _ctx.vertical ? "vertical" : "horizontal",
+          "aria-valuemin": minValue,
+          "aria-valuemax": maxValue,
+          role: "slider",
+          tabindex: "0",
+          onKeydown: unref(handleKeydown)
+        }, null, 46, ["aria-label", "aria-valuenow", "aria-valuetext", "aria-orientation", "onKeydown"])
+      ], 2);
     };
   }
 });
-function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
-  return openBlock(), createElementBlock("div", {
-    class: normalizeClass([_ctx.ns.b(), _ctx.ns.is("vertical", _ctx.vertical)])
-  }, [
-    createElementVNode("div", {
-      ref: "bar",
-      class: normalizeClass(_ctx.ns.e("bar")),
-      onClick: _ctx.handleClick
-    }, null, 10, ["onClick"]),
-    createElementVNode("div", {
-      ref: "thumb",
-      class: normalizeClass(_ctx.ns.e("thumb")),
-      style: normalizeStyle({
-        left: _ctx.thumbLeft + "px",
-        top: _ctx.thumbTop + "px"
-      })
-    }, null, 6)
-  ], 2);
-}
-var HueSlider = /* @__PURE__ */ _export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "hue-slider.vue"]]);
+var HueSlider = /* @__PURE__ */ _export_sfc(_sfc_main, [["__file", "hue-slider.vue"]]);
 
 export { HueSlider as default };
 //# sourceMappingURL=hue-slider.mjs.map

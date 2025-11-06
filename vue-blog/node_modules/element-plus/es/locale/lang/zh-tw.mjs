@@ -9,7 +9,13 @@ var zhTw = {
       clear: "\u6E05\u7A7A",
       defaultLabel: "\u8272\u5F69\u9078\u64C7\u5668",
       description: "\u76EE\u524D\u8272\u5F69\u70BA {color}\u3002\u6309\u4E00\u4E0B Enter \u4EE5\u9078\u64C7\u65B0\u8272\u5F69\u3002",
-      alphaLabel: "\u9078\u64C7\u900F\u660E\u5EA6\u7684\u503C"
+      alphaLabel: "\u9078\u64C7\u900F\u660E\u5EA6\u7684\u503C",
+      alphaDescription: "alpha {alpha}, current color is {color}",
+      hueLabel: "pick hue value",
+      hueDescription: "hue {hue}, current color is {color}",
+      svLabel: "pick saturation and brightness value",
+      svDescription: "saturation {saturation}, brightness {brightness}, current color is {color}",
+      predefineDescription: "select {value} as the color"
     },
     datepicker: {
       now: "\u73FE\u5728",

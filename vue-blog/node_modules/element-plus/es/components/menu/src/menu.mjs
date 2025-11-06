@@ -64,6 +64,9 @@ const menuProps = buildProps({
     default: "dark"
   },
   popperClass: String,
+  popperStyle: {
+    type: definePropType([String, Object])
+  },
   showTimeout: {
     type: Number,
     default: 300

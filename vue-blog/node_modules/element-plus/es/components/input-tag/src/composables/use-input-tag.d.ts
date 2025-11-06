@@ -25,6 +25,7 @@ export declare function useInputTag({ props, emit, formItem }: UseInputTagOption
     handleDragged: (draggingIndex: number, dropIndex: number, type: "before" | "after") => void;
     handleInput: (event: Event) => void;
     handleKeydown: (event: KeyboardEvent) => void;
+    handleKeyup: (event: KeyboardEvent) => void;
     handleAddTag: () => void;
     handleRemoveTag: (index: number) => void;
     handleClear: () => void;

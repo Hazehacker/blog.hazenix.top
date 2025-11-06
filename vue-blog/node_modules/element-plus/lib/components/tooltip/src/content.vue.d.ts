@@ -17,6 +17,7 @@ declare const __VLS_component: import("vue").DefineComponent<{
     readonly transition: StringConstructor;
     readonly teleported: import("element-plus/es/utils").EpPropFinalized<BooleanConstructor, unknown, unknown, true, boolean>;
     readonly disabled: BooleanConstructor;
+    readonly loop: BooleanConstructor;
     readonly id: StringConstructor;
     readonly style: {
         readonly type: import("vue").PropType<import("element-plus/es/utils").EpPropMergeType<(new (...args: any[]) => string | import("vue").CSSProperties | import("vue").StyleValue[]) | (() => import("vue").StyleValue) | ((new (...args: any[]) => string | import("vue").CSSProperties | import("vue").StyleValue[]) | (() => import("vue").StyleValue))[], unknown, unknown>>;
@@ -289,6 +290,7 @@ declare const __VLS_component: import("vue").DefineComponent<{
     readonly transition: StringConstructor;
     readonly teleported: import("element-plus/es/utils").EpPropFinalized<BooleanConstructor, unknown, unknown, true, boolean>;
     readonly disabled: BooleanConstructor;
+    readonly loop: BooleanConstructor;
     readonly id: StringConstructor;
     readonly style: {
         readonly type: import("vue").PropType<import("element-plus/es/utils").EpPropMergeType<(new (...args: any[]) => string | import("vue").CSSProperties | import("vue").StyleValue[]) | (() => import("vue").StyleValue) | ((new (...args: any[]) => string | import("vue").CSSProperties | import("vue").StyleValue[]) | (() => import("vue").StyleValue))[], unknown, unknown>>;
@@ -549,6 +551,7 @@ declare const __VLS_component: import("vue").DefineComponent<{
     readonly hideAfter: number;
     readonly autoClose: number;
     readonly virtualTriggering: boolean;
+    readonly loop: boolean;
     readonly arrowOffset: number;
     readonly boundariesPadding: number;
     readonly fallbackPlacements: import("element-plus/es/components/popper").Placement[];

@@ -9,7 +9,13 @@ var te = {
       clear: "\u0C24\u0C4A\u0C32\u0C17\u0C3F\u0C02\u0C1A\u0C41",
       defaultLabel: "\u0C30\u0C02\u0C17\u0C41 \u0C0E\u0C02\u0C1A\u0C41\u0C15\u0C4B\u0C02\u0C21\u0C3F",
       description: "\u0C2A\u0C4D\u0C30\u0C38\u0C4D\u0C24\u0C41\u0C24 \u0C30\u0C02\u0C17\u0C41 {color}. \u0C15\u0C4A\u0C24\u0C4D\u0C24 \u0C30\u0C02\u0C17\u0C41\u0C28\u0C41 \u0C0E\u0C02\u0C1A\u0C41\u0C15\u0C4B\u0C35\u0C21\u0C3E\u0C28\u0C3F\u0C15\u0C3F \u0C0E\u0C02\u0C1F\u0C30\u0C4D \u0C28\u0C4A\u0C15\u0C4D\u0C15\u0C02\u0C21\u0C3F.",
-      alphaLabel: "\u0C05\u0C32\u0C4D\u0C2B\u0C3E \u0C35\u0C3F\u0C32\u0C41\u0C35\u0C28\u0C41 \u0C0E\u0C02\u0C1A\u0C41\u0C15\u0C4B\u0C02\u0C21\u0C3F"
+      alphaLabel: "\u0C05\u0C32\u0C4D\u0C2B\u0C3E \u0C35\u0C3F\u0C32\u0C41\u0C35\u0C28\u0C41 \u0C0E\u0C02\u0C1A\u0C41\u0C15\u0C4B\u0C02\u0C21\u0C3F",
+      alphaDescription: "alpha {alpha}, current color is {color}",
+      hueLabel: "pick hue value",
+      hueDescription: "hue {hue}, current color is {color}",
+      svLabel: "pick saturation and brightness value",
+      svDescription: "saturation {saturation}, brightness {brightness}, current color is {color}",
+      predefineDescription: "select {value} as the color"
     },
     datepicker: {
       now: "\u0C07\u0C2A\u0C4D\u0C2A\u0C41\u0C21\u0C41",

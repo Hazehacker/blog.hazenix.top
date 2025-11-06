@@ -25,6 +25,7 @@ export declare const checkboxGroupProps: {
         __epPropKey: true;
     };
     readonly props: import("element-plus/es/utils").EpPropFinalized<(new (...args: any[]) => CheckboxOptionProps) | (() => CheckboxOptionProps) | ((new (...args: any[]) => CheckboxOptionProps) | (() => CheckboxOptionProps))[], unknown, unknown, () => Required<CheckboxOptionProps>, boolean>;
+    readonly type: import("element-plus/es/utils").EpPropFinalized<StringConstructor, "button" | "checkbox", unknown, "checkbox", boolean>;
 };
 export declare const checkboxGroupEmits: {
     "update:modelValue": (val: CheckboxGroupValueType) => boolean;

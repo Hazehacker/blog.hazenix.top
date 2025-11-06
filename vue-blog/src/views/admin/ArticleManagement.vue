@@ -161,12 +161,14 @@
       :close-on-click-modal="false"
       @close="handleDialogClose"
     >
-      <ToastUIEditor
-        v-if="dialogVisible"
-        :article="currentArticle"
-        @save="handleSave"
-        @cancel="handleDialogClose"
-      />
+      <div v-loading="loadingArticle" style="min-height: 400px">
+        <ToastUIEditor
+          v-if="dialogVisible && !loadingArticle"
+          :article="currentArticle"
+          @save="handleSave"
+          @cancel="handleDialogClose"
+        />
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -186,6 +188,7 @@ const router = useRouter()
 
 // 响应式数据
 const loading = ref(false)
+const loadingArticle = ref(false)
 const articles = ref([])
 const categories = ref([])
 const tags = ref([])
@@ -298,9 +301,19 @@ const handleCreate = () => {
 }
 
 // 编辑文章
-const handleEdit = (article) => {
-  currentArticle.value = { ...article }
-  dialogVisible.value = true
+const handleEdit = async (article) => {
+  try {
+    loadingArticle.value = true
+    // 获取完整的文章详情（包含content等字段）
+    const response = await adminApi.getArticle(article.id)
+    currentArticle.value = response.data
+    dialogVisible.value = true
+  } catch (error) {
+    console.error('获取文章详情失败:', error)
+    ElMessage.error('获取文章详情失败')
+  } finally {
+    loadingArticle.value = false
+  }
 }
 
 // 查看文章
@@ -313,7 +326,9 @@ const handleView = (article) => {
 const handleToggleStatus = async (article) => {
   try {
     const newStatus = article.status === 0 ? 2 : 0
-    await adminApi.toggleArticleStatus(article.id, newStatus)
+    console.log('切换文章状态:', { articleId: article.id, currentStatus: article.status, newStatus })
+    const response = await adminApi.toggleArticleStatus(article.id, newStatus)
+    console.log('切换状态响应:', response)
     ElMessage.success(`${newStatus === 0 ? '发布' : '下架'}成功`)
     loadArticles()
   } catch (error) {

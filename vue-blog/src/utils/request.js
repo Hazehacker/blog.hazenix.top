@@ -21,6 +21,15 @@ request.interceptors.request.use(config => {
     if (!config.headers['Content-Type'] && !(config.data instanceof FormData)) {
         config.headers['Content-Type'] = 'application/json;charset=utf-8';
     }
+    // 调试日志：记录所有请求
+    console.log('发送请求:', {
+        method: config.method?.toUpperCase(),
+        url: config.url,
+        baseURL: config.baseURL,
+        fullURL: `${config.baseURL}${config.url}`,
+        data: config.data,
+        headers: config.headers
+    })
     return config
 }, error => {
     return Promise.reject(error)

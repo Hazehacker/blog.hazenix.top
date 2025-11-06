@@ -226,7 +226,7 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
           class: normalizeClass(_ctx.ns.e("bottom"))
         }, [
           createElementVNode("button", {
-            class: normalizeClass({ [_ctx.ns.is("disabled")]: _ctx.filteredValue.length === 0 }),
+            class: normalizeClass(_ctx.ns.is("disabled", _ctx.filteredValue.length === 0)),
             disabled: _ctx.filteredValue.length === 0,
             type: "button",
             onClick: _ctx.handleConfirm
@@ -243,9 +243,7 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
         createElementVNode("li", {
           class: normalizeClass([
             _ctx.ns.e("list-item"),
-            {
-              [_ctx.ns.is("active")]: _ctx.isPropAbsent(_ctx.filterValue)
-            }
+            _ctx.ns.is("active", _ctx.isPropAbsent(_ctx.filterValue))
           ]),
           onClick: ($event) => _ctx.handleSelect(null)
         }, toDisplayString(_ctx.t("el.table.clearFilter")), 11, ["onClick"]),

@@ -1,5 +1,6 @@
 import { nextTick } from 'vue';
 import { throttle } from 'lodash-unified';
+import { useDeprecated } from '../../../hooks/use-deprecated/index.mjs';
 import { isFunction } from '@vue/shared';
 import { throwError } from '../../../utils/error.mjs';
 import { getScrollContainer } from '../../../utils/dom/scroll.mjs';
@@ -80,6 +81,13 @@ function checkFull(el, cb) {
 const InfiniteScroll = {
   async mounted(el, binding) {
     const { instance, value: cb } = binding;
+    useDeprecated({
+      scope: SCOPE,
+      from: "the directive v-infinite-scroll",
+      replacement: "the el-scrollbar infinite scroll",
+      version: "3.0.0",
+      ref: "https://element-plus.org/en-US/component/scrollbar#infinite-scroll"
+    }, true);
     if (!isFunction(cb)) {
       throwError(SCOPE, "'v-infinite-scroll' binding value must be a function");
     }

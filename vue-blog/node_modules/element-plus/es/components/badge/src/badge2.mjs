@@ -52,7 +52,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                 unref(ns).em("content", _ctx.type),
                 unref(ns).is("fixed", !!_ctx.$slots.default),
                 unref(ns).is("dot", _ctx.isDot),
-                unref(ns).is("hide-zero", !_ctx.showZero && props.value === 0),
+                unref(ns).is("hide-zero", !_ctx.showZero && _ctx.value === 0),
                 _ctx.badgeClass
               ]),
               style: normalizeStyle(unref(style))

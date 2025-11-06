@@ -52,7 +52,7 @@ export const adminApi = {
 
   // 发布/取消发布文章
   toggleArticleStatus(id, status) {
-    return request.patch(`${ADMIN_BASE_URL}/articles/${id}/status`, { status })
+    return request.put(`${ADMIN_BASE_URL}/articles/${id}/${status}`)
   },
 
   // ========== 分类管理 ==========
@@ -218,6 +218,22 @@ export const adminApi = {
   // 更新友链状态
   updateLinkStatus(id, status) {
     return request.put(`${ADMIN_BASE_URL}/links/${id}/status`, { status })
+  },
+
+  // ========== 树洞管理 ==========
+  // 获取树洞列表
+  getTreeHoles(params = {}) {
+    return request.get(`${ADMIN_BASE_URL}/tree`, { params })
+  },
+
+  // 删除树洞
+  deleteTreeHole(id) {
+    return request.delete(`${ADMIN_BASE_URL}/tree/${id}`)
+  },
+
+  // 批量删除树洞
+  batchDeleteTreeHoles(ids) {
+    return request.delete(`${ADMIN_BASE_URL}/tree/batch`, { data: { ids } })
   },
 
   // ========== 文件上传 ==========

@@ -287,7 +287,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           "update-all": ((_a = vue.unref(formContext)) == null ? void 0 : _a.labelWidth) === "auto"
         }, {
           default: vue.withCtx(() => [
-            vue.unref(hasLabel) ? (vue.openBlock(), vue.createBlock(vue.resolveDynamicComponent(vue.unref(labelFor) ? "label" : "div"), {
+            !!(_ctx.label || _ctx.$slots.label) ? (vue.openBlock(), vue.createBlock(vue.resolveDynamicComponent(vue.unref(labelFor) ? "label" : "div"), {
               key: 0,
               id: vue.unref(labelId),
               for: vue.unref(labelFor),

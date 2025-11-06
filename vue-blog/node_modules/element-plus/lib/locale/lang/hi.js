@@ -13,7 +13,13 @@ var hi = {
       clear: "\u0939\u091F\u093E\u090F\u0901",
       defaultLabel: "\u0915\u0932\u0930 \u092A\u093F\u0915\u0930",
       description: "\u092E\u094C\u091C\u0942\u0926\u093E \u0930\u0902\u0917 {color} \u0939\u0948. \u0915\u094B\u0908 \u0928\u092F\u093E \u0930\u0902\u0917 \u091A\u0941\u0928\u0928\u0947 \u0915\u0947 \u0932\u093F\u090F \u090F\u0902\u091F\u0930 \u0926\u092C\u093E\u090F\u0901.",
-      alphaLabel: "\u0905\u0932\u094D\u092B\u093E \u092E\u093E\u0928 \u091A\u0941\u0928\u0947\u0902"
+      alphaLabel: "\u0905\u0932\u094D\u092B\u093E \u092E\u093E\u0928 \u091A\u0941\u0928\u0947\u0902",
+      alphaDescription: "alpha {alpha}, current color is {color}",
+      hueLabel: "pick hue value",
+      hueDescription: "hue {hue}, current color is {color}",
+      svLabel: "pick saturation and brightness value",
+      svDescription: "saturation {saturation}, brightness {brightness}, current color is {color}",
+      predefineDescription: "select {value} as the color"
     },
     datepicker: {
       now: "\u0905\u092D\u0940",

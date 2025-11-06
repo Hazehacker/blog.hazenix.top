@@ -13,7 +13,6 @@ declare const _default: import("vue").DefineComponent<{
     handleClick: (event: PointerEvent) => void;
     handlePointerMove: (event: PointerEvent) => void;
     handlePointerLeave: (event: PointerEvent) => void;
-    textContent: import("vue").ComputedRef<string>;
     propsAndAttrs: import("vue").ComputedRef<{
         disabled: boolean;
         icon: import("element-plus/es/utils").EpPropMergeType<(new (...args: any[]) => (string | import("vue").Component) & {}) | (() => string | import("vue").Component) | ((new (...args: any[]) => (string | import("vue").Component) & {}) | (() => string | import("vue").Component))[], unknown, unknown> | undefined;

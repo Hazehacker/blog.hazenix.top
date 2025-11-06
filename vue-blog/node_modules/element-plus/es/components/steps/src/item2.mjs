@@ -21,12 +21,16 @@ const _sfc_main = defineComponent({
     const internalStatus = ref("");
     const parent = inject(STEPS_INJECTION_KEY);
     const currentInstance = getCurrentInstance();
+    let stepDiff = 0;
+    let beforeActive = 0;
     onMounted(() => {
       watch([
         () => parent.props.active,
         () => parent.props.processStatus,
         () => parent.props.finishStatus
-      ], ([active]) => {
+      ], ([active], [oldActive]) => {
+        beforeActive = oldActive || 0;
+        stepDiff = active - beforeActive;
         updateStatus(active);
       }, { immediate: true });
     });
@@ -80,8 +84,9 @@ const _sfc_main = defineComponent({
     };
     const calcProgress = (status) => {
       const isWait = status === "wait";
+      const delayTimer = Math.abs(stepDiff) === 1 ? 0 : stepDiff > 0 ? (index.value + 1 - beforeActive) * 150 : -(index.value + 1 - parent.props.active) * 150;
       const style2 = {
-        transitionDelay: `${isWait ? "-" : ""}${150 * index.value}ms`
+        transitionDelay: `${delayTimer}ms`
       };
       const step = status === parent.props.processStatus || isWait ? 0 : 100;
       style2.borderWidth = step && !isSimple.value ? "1px" : 0;

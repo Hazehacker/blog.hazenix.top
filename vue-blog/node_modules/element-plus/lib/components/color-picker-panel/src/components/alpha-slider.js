@@ -3,33 +3,46 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 var vue = require('vue');
-var alphaSlider = require('../props/alpha-slider.js');
-var useAlphaSlider = require('../composables/use-alpha-slider.js');
+var slider = require('../props/slider.js');
+var useSlider = require('../composables/use-slider.js');
 var pluginVue_exportHelper = require('../../../../_virtual/plugin-vue_export-helper.js');
+var index = require('../../../../hooks/use-locale/index.js');
 
-const COMPONENT_NAME = "ElColorAlphaSlider";
+const minValue = 0;
+const maxValue = 100;
 const __default__ = vue.defineComponent({
-  name: COMPONENT_NAME
+  name: "ElColorAlphaSlider"
 });
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...__default__,
-  props: alphaSlider.alphaSliderProps,
+  props: slider.alphaSliderProps,
   setup(__props, { expose }) {
     const props = __props;
-    const {
-      alpha,
-      alphaLabel,
+    const { currentValue, bar, thumb, handleDrag, handleClick, handleKeydown } = useSlider.useSlider(props, { key: "alpha", minValue, maxValue });
+    const { rootKls, barKls, barStyle, thumbKls, thumbStyle, update } = useSlider.useSliderDOM(props, {
+      namespace: "color-alpha-slider",
+      maxValue,
+      currentValue,
       bar,
       thumb,
       handleDrag,
-      handleClick,
-      handleKeydown
-    } = useAlphaSlider.useAlphaSlider(props);
-    const { rootKls, barKls, barStyle, thumbKls, thumbStyle, update } = useAlphaSlider.useAlphaSliderDOM(props, {
-      bar,
-      thumb,
-      handleDrag
+      getBackground
     });
+    const { t } = index.useLocale();
+    const ariaLabel = vue.computed(() => t("el.colorpicker.alphaLabel"));
+    const ariaValuetext = vue.computed(() => {
+      return t("el.colorpicker.alphaDescription", {
+        alpha: currentValue.value,
+        color: props.color.value
+      });
+    });
+    function getBackground() {
+      if (props.color && props.color.value) {
+        const { r, g, b } = props.color.toRgb();
+        return `linear-gradient(to right, rgba(${r}, ${g}, ${b}, 0) 0%, rgba(${r}, ${g}, ${b}, 1) 100%)`;
+      }
+      return "";
+    }
     expose({
       update,
       bar,
@@ -51,15 +64,16 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           ref: thumb,
           class: vue.normalizeClass(vue.unref(thumbKls)),
           style: vue.normalizeStyle(vue.unref(thumbStyle)),
-          "aria-label": vue.unref(alphaLabel),
-          "aria-valuenow": vue.unref(alpha),
+          "aria-label": vue.unref(ariaLabel),
+          "aria-valuenow": vue.unref(currentValue),
+          "aria-valuetext": vue.unref(ariaValuetext),
           "aria-orientation": _ctx.vertical ? "vertical" : "horizontal",
-          "aria-valuemin": "0",
-          "aria-valuemax": "100",
+          "aria-valuemin": minValue,
+          "aria-valuemax": maxValue,
           role: "slider",
           tabindex: "0",
           onKeydown: vue.unref(handleKeydown)
-        }, null, 46, ["aria-label", "aria-valuenow", "aria-orientation", "onKeydown"])
+        }, null, 46, ["aria-label", "aria-valuenow", "aria-valuetext", "aria-orientation", "onKeydown"])
       ], 2);
     };
   }

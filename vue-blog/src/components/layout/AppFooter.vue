@@ -137,12 +137,11 @@ const scrollToTop = () => {
   })
 }
 
-// 写留言处理（可以跳转到树洞或评论区域）
-const handleLeaveMessage = () => {
-  router.push('/tree-hole')
-  ElMessage.info('欢迎在树洞留言~')
-}
 
+// 写留言处理（跳转到留言板）
+const handleLeaveMessage = () => {
+  router.push('/messageboard')
+}
 // 本站历史处理
 const handleSiteHistory = () => {
   router.push('/history')

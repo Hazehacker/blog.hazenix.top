@@ -4,6 +4,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 var vue = require('vue');
 var lodashUnified = require('lodash-unified');
+var index = require('../../../hooks/use-deprecated/index.js');
 var shared = require('@vue/shared');
 var error = require('../../../utils/error.js');
 var scroll = require('../../../utils/dom/scroll.js');
@@ -84,6 +85,13 @@ function checkFull(el, cb) {
 const InfiniteScroll = {
   async mounted(el, binding) {
     const { instance, value: cb } = binding;
+    index.useDeprecated({
+      scope: SCOPE,
+      from: "the directive v-infinite-scroll",
+      replacement: "the el-scrollbar infinite scroll",
+      version: "3.0.0",
+      ref: "https://element-plus.org/en-US/component/scrollbar#infinite-scroll"
+    }, true);
     if (!shared.isFunction(cb)) {
       error.throwError(SCOPE, "'v-infinite-scroll' binding value must be a function");
     }

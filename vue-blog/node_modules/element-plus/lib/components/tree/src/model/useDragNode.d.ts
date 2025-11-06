@@ -2,6 +2,7 @@ import type { InjectionKey, Ref, SetupContext } from 'vue';
 import type { AllowDragFunction, AllowDropFunction, FakeNode, NodeDropType } from '../tree.type';
 import type TreeStore from './tree-store';
 import type Node from './node';
+import type { treeEmits } from '../tree';
 interface TreeNode {
     node: Node;
     $el?: HTMLElement;
@@ -15,7 +16,7 @@ interface Props {
         allowDrag?: AllowDragFunction;
         allowDrop?: AllowDropFunction;
     };
-    ctx: SetupContext<string[]>;
+    ctx: SetupContext<typeof treeEmits>;
     el$: Ref<HTMLElement | null>;
     dropIndicator$: Ref<HTMLElement | null>;
     store: Ref<TreeStore>;

@@ -9,7 +9,13 @@ var ckb = {
       clear: "\u067E\u0627\u06A9\u06A9\u0631\u062F\u0646\u06D5\u0648\u06D5",
       defaultLabel: "\u0647\u06D5\u06B5\u0628\u0698\u0627\u0631\u062F\u0646\u06CC \u0695\u06D5\u0646\u06AF",
       description: "\u0695\u06D5\u0646\u06AF\u06CC \u0626\u06CE\u0633\u062A\u0627 {color}. \u0626\u06CC\u0646\u062A\u06D5\u0631 \u062F\u0627\u0628\u06AF\u0631\u06D5 \u0628\u06C6 \u0647\u06D5\u06B5\u0628\u0698\u0627\u0631\u062F\u0646\u06CC \u0695\u06D5\u0646\u06AF\u06CC \u0646\u0648\u06CE.",
-      alphaLabel: "pick alpha value"
+      alphaLabel: "pick alpha value",
+      alphaDescription: "alpha {alpha}, current color is {color}",
+      hueLabel: "pick hue value",
+      hueDescription: "hue {hue}, current color is {color}",
+      svLabel: "pick saturation and brightness value",
+      svDescription: "saturation {saturation}, brightness {brightness}, current color is {color}",
+      predefineDescription: "select {value} as the color"
     },
     datepicker: {
       now: "\u0626\u06CE\u0633\u062A\u0627",

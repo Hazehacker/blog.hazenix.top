@@ -20,9 +20,7 @@ const HeaderRenderer = ({
     columns,
     headerIndex
   };
-  const kls = [ns.e("header-row"), tryCall(headerClass, param, ""), {
-    [ns.is("customized")]: Boolean(slots.header)
-  }];
+  const kls = [ns.e("header-row"), tryCall(headerClass, param, ""), ns.is("customized", Boolean(slots.header))];
   const extraProps = {
     ...tryCall(headerProps, param),
     columnsStyles,

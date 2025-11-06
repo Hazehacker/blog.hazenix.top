@@ -56,7 +56,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                 vue.unref(ns).em("content", _ctx.type),
                 vue.unref(ns).is("fixed", !!_ctx.$slots.default),
                 vue.unref(ns).is("dot", _ctx.isDot),
-                vue.unref(ns).is("hide-zero", !_ctx.showZero && props.value === 0),
+                vue.unref(ns).is("hide-zero", !_ctx.showZero && _ctx.value === 0),
                 _ctx.badgeClass
               ]),
               style: vue.normalizeStyle(vue.unref(style$1))

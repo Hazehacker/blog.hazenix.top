@@ -14,6 +14,9 @@ const paginationSizesProps = buildProps({
   popperClass: {
     type: String
   },
+  popperStyle: {
+    type: definePropType([String, Object])
+  },
   disabled: Boolean,
   teleported: Boolean,
   size: {

@@ -279,7 +279,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           "update-all": ((_a = unref(formContext)) == null ? void 0 : _a.labelWidth) === "auto"
         }, {
           default: withCtx(() => [
-            unref(hasLabel) ? (openBlock(), createBlock(resolveDynamicComponent(unref(labelFor) ? "label" : "div"), {
+            !!(_ctx.label || _ctx.$slots.label) ? (openBlock(), createBlock(resolveDynamicComponent(unref(labelFor) ? "label" : "div"), {
               key: 0,
               id: unref(labelId),
               for: unref(labelFor),

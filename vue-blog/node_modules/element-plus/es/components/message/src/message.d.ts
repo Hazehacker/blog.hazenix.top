@@ -4,8 +4,8 @@ import type MessageConstructor from './message.vue';
 export declare const messageTypes: readonly ["primary", "success", "info", "warning", "error"];
 export declare const messagePlacement: readonly ["top", "top-left", "top-right", "bottom", "bottom-left", "bottom-right"];
 export declare const MESSAGE_DEFAULT_PLACEMENT = "top";
-export type MessageType = typeof messageTypes[number];
-export type MessagePlacement = typeof messagePlacement[number];
+export type MessageType = (typeof messageTypes)[number];
+export type MessagePlacement = (typeof messagePlacement)[number];
 /** @deprecated please use `MessageType` instead */
 export type messageType = MessageType;
 export interface MessageConfigContext {
