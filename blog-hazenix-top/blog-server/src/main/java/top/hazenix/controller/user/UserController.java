@@ -3,6 +3,7 @@ package top.hazenix.controller.user;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,11 +33,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/user/user")
 @Slf4j
+@RequiredArgsConstructor
 public class UserController {
-    @Autowired
-    private ArticleService articleService;
-    @Autowired
-    private UserService userService;
+
+    private final ArticleService articleService;
+
+    private final UserService userService;
 
 
     /**

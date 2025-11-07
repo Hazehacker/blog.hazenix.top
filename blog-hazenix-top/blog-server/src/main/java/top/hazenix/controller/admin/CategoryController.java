@@ -1,6 +1,7 @@
 package top.hazenix.controller.admin;
 
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -15,10 +16,11 @@ import javax.websocket.server.PathParam;
 @RestController("AdminCategoryController")
 @Slf4j
 @RequestMapping("/admin/categories")
+@RequiredArgsConstructor
 public class CategoryController {
 
-    @Autowired
-    private CategoryService categoryService;
+
+    private final CategoryService categoryService;
 
     /**
      * 分页查询，获取分类列表

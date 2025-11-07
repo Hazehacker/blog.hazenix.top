@@ -2,6 +2,7 @@ package top.hazenix.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,9 +20,10 @@ import java.util.List;
 
 
 @Service
+@RequiredArgsConstructor
 public class LinkServiceImpl implements LinkService {
-    @Autowired
-    private LinkMapper linkMapper;
+
+    private final LinkMapper linkMapper;
 
 
 

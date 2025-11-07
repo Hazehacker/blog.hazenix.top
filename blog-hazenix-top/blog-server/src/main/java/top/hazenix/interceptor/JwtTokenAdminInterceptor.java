@@ -1,5 +1,6 @@
 package top.hazenix.interceptor;
 
+import lombok.RequiredArgsConstructor;
 import top.hazenix.constant.JwtClaimsConstant;
 import top.hazenix.context.BaseContext;
 import top.hazenix.properties.JwtProperties;
@@ -19,10 +20,11 @@ import javax.servlet.http.HttpServletResponse;
  */
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class JwtTokenAdminInterceptor implements HandlerInterceptor {
 
-    @Autowired
-    private JwtProperties jwtProperties;
+
+    private final JwtProperties jwtProperties;
 
     /**
      * 校验jwt

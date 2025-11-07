@@ -2,6 +2,7 @@ package top.hazenix.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,10 +25,11 @@ import java.util.List;
 
 
 @Service
+@RequiredArgsConstructor
 public class TreeCommentsServiceImpl implements TreeCommentsService {
 
-    @Autowired
-    private TreeCommentsMapper treeCommentsMapper;
+
+    private final TreeCommentsMapper treeCommentsMapper;
     /**
      * 获取树洞弹幕列表
      * @return

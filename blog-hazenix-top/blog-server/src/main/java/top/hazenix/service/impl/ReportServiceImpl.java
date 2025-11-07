@@ -1,6 +1,7 @@
 package top.hazenix.service.impl;
 
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.hazenix.mapper.ArticleMapper;
@@ -11,16 +12,17 @@ import top.hazenix.service.ReportService;
 import top.hazenix.vo.StatisticVO;
 
 @Service
+@RequiredArgsConstructor
 public class ReportServiceImpl implements ReportService {
 
-    @Autowired
-    private ArticleMapper articleMapper;
-    @Autowired
-    private CategoryMapper categoryMapper;
-    @Autowired
-    private TagsMapper tagsMapper;
-    @Autowired
-    private CommentsMapper commentsMapper;
+
+    private final ArticleMapper articleMapper;
+
+    private final CategoryMapper categoryMapper;
+
+    private final TagsMapper tagsMapper;
+
+    private final CommentsMapper commentsMapper;
 
     /**
      * 获取仪表盘统计数据，包括总文章数，文章分类数量，文章标签数量，总评论数量

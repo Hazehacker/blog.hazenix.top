@@ -1,6 +1,7 @@
 package top.hazenix.controller.user;
 
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,12 +20,12 @@ import java.util.List;
 @RestController("UserTagsController")
 @RequestMapping("/user/tags")
 @Slf4j
+@RequiredArgsConstructor
 public class TagsController {
 
-    @Autowired
-    private TagsService tagsService;
-    @Autowired
-    private ArticleService articleService;
+    private final TagsService tagsService;
+
+    private final ArticleService articleService;
 
     /**
      * 获取标签列表

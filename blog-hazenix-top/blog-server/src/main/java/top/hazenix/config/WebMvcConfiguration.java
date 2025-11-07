@@ -1,5 +1,6 @@
 package top.hazenix.config;
 
+import lombok.RequiredArgsConstructor;
 import top.hazenix.interceptor.JwtTokenAdminInterceptor;
 import top.hazenix.interceptor.JwtTokenUserInterceptor;
 import top.hazenix.json.JacksonObjectMapper;
@@ -26,12 +27,13 @@ import java.util.List;
  */
 @Configuration
 @Slf4j
+@RequiredArgsConstructor
 public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
-    @Autowired
-    private JwtTokenAdminInterceptor jwtTokenAdminInterceptor;
-    @Autowired
-    private JwtTokenUserInterceptor jwtTokenUserInterceptor;
+
+    private final JwtTokenAdminInterceptor jwtTokenAdminInterceptor;
+
+    private final JwtTokenUserInterceptor jwtTokenUserInterceptor;
 
     /**
      * 注册自定义拦截器

@@ -2,11 +2,14 @@ package top.hazenix.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import lombok.RequiredArgsConstructor;
+import org.aspectj.bridge.Message;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.hazenix.constant.MessageConstant;
 import top.hazenix.context.BaseContext;
 import top.hazenix.dto.ArticleDTO;
 import top.hazenix.dto.ArticleTagsDTO;
@@ -29,19 +32,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ArticleServiceImpl implements ArticleService {
-    @Autowired
-    private ArticleMapper articleMapper;
-    @Autowired
-    private CategoryMapper categoryMapper;
-    @Autowired
-    private TagsMapper tagsMapper;
-    @Autowired
-    private ArticleTagsMapper articleTagsMapper;
-    @Autowired
-    private CommentsMapper commentsMapper;
-    @Autowired
-    private UserArticleMapper userArticleMapper;
+
+    private final ArticleMapper articleMapper;
+
+    private final CategoryMapper categoryMapper;
+
+    private final TagsMapper tagsMapper;
+
+    private final ArticleTagsMapper articleTagsMapper;
+
+    private final CommentsMapper commentsMapper;
+
+    private final UserArticleMapper userArticleMapper;
     // 设置最大允许字节数（TEXT 类型最大为 65535）
     private static final int MAX_CONTENT_SIZE_BYTES = 16777220; // 留点余量
     /**
@@ -94,7 +98,7 @@ public class ArticleServiceImpl implements ArticleService {
     public ArticleDetailVO getArticleDetail(Long id) {
         Article article = articleMapper.getById(id);
         if(article == null){
-            throw new RuntimeException("不存在该文章");
+            throw new RuntimeException(MessageConstant.ARTICLE_NOT_FOUND);
         }
         ArticleDetailVO articleDetailVO = new ArticleDetailVO();
         BeanUtils.copyProperties(article,articleDetailVO);
@@ -136,12 +140,12 @@ public class ArticleServiceImpl implements ArticleService {
     @Transactional
     public void addArticle(ArticleDTO articleDTO) {
         if(articleDTO.getContent()==null && articleDTO.getTitle().length()==0){
-            throw new RuntimeException("文章内容不能为空");
+            throw new RuntimeException(MessageConstant.ARTICLLE_CONTENT_IS_NULL);
         }else{
             //判断字数是否超出限制
             // 计算 UTF-8 编码下的字节数
             if(articleDTO.getContent().getBytes(StandardCharsets.UTF_8).length>MAX_CONTENT_SIZE_BYTES){
-                throw new RuntimeException("文章字数超出限制");
+                throw new RuntimeException(MessageConstant.ARTICLE_SIZE_EXCEED_LIMIT);
             }
         }
         //TODO (检验slug是否已经在数据库中存在)
@@ -245,12 +249,13 @@ public class ArticleServiceImpl implements ArticleService {
      * @param id
      */
     @Override
+    @Transactional
     public void likeArticle(Long id) {
         //获得当前用户的id
         Long userId = BaseContext.getCurrentId();
 
         //如果用户没登录，就直接增加点赞数后返回
-        if(userId == null){//TODO 不确定没登录的用户判断逻辑是不是这个（是否userId是null）（登录功能做了之后再看看）
+        if(userId == null){
             Article article = Article.builder()
                     .id(id)
                     .likeCount(articleMapper.getById(id).getLikeCount()+1)
@@ -324,7 +329,7 @@ public class ArticleServiceImpl implements ArticleService {
 
         //如果用户没登录，不能收藏
         if(userId == null){
-            throw new RuntimeException("登录后才能收藏文章");
+            throw new RuntimeException(MessageConstant.ARTICLE_FAVORITE_NEED_LOGIN);
 
         }else{
             //查询关联表中是否已经有了这个用户和这篇文章的数据
@@ -383,7 +388,7 @@ public class ArticleServiceImpl implements ArticleService {
         // 获取当前文章的信息
         Article currentArticle = articleMapper.getById(id);
         if (currentArticle == null) {
-            throw new RuntimeException("不存在该文章");
+            throw new RuntimeException(MessageConstant.ARTICLE_NOT_FOUND);
         }
 
 
@@ -426,7 +431,7 @@ public class ArticleServiceImpl implements ArticleService {
 
         List<Article> list = articleMapper.getArticleList(articleListQuery);
         if(list == null || list.size() == 0){
-            throw new RuntimeException("不存在相关文章");
+            throw new RuntimeException(MessageConstant.ARTICLE_NOT_FOUND);
         }
         List<ArticleDetailVO> listRes = new ArrayList<>();
         for(Article article:list){
@@ -483,7 +488,7 @@ public class ArticleServiceImpl implements ArticleService {
     public ArticleDetailVO getArticleDetailBySlug(String slug) {
         Article article = articleMapper.getBySlug(slug);//【】
         if(article == null){
-            throw new RuntimeException("不存在该文章");
+            throw new RuntimeException(MessageConstant.ARTICLE_NOT_FOUND);
         }
         ArticleDetailVO articleDetailVO = new ArticleDetailVO();
         BeanUtils.copyProperties(article,articleDetailVO);

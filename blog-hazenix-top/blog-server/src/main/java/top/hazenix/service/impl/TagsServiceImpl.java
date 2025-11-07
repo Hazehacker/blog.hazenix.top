@@ -2,9 +2,11 @@ package top.hazenix.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import top.hazenix.constant.MessageConstant;
 import top.hazenix.dto.DeleteTagsRequestDTO;
 import top.hazenix.dto.TagsDTO;
 import top.hazenix.entity.Category;
@@ -20,11 +22,11 @@ import java.util.Collections;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class TagsServiceImpl implements TagsService {
-    @Autowired
-    private TagsMapper tagsMapper;
-    @Autowired
-    private ArticleTagsMapper articleTagsMapper;
+
+    private final TagsMapper tagsMapper;
+    private final ArticleTagsMapper articleTagsMapper;
 
     /**
      * 分页查询标签列表
@@ -78,7 +80,7 @@ public class TagsServiceImpl implements TagsService {
         //如果这个标签关联了文章，就不能删除
         Integer count = articleTagsMapper.countByIds(Collections.singletonList(id));
         if(count != 0){
-            throw new DeleteNotAllowedException("当前标签关联了文章，不能删除");
+            throw new DeleteNotAllowedException(MessageConstant.DELETE_NOT_ALLOWED_THIS_TAG_HAS_RELATED_ARTICLE);
         }
         tagsMapper.deleteBatch(Collections.singletonList(id));
     }
@@ -104,7 +106,7 @@ public class TagsServiceImpl implements TagsService {
         //如果这个标签关联了文章，就不能删除
         Integer count = articleTagsMapper.countByIds(ids);
         if(count != 0){
-            throw new DeleteNotAllowedException("存在标签关联了文章，不能删除");
+            throw new DeleteNotAllowedException(MessageConstant.DELETE_NOT_ALLOWED_THIS_TAG_HAS_RELATED_ARTICLE);
         }
 
         tagsMapper.deleteBatch(ids);

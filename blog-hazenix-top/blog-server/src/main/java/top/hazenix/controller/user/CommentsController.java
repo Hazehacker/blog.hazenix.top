@@ -1,6 +1,7 @@
 package top.hazenix.controller.user;
 
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -17,10 +18,11 @@ import java.util.List;
 @RestController("UserCommentsController")
 @RequestMapping("/user/comments")
 @Slf4j
+@RequiredArgsConstructor
 public class CommentsController {
 
-    @Autowired
-    private CommentsService commentsService;
+
+    private final CommentsService commentsService;
 
 
     /**

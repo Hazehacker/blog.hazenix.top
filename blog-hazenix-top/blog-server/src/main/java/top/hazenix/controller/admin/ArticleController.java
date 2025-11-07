@@ -2,6 +2,7 @@ package top.hazenix.controller.admin;
 
 
 import io.swagger.annotations.ApiModel;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -22,11 +23,12 @@ import java.util.List;
 @Slf4j
 @RequestMapping("/admin/articles")
 @ApiModel("文章相关接口")
+@RequiredArgsConstructor
 public class ArticleController {
 
 
-    @Autowired
-    private ArticleService articleService;
+
+    private final ArticleService articleService;
 
 
     /**

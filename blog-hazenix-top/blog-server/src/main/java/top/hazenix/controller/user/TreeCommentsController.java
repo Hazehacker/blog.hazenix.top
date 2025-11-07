@@ -1,5 +1,6 @@
 package top.hazenix.controller.user;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -13,9 +14,10 @@ import java.util.List;
 @RestController("UserTreeCommentsController")
 @RequestMapping("/user/tree")
 @Slf4j
+@RequiredArgsConstructor
 public class TreeCommentsController {
-    @Autowired
-    private TreeCommentsService treeCommentsService;
+
+    private final TreeCommentsService treeCommentsService;
     /**
      * 获取树洞弹幕列表
      * @return

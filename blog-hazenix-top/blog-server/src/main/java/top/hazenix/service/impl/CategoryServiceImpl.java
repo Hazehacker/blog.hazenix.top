@@ -2,9 +2,11 @@ package top.hazenix.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import top.hazenix.constant.MessageConstant;
 import top.hazenix.dto.CategoryDTO;
 import top.hazenix.dto.DeleteCategoryRequestDTO;
 import top.hazenix.entity.Article;
@@ -20,12 +22,13 @@ import java.util.Collections;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
 
-    @Autowired
-    private CategoryMapper categoryMapper;
-    @Autowired
-    private ArticleMapper articleMapper;
+
+    private final CategoryMapper categoryMapper;
+
+    private final ArticleMapper articleMapper;
 
     /**
      * 分页查询获取分类列表
@@ -75,7 +78,7 @@ public class CategoryServiceImpl implements CategoryService {
         Integer count = articleMapper.countByIds(Collections.singletonList(id));
 
         if(count != 0){
-            throw new DeleteNotAllowedException("当前分类关联了文章，不能删除");
+            throw new DeleteNotAllowedException(MessageConstant.DELETE_NOT_ALLOWED_THIS_CATEGORY_HAS_ARTICLES);
         }
         categoryMapper.deleteBatch(Collections.singletonList(id));
     }
@@ -90,7 +93,7 @@ public class CategoryServiceImpl implements CategoryService {
         //如果这个标签关联了文章，就不能删除
         Integer count = articleMapper.countByIds(ids);
         if(count != 0){
-            throw new DeleteNotAllowedException("存在分类关联了文章，不能删除");
+            throw new DeleteNotAllowedException(MessageConstant.DELETE_NOT_ALLOWED_THIS_CATEGORY_HAS_ARTICLES);
         }
         categoryMapper.deleteBatch(ids);
     }

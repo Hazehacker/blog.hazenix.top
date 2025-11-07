@@ -7,8 +7,11 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.*;
 import com.google.api.client.http.javanet.NetHttpTransport;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.StringUtils;
+import org.aspectj.bridge.Message;
 import org.springframework.beans.BeanUtils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.*;
@@ -54,24 +57,19 @@ import javax.servlet.http.HttpServletRequest;
 
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
 
 
-    @Autowired
-    private GoogleAuthorization googleAuthorization;
-    @Autowired
-    private GithubAuthorization githubAuthorization;
-    @Autowired
-    private UserMapper userMapper;
-    @Autowired
-    private JwtProperties jwtProperties;
-    @Autowired
-    private RedisTemplate redisTemplate;
-    @Autowired
-    private UserArticleMapper userArticleMapper;
-    @Autowired
-    private CommentsMapper commentsMapper;
+
+    private final GoogleAuthorization googleAuthorization;
+    private final GithubAuthorization githubAuthorization;
+    private final UserMapper userMapper;
+    private final JwtProperties jwtProperties;
+    private final RedisTemplate redisTemplate;
+    private final UserArticleMapper userArticleMapper;
+    private final CommentsMapper commentsMapper;
 
     /**
      * 完成用户登录功能的相关逻辑
@@ -82,15 +80,15 @@ public class UserServiceImpl implements UserService {
     public UserLoginVO login(UserLoginDTO userLoginDTO) {
         User user = userMapper.selectByEmail(userLoginDTO.getEmail());
         if (user == null) {
-            throw new RuntimeException("当前邮箱还未注册");
+            throw new RuntimeException(MessageConstant.CURRENT_EMAIL_NOT_REGISTERD);
         }
         //【数据库的密码是加密过的】
         String processedPassword = DigestUtils.md5DigestAsHex(userLoginDTO.getPassword().getBytes());
         if(!processedPassword.equals(user.getPassword())){
-            throw new RuntimeException("邮箱或密码错误");
+            throw new RuntimeException(MessageConstant.EMAIL_OR_PASSWORD_ERROR);
         }
         if(user.getStatus()!=null && user.getStatus()==1){
-            throw new RuntimeException("当前用户已被拉入黑名单");
+            throw new RuntimeException(MessageConstant.CURRENT_USER_IS_ILLEGAL);
         }
         user.setPassword("*");
 
@@ -124,7 +122,7 @@ public class UserServiceImpl implements UserService {
     public UserLoginVO register(UserLoginDTO userLoginDTO) {
 
         if (userMapper.selectByEmail(userLoginDTO.getEmail()) != null){
-            throw new RuntimeException("当前邮箱已注册过账号");
+            throw new RuntimeException(MessageConstant.CURRENT_EMAIL_HAS_REGISTERED);
         }
         //!!【密码要先加密才能插入数据库】
         String processedPassword = DigestUtils.md5DigestAsHex(userLoginDTO.getPassword().getBytes());
@@ -210,7 +208,7 @@ public class UserServiceImpl implements UserService {
         Long  userId = BaseContext.getCurrentId();
         User user = userMapper.getById(userId);
         if (user == null) {
-            throw new RuntimeException("当前用户不存在");
+            throw new RuntimeException(MessageConstant.USER_NOT_LOGIN);
         }
         return UserVO.builder()
                 .id(user.getId())
@@ -275,11 +273,11 @@ public class UserServiceImpl implements UserService {
     public UserLoginVO authorizingWithCode(String authorizationCode) throws GeneralSecurityException, IOException {
         //安全性验证
         if (StringUtils.isBlank(authorizationCode)) {
-            throw new IllegalArgumentException("未授权");
+            throw new IllegalArgumentException(MessageConstant.NOT_AUTHED);
         }
         // 限制授权码长度，防止潜在的恶意输入
         if (authorizationCode.length() > 2048) {
-            throw new IllegalArgumentException("Authorization code is too long");
+            throw new IllegalArgumentException(MessageConstant.CODE_TOO_LONG);
         }
         //TODO 这个接口开发环境的测试还没通过，配置代理麻烦
         // 创建带代理的HTTP传输对象【开发环境】   TODO 服务器环境注意调整
@@ -351,11 +349,11 @@ public class UserServiceImpl implements UserService {
     public UserLoginVO authorizingWithGithubCode(String authorizationCode) throws JsonProcessingException {
         //安全性验证
         if (StringUtils.isBlank(authorizationCode)) {
-            throw new IllegalArgumentException("未授权");
+            throw new IllegalArgumentException(MessageConstant.NOT_AUTHED);
         }
         // 限制授权码长度，防止潜在的恶意输入
         if (authorizationCode.length() > 2048) {
-            throw new IllegalArgumentException("Authorization code is too long");
+            throw new IllegalArgumentException(MessageConstant.CODE_TOO_LONG);
         }
         // 1. 构建请求参数（用于获取 access_token）
         RestTemplate restTemplate = new RestTemplate();
@@ -389,7 +387,7 @@ public class UserServiceImpl implements UserService {
         String accessToken = parseAccessTokenFromQueryString(tokenResponseBody);
 
         if (StringUtils.isBlank(accessToken)) {
-            throw new RuntimeException("Failed to get access token from GitHub");
+            throw new RuntimeException(MessageConstant.GITHUB_AUTH_FAILED);
         }
 
         // 4. 使用 access_token 获取用户信息
@@ -453,7 +451,7 @@ public class UserServiceImpl implements UserService {
         }
         //【处理status】
         if(user.getStatus()!=null && user.getStatus()==1){
-            throw new RuntimeException("当前用户已被拉入黑名单");
+            throw new RuntimeException(MessageConstant.CURRENT_USER_IS_ILLEGAL);
         }
 
         user.setLastLoginTime( LocalDateTime.now());
@@ -489,12 +487,12 @@ public class UserServiceImpl implements UserService {
     public UserVO updateProfile(UserDTO userDTO) {
         //验证邮箱格式
         if (userDTO.getEmail() != null && !userDTO.getEmail().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
-            throw new RuntimeException("邮箱格式不正确");
+            throw new RuntimeException(MessageConstant.EMAIL_FOEMAT_ERROR);
         }
 
         //验证昵称长度不能超过个字30个字符
         if (userDTO.getUsername() != null && userDTO.getUsername().length() > 30) {
-            throw new RuntimeException("昵称长度不能超过30个字符");
+            throw new RuntimeException(MessageConstant.USERNAME_TOO_LONG);
         }
 
 
@@ -526,13 +524,13 @@ public class UserServiceImpl implements UserService {
         //【数据库的密码是加密过的】
         String processedPassword = DigestUtils.md5DigestAsHex(userDTO.getCurrentPassword().getBytes());
         if (!user.getPassword().equals(processedPassword)) {
-            throw new RuntimeException("当前密码填写错误");
+            throw new RuntimeException(MessageConstant.CURRENT_PASSWORD_ERROR);
         }
 //        if (userDTO.getNewPassword().length() < 6 || userDTO.getNewPassword().length() > 20) {
 //            throw new RuntimeException("密码长度必须在6-20个字符之间");
 //        }
         if(userDTO.getCurrentPassword().equals(userDTO.getNewPassword())){
-            throw new RuntimeException("新密码不能与当前密码相同");
+            throw new RuntimeException(MessageConstant.PASSWORD_NOT_CHANGE);
         }
         String processedNewPassword = DigestUtils.md5DigestAsHex(userDTO.getNewPassword().getBytes());
         user.setPassword(processedNewPassword);
@@ -547,7 +545,7 @@ public class UserServiceImpl implements UserService {
     public UserStatisticsVO getStats() {
         Long currentId = BaseContext.getCurrentId();
         if (currentId == null) {
-            throw new RuntimeException("当前用户未登录");
+            throw new RuntimeException(MessageConstant.USER_NOT_LOGIN);
         }
         Integer favoriteCount = userArticleMapper.getFavoriteCount(currentId);
         Integer likeCount = userArticleMapper.getLikeCount(currentId);

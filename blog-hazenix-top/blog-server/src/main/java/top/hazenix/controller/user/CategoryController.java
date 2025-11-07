@@ -1,6 +1,7 @@
 package top.hazenix.controller.user;
 
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,13 +20,14 @@ import java.util.List;
 @RestController("userCategoryController")
 @RequestMapping("/user/categories")
 @Slf4j
+@RequiredArgsConstructor
 public class CategoryController {
 
 
-    @Autowired
-    private CategoryService categoryService;
-    @Autowired
-    private ArticleService articleService;
+
+    private final CategoryService categoryService;
+
+    private final ArticleService articleService;
     /**
      * 获取分类列表
      * @return

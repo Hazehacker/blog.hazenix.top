@@ -2,6 +2,7 @@ package top.hazenix.controller.admin;
 
 
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,10 +15,11 @@ import top.hazenix.vo.StatisticVO;
 @RestController
 @Slf4j
 @RequestMapping("/admin")
+@RequiredArgsConstructor
 public class ReportController {
 
-    @Autowired
-    private ReportService reportService;
+
+    private final ReportService reportService;
     /**
      * 获取仪表盘统计数据，包括总文章数，文章分类数量，文章标签数量，总评论数量
      * @return

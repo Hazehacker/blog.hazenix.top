@@ -22,6 +22,24 @@ public class MessageConstant {
     public static final String SETMEAL_ON_SALE = "起售中的套餐不能删除";
     public static final String DISH_BE_RELATED_BY_SETMEAL = "当前菜品关联了套餐,不能删除";
     public static final String ORDER_STATUS_ERROR = "订单状态错误";
-    public static final String ORDER_NOT_FOUND = "订单不存在";
+    public static final String ARTICLE_NOT_FOUND = "不存在该文章";
     public static final String ALREADY_EXISTS = "已存在";
+    public static final String REPLYER_NOT_FOUND = "不存在该被回复者";
+    public static final String ARTICLLE_CONTENT_IS_NULL = "文章内容不能为空";
+    public static final String ARTICLE_SIZE_EXCEED_LIMIT = "文章字数超出限制";
+    public static final String ARTICLE_FAVORITE_NEED_LOGIN = "登录之后才能收藏文章";
+    public static final String DELETE_NOT_ALLOWED_THIS_CATEGORY_HAS_ARTICLES = "当前分类关联了文章，不能删除";
+
+    public static final String DELETE_NOT_ALLOWED_THIS_TAG_HAS_RELATED_ARTICLE = "当前标签关联了文章，不能删除";
+    public static final String CURRENT_EMAIL_NOT_REGISTERD = "当前邮箱还未注册";
+    public static final String EMAIL_OR_PASSWORD_ERROR = "邮箱或密码错误";
+    public static final String CURRENT_USER_IS_ILLEGAL = "当前用户已被拉入黑名单";
+    public static final String CURRENT_EMAIL_HAS_REGISTERED = "当前邮箱已经注册过账号";
+    public static final String NOT_AUTHED = "未授权";
+    public static final String CODE_TOO_LONG = "授权码过长，怀疑恶意输入";
+    public static final String GITHUB_AUTH_FAILED = "从github获取access token失败";
+    public static final String EMAIL_FOEMAT_ERROR = "邮箱格式不正确";
+    public static final String USERNAME_TOO_LONG = "用户昵称不超过30个字符";
+    public static final String CURRENT_PASSWORD_ERROR = "当前密码填写错误";
+    public static final String PASSWORD_NOT_CHANGE = "新密码不能和当前密码相同";
 }

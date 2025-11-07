@@ -8,7 +8,7 @@
         update user_article
         <set>
             <if test="isLike != null">
-                is_like = #{isLike},
+                is_liked = #{isLiked},
             </if>
             <if test="isFavorite != null">
                 is_favorite = #{isFavorite},

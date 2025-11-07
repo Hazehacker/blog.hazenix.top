@@ -2,10 +2,12 @@ package top.hazenix.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.hazenix.constant.MessageConstant;
 import top.hazenix.context.BaseContext;
 import top.hazenix.dto.CommentsDTO;
 import top.hazenix.entity.Article;
@@ -25,15 +27,16 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class CommentsServiceImpl implements CommentsService {
 
 
-    @Autowired
-    private CommentsMapper commentsMapper;
-    @Autowired
-    private ArticleMapper articleMapper;
-    @Autowired
-    private UserMapper userMapper;
+
+    private final CommentsMapper commentsMapper;
+
+    private final ArticleMapper articleMapper;
+
+    private final UserMapper userMapper;
 
     /**
      * 获取最新评论列表
@@ -155,7 +158,7 @@ public class CommentsServiceImpl implements CommentsService {
             if (userMapper.getById(commentsDTO.getReplyId())!=null) {
                 comments.setReplyUsername(userMapper.getById(commentsDTO.getReplyId()).getUsername());
             }else{
-                throw new RuntimeException("不存在该被回复者");
+                throw new RuntimeException(MessageConstant.REPLYER_NOT_FOUND);
             }
         }
         comments.setStatus(0);

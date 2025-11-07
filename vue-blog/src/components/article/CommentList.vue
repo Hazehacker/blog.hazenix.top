@@ -432,6 +432,21 @@ watch(isLoggedIn, (newVal) => {
   }
 })
 
+// 监听文章ID变化，重新加载评论
+watch(() => props.articleId, (newId, oldId) => {
+  if (newId && newId !== oldId) {
+    // 重置评论相关状态
+    comments.value = []
+    totalComments.value = 0
+    currentPage.value = 1
+    showCommentForm.value = false
+    activeReplyCommentId.value = null
+    resetCommentForm()
+    // 重新加载评论
+    loadComments()
+  }
+}, { immediate: false })
+
 onMounted(() => {
   loadComments()
 })

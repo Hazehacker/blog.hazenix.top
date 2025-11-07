@@ -2,6 +2,7 @@ package top.hazenix.controller.admin;
 
 
 import com.github.pagehelper.Page;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -15,10 +16,11 @@ import top.hazenix.service.TagsService;
 @RestController("AdminTagsController")
 @Slf4j
 @RequestMapping("/admin/tags")
+@RequiredArgsConstructor
 public class TagsController {
 
-    @Autowired
-    private TagsService tagsService;
+
+    private final TagsService tagsService;
 
 
     /**

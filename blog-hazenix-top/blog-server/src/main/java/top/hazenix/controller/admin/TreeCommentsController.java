@@ -1,6 +1,7 @@
 package top.hazenix.controller.admin;
 
 import io.swagger.annotations.ApiModel;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -22,10 +23,11 @@ import java.util.List;
 @Slf4j
 @RequestMapping("/admin/tree")
 @ApiModel("树洞相关接口")
+@RequiredArgsConstructor
 public class TreeCommentsController {
 
-    @Autowired
-    private TreeCommentsService treeCommentsService;
+
+    private final TreeCommentsService treeCommentsService;
     /**
      * 分页查询树洞列表
      * @param treeCommentsQuery

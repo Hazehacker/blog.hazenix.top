@@ -1,5 +1,6 @@
 package top.hazenix.interceptor;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import top.hazenix.constant.JwtClaimsConstant;
@@ -21,12 +22,13 @@ import javax.servlet.http.HttpServletResponse;
  */
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class JwtTokenUserInterceptor implements HandlerInterceptor {
 
-    @Autowired
-    private JwtProperties jwtProperties;
-    @Autowired
-    private RedisTemplate redisTemplate;
+
+    private final JwtProperties jwtProperties;
+
+    private final RedisTemplate redisTemplate;
 
     /**
      * 校验jwt

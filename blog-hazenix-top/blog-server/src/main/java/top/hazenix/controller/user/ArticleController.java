@@ -1,6 +1,7 @@
 package top.hazenix.controller.user;
 
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -15,10 +16,11 @@ import java.util.List;
 @RestController("UserArticleController")
 @RequestMapping("/user/articles")
 @Slf4j
+@RequiredArgsConstructor
 public class ArticleController {
 
-    @Autowired
-    private ArticleService articleService;
+
+    private final ArticleService articleService;
 
     /**
      * 获取文章列表（用于用户端）
@@ -148,7 +150,6 @@ public class ArticleController {
         //添加isLiked属性，建一个user_article表(user_id,article_id,is_liked,is_favorite)
 
         //用户点赞或者收藏之后再往user_article表插入数据，不然每次添加文章和新增用户都会插入一堆条目（浪费空间，很多用不到）
-        //TODO 登录功能做完之后测试这个接口
         articleService.likeArticle(id);
         return Result.success();
     }
