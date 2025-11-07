@@ -49,11 +49,10 @@ public class JwtTokenUserInterceptor implements HandlerInterceptor {
         }
         //1、从请求头中获取令牌
         String token = request.getHeader(jwtProperties.getUserTokenName());
-        //TODO 后面加redis了再开启
         //在JWT验证时增加黑名单检查
-//        if(isTokenInBlacklist( token)){
-//            return false;
-//        }
+        if(isTokenInBlacklist( token)){
+            return false;
+        }
         //2、校验令牌
         try {
             log.info("jwt校验:{}", token);

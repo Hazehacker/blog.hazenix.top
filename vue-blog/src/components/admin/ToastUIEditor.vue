@@ -251,7 +251,7 @@
               </label>
               <el-input
                 v-model="form.slug"
-                placeholder="留空自动生成"
+                placeholder="[注意唯一性!] 留空自动生成"
                 maxlength="100"
               />
             </div>

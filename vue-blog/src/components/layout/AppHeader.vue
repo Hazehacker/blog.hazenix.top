@@ -9,8 +9,30 @@
     
     <nav class="hidden md:flex items-center space-x-8 text-gray-600 dark:text-gray-400">
       <router-link to="/home" class="hover:text-primary">首页</router-link>
-      <router-link to="/articles" class="hover:text-primary">文章</router-link>
-      <router-link to="/categories" class="hover:text-primary">分类</router-link>
+      
+      <!-- 文章下拉菜单 -->
+      <el-dropdown @command="handleCategoryCommand" trigger="hover" class="article-dropdown">
+        <span class="hover:text-primary cursor-pointer article-trigger">
+          文章
+        </span>
+        <template #dropdown>
+          <el-dropdown-menu v-if="categories.length > 0">
+            <el-dropdown-item 
+              v-for="category in categories" 
+              :key="category.id"
+              :command="category.id"
+              class="category-item"
+            >
+              <span class="category-name">{{ category.name }}</span>
+              <span class="category-count">({{ category.articleCount }})</span>
+            </el-dropdown-item>
+          </el-dropdown-menu>
+          <el-dropdown-menu v-else>
+            <el-dropdown-item disabled>暂无分类</el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
+      
       <router-link to="/tags" class="hover:text-primary">标签</router-link>
       <router-link to="/album" class="hover:text-primary">相册</router-link>
       <router-link to="/tree-hole" class="hover:text-primary">树洞</router-link>
@@ -83,6 +105,8 @@ import { useUserStore } from '@/stores/user'
 import { useRouter, useRoute } from 'vue-router'
 import ThemeToggle from '@/components/common/ThemeToggle.vue'
 import { Search, User, ArrowDown, Link, InfoFilled } from '@element-plus/icons-vue'
+import { getCategoryList } from '@/api/category'
+import { getArticleList } from '@/api/article'
 
 const userStore = useUserStore()
 const router = useRouter()
@@ -93,6 +117,10 @@ import csdnImg from '@/assets/img/csdnLogo.png'
 const defaultAvatar = avatarFallback
 const github = githubImg
 const csdn = csdnImg
+
+// 分类列表
+const categories = ref([])
+const loadingCategories = ref(false)
 
 // 计算头像URL，确保响应式更新
 const avatarUrl = computed(() => {
@@ -161,6 +189,52 @@ const handleMoreCommand = (command) => {
   }
 }
 
+// 处理分类点击
+const handleCategoryCommand = (categoryId) => {
+  router.push(`/articles?categoryId=${categoryId}`)
+}
+
+// 加载分类列表
+const loadCategories = async () => {
+  loadingCategories.value = true
+  try {
+    // 获取分类列表
+    const res = await getCategoryList()
+    const allCategories = res.data || []
+    
+    // 获取所有已发布的文章（用户端API默认只返回已发布的文章，status=0）
+    let publishedArticles = []
+    try {
+      const articlesRes = await getArticleList()
+      publishedArticles = articlesRes.data || []
+    } catch (articleError) {
+      console.warn('Failed to load articles for counting:', articleError)
+    }
+    
+    // 按分类统计已发布文章的数量
+    const categoryCountMap = new Map()
+    publishedArticles.forEach(article => {
+      const categoryId = article.categoryId || article.category?.id
+      if (categoryId) {
+        categoryCountMap.set(categoryId, (categoryCountMap.get(categoryId) || 0) + 1)
+      }
+    })
+    
+    // 更新分类的文章数量，只显示有已发布文章的分类
+    const categoriesWithCount = allCategories.map(category => ({
+      ...category,
+      articleCount: categoryCountMap.get(category.id) || 0
+    })).filter(category => category.articleCount > 0)
+    
+    categories.value = categoriesWithCount
+  } catch (error) {
+    console.error('Failed to load categories:', error)
+    categories.value = []
+  } finally {
+    loadingCategories.value = false
+  }
+}
+
 // 当 URL 上带有 ?login=1 时，自动打开登录弹窗，并清理一次性参数
 const maybeOpenLoginFromQuery = () => {
   if (route.query && route.query.login === '1') {
@@ -172,6 +246,7 @@ const maybeOpenLoginFromQuery = () => {
 
 onMounted(() => {
   maybeOpenLoginFromQuery()
+  loadCategories()
 })
 
 watch(
@@ -213,5 +288,42 @@ watch(
 
 .more-dropdown:hover .more-trigger {
   color: var(--el-color-primary);
+}
+
+/* 文章下拉菜单样式 */
+.article-dropdown {
+  display: inline-block;
+}
+
+.article-trigger {
+  font-size: 16px;
+  color: #4B5563;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+.article-dropdown:hover .article-trigger {
+  color: var(--el-color-primary);
+}
+
+/* 分类菜单项样式 */
+.category-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 150px;
+}
+
+.category-name {
+  flex: 1;
+}
+
+.category-count {
+  color: #909399;
+  font-size: 12px;
+  margin-left: 8px;
 }
 </style>

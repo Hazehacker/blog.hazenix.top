@@ -200,7 +200,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Search, Refresh, User, Calendar, View, ChatDotRound } from '@element-plus/icons-vue'
@@ -477,8 +477,11 @@ const handleRouteQuery = () => {
     }
   }
   
-  // 处理分类参数
-  if (query.category) {
+  // 处理分类参数（优先使用 categoryId）
+  if (query.categoryId) {
+    searchForm.categoryId = query.categoryId
+  } else if (query.category) {
+    // 兼容通过分类名称查找
     const categoryName = decodeURIComponent(query.category)
     const category = categories.value.find(c => c.name === categoryName)
     if (category) {
@@ -528,6 +531,22 @@ onMounted(async () => {
   // 最后加载文章列表
   loadArticles()
 })
+
+// 监听路由查询参数变化
+watch(() => route.query, async (newQuery, oldQuery) => {
+  // 如果查询参数发生变化，重新处理并加载文章
+  if (JSON.stringify(newQuery) !== JSON.stringify(oldQuery)) {
+    // 如果分类或标签列表还没加载，先加载
+    if (categories.value.length === 0 || tags.value.length === 0) {
+      await Promise.all([
+        loadCategories(),
+        loadTags()
+      ])
+    }
+    handleRouteQuery()
+    loadArticles()
+  }
+}, { deep: true })
 </script>
 
 <style scoped>

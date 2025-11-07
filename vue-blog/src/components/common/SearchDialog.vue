@@ -30,7 +30,7 @@
         <h4 class="font-semibold text-gray-900 dark:text-white">{{ article.title }}</h4>
         <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ article.summary || '暂无摘要' }}</p>
         <div class="flex items-center gap-2 mt-2 text-xs text-gray-500">
-          <span>{{ article.author || '匿名' }}</span>
+
           <span>{{ formatDate(article.createTime) }}</span>
         </div>
       </div>

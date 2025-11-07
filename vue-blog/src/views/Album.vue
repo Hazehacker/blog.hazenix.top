@@ -6,7 +6,7 @@
     </div>
     
     <div class="content">
-      <p>相册功能正在开发中...</p>
+      <p>暂未添加相片...</p>
     </div>
   </div>
 </template>

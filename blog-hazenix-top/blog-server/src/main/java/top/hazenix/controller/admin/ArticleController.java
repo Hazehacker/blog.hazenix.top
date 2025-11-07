@@ -121,7 +121,7 @@ public class ArticleController {
     public Result deleteArticles(@RequestBody DeleteArticleRequestDTO deleteArticleRequestDTO){
         List<Long> ids = deleteArticleRequestDTO.getIds();
         log.info("批量删除文章：{}",ids);
-        if(ids.size()==1){
+        if(ids.size()==0){
             return null;
         }
         articleService.deleteArticles(ids);
