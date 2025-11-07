@@ -116,16 +116,48 @@ const renderedContent = computed(() => {
 }
 
 /* 列表样式 */
+:deep(ul),
+:deep(ol) {
+  @apply my-4;
+  padding-left: 1.5rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
 :deep(ul) {
-  @apply list-disc list-inside space-y-1 my-4;
+  list-style-type: disc;
+  list-style-position: inside;
 }
 
 :deep(ol) {
-  @apply list-decimal list-inside space-y-1 my-4;
+  list-style-type: decimal;
+  list-style-position: inside;
 }
 
 :deep(li) {
   @apply text-gray-700 dark:text-gray-300;
+  margin: 0.25rem 0;
+  padding: 0;
+  line-height: 1.75;
+  display: list-item;
+}
+
+/* 确保所有列表项之间的间距完全一致 */
+:deep(ul > li + li),
+:deep(ol > li + li) {
+  margin-top: 0.25rem;
+}
+
+/* 第一个列表项没有上边距 */
+:deep(ul > li:first-child),
+:deep(ol > li:first-child) {
+  margin-top: 0;
+}
+
+/* 最后一个列表项没有下边距 */
+:deep(ul > li:last-child),
+:deep(ol > li:last-child) {
+  margin-bottom: 0;
 }
 
 /* 段落样式 */

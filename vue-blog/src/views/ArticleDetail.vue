@@ -94,7 +94,7 @@
               v-for="related in relatedArticles"
               :key="related.id"
               class="related-item"
-              @click="goToArticle(related.id)"
+              @click="goToArticle(related)"
             >
               <h4 class="related-title">{{ related.title }}</h4>
               <p class="related-meta">
@@ -125,7 +125,7 @@
     </div>
 
     <!-- 评论区 -->
-    <div class="comments-section">
+    <div v-if="articleId" class="comments-section">
       <CommentList 
         :article-id="articleId" 
         @comment-added="handleCommentAdded"
@@ -139,7 +139,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Star, Share, Collection, ArrowDown } from '@element-plus/icons-vue'
-import { getArticleDetail, getRelatedArticles, likeArticle as likeArticleApi, collectArticle as favoriteArticleApi, incrementViewCount } from '@/api/article'
+import { getArticleDetail, getArticleBySlug, getRelatedArticles, likeArticle as likeArticleApi, collectArticle as favoriteArticleApi, incrementViewCount } from '@/api/article'
 import MarkdownRenderer from '@/components/article/MarkdownRenderer.vue'
 import CommentList from '@/components/article/CommentList.vue'
 import ArticleMetadata from '@/components/article/ArticleMetadata.vue'
@@ -149,13 +149,35 @@ import dayjs from 'dayjs'
 const route = useRoute()
 const router = useRouter()
 
-const articleId = computed(() => route.params.id)
+// 路由参数（可能是ID或slug）
+const routeParam = computed(() => route.params.id)
 const article = ref(null)
 const loading = ref(false)
 const relatedArticles = ref([])
 const isMobile = ref(false)
 const isAISummaryExpanded = ref(false)
 const shouldScrollToTop = ref(false)
+
+// 判断路由参数是ID还是slug（ID是纯数字，slug包含字母或特殊字符）
+const isSlug = computed(() => {
+  const id = routeParam.value
+  // 如果包含非数字字符，认为是slug
+  return id && !/^\d+$/.test(id)
+})
+
+// 文章的实际ID（从文章数据中获取，如果是slug则从加载后的文章数据中获取）
+const articleId = computed(() => {
+  // 如果文章已加载，优先使用文章的实际ID
+  if (article.value && article.value.id) {
+    return article.value.id
+  }
+  // 如果路由参数是数字ID，直接使用
+  if (!isSlug.value) {
+    return routeParam.value
+  }
+  // 如果是slug但文章还没加载，返回null（等待文章加载）
+  return null
+})
 
 // 响应式检测
 const checkMobile = () => {
@@ -197,19 +219,32 @@ const getTagName = (tag) => {
 const loadArticle = async () => {
   loading.value = true
   try {
-    console.log('Loading article with ID:', articleId.value)
+    const identifier = routeParam.value
+    console.log('Loading article with identifier:', identifier, 'isSlug:', isSlug.value)
     console.log('API Base URL:', import.meta.env.VITE_API_BASE_URL || 'http://localhost:9090')
     
-    const res = await getArticleDetail(articleId.value)
+    // 根据是slug还是ID调用不同的API
+    let res
+    if (isSlug.value) {
+      res = await getArticleBySlug(identifier)
+    } else {
+      res = await getArticleDetail(identifier)
+    }
     console.log('Article detail response:', res)
     
     // 处理不同的响应格式
     if (res && res.data) {
       article.value = res.data
       
-      // 增加浏览量
+      // 如果文章有slug且当前URL使用的是ID，更新URL为slug
+      if (article.value.slug && !isSlug.value) {
+        router.replace({ name: 'ArticleDetail', params: { id: article.value.slug } })
+      }
+      
+      // 增加浏览量（使用文章ID，不是slug）
       try {
-        await incrementViewCount(articleId.value)
+        const actualId = article.value.id || identifier
+        await incrementViewCount(actualId)
       } catch (viewError) {
         console.warn('Failed to increment view count:', viewError)
       }
@@ -473,9 +508,16 @@ const handleCommentAdded = (comment) => {
 }
 
 // 跳转到指定文章
-const goToArticle = (articleId) => {
-  console.log('Navigating to article:', articleId)
-  router.push(`/article/${articleId}`)
+// 跳转到文章详情（优先使用slug）
+const goToArticle = (article) => {
+  // 如果传入的是对象，优先使用slug
+  if (typeof article === 'object' && article !== null) {
+    const identifier = article.slug || article.id
+    router.push(`/article/${identifier}`)
+  } else {
+    // 如果传入的是ID，直接使用
+    router.push(`/article/${article}`)
+  }
 }
 
 // 按标签搜索

@@ -1,7 +1,7 @@
 <template>
-  <div class="toast-ui-editor-container">
+  <div class="toast-ui-editor-container" :class="{ 'fullscreen-mode': isFullscreen }">
     <!-- 面包屑导航 -->
-    <div class="mb-4">
+    <div v-show="!isFullscreen" class="mb-4">
       <nav class="flex" aria-label="Breadcrumb">
         <ol class="inline-flex items-center space-x-1 md:space-x-3">
           <li class="inline-flex items-center">
@@ -24,7 +24,7 @@
     </div>
 
     <!-- 页面标题 -->
-    <div class="mb-6">
+    <div v-show="!isFullscreen" class="mb-6">
       <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
         {{ isEdit ? '编辑文章' : '新建文章' }}
       </h1>
@@ -33,11 +33,11 @@
       </p>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8" :class="{ 'lg:grid-cols-1': isFullscreen }">
+    <div class="grid grid-cols-1 lg:grid-cols-4" :class="{ 'lg:grid-cols-1 gap-0': isFullscreen, 'gap-8': !isFullscreen }">
       <!-- 左侧：编辑器 -->
-      <div class="lg:col-span-3 space-y-6" :class="{ 'lg:col-span-1': isFullscreen }">
+      <div class="lg:col-span-3" :class="{ 'lg:col-span-1 space-y-0 w-full': isFullscreen, 'space-y-6': !isFullscreen }">
         <!-- 分类选择 -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+        <div v-show="!isFullscreen" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
             <i class="fas fa-folder mr-2"></i>
             *选择分类:
@@ -63,7 +63,7 @@
         </div>
 
         <!-- 标题输入 -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+        <div v-show="!isFullscreen" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
             <i class="fas fa-heading mr-2"></i>
             *标题:
@@ -79,13 +79,13 @@
         </div>
 
         <!-- Toast UI Editor -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-            <div class="flex justify-between items-center mb-3">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm" :class="isFullscreen ? 'p-2 rounded-none shadow-none' : 'p-6'">
+            <div class="flex justify-between items-center mb-3" :class="isFullscreen ? 'px-2' : ''">
+                <label v-show="!isFullscreen" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 <i class="fas fa-edit mr-2"></i>
                 *内容:
                 </label>
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center space-x-2" :class="{ 'ml-auto': isFullscreen }">
                   <!-- 预览模式切换 -->
                   <div class="flex items-center space-x-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
                     <button 
@@ -128,7 +128,7 @@
           </div>
           
           <!-- 导入选项 -->
-          <div class="mt-4 text-sm text-gray-600 dark:text-gray-400">
+          <div v-show="!isFullscreen" class="mt-4 text-sm text-gray-600 dark:text-gray-400">
             当然,你也可以选择从本地 markdown 文件导入
             <el-button 
               type="text" 
@@ -286,22 +286,22 @@
     </div>
 
     <!-- 操作按钮 -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mt-8">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm mt-8" :class="isFullscreen ? 'p-3 rounded-none shadow-none mx-0' : 'p-6'">
       <div class="flex justify-between items-center">
-        <div class="text-sm text-gray-500 dark:text-gray-400">
+        <div v-show="!isFullscreen" class="text-sm text-gray-500 dark:text-gray-400">
           <i class="fas fa-info-circle mr-1"></i>
           保存草稿会自动保存您的编辑内容
         </div>
-        <div class="flex space-x-3">
-          <el-button @click="$emit('cancel')" size="large">
+        <div class="flex space-x-3" :class="{ 'ml-auto': isFullscreen }">
+          <el-button @click="$emit('cancel')" :size="isFullscreen ? 'default' : 'large'">
             <i class="fas fa-times mr-2"></i>
             取消
           </el-button>
-          <el-button @click="handleSaveDraft" :loading="saving" size="large">
+          <el-button @click="handleSaveDraft" :loading="saving" :size="isFullscreen ? 'default' : 'large'">
             <i class="fas fa-save mr-2"></i>
             保存草稿
           </el-button>
-          <el-button @click="handlePublish" type="primary" :loading="saving" size="large">
+          <el-button @click="handlePublish" type="primary" :loading="saving" :size="isFullscreen ? 'default' : 'large'">
             <i class="fas fa-paper-plane mr-2"></i>
             发布文章
           </el-button>
@@ -457,7 +457,7 @@ const form = reactive({
   categoryId: '',
   tagIds: [],
   coverImage: '',
-  isTop: false,
+  isTop: false,  // checkbox使用boolean值
   slug: '',
   metaDescription: '',
   keywords: ''
@@ -552,7 +552,8 @@ const initForm = () => {
       categoryId: props.article.categoryId || props.article.category?.id || '',
       tagIds: tagIds,
       coverImage: props.article.coverImage || '',
-      isTop: props.article.isTop || false,
+      // 将isTop从0/1转换为boolean（0=false，1=true）
+      isTop: props.article.isTop === 1 || props.article.isTop === true,
       slug: props.article.slug || '',
       metaDescription: props.article.metaDescription || '',
       keywords: props.article.keywords || ''
@@ -578,7 +579,7 @@ const initForm = () => {
       categoryId: '',
       tagIds: [],
       coverImage: '',
-      isTop: false,
+      isTop: false,  // checkbox使用boolean值
       slug: '',
       metaDescription: '',
       keywords: ''
@@ -747,8 +748,11 @@ const toggleFullscreen = () => {
   isFullscreen.value = !isFullscreen.value
   // 重新调整编辑器高度
   if (editor.value) {
-    const newHeight = isFullscreen.value ? 'calc(100vh - 200px)' : '800px'
-    editor.value.setHeight(newHeight)
+    nextTick(() => {
+      // 全屏时使用更大的高度，减去工具栏和按钮的高度
+      const newHeight = isFullscreen.value ? 'calc(100vh - 100px)' : '800px'
+      editor.value.setHeight(newHeight)
+    })
   }
 }
 
@@ -868,13 +872,24 @@ const saveArticle = async (status) => {
     ElMessage.error('请输入文章内容')
     return
   }
+  // 验证分类：必须选择分类
+  if (!form.categoryId) {
+    ElMessage.error('请选择文章分类')
+    return
+  }
 
   saving.value = true
   try {
+    // 确保isTop被正确转换为0或1（0=不置顶，1=置顶）
+    const isTopValue = form.isTop === true || form.isTop === 1 ? 1 : 0
+    
     const articleData = {
       ...form,
-      status
+      status,
+      isTop: isTopValue
     }
+    
+    console.log('保存文章数据:', articleData)
     emit('save', articleData)
   } catch (error) {
     console.error('保存文章失败:', error)
@@ -1039,6 +1054,35 @@ onMounted(async () => {
 .toast-ui-editor-container {
   max-width: 7xl;
   margin: 0 auto;
+}
+
+.toast-ui-editor-container.fullscreen-mode {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-width: 100vw;
+  width: 100vw;
+  margin: 0;
+  padding: 10px;
+  z-index: 1000;
+  background-color: #f8fafc;
+  overflow-y: auto;
+}
+
+.toast-ui-editor-container.fullscreen-mode > .grid {
+  width: 100%;
+  max-width: 100%;
+}
+
+.toast-ui-editor-container.fullscreen-mode > .grid > div {
+  width: 100%;
+  max-width: 100%;
+}
+
+.dark .toast-ui-editor-container.fullscreen-mode {
+  background-color: #1a202c;
 }
 
 /* 自定义Toast UI Editor样式 */

@@ -2,19 +2,26 @@ import request from '@/utils/request'
 
 // 文章相关API
 export const articleApi = {
-    // 获取文章列表
+    // 获取文章列表（非分页查询，返回所有数据）
     getArticleList(params = {}) {
+        // 构建请求参数，只包含后端支持的参数：title、categoryId、tagId
+        const requestParams = {}
+        if (params.title || params.keyword) {
+            // 兼容 keyword 和 title 两种参数名
+            requestParams.title = params.title || params.keyword
+        }
+        if (params.categoryId) {
+            requestParams.categoryId = params.categoryId
+        }
+        if (params.tagId) {
+            requestParams.tagId = params.tagId
+        }
+        
         return request({
             url: '/user/articles',
             method: 'get',
             isPublicResource: true, // 标记为公开资源
-            params: {
-                sortBy: 'createTime', // 默认按创建时间排序
-                sortOrder: 'desc',    // 默认降序（最新的在前）
-                page: params.page || 1,
-                pageSize: params.pageSize || 10,
-                ...params  // { keyword, categoryId, tagId, status, sortBy, sortOrder }
-            }
+            params: requestParams
         })
     },
 
@@ -177,6 +184,10 @@ export function getArticleList(params) {
 
 export function getArticleDetail(id) {
     return articleApi.getArticleDetail(id)
+}
+
+export function getArticleBySlug(slug) {
+    return articleApi.getArticleBySlug(slug)
 }
 
 export function searchArticles(keyword, params = {}) {

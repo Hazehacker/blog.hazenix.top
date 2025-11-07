@@ -15,7 +15,7 @@
           v-for="article in favoriteArticles"
           :key="article.id"
           class="favorite-item"
-          @click="goToArticle(article.id)"
+          @click="goToArticle(article)"
         >
           <div class="article-card">
             <!-- 文章封面 -->
@@ -153,9 +153,16 @@ const loadFavoriteArticles = async () => {
   }
 }
 
-// 跳转到文章详情
-const goToArticle = (articleId) => {
-  router.push(`/article/${articleId}`)
+// 跳转到文章详情（优先使用slug）
+const goToArticle = (article) => {
+  // 如果传入的是对象，优先使用slug
+  if (typeof article === 'object' && article !== null) {
+    const identifier = article.slug || article.id
+    router.push(`/article/${identifier}`)
+  } else {
+    // 如果传入的是ID，直接使用
+    router.push(`/article/${article}`)
+  }
 }
 
 // 取消收藏

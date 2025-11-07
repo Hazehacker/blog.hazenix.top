@@ -24,8 +24,7 @@ import java.util.List;
 @ApiModel("文章相关接口")
 public class ArticleController {
 
-    // 设置最大允许字节数（TEXT 类型最大为 65535）
-    private static final int MAX_CONTENT_SIZE_BYTES = 16777220; // 留点余量
+
     @Autowired
     private ArticleService articleService;
 
@@ -82,15 +81,6 @@ public class ArticleController {
     @PostMapping
     public Result addArticle(@RequestBody ArticleDTO articleDTO){
         log.info("新增文章：{}",articleDTO);
-        if(articleDTO.getContent()==null && articleDTO.getTitle().length()==0){
-            throw new RuntimeException("文章内容不能为空");
-        }else{
-            //判断字数是否超出限制
-            // 计算 UTF-8 编码下的字节数
-            if(articleDTO.getContent().getBytes(StandardCharsets.UTF_8).length>MAX_CONTENT_SIZE_BYTES){
-                throw new RuntimeException("文章字数超出限制");
-            }
-        }
         articleService.addArticle(articleDTO);
         return Result.success();
     }

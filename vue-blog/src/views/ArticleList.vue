@@ -121,7 +121,7 @@
             v-for="article in articles"
             :key="article.id"
             class="article-card"
-            @click="goToArticle(article.id)"
+            @click="goToArticle(article)"
           >
             <!-- 文章封面 -->
             <div v-if="article.coverImage || article.cover" class="article-cover">
@@ -241,59 +241,88 @@ const hasSearchParams = computed(() => {
   return searchForm.keyword || searchForm.categoryId || searchForm.tagId || searchForm.timeRange
 })
 
+// 所有文章数据（从后端获取的完整列表）
+const allArticles = ref([])
+
 // 加载文章列表
 const loadArticles = async () => {
   loading.value = true
   try {
-    const params = {
-      keyword: searchForm.keyword,
-      categoryId: searchForm.categoryId,
-      tagId: searchForm.tagId,
-      status: '0', // 只显示正常状态的文章
-      page: pagination.page,
-      pageSize: pagination.pageSize
+    // 构建请求参数：title、categoryId、tagId
+    const params = {}
+    if (searchForm.keyword) {
+      params.title = searchForm.keyword
+    }
+    if (searchForm.categoryId) {
+      params.categoryId = searchForm.categoryId
+    }
+    if (searchForm.tagId) {
+      params.tagId = searchForm.tagId
     }
 
     const response = await getArticleList(params)
     console.log('Article list response:', response)
     
-    // 处理不同的响应格式
+    // 处理响应格式：后端返回的是数组，不是分页格式
     let articleList = []
     if (response && response.data) {
       if (Array.isArray(response.data)) {
         // 如果data直接是数组
         articleList = response.data
-        total.value = response.total || response.data.length
-      } else if (response.data.records) {
-        // 如果data包含records字段（分页格式）
-        articleList = response.data.records
-        total.value = response.data.total || response.data.records.length
-      } else if (response.data.list) {
+      } else if (response.data.list && Array.isArray(response.data.list)) {
         // 如果data包含list字段
         articleList = response.data.list
-        total.value = response.data.total || response.data.list.length
+      } else if (Array.isArray(response.data.records)) {
+        // 兼容分页格式（虽然后端不是分页）
+        articleList = response.data.records
       } else {
-        // 其他格式，尝试直接使用data
-        articleList = Array.isArray(response.data) ? response.data : [response.data]
-        total.value = response.total || articleList.length
+        articleList = []
       }
+    } else if (Array.isArray(response)) {
+      // 如果响应直接是数组
+      articleList = response
     } else {
       articleList = []
-      total.value = 0
     }
     
     // 过滤掉 id=1 的文章（留言板专用）
-    articles.value = articleList.filter(article => article.id !== 1 && article.id !== '1')
-    // 更新总数（减去被过滤的文章）
-    if (articles.value.length !== articleList.length) {
-      total.value = total.value - (articleList.length - articles.value.length)
-    }
+    articleList = articleList.filter(article => article.id !== 1 && article.id !== '1')
+    
+    // 排序：置顶文章优先，然后按创建时间降序排序
+    articleList.sort((a, b) => {
+      // 获取置顶状态（兼容 0/1 和 true/false）
+      const isTopA = a.isTop === 1 || a.isTop === true
+      const isTopB = b.isTop === 1 || b.isTop === true
+      
+      // 如果一个是置顶，一个不是，置顶的排在前面
+      if (isTopA && !isTopB) {
+        return -1
+      }
+      if (!isTopA && isTopB) {
+        return 1
+      }
+      
+      // 如果都是置顶或都不是置顶，按创建时间降序排序（最新的在前）
+      const timeA = new Date(a.createTime || a.createdAt || 0).getTime()
+      const timeB = new Date(b.createTime || b.createdAt || 0).getTime()
+      return timeB - timeA
+    })
+    
+    // 保存所有文章数据
+    allArticles.value = articleList
+    total.value = articleList.length
+    
+    // 前端分页处理
+    applyPagination()
   } catch (error) {
     console.error('Failed to load articles:', error)
     ElMessage.error('加载文章列表失败')
     
     // Mock数据作为fallback（过滤掉 id=1）
-    const mockArticles = [
+    allArticles.value = []
+    articles.value = []
+    total.value = 0
+    /* const mockArticles = [
       {
         id: 1,
         title: 'Vue3博客系统开发指南',
@@ -314,10 +343,7 @@ const loadArticles = async () => {
         viewCount: 80,
         tags: [{ id: 3, name: 'Element Plus' }, { id: 2, name: '前端' }]
       }
-    ]
-    // 过滤掉 id=1 的文章（留言板专用）
-    articles.value = mockArticles.filter(article => article.id !== 1 && article.id !== '1')
-    total.value = articles.value.length
+    ] */
   } finally {
     loading.value = false
   }
@@ -361,13 +387,13 @@ const loadTags = async () => {
 // 搜索处理
 const handleSearch = () => {
   pagination.page = 1
-  loadArticles()
+  loadArticles() // loadArticles 内部会调用 applyPagination
 }
 
 // 筛选处理
 const handleFilter = () => {
   pagination.page = 1
-  loadArticles()
+  loadArticles() // loadArticles 内部会调用 applyPagination
 }
 
 // 重置搜索
@@ -382,21 +408,35 @@ const handleReset = () => {
   loadArticles()
 }
 
+// 前端分页处理函数
+const applyPagination = () => {
+  const start = (pagination.page - 1) * pagination.pageSize
+  const end = start + pagination.pageSize
+  articles.value = allArticles.value.slice(start, end)
+}
+
 // 分页处理
 const handleSizeChange = (size) => {
   pagination.pageSize = size
   pagination.page = 1
-  loadArticles()
+  applyPagination()
 }
 
 const handleCurrentChange = (page) => {
   pagination.page = page
-  loadArticles()
+  applyPagination()
 }
 
-// 跳转到文章详情
-const goToArticle = (id) => {
-  router.push(`/article/${id}`)
+// 跳转到文章详情（优先使用slug）
+const goToArticle = (article) => {
+  // 如果传入的是对象，优先使用slug
+  if (typeof article === 'object' && article !== null) {
+    const identifier = article.slug || article.id
+    router.push(`/article/${identifier}`)
+  } else {
+    // 如果传入的是ID，直接使用
+    router.push(`/article/${article}`)
+  }
 }
 
 // 获取标签名称（兼容新的API格式）

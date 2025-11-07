@@ -12,7 +12,7 @@
         v-for="(article, index) in articles"
         :key="article.id"
         class="article-item"
-        @click="goToArticle(article.id)"
+        @click="goToArticle(article)"
       >
         <div class="article-rank">{{ index + 1 }}</div>
         <div class="article-content">
@@ -113,9 +113,16 @@ const loadPopularArticles = async () => {
   }
 }
 
-// 跳转到文章详情
-const goToArticle = (articleId) => {
-  router.push(`/article/${articleId}`)
+// 跳转到文章详情（优先使用slug）
+const goToArticle = (article) => {
+  // 如果传入的是对象，优先使用slug
+  if (typeof article === 'object' && article !== null) {
+    const identifier = article.slug || article.id
+    router.push(`/article/${identifier}`)
+  } else {
+    // 如果传入的是ID，直接使用
+    router.push(`/article/${article}`)
+  }
 }
 
 // 组件挂载时加载数据

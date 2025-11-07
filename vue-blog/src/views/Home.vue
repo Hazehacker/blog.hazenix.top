@@ -154,19 +154,46 @@ onMounted(async () => {
     console.log('Home page articles response:', res)
     
     // 处理不同的响应格式
+    let articleList = []
     if (res && res.data) {
       if (Array.isArray(res.data)) {
-        latestArticles.value = res.data
+        articleList = res.data
       } else if (res.data.records) {
-        latestArticles.value = res.data.records
+        articleList = res.data.records
       } else if (res.data.list) {
-        latestArticles.value = res.data.list
+        articleList = res.data.list
       } else {
-        latestArticles.value = res.data
+        articleList = Array.isArray(res.data) ? res.data : [res.data]
       }
     } else {
-      latestArticles.value = []
+      articleList = []
     }
+    
+    // 过滤掉 id=1 的文章（留言板专用）
+    articleList = articleList.filter(article => article.id !== 1 && article.id !== '1')
+    
+    // 排序：置顶文章优先，然后按创建时间降序排序
+    articleList.sort((a, b) => {
+      // 获取置顶状态（兼容 0/1 和 true/false）
+      const isTopA = a.isTop === 1 || a.isTop === true
+      const isTopB = b.isTop === 1 || b.isTop === true
+      
+      // 如果一个是置顶，一个不是，置顶的排在前面
+      if (isTopA && !isTopB) {
+        return -1
+      }
+      if (!isTopA && isTopB) {
+        return 1
+      }
+      
+      // 如果都是置顶或都不是置顶，按创建时间降序排序（最新的在前）
+      const timeA = new Date(a.createTime || a.createdAt || 0).getTime()
+      const timeB = new Date(b.createTime || b.createdAt || 0).getTime()
+      return timeB - timeA
+    })
+    
+    // 只取前6篇
+    latestArticles.value = articleList.slice(0, 6)
   } catch (error) {
     console.error('Failed to load articles:', error)
     // 使用mock数据作为fallback

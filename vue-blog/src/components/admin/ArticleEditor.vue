@@ -319,7 +319,7 @@ const form = reactive({
   categoryId: '',
   tagIds: [],
   coverImage: '',
-  isTop: false,
+  isTop: 0,
 
   slug: '',
   metaDescription: '',
@@ -343,7 +343,7 @@ const initForm = () => {
       categoryId: props.article.categoryId || '',
       tagIds: props.article.tagIds || [],
       coverImage: props.article.coverImage || '',
-      isTop: props.article.isTop || false,
+      isTop: props.article.isTop || 0,
 
       slug: props.article.slug || '',
       metaDescription: props.article.metaDescription || '',
@@ -359,7 +359,7 @@ const initForm = () => {
       categoryId: '',
       tagIds: [],
       coverImage: '',
-      isTop: false,
+      isTop: 0,
       slug: '',
       metaDescription: '',
       keywords: ''

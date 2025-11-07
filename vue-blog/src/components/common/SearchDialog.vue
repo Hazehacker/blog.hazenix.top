@@ -81,8 +81,11 @@ const handleSearch = async () => {
   }
 }
 
+// 跳转到文章详情（优先使用slug）
 const goToArticle = (article) => {
-  router.push(`/article/${article.id}`)
+  // 优先使用slug，如果没有slug则使用id
+  const identifier = article.slug || article.id
+  router.push(`/article/${identifier}`)
   visible.value = false
 }
 

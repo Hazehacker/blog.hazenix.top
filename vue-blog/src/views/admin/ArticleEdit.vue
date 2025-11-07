@@ -58,6 +58,15 @@ const loadCategoriesAndTags = async () => {
 // 保存文章
 const handleSave = async (articleData) => {
   try {
+    // 确保isTop字段存在（0=不置顶，1=置顶）
+    if (articleData.isTop === undefined || articleData.isTop === null) {
+      articleData.isTop = 0
+    } else {
+      // 确保isTop是数字类型
+      articleData.isTop = articleData.isTop === true || articleData.isTop === 1 ? 1 : 0
+    }
+    
+    console.log('准备保存文章数据:', articleData)
     await adminApi.updateArticle(route.params.id, articleData)
     ElMessage.success('文章更新成功')
     router.push('/admin/articles')

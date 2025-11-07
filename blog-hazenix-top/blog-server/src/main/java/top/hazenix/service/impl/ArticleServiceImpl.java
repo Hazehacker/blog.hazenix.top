@@ -21,7 +21,9 @@ import top.hazenix.service.ArticleService;
 import top.hazenix.vo.ArticleDetailVO;
 import top.hazenix.vo.ArticleShortVO;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,7 +42,8 @@ public class ArticleServiceImpl implements ArticleService {
     private CommentsMapper commentsMapper;
     @Autowired
     private UserArticleMapper userArticleMapper;
-
+    // 设置最大允许字节数（TEXT 类型最大为 65535）
+    private static final int MAX_CONTENT_SIZE_BYTES = 16777220; // 留点余量
     /**
      * 获取最新点的文章列表
      * @param i
@@ -132,6 +135,15 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     @Transactional
     public void addArticle(ArticleDTO articleDTO) {
+        if(articleDTO.getContent()==null && articleDTO.getTitle().length()==0){
+            throw new RuntimeException("文章内容不能为空");
+        }else{
+            //判断字数是否超出限制
+            // 计算 UTF-8 编码下的字节数
+            if(articleDTO.getContent().getBytes(StandardCharsets.UTF_8).length>MAX_CONTENT_SIZE_BYTES){
+                throw new RuntimeException("文章字数超出限制");
+            }
+        }
         //TODO (检验slug是否已经在数据库中存在)
         //插入article表
         Article article = new Article();
@@ -174,11 +186,30 @@ public class ArticleServiceImpl implements ArticleService {
      * @param articleDTO
      */
     @Override
+    @Transactional
     public void updateArticle(Long id, ArticleDTO articleDTO) {
         Article article = new Article();
         article.setId(id);
         BeanUtils.copyProperties(articleDTO,article);
         articleMapper.update(article);
+        //更新这篇文章关联的标签（article_tags表）
+        //先删除
+        articleTagsMapper.deleteByArticleIds(Arrays.asList(id));
+        //后增加
+        List<ArticleTagsDTO> list = new ArrayList<>();
+        if (articleDTO.getTagIds()!=null && articleDTO.getTagIds().size()>0) {
+            for(Integer tagId : articleDTO.getTagIds()){
+                //查询这个tagId对应名字
+                String tagName = tagsMapper.getById(tagId).getName();
+                ArticleTagsDTO articleTagsDTO = ArticleTagsDTO.builder()
+                        .articleId(id)
+                        .tagsId(tagId)
+                        .tagsName(tagName)
+                        .build();
+                list.add(articleTagsDTO);
+            }
+            articleTagsMapper.insertBatch(list);
+        }
     }
 
 
@@ -402,7 +433,9 @@ public class ArticleServiceImpl implements ArticleService {
             ArticleDetailVO articleDetailVO = new ArticleDetailVO();
 
             BeanUtils.copyProperties(article,articleDetailVO);
-            articleDetailVO.setCategoryName(categoryMapper.getById(article.getCategoryId()).getName());
+            if (article.getCategoryId() != null) {
+                articleDetailVO.setCategoryName(categoryMapper.getById(article.getCategoryId()).getName());
+            }
             List<Integer> tagIds = null;
             try {
                 tagIds = articleTagsMapper.getListByArticleId(article.getId());
@@ -419,7 +452,9 @@ public class ArticleServiceImpl implements ArticleService {
                     })
                     .collect(Collectors.toList());
             articleDetailVO.setTags(tags);
-            articleDetailVO.setCategoryName(categoryMapper.getById(article.getCategoryId()).getName());
+            if (article.getCategoryId() != null) {
+                articleDetailVO.setCategoryName(categoryMapper.getById(article.getCategoryId()).getName());
+            }
             articleDetailVO.setCommentCount(commentsMapper.count(article.getId()));
 
 
