@@ -54,3 +54,11 @@ export function githubAuthCallback(code) {
         params: { code }
     })
 }
+
+// 用户退出登录
+export function logout() {
+    return request({
+        url: '/user/user/logout',
+        method: 'post'
+    })
+}

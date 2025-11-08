@@ -4,6 +4,7 @@ package top.hazenix.controller.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,6 +33,7 @@ public class TagsController {
      * @return
      */
     @GetMapping
+    @Cacheable(cacheNames = "tagsCache",key = "#root.method")
     public Result getTagsList(){
         log.info("获取标签列表");
         List<TagsVO> list = tagsService.getTagsList();
@@ -45,6 +47,7 @@ public class TagsController {
      * @return
      */
     @GetMapping("/{id}/articles")
+    @Cacheable(cacheNames = "tagsCache",key = "#id")
     public Result getTagsArticles(@PathVariable Long id){
         log.info("获取某个标签下的文章列表:{}",id);
         ArticleListQuery articleListQuery = ArticleListQuery.builder()

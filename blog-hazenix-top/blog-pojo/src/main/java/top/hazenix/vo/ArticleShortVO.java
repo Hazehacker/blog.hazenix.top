@@ -7,13 +7,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import top.hazenix.entity.Category;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ArticleShortVO {
+public class ArticleShortVO implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private Long id;
     private String title;
     private Integer status;//0正常  2草稿

@@ -452,8 +452,29 @@ const getTagName = (tag) => {
 
 // 按标签搜索
 const searchByTag = (tagName) => {
-  searchForm.tagId = tags.value.find(tag => tag.name === tagName)?.id || ''
-  handleFilter()
+  // 从标签列表中找到对应的标签
+  const tag = tags.value.find(tag => tag.name === tagName)
+  if (tag) {
+    // 跳转到标签详情页
+    router.push(`/tag/${tag.id}`)
+  } else {
+    // 如果没找到，尝试从文章标签中查找
+    const articleTag = allArticles.value
+      .flatMap(a => a.tags || [])
+      .find(t => {
+        if (typeof t === 'object' && t !== null) {
+          return t.name === tagName
+        }
+        return false
+      })
+    if (articleTag && typeof articleTag === 'object') {
+      router.push(`/tag/${articleTag.id}`)
+    } else {
+      // 最后的fallback：在文章列表页进行筛选
+      searchForm.tagId = ''
+      handleFilter()
+    }
+  }
 }
 
 // 处理URL查询参数

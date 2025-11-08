@@ -131,6 +131,28 @@
         @comment-added="handleCommentAdded"
       />
     </div>
+
+    <!-- 固定互动按钮（右侧固定） -->
+    <div v-if="article && !isMobile" class="fixed-actions">
+      <div class="action-item" @click="likeArticle" :class="{ 'liked': article?.isLiked }">
+        <el-icon class="action-icon" :class="{ 'text-yellow-500': article?.isLiked }">
+          <Star />
+        </el-icon>
+        <span class="action-text">{{ article?.likeCount || article?.likes || 0 }}</span>
+      </div>
+      <div class="action-item" @click="collectArticle" :class="{ 'collected': article?.isCollected }">
+        <el-icon class="action-icon" :class="{ 'text-green-500': article?.isCollected }">
+          <Collection />
+        </el-icon>
+        <span class="action-text">{{ article?.isCollected ? '已收藏' : '收藏' }}</span>
+      </div>
+      <div class="action-item" @click="shareArticle">
+        <el-icon class="action-icon">
+          <Share />
+        </el-icon>
+        <span class="action-text">分享</span>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -531,11 +553,11 @@ const searchByTag = (tagName) => {
   })
   
   if (tag) {
-    // 如果找到标签对象，使用其ID
+    // 如果找到标签对象，使用其ID跳转到标签详情页
     const tagId = typeof tag === 'object' ? tag.id : tag
-    router.push(`/articles?tagId=${tagId}`)
+    router.push(`/tag/${tagId}`)
   } else {
-    // 如果没找到，使用标签名称作为fallback
+    // 如果没找到，跳转到文章列表页进行搜索
     router.push(`/articles?tag=${encodeURIComponent(tagName)}`)
   }
 }
@@ -759,6 +781,80 @@ onUnmounted(() => {
   @apply max-w-7xl mx-auto px-4 pb-8;
 }
 
+/* 固定互动按钮 */
+.fixed-actions {
+  position: fixed;
+  right: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(229, 231, 235, 1);
+}
+
+.dark .fixed-actions {
+  background: rgb(31, 41, 55);
+  border-color: rgba(55, 65, 81, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.fixed-actions .action-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0.75rem;
+  border-radius: 8px;
+  transition: all 0.2s;
+  min-width: 60px;
+  color: rgb(107, 114, 128);
+}
+
+.fixed-actions .action-item:hover {
+  background-color: rgb(243, 244, 246);
+  color: rgb(37, 99, 235);
+}
+
+.dark .fixed-actions .action-item:hover {
+  background-color: rgb(55, 65, 81);
+  color: rgb(96, 165, 250);
+}
+
+.fixed-actions .action-item.liked {
+  color: rgb(234, 179, 8);
+}
+
+.fixed-actions .action-item.liked:hover {
+  color: rgb(202, 138, 4);
+}
+
+.fixed-actions .action-item.collected {
+  color: rgb(34, 197, 94);
+}
+
+.fixed-actions .action-item.collected:hover {
+  color: rgb(22, 163, 74);
+}
+
+.fixed-actions .action-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.fixed-actions .action-text {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-align: center;
+  white-space: nowrap;
+}
+
 /* 移动端适配 */
 @media (max-width: 1024px) {
   .article-container {
@@ -790,6 +886,9 @@ onUnmounted(() => {
     @apply text-2xl;
   }
   
+  .fixed-actions {
+    display: none;
+  }
 }
 
 /* 打印样式 */

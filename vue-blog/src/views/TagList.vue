@@ -25,34 +25,91 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getTagList } from '@/api/tag'
+import { articleApi } from '@/api/article'
 
 const router = useRouter()
 const tags = ref([])
 const loading = ref(false)
 
+// 重新计算标签的文章数量（只统计已发布的文章，排除id=1）
+const recalculateTagCounts = async (tagList) => {
+  try {
+    // 获取所有文章列表
+    const response = await articleApi.getArticleList()
+    
+    if (response && response.code === 200 && response.data) {
+      // 处理不同的响应格式
+      let articles = []
+      if (Array.isArray(response.data)) {
+        articles = response.data
+      } else if (response.data.list && Array.isArray(response.data.list)) {
+        articles = response.data.list
+      } else if (Array.isArray(response.data.records)) {
+        articles = response.data.records
+      } else {
+        articles = []
+      }
+      
+      // 过滤文章：只保留已发布的文章（status=0），排除留言板文章（id=1）
+      const publishedArticles = articles.filter(article => {
+        // 排除留言板文章
+        if (article.id === 1 || article.id === '1') {
+          return false
+        }
+        // 只显示已发布的文章（status=0）
+        if (article.status !== 0 && article.status !== '0') {
+          return false
+        }
+        return true
+      })
+      
+      // 统计每个标签的文章数量
+      const tagCountMap = new Map()
+      publishedArticles.forEach(article => {
+        if (article.tags && Array.isArray(article.tags)) {
+          article.tags.forEach(tag => {
+            const tagId = typeof tag === 'object' ? tag.id : tag
+            if (tagId) {
+              tagCountMap.set(tagId, (tagCountMap.get(tagId) || 0) + 1)
+            }
+          })
+        }
+      })
+      
+      // 更新标签列表中的文章数量
+      return tagList.map(tag => ({
+        ...tag,
+        articleCount: tagCountMap.get(tag.id) || 0
+      })).filter(tag => tag.articleCount > 0) // 只显示有文章数量的标签
+    }
+    
+    return tagList
+  } catch (error) {
+    console.error('重新计算标签数量失败:', error)
+    return tagList
+  }
+}
+
 const loadTags = async () => {
   loading.value = true
   try {
     const res = await getTagList()
-    tags.value = res.data || []
+    let tagList = res.data || []
+    
+    // 重新计算标签的文章数量
+    tagList = await recalculateTagCounts(tagList)
+    
+    tags.value = tagList
   } catch (error) {
     console.error('Failed to load tags:', error)
-    // Mock数据作为fallback
-    tags.value = [
-      { id: 1, name: 'Vue3', articleCount: 3 },
-      { id: 2, name: 'JavaScript', articleCount: 5 },
-      { id: 3, name: '前端', articleCount: 8 },
-      { id: 4, name: '后端', articleCount: 4 },
-      { id: 5, name: '数据库', articleCount: 2 },
-      { id: 6, name: '最佳实践', articleCount: 3 }
-    ]
+    tags.value = []
   } finally {
     loading.value = false
   }
 }
 
 const goToTag = (tag) => {
-  router.push(`/articles?tag=${tag.id}`)
+  router.push(`/tag/${tag.id}`)
 }
 
 onMounted(() => {

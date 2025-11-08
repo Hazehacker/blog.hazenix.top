@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.cache.annotation.*;
 import top.hazenix.dto.DeleteCategoryRequestDTO;
 import top.hazenix.dto.DeleteTagsRequestDTO;
 import top.hazenix.dto.TagsDTO;
@@ -48,6 +49,7 @@ public class TagsController {
      * @return
      */
     @PostMapping
+    @CacheEvict(cacheNames = "tagsCache",allEntries = true)
     public Result addTag(@RequestBody TagsDTO tagsDTO){
         log.info("新增标签");
         tagsService.addTag(tagsDTO);
@@ -60,6 +62,7 @@ public class TagsController {
      * @return
      */
     @PutMapping("/{id}")
+    @CacheEvict(cacheNames = "tagsCache",allEntries = true)
     public Result updateTag(@PathVariable Long id,@RequestBody TagsDTO tagsDTO){
         log.info("更新制定标签");
         tagsService.updateTag(id,tagsDTO);
@@ -72,6 +75,7 @@ public class TagsController {
      * @return
      */
     @DeleteMapping("/{id}")
+    @CacheEvict(cacheNames = "tagsCache",allEntries = true)
     public Result deleteTag(@PathVariable Long id){
         log.info("删除标签");
         tagsService.deleteTag(id);
@@ -84,6 +88,7 @@ public class TagsController {
      * @return
      */
     @DeleteMapping("/batch")
+    @CacheEvict(cacheNames = "tagsCache",allEntries = true)
     public Result deleteTags(@RequestBody DeleteTagsRequestDTO deleteTagsRequestDTO){
         log.info("批量删除标签");
         try {

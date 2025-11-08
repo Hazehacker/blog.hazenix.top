@@ -68,6 +68,7 @@
                   :key="tag.id || tag"
                   size="small"
                   class="tag-item"
+                  @click.stop="searchByTag(getTagName(tag), tag)"
                 >
                   {{ getTagName(tag) }}
                 </el-tag>
@@ -128,6 +129,17 @@ const getTagName = (tag) => {
     return tag.name
   }
   return tag
+}
+
+// 按标签搜索
+const searchByTag = (tagName, tag) => {
+  // 如果tag是对象，直接使用其ID
+  if (tag && typeof tag === 'object' && tag.id) {
+    router.push(`/tag/${tag.id}`)
+  } else {
+    // 如果没找到，跳转到文章列表页进行搜索
+    router.push(`/articles?tag=${encodeURIComponent(tagName)}`)
+  }
 }
 
 // 执行搜索

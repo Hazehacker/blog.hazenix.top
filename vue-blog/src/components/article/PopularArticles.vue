@@ -67,47 +67,41 @@ const loadPopularArticles = async () => {
     console.log('Popular articles response:', response)
     
     // 处理不同的响应格式
+    let articleList = []
     if (response && response.data) {
       if (Array.isArray(response.data)) {
-        articles.value = response.data
+        articleList = response.data
       } else if (response.data.records) {
-        articles.value = response.data.records
+        articleList = response.data.records
       } else if (response.data.list) {
-        articles.value = response.data.list
+        articleList = response.data.list
+      } else if (Array.isArray(response.data)) {
+        articleList = response.data
       } else {
-        articles.value = response.data
+        articleList = []
       }
     } else {
-      articles.value = []
+      articleList = []
     }
+    
+    // 过滤文章：
+    // 1. 过滤掉 id=1 的文章（留言板专用）
+    // 2. 只显示已发布的文章（status=0）
+    articles.value = articleList.filter(article => {
+      // 排除留言板文章
+      if (article.id === 1 || article.id === '1') {
+        return false
+      }
+      // 只显示已发布的文章（status=0）
+      if (article.status !== 0 && article.status !== '0') {
+        return false
+      }
+      return true
+    })
   } catch (error) {
     console.error('加载热门文章失败:', error)
     ElMessage.error('加载热门文章失败')
-    
-    // 使用Mock数据作为fallback
-    articles.value = [
-      {
-        id: 1,
-        title: 'Vue3博客系统开发指南',
-        viewCount: 100,
-        likeCount: 15,
-        commentCount: 8
-      },
-      {
-        id: 2,
-        title: 'Element Plus组件库使用技巧',
-        viewCount: 85,
-        likeCount: 12,
-        commentCount: 6
-      },
-      {
-        id: 3,
-        title: '现代前端开发最佳实践',
-        viewCount: 75,
-        likeCount: 10,
-        commentCount: 5
-      }
-    ]
+    articles.value = []
   } finally {
     loading.value = false
   }

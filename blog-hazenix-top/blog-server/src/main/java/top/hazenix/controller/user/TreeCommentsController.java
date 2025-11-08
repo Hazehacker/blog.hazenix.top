@@ -3,6 +3,8 @@ package top.hazenix.controller.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 import top.hazenix.dto.TreeCommentsDTO;
 import top.hazenix.entity.TreeComments;
@@ -23,6 +25,7 @@ public class TreeCommentsController {
      * @return
      */
     @GetMapping("/list")
+    @Cacheable(cacheNames = "treeCache", key = "#root.method")
     public Result getTreeComments(){
         log.info("获取树洞弹幕列表");
         //返回体和实体类这里基本没差，不加vo了
@@ -37,6 +40,7 @@ public class TreeCommentsController {
      * @return
      */
     @PostMapping
+    @CacheEvict(cacheNames = "treeCache", allEntries = true)
     public Result addTreeComments(@RequestBody TreeCommentsDTO treeCommentsDTO){
         log.info("添加树洞弹幕:{}", treeCommentsDTO);
         treeCommentsService.addTreeComments(treeCommentsDTO);

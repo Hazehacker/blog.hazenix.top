@@ -4,6 +4,7 @@ package top.hazenix.controller.admin;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.web.bind.annotation.*;
 import top.hazenix.dto.CategoryDTO;
 import top.hazenix.dto.DeleteCategoryRequestDTO;
@@ -48,6 +49,7 @@ public class CategoryController {
      * @return
      */
     @PostMapping
+    @CacheEvict(cacheNames = "categoriesCache", allEntries = true)
     public Result addCategory(@RequestBody CategoryDTO categoryDTO){
         log.info("创建分类：{}",categoryDTO);
         categoryService.addCategory(categoryDTO);
@@ -61,6 +63,7 @@ public class CategoryController {
      * @return
      */
     @PutMapping("/{id}")
+    @CacheEvict(cacheNames = "categoriesCache", allEntries = true)
     public Result updateCategory(@PathVariable Integer id,@RequestBody CategoryDTO categoryDTO){
         log.info("更新分类：{}",categoryDTO);
         categoryService.updateCategory(id,categoryDTO);
@@ -73,6 +76,7 @@ public class CategoryController {
      * @return
      */
     @DeleteMapping("/{id}")
+    @CacheEvict(cacheNames = "categoriesCache", allEntries = true)
     public Result deleteCategory(@PathVariable Integer id){
         log.info("删除分类：{}",id);
         categoryService.deleteCategory(id);
@@ -85,6 +89,7 @@ public class CategoryController {
      * @return
      */
     @DeleteMapping("/batch")
+    @CacheEvict(cacheNames = "categoriesCache", allEntries = true)
     public Result deleteCategories(@RequestBody DeleteCategoryRequestDTO deleteCategoryRequestDTO){
         log.info("删除分类：{}",deleteCategoryRequestDTO);
         categoryService.deleteCategories(deleteCategoryRequestDTO);

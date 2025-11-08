@@ -12,9 +12,14 @@
       
       <!-- 文章下拉菜单 -->
       <el-dropdown @command="handleCategoryCommand" trigger="hover" class="article-dropdown">
-        <span class="hover:text-primary cursor-pointer article-trigger">
-          文章
-        </span>
+        <div class="article-menu-wrapper">
+          <router-link 
+            to="/articles" 
+            class="hover:text-primary article-link"
+          >
+            文章
+          </router-link>
+        </div>
         <template #dropdown>
           <el-dropdown-menu v-if="categories.length > 0">
             <el-dropdown-item 
@@ -169,9 +174,9 @@ const openCSDN = () => {
   window.open('https://github.com/HazeHacker', '_blank')
 }
 
-const handleCommand = (command) => {
+const handleCommand = async (command) => {
   if (command === 'logout') {
-    userStore.logout()
+    await userStore.logout()
     // 退出登录后跳转到主页（index.vue），而不是 /home
     router.replace('/home')
   } else if (command === 'favorites') {
@@ -202,18 +207,40 @@ const loadCategories = async () => {
     const res = await getCategoryList()
     const allCategories = res.data || []
     
-    // 获取所有已发布的文章（用户端API默认只返回已发布的文章，status=0）
+    // 获取所有文章列表
     let publishedArticles = []
     try {
       const articlesRes = await getArticleList()
-      publishedArticles = articlesRes.data || []
+      // 处理不同的响应格式
+      if (articlesRes && articlesRes.data) {
+        if (Array.isArray(articlesRes.data)) {
+          publishedArticles = articlesRes.data
+        } else if (articlesRes.data.list && Array.isArray(articlesRes.data.list)) {
+          publishedArticles = articlesRes.data.list
+        } else if (Array.isArray(articlesRes.data.records)) {
+          publishedArticles = articlesRes.data.records
+        }
+      }
     } catch (articleError) {
       console.warn('Failed to load articles for counting:', articleError)
     }
     
+    // 过滤文章：只保留已发布的文章（status=0），排除留言板文章（id=1）
+    const filteredArticles = publishedArticles.filter(article => {
+      // 排除留言板文章
+      if (article.id === 1 || article.id === '1') {
+        return false
+      }
+      // 只显示已发布的文章（status=0）
+      if (article.status !== 0 && article.status !== '0') {
+        return false
+      }
+      return true
+    })
+    
     // 按分类统计已发布文章的数量
     const categoryCountMap = new Map()
-    publishedArticles.forEach(article => {
+    filteredArticles.forEach(article => {
       const categoryId = article.categoryId || article.category?.id
       if (categoryId) {
         categoryCountMap.set(categoryId, (categoryCountMap.get(categoryId) || 0) + 1)
@@ -295,17 +322,30 @@ watch(
   display: inline-block;
 }
 
-.article-trigger {
+.article-menu-wrapper {
+  display: inline-block;
+}
+
+.article-link {
   font-size: 16px;
   color: #4B5563;
+  text-decoration: none;
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
   background: transparent !important;
   padding: 0 !important;
+  cursor: pointer;
+  display: inline-block;
 }
 
-.article-dropdown:hover .article-trigger {
+.article-dropdown:hover .article-link,
+.article-link:hover {
+  color: var(--el-color-primary);
+}
+
+/* 确保 router-link 激活状态也显示主色 */
+.article-link.router-link-active {
   color: var(--el-color-primary);
 }
 

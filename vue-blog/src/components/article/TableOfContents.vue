@@ -59,8 +59,8 @@
       </div>
     </div>
 
-    <!-- 互动按钮 -->
-    <div v-if="!isMobile" class="toc-actions">
+    <!-- 互动按钮（已移至固定位置，此处隐藏） -->
+    <div v-if="false" class="toc-actions">
       <div class="action-item" @click="handleLike" :class="{ 'liked': article?.isLiked }">
         <el-icon class="action-icon" :class="{ 'text-yellow-500': article?.isLiked }">
           <Star />

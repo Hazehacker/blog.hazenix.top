@@ -139,9 +139,9 @@ const goToHome = () => {
 }
 
 // 用户操作
-const handleUserCommand = (command) => {
+const handleUserCommand = async (command) => {
   if (command === 'logout') {
-    userStore.logout()
+    await userStore.logout()
     router.push('/login')
   } else if (command === 'profile') {
     // 跳转到个人设置页面

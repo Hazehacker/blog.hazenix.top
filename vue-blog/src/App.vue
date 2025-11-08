@@ -12,7 +12,8 @@ onMounted(async () => {
     try {
       await userStore.getUserInfo()
     } catch (err) {
-      userStore.logout()
+      // 获取用户信息失败时，清除本地登录状态
+      await userStore.logout()
     }
   }
 })

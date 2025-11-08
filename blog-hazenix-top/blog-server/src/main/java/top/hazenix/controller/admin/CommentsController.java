@@ -4,6 +4,8 @@ package top.hazenix.controller.admin;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 import top.hazenix.dto.DeleteCommentsRequestDTO;
 import top.hazenix.result.PageResult;
@@ -60,6 +62,7 @@ public class CommentsController {
      * @return
      */
     @DeleteMapping("/{id}")
+    @CacheEvict(cacheNames = "commentsCache", allEntries = true)
     public Result deleteComment(@PathVariable Long id){
         log.info("删除评论：{}",id);
         commentsService.deleteComments(Collections.singletonList(id));
@@ -73,6 +76,7 @@ public class CommentsController {
      * @return
      */
     @DeleteMapping("/batch")
+    @CacheEvict(cacheNames = "commentsCache", allEntries = true)
     public Result deleteComments(@RequestBody DeleteCommentsRequestDTO deleteCommentsRequestDTO){
         log.info("删除评论：{}",deleteCommentsRequestDTO);
         List<Long> ids = deleteCommentsRequestDTO.getIds();

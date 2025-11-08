@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { getToken, setToken, removeToken } from '@/utils/auth'
-import { login as loginApi, register as registerApi, getUserInfo, googleAuthCallback, getGithubAuthUrl, githubAuthCallback } from '@/api/auth'
+import { login as loginApi, register as registerApi, getUserInfo, googleAuthCallback, getGithubAuthUrl, githubAuthCallback, logout as logoutApi } from '@/api/auth'
 
 // 规范化用户数据，统一role和isAdmin字段
 function normalizeUserData(userData) {
@@ -109,10 +109,19 @@ export const useUserStore = defineStore('user', {
             }
         },
 
-        logout() {
-            this.token = ''
-            this.userInfo = null
-            removeToken()
+        async logout() {
+            try {
+                // 调用后端logout接口
+                await logoutApi()
+            } catch (error) {
+                // 即使后端接口调用失败，也要清除本地数据
+                console.error('退出登录接口调用失败:', error)
+            } finally {
+                // 清除本地token和用户信息
+                this.token = ''
+                this.userInfo = null
+                removeToken()
+            }
         }
     }
 })

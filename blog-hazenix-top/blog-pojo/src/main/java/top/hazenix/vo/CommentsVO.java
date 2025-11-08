@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import top.hazenix.entity.Article;
 import top.hazenix.entity.User;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +16,8 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentsVO {
+public class CommentsVO implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private Long id;
     //父级评论id

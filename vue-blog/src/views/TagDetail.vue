@@ -62,33 +62,15 @@
             该标签下还没有任何文章
           </p>
         </div>
-
-        <!-- 分页 -->
-        <div v-if="totalPages > 1" class="mt-8 flex justify-center">
-          <nav class="flex items-center space-x-2">
-            <button
-              v-for="page in visiblePages"
-              :key="page"
-              @click="goToPage(page)"
-              :class="[
-                'px-4 py-2 rounded-md text-sm font-medium transition-colors',
-                page === currentPage
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-              ]"
-            >
-              {{ page }}
-            </button>
-          </nav>
-        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import { getTagArticles } from '@/api/tag'
 import ArticleCard from '@/components/article/ArticleCard.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
@@ -99,43 +81,54 @@ const route = useRoute()
 const loading = ref(false)
 const tag = ref(null)
 const articles = ref([])
-const currentPage = ref(1)
-const totalPages = ref(1)
 const totalArticles = ref(0)
-const pageSize = 10
-
-// 计算属性
-const visiblePages = computed(() => {
-  const pages = []
-  const start = Math.max(1, currentPage.value - 2)
-  const end = Math.min(totalPages.value, start + 4)
-  
-  for (let i = start; i <= end; i++) {
-    pages.push(i)
-  }
-  return pages
-})
 
 // 方法
 const fetchTagArticles = async () => {
-  if (!route.params.id) return
+  if (!route.params.id) {
+    console.warn('标签ID不存在，无法获取文章')
+    return
+  }
   
   loading.value = true
   try {
-    const response = await getTagArticles(route.params.id, {
-      page: currentPage.value,
-      pageSize: pageSize
-    })
+    console.log('开始获取标签文章，标签ID:', route.params.id)
     
-    articles.value = response.data || []
-    totalArticles.value = articles.value.length
+    // 根据图片中的接口，后端返回的是列表，不需要分页参数
+    const response = await getTagArticles(route.params.id)
+    console.log('标签文章接口响应:', response)
+    
+    // 处理响应数据：后端返回格式为 { code, msg, data: [...] }
+    let articleList = []
+    if (response && response.data) {
+      if (Array.isArray(response.data)) {
+        articleList = response.data
+      } else if (response.data.list && Array.isArray(response.data.list)) {
+        articleList = response.data.list
+      } else if (Array.isArray(response.data.records)) {
+        articleList = response.data.records
+      }
+    } else if (Array.isArray(response)) {
+      // 如果响应直接是数组
+      articleList = response
+    }
+    
+    // 直接保存所有文章
+    articles.value = articleList
+    totalArticles.value = articleList.length
     
     // 设置标签信息（从第一篇文章获取或使用默认值）
     if (articles.value.length > 0 && articles.value[0].tags) {
-      const tagInfo = articles.value[0].tags.find(t => t.id == route.params.id)
+      const tagInfo = articles.value[0].tags.find(t => t.id == route.params.id || t.id == String(route.params.id))
       if (tagInfo) {
         tag.value = {
           name: tagInfo.name,
+          id: route.params.id
+        }
+      } else {
+        // 如果没找到，尝试从标签列表中获取
+        tag.value = {
+          name: '标签',
           id: route.params.id
         }
       }
@@ -145,17 +138,18 @@ const fetchTagArticles = async () => {
         id: route.params.id
       }
     }
+    
+    console.log('成功获取标签文章，数量:', articles.value.length)
   } catch (error) {
     console.error('获取标签文章失败:', error)
+    ElMessage.error('获取标签文章失败，请稍后重试')
     articles.value = []
+    tag.value = {
+      name: '标签',
+      id: route.params.id
+    }
   } finally {
     loading.value = false
-  }
-}
-
-const goToPage = (page) => {
-  if (page >= 1 && page <= totalPages.value && page !== currentPage.value) {
-    currentPage.value = page
   }
 }
 
@@ -166,14 +160,8 @@ const formatDate = (dateString) => {
 
 // 监听路由变化
 watch(() => route.params.id, () => {
-  currentPage.value = 1
   fetchTagArticles()
 }, { immediate: true })
-
-// 监听页码变化
-watch(currentPage, () => {
-  fetchTagArticles()
-})
 
 // 生命周期
 onMounted(() => {

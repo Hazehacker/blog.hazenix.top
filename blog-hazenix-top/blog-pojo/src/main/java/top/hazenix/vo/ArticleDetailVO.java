@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import top.hazenix.entity.Article;
 import top.hazenix.entity.Tags;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 

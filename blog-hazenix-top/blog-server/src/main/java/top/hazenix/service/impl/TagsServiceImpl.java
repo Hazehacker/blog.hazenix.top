@@ -91,7 +91,9 @@ public class TagsServiceImpl implements TagsService {
      */
     @Override
     public List<TagsVO> getTagsList() {
-       List<TagsVO> list = tagsMapper.list(null,0);
+//       List<TagsVO> list = tagsMapper.list(null,0);
+       List<TagsVO> list = tagsMapper.list(null,null);
+       //status换成null，或者可以在新增/更新文章的时候添加维护，更新tags表的status字段
        return list;
     }
 

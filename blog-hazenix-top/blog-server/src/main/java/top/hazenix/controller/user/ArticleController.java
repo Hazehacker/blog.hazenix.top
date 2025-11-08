@@ -4,6 +4,7 @@ package top.hazenix.controller.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 import top.hazenix.query.ArticleListQuery;
 import top.hazenix.result.Result;
@@ -28,6 +29,7 @@ public class ArticleController {
      * @return
      */
     @GetMapping
+    @Cacheable(cacheNames = "articlesCache", key = "#root.args[0].title+ '_' + #root.args[0].categoryId+ '_' + #root.args[0].tagId+ '_' + #root.args[0].status+ '_' + #root.args[0].userId")
     public Result getArticleList(ArticleListQuery articleListQuery){
         log.info("获取文章列表");
         //由于用于用户端，只返回不是草稿的文章
@@ -37,6 +39,7 @@ public class ArticleController {
     }
 
     @GetMapping("/{id}/related")
+    @Cacheable(cacheNames = "articlesCache", key = "#id+ '_' +#limit")
     public Result getRelatedArticles(@PathVariable Long id, Integer limit){
         log.info("获取相关文章");
         List<ArticleShortVO> list = articleService.getRelatedArticles(id,limit);
@@ -178,6 +181,7 @@ public class ArticleController {
      */
     @PutMapping("/{id}/view")
     public Result updateArticleView(@PathVariable Long id){
+        //TODO 后期可以做一个redis缓存，然后定期持久化到数据库
         log.info("更新文章浏览数:{}",id);
         articleService.updateArticleView(id);
         return Result.success();

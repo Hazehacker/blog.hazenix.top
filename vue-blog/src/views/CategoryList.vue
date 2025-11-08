@@ -28,26 +28,80 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getCategoryList } from '@/api/category'
+import { articleApi } from '@/api/article'
 
 const router = useRouter()
 const categories = ref([])
 const loading = ref(false)
 
+// 重新计算分类的文章数量（只统计已发布的文章，排除id=1）
+const recalculateCategoryCounts = async (categoryList) => {
+  try {
+    // 获取所有文章列表
+    const response = await articleApi.getArticleList()
+    
+    if (response && response.code === 200 && response.data) {
+      // 处理不同的响应格式
+      let articles = []
+      if (Array.isArray(response.data)) {
+        articles = response.data
+      } else if (response.data.list && Array.isArray(response.data.list)) {
+        articles = response.data.list
+      } else if (Array.isArray(response.data.records)) {
+        articles = response.data.records
+      } else {
+        articles = []
+      }
+      
+      // 过滤文章：只保留已发布的文章（status=0），排除留言板文章（id=1）
+      const publishedArticles = articles.filter(article => {
+        // 排除留言板文章
+        if (article.id === 1 || article.id === '1') {
+          return false
+        }
+        // 只显示已发布的文章（status=0）
+        if (article.status !== 0 && article.status !== '0') {
+          return false
+        }
+        return true
+      })
+      
+      // 统计每个分类的文章数量
+      const categoryCountMap = new Map()
+      publishedArticles.forEach(article => {
+        const categoryId = article.categoryId || article.category?.id
+        if (categoryId) {
+          categoryCountMap.set(categoryId, (categoryCountMap.get(categoryId) || 0) + 1)
+        }
+      })
+      
+      // 更新分类列表中的文章数量
+      return categoryList.map(category => ({
+        ...category,
+        articleCount: categoryCountMap.get(category.id) || 0
+      })).filter(category => category.articleCount > 0) // 只显示有文章数量的分类
+    }
+    
+    return categoryList
+  } catch (error) {
+    console.error('重新计算分类数量失败:', error)
+    return categoryList
+  }
+}
+
 const loadCategories = async () => {
   loading.value = true
   try {
     const res = await getCategoryList()
-    // 过滤掉文章数量为0的分类
-    const allCategories = res.data || []
-    categories.value = allCategories.filter(category => category.articleCount > 0)
+    let categoryList = res.data || []
+    
+    // 重新计算分类的文章数量
+    categoryList = await recalculateCategoryCounts(categoryList)
+    
+    categories.value = categoryList
   } catch (error) {
     console.error('Failed to load categories:', error)
-    // Mock数据作为fallback
-    categories.value = [
-      { id: 1, name: '前端开发', description: '前端技术相关文章', articleCount: 5 },
-      { id: 2, name: '后端开发', description: '后端技术相关文章', articleCount: 3 },
-      { id: 3, name: '数据库', description: '数据库技术相关文章', articleCount: 2 }
-    ]
+    categories.value = []
   } finally {
     loading.value = false
   }

@@ -19,7 +19,7 @@
     />
 
     <!-- 页面内容 -->
-    <div class="absolute inset-0 flex flex-col items-center justify-center text-white z-10  pointer-events-auto">
+    <div class="absolute inset-0 flex flex-col items-center justify-center text-white z-10  pointer-events-auto" style="margin-bottom: 20px;">
       <nav class="flex items-center justify-between w-full max-w-4xl px-6 py-4 rounded-full bg-black/70 backdrop-blur-sm">
         <a :href="githubUrl" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-2 hover:opacity-80 transition-opacity cursor-pointer">
           <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">...</svg>
@@ -40,7 +40,7 @@
         blog.hazenix.top
       </h1>
 
-      <div class="mt-10 flex gap-4">
+      <div class="mt-10 flex gap-4" >
         <button @click="goToLogin" class="px-6 py-3 rounded-full bg-white text-black font-medium hover:bg-gray-200 transition">
           登录
         </button>

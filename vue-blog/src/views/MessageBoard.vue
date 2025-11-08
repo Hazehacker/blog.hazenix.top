@@ -87,6 +87,28 @@
         @comment-added="handleCommentAdded"
       />
     </div>
+
+    <!-- 固定互动按钮（右侧固定） -->
+    <div v-if="article && !isMobile" class="fixed-actions">
+      <div class="action-item" @click="likeArticle" :class="{ 'liked': article?.isLiked }">
+        <el-icon class="action-icon" :class="{ 'text-yellow-500': article?.isLiked }">
+          <Star />
+        </el-icon>
+        <span class="action-text">{{ article?.likeCount || article?.likes || 0 }}</span>
+      </div>
+      <div class="action-item" @click="collectArticle" :class="{ 'collected': article?.isCollected }">
+        <el-icon class="action-icon" :class="{ 'text-green-500': article?.isCollected }">
+          <Collection />
+        </el-icon>
+        <span class="action-text">{{ article?.isCollected ? '已收藏' : '收藏' }}</span>
+      </div>
+      <div class="action-item" @click="shareArticle">
+        <el-icon class="action-icon">
+          <Share />
+        </el-icon>
+        <span class="action-text">分享</span>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -94,6 +116,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { Star, Share, Collection } from '@element-plus/icons-vue'
 import { getArticleDetail, likeArticle as likeArticleApi, collectArticle as favoriteArticleApi, incrementViewCount } from '@/api/article'
 import MarkdownRenderer from '@/components/article/MarkdownRenderer.vue'
 import CommentList from '@/components/article/CommentList.vue'
@@ -245,9 +268,11 @@ const searchByTag = (tagName) => {
   })
   
   if (tag) {
+    // 如果找到标签对象，使用其ID跳转到标签详情页
     const tagId = typeof tag === 'object' ? tag.id : tag
-    router.push(`/articles?tagId=${tagId}`)
+    router.push(`/tag/${tagId}`)
   } else {
+    // 如果没找到，跳转到文章列表页进行搜索
     router.push(`/articles?tag=${encodeURIComponent(tagName)}`)
   }
 }

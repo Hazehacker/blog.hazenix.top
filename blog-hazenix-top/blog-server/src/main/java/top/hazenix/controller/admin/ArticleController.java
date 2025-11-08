@@ -5,8 +5,11 @@ import io.swagger.annotations.ApiModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
+
 import top.hazenix.dto.ArticleDTO;
 import top.hazenix.dto.DeleteArticleRequestDTO;
 import top.hazenix.result.PageResult;
@@ -36,6 +39,7 @@ public class ArticleController {
      * @return
      */
     @GetMapping("/recent")
+    @Cacheable(cacheNames = "articlesCache", key = "#root.method")
     public Result getRecentArticles() {
         List<ArticleShortVO> list = articleService.getRecentArticles(5);
         return Result.success(list);
@@ -69,6 +73,7 @@ public class ArticleController {
      * @return
      */
     @GetMapping("/{id}")
+    @Cacheable(cacheNames = "articlesCache", key = "#id")
     public Result getArticleDetail(@PathVariable Long id){
         log.info("获取文章详情:{}",id);
         ArticleDetailVO articleDetailVO = articleService.getArticleDetail(id);
@@ -81,6 +86,7 @@ public class ArticleController {
      * @return
      */
     @PostMapping
+    @CacheEvict(cacheNames = "articlesCache", allEntries = true)
     public Result addArticle(@RequestBody ArticleDTO articleDTO){
         log.info("新增文章：{}",articleDTO);
         articleService.addArticle(articleDTO);
@@ -94,6 +100,7 @@ public class ArticleController {
      * @return
      */
     @PutMapping("/{id}")
+    @CacheEvict(cacheNames = "articlesCache", key = "#id")
     public Result updateArticle(@PathVariable Long id,@RequestBody ArticleDTO articleDTO){
         log.info("更新文章：{}",id);
         articleService.updateArticle(id,articleDTO);
@@ -106,6 +113,7 @@ public class ArticleController {
      * @return
      */
     @DeleteMapping("/{id}")
+    @CacheEvict(cacheNames = "articlesCache", allEntries = true)
     public Result deleteArticle(@PathVariable Long id){
         log.info("删除文章：{}",id);
         articleService.deleteArticle(id);
@@ -118,6 +126,7 @@ public class ArticleController {
      * @return
      */
     @DeleteMapping("/batch")
+    @CacheEvict(cacheNames = "articlesCache", allEntries = true)
     public Result deleteArticles(@RequestBody DeleteArticleRequestDTO deleteArticleRequestDTO){
         List<Long> ids = deleteArticleRequestDTO.getIds();
         log.info("批量删除文章：{}",ids);
@@ -135,6 +144,7 @@ public class ArticleController {
      * @return
      */
     @PutMapping("/{id}/{status}")
+    @CacheEvict(cacheNames = "articlesCache", allEntries = true)
     public Result updateArticleStatus(@PathVariable Long id,@PathVariable Integer status){
         log.info("更新文章状态：{}",id);
         articleService.updateArticleStatus(id,status);

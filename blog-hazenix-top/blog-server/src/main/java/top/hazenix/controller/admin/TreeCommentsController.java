@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.web.bind.annotation.*;
 import top.hazenix.dto.DeleteCommentsRequestDTO;
 import top.hazenix.dto.DeleteLinksRequestDTO;
@@ -41,6 +42,7 @@ public class TreeCommentsController {
     }
 
     @DeleteMapping("/{id}")
+    @CacheEvict(cacheNames = "treeCache",allEntries = true)
     public Result deleteTreeComment(@PathVariable Long id){
         log.info("删除弹幕：{}",id);
         treeCommentsService.deleteTreeComments(Collections.singletonList(id));
@@ -54,6 +56,7 @@ public class TreeCommentsController {
      * @return
      */
     @DeleteMapping("/batch")
+    @CacheEvict(cacheNames = "treeCache",allEntries = true)
     public Result deleteTreeComments(DeleteCommentsRequestDTO deleteTreeCommentsRequestDTO){
         log.info("删除弹幕：{}",deleteTreeCommentsRequestDTO);
         List<Long> ids = deleteTreeCommentsRequestDTO.getIds();
