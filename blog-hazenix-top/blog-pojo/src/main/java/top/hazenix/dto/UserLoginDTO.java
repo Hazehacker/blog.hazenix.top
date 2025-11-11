@@ -13,5 +13,7 @@ public class UserLoginDTO implements Serializable {
     private String username;
     private String email;
     private String password;
+    //idToken：（前端google登录方案用到）
+    private String idToken;
 
 }

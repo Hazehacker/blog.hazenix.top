@@ -13,9 +13,11 @@ import java.util.Collections;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GoogleAuthorization {
+    private String clientId;
     private GoogleClientSecrets googleClientSecrets;
 //    private String applicationName;
     private String redirectUrl;
+    private String jwks;//前端方案需要公钥
     // 授权域
     private final static List<String> scopes = Collections.singletonList(
             "https://www.googleapis.com/auth/userinfo.email"

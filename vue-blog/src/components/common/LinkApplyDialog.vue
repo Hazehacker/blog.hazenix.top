@@ -163,8 +163,23 @@ const rules = {
   ],
   avatar: [
     { 
-      pattern: /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i, 
-      message: '请输入有效的图片URL地址', 
+      validator: (rule, value, callback) => {
+        // avatar字段是可选的，如果为空则通过验证
+        if (!value || value.trim() === '') {
+          callback()
+          return
+        }
+        // 如果有值，则验证URL格式
+        const urlPattern = /^https?:\/\/.+/
+        const imagePattern = /\.(jpg|jpeg|png|gif|webp)$/i
+        if (!urlPattern.test(value)) {
+          callback(new Error('请输入有效的URL地址，如：https://example.com/logo.png'))
+        } else if (!imagePattern.test(value)) {
+          callback(new Error('请输入有效的图片URL地址（支持 jpg、jpeg、png、gif、webp 格式）'))
+        } else {
+          callback()
+        }
+      },
       trigger: 'blur' 
     }
   ]
@@ -174,7 +189,7 @@ const rules = {
 const userStore = useUserStore()
 
 // 上传配置
-const uploadUrl = computed(() => `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:9090'}/user/common/upload`)
+const uploadUrl = computed(() => `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:9090'}/common/upload`)
 const uploadHeaders = computed(() => {
   const token = userStore.token
   return token ? { Authorization: `Bearer ${token}` } : {}
@@ -198,9 +213,24 @@ const beforeUpload = (file) => {
 
 // 上传成功处理
 const handleUploadSuccess = (response) => {
+  console.log('上传成功响应:', response) // 调试日志
   if (response.code === 200) {
-    form.avatar = response.data.url
-    ElMessage.success('图片上传成功')
+    // 兼容不同的返回格式：
+    // 1. response.data 直接是URL字符串
+    // 2. response.data.url 是URL字符串
+    // 3. response.data 是包含url字段的对象
+    const avatarUrl = typeof response.data === 'string' 
+      ? response.data 
+      : (response.data?.url || response.data)
+    
+    if (avatarUrl) {
+      form.avatar = avatarUrl
+      ElMessage.success('图片上传成功')
+      console.log('头像地址已设置:', form.avatar) // 调试日志
+    } else {
+      ElMessage.error('上传成功但未返回图片地址')
+      console.error('上传响应数据:', response.data)
+    }
   } else {
     ElMessage.error(response.msg || '图片上传失败')
   }
@@ -246,13 +276,26 @@ const handleSubmit = async () => {
     await formRef.value.validate()
     submitting.value = true
     
-    const response = await frontendApi.applyLink({
+    // 构建请求数据
+    // 确保avatar字段始终被包含，即使为空字符串
+    const avatarValue = form.avatar ? String(form.avatar).trim() : ''
+    
+    // 调试日志：检查表单中的avatar值
+    console.log('表单中的avatar值:', form.avatar, '类型:', typeof form.avatar)
+    
+    const requestData = {
       name: form.name,
-      description: form.description,
+      description: form.description || '', // description可以为空，但需要发送空字符串
       url: form.url,
-      avatar: form.avatar,
+      avatar: avatarValue, // avatar字段：始终发送，有值则发送修剪后的值，否则发送空字符串
       status: 1 // 申请状态，需要审核
-    })
+    }
+    
+    // 调试日志：确保avatar字段被包含在请求中
+    console.log('提交友链申请数据:', requestData)
+    console.log('avatar字段值:', avatarValue, '类型:', typeof avatarValue)
+    
+    const response = await frontendApi.applyLink(requestData)
     
     if (response.code === 200) {
       ElMessage.success('友链申请提交成功，请等待审核')

@@ -34,10 +34,9 @@
         class="group flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
       >
         <img
-          v-if="link.avatar"
-          :src="link.avatar"
+          :src="getLinkAvatar(link.avatar)"
           :alt="link.name"
-          class="w-12 h-12 rounded-full object-cover mr-4 flex-shrink-0"
+          class="w-12 h-12 rounded-full object-cover mr-4 flex-shrink-0 border border-gray-200 dark:border-gray-600"
           @error="handleImageError"
         />
         <div class="flex-1 min-w-0">
@@ -58,6 +57,8 @@ import { ref, onMounted, computed } from 'vue'
 import { Link, Loading } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 import { frontendApi } from '@/api/frontend'
+import { getAvatarUrl } from '@/utils/helpers'
+import avatarFallback from '@/assets/img/avatar.jpg'
 
 // 响应式数据
 const loading = ref(false)
@@ -102,9 +103,19 @@ const loadLinks = async () => {
   }
 }
 
+// 获取友链头像URL
+const getLinkAvatar = (avatar) => {
+  // 使用getAvatarUrl辅助函数处理头像URL
+  // 如果是相对路径，会自动拼接API基础URL
+  // 如果为空或无效，返回默认头像
+  return getAvatarUrl(avatar, avatarFallback)
+}
+
 // 图片加载失败处理
 const handleImageError = (event) => {
-  event.target.src = '/default-avatar.png'
+  console.warn('友链头像加载失败，使用默认头像:', event.target.src)
+  // 直接使用默认头像，与用户头像处理方式一致
+  event.target.src = avatarFallback
 }
 
 // 初始化

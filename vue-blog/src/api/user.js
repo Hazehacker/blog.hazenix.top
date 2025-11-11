@@ -26,7 +26,7 @@ export const userApi = {
         const formData = new FormData()
         formData.append('file', file)
         return request({
-            url: '/user/common/upload',
+            url: '/common/upload',
             method: 'post',
             data: formData
             // 不设置Content-Type，让axios自动处理FormData，会自动添加multipart/form-data和boundary

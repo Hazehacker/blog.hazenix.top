@@ -27,6 +27,7 @@ import top.hazenix.vo.UserVO;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -86,7 +87,17 @@ public class UserController {
         return Result.success();
     }
 
-
+    /**
+     * 前端取得 Google id_token（JWT），再用这个后端接口处理登录逻辑
+     * @param userLoginDTO
+     * @return
+     */
+    @PostMapping("/google/idtoken-login")
+    public Result<UserLoginVO> googleIdTokenLogin(@RequestBody UserLoginDTO userLoginDTO) throws ParseException {
+        log.info("id token登录:{}",userLoginDTO);
+        UserLoginVO userLoginVO = userService.idTokenlogin(userLoginDTO);
+        return Result.success(userLoginVO);
+    }
 
 
     /**

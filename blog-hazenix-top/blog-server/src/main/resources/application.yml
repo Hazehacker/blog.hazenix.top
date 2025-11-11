@@ -83,6 +83,9 @@ blog:
       application:
         name: ${blog.google.authorization.application.name}
       scope: ${blog.google.authorization.scope}
+      jwks:
+        json: ${blog.google.authorization.jwks.json}
+
   github:
     authorization:
       client:

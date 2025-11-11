@@ -510,7 +510,7 @@ const loadCategories = async () => {
     const response = await adminApi.getCategories({ page: 1, pageSize: 100 })
     categories.value = response.data.records || response.data.list || []
   } catch (error) {
-    console.error('加载分类列表失败:', error)
+    // console.error('加载分类列表失败:', error)
     ElMessage.error('加载分类列表失败')
   }
 }
@@ -521,7 +521,7 @@ const loadTags = async () => {
     const response = await adminApi.getTags({ page: 1, pageSize: 100 })
     tags.value = response.data.records || response.data.list || []
   } catch (error) {
-    console.error('加载标签列表失败:', error)
+    // console.error('加载标签列表失败:', error)
     ElMessage.error('加载标签列表失败')
   }
 }
@@ -565,7 +565,7 @@ const initForm = () => {
         try {
           editor.value.setMarkdown(form.content)
         } catch (error) {
-          console.error('设置编辑器内容失败:', error)
+          // console.error('设置编辑器内容失败:', error)
         }
       })
     }

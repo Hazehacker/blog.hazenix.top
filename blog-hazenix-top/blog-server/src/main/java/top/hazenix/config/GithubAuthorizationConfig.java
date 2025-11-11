@@ -26,6 +26,8 @@ public class GithubAuthorizationConfig {
 
     @Value("${blog.github.authorization.redirect.url}")
     private String redirectUrl;
+    @Value("${blog.github.authorization.scope}")
+    private String scope;
 
     @Bean(name = "githubAuthorization")
     public GithubAuthorization githubFeed() {
@@ -36,6 +38,7 @@ public class GithubAuthorizationConfig {
                 .clientId(clientId)
                 .clientSecret(clientSecret)
                 .redirectUrl(redirectUrl)
+                .scope(scope)
                 .build();
     }
 }

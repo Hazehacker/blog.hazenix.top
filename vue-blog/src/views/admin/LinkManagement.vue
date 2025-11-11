@@ -68,10 +68,9 @@
           <template #default="{ row }">
             <div class="flex items-center space-x-3">
               <img
-                v-if="row.avatar"
-                :src="row.avatar"
+                :src="getLinkAvatar(row.avatar)"
                 :alt="row.name"
-                class="w-8 h-8 rounded-full object-cover"
+                class="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-600"
                 @error="handleImageError"
               />
               <div>
@@ -164,10 +163,10 @@
         <el-form-item label="头像" prop="avatar">
           <div class="flex items-center space-x-4">
             <img
-              v-if="form.avatar"
-              :src="form.avatar"
+              :src="getLinkAvatar(form.avatar)"
               alt="头像预览"
-              class="w-16 h-16 rounded-full object-cover border"
+              class="w-16 h-16 rounded-full object-cover border border-gray-200 dark:border-gray-600"
+              @error="handleImageError"
             />
             <el-upload
               :action="uploadAction"
@@ -212,6 +211,8 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Search, Refresh } from '@element-plus/icons-vue'
 import { adminApi } from '@/api/admin'
 import { getToken } from '@/utils/auth'
+import { getAvatarUrl } from '@/utils/helpers'
+import avatarFallback from '@/assets/img/avatar.jpg'
 
 // 响应式数据
 const loading = ref(false)
@@ -470,9 +471,19 @@ const handleUploadError = (error) => {
   ElMessage.error('上传失败')
 }
 
+// 获取友链头像URL
+const getLinkAvatar = (avatar) => {
+  // 使用getAvatarUrl辅助函数处理头像URL
+  // 如果是相对路径，会自动拼接API基础URL
+  // 如果为空或无效，返回默认头像
+  return getAvatarUrl(avatar, avatarFallback)
+}
+
 // 图片加载失败处理
 const handleImageError = (event) => {
-  event.target.src = '/default-avatar.png'
+  console.warn('友链头像加载失败，使用默认头像:', event.target.src)
+  // 直接使用默认头像，与用户头像处理方式一致
+  event.target.src = avatarFallback
 }
 
 // 表单引用

@@ -6,7 +6,11 @@
     >
       <!-- 头像 -->
       <div class="comment-avatar">
-        <el-avatar :size="depth > 0 ? 32 : 40" :src="comment.avatar || comment.avatarUrl">
+        <el-avatar 
+          :size="depth > 0 ? 32 : 40" 
+          :src="getCommentAvatar(comment)"
+          @error="handleAvatarError"
+        >
           {{ (comment.username || comment.nickname)?.charAt(0) || 'U' }}
         </el-avatar>
       </div>
@@ -45,17 +49,20 @@
         >
           <div class="form-header">
             <div class="form-user-info">
-              <el-avatar :size="28" :src="userInfo?.avatar">
-                {{ userInfo?.username?.charAt(0) || 'U' }}
-              </el-avatar>
+              <img 
+                :src="getUserAvatar(userInfo)" 
+                :alt="userInfo?.username || '用户'"
+                class="w-7 h-7 rounded-full object-cover border border-gray-200 dark:border-gray-600"
+                @error="handleAvatarError"
+              />
               <span class="form-username">{{ userInfo?.username || '用户' }}</span>
             </div>
             <el-button type="text" size="small" @click="handleCancelReply">取消回复</el-button>
           </div>
-          <el-form :model="commentForm" :rules="commentRules" :ref="setCommentFormRef">
+          <el-form :model="commentForm" :rules="commentRules" :ref="(el) => setFormRef(el, comment.id)">
             <el-form-item prop="content">
               <el-input
-                ref="setCommentInputRef"
+                :ref="(el) => setInputRef(el, comment.id)"
                 v-model="commentForm.content"
                 type="textarea"
                 :rows="3"
@@ -75,7 +82,7 @@
                       :key="e"
                       type="button"
                       class="emoji-btn"
-                      @click="insertEmoji(e)"
+                      @click="insertEmoji(e, comment.id)"
                     >{{ e }}</button>
                   </div>
                 </el-popover>
@@ -86,7 +93,7 @@
               <el-button @click="handleCancelReply">取消</el-button>
               <el-button 
                 type="primary" 
-                @click="handleSubmit"
+                @click="handleSubmit(comment.id)"
                 :loading="submitting"
               >
                 发布
@@ -124,8 +131,10 @@
 </template>
 
 <script setup>
-import { nextTick } from 'vue'
+import { nextTick, ref } from 'vue'
 import dayjs from 'dayjs'
+import { getAvatarUrl } from '@/utils/helpers'
+import avatarFallback from '@/assets/img/avatar.jpg'
 
 // 递归组件需要名称
 defineOptions({
@@ -192,6 +201,47 @@ const props = defineProps({
 
 const emit = defineEmits(['reply', 'cancel-reply', 'submit', 'insert-emoji'])
 
+// 存储每个评论的表单引用
+const formRefs = ref({})
+const inputRefs = ref({})
+
+// 获取评论头像 - 与友链和用户头像保持一致的处理方式
+const getCommentAvatar = (comment) => {
+  const avatar = comment.avatar || comment.avatarUrl || comment.userAvatar || ''
+  // 使用getAvatarUrl处理头像URL，如果为空或无效，返回默认头像
+  // 与友链和用户头像的处理方式完全一致
+  return getAvatarUrl(avatar, avatarFallback)
+}
+
+// 获取用户头像
+const getUserAvatar = (userInfo) => {
+  if (!userInfo || !userInfo.avatar) {
+    return avatarFallback
+  }
+  const avatarUrl = getAvatarUrl(userInfo.avatar, avatarFallback)
+  return avatarUrl || avatarFallback
+}
+
+// 头像加载错误处理 - 与友链和用户头像完全一致
+const handleAvatarError = (event) => {
+  console.warn('评论头像加载失败，使用默认头像:', event.target.src)
+  // 直接使用默认头像，与友链和用户头像处理方式一致
+  // 避免无限循环：如果已经是默认头像还失败，则保持现状
+  if (event.target.src !== avatarFallback && !event.target.src.includes(avatarFallback)) {
+    event.target.src = avatarFallback
+  }
+}
+
+// 获取表单引用的key
+const getFormRefKey = (commentId) => {
+  return `form-ref-${commentId}`
+}
+
+// 获取输入框引用的key
+const getInputRefKey = (commentId) => {
+  return `input-ref-${commentId}`
+}
+
 const handleReply = () => {
   emit('reply', props.comment)
 }
@@ -200,24 +250,99 @@ const handleCancelReply = () => {
   emit('cancel-reply')
 }
 
-const handleSubmit = () => {
-  emit('submit')
-}
-
-const insertEmoji = (emoji) => {
-  emit('insert-emoji', emoji)
-}
-
-// 设置表单和输入框的ref
-const setCommentFormRef = (el) => {
-  if (el && props.commentFormRef) {
-    props.commentFormRef.value = el
+// 处理提交 - 需要验证当前评论的表单
+const handleSubmit = async (commentId) => {
+  // 获取当前评论的表单引用
+  const formRef = formRefs.value[commentId]
+  
+  // 如果表单引用不存在，尝试使用父组件传递的引用
+  if (!formRef && props.commentFormRef?.value) {
+    try {
+      // 使用父组件的表单引用进行验证
+      await props.commentFormRef.value.validate()
+      // 验证通过后，触发提交事件
+      emit('submit')
+    } catch (error) {
+      // 表单验证失败，不提交
+      if (error !== false) {
+        console.log('表单验证失败:', error)
+      }
+    }
+    return
+  }
+  
+  if (!formRef) {
+    console.error('表单引用不存在，commentId:', commentId)
+    // 即使没有表单引用，也尝试提交（可能表单引用还没设置好）
+    // 让父组件来处理验证
+    emit('submit')
+    return
+  }
+  
+  try {
+    // 验证表单
+    await formRef.validate()
+    // 验证通过后，触发提交事件
+    emit('submit')
+  } catch (error) {
+    // 表单验证失败，不提交
+    if (error !== false) {
+      console.log('表单验证失败:', error)
+    }
   }
 }
 
-const setCommentInputRef = (el) => {
-  if (el && props.commentInputRef) {
-    props.commentInputRef.value = el
+// 插入表情
+const insertEmoji = (emoji, commentId) => {
+  // 获取当前评论的输入框引用
+  const inputRef = inputRefs.value[commentId]
+  if (inputRef && inputRef.textarea) {
+    const input = inputRef.textarea
+    const start = input.selectionStart || 0
+    const end = input.selectionEnd || 0
+    const text = props.commentForm.content || ''
+    props.commentForm.content = text.slice(0, start) + emoji + text.slice(end)
+    // 将光标移动到插入后的末尾
+    nextTick(() => {
+      const pos = start + emoji.length
+      input.focus()
+      input.setSelectionRange(pos, pos)
+    })
+  } else {
+    // 如果输入框引用不存在，直接追加到内容
+    props.commentForm.content = (props.commentForm.content || '') + emoji
+  }
+}
+
+// 设置表单引用
+const setFormRef = (el, commentId) => {
+  if (el) {
+    formRefs.value[commentId] = el
+    // 同时更新父组件的引用（用于兼容，确保父组件也能访问到）
+    if (props.commentFormRef) {
+      props.commentFormRef.value = el
+    }
+  } else {
+    // 当元素被卸载时，清除引用
+    if (formRefs.value[commentId]) {
+      delete formRefs.value[commentId]
+    }
+  }
+}
+
+// 设置输入框引用
+const setInputRef = (el, commentId) => {
+  if (el) {
+    inputRefs.value[commentId] = el
+    // 同时更新父组件的引用（用于兼容）
+    if (props.commentInputRef) {
+      props.commentInputRef.value = el
+    }
+  } else {
+    // 当元素被卸载时，清除引用
+    if (inputRefs.value[commentId]) {
+      delete inputRefs.value[commentId]
+    }
   }
 }
 
@@ -253,6 +378,29 @@ const setCommentInputRef = (el) => {
 
 .comment-avatar {
   @apply flex-shrink-0;
+}
+
+.comment-avatar-img {
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  display: block;
+  background-color: #f5f5f5;
+}
+
+.dark .comment-avatar-img {
+  border-color: rgba(255, 255, 255, 0.1);
+  background-color: #2d2d2d;
+}
+
+.avatar-normal {
+  width: 40px;
+  height: 40px;
+}
+
+.avatar-small {
+  width: 32px;
+  height: 32px;
 }
 
 .comment-content {

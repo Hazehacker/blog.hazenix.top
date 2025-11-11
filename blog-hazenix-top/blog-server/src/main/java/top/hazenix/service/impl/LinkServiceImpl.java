@@ -104,7 +104,7 @@ public class LinkServiceImpl implements LinkService {
      */
     @Override
     public void updateLinkStatus(Long id) {
-        Integer status = (linkMapper.getLinkById(id).getStatus()==1) ? 0:1;
+        Integer status = (linkMapper.getLinkById(id).getStatus()==0) ? 1:0;
         Link link = Link.builder()
                 .id( id)
                 .status(status)

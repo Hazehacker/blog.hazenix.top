@@ -31,7 +31,7 @@ public class CommentsController {
      * 获取评论列表(用户端)
      */
     @GetMapping("/list")
-    @Cacheable(cacheNames = "commentsCache", key = "#root.args[0].articleId+ '_' + #root.args[0].parentId+ '_' + #root.args[0].status+ '_' + #root.args[0].content+ '_' + #root.args[0].username + '_' + #root.args[0].replyId")
+    @Cacheable(cacheNames = "commentsCache", key = "#root.args[0].articleId+ '_' + #root.args[0].status")
     public Result<List<CommentsVO>> getCommentsList(CommentsDTO commentsDTO){
         log.info("获取评论列表:{}",commentsDTO);
         List<CommentsVO> commentTree = commentsService.getCommentsList(commentsDTO);
@@ -44,7 +44,7 @@ public class CommentsController {
      * @return
      */
     @PostMapping
-    @CacheEvict(cacheNames = "commentsCache", key = "#root.args[0].articleId+ '_' + #root.args[0].parentId+ '_' + #root.args[0].status+ '_' + #root.args[0].content+ '_' + #root.args[0].username + '_' + #root.args[0].replyId")
+    @CacheEvict(cacheNames = "commentsCache", key = "#root.args[0].articleId+ '_' + #root.args[0].status")
     public Result addComment(@RequestBody CommentsDTO commentsDTO){
         log.info("用户新增评论：{}",commentsDTO);
         commentsService.addComments(commentsDTO);

@@ -18,5 +18,6 @@ public class GithubAuthorization {
     private String clientId;
     private String clientSecret;
     private String redirectUrl;
+    private String scope;
 
 }

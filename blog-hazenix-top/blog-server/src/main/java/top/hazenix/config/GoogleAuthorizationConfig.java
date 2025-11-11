@@ -1,7 +1,6 @@
 package top.hazenix.config;
 
-
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +26,9 @@ public class GoogleAuthorizationConfig {
     @Value("${blog.google.authorization.redirect.url}")
     private String redirectUrl;
 
+    @Value("${blog.google.authorization.jwks.json}")
+    private String jwks;
+
     @Bean(name = "googleAuthorization")
     public GoogleAuthorization googleFeed() {
         GoogleClientSecrets clientSecrets = null;
@@ -43,12 +45,11 @@ public class GoogleAuthorizationConfig {
 
         // 构建bean
         return GoogleAuthorization.builder()
+                .clientId(clientId)
                 .googleClientSecrets(clientSecrets)
 //                .applicationName(applicationName)
                 .redirectUrl(redirectUrl)
+                .jwks(jwks)
                 .build();
     }
 }
-
-
-

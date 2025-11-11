@@ -23,6 +23,15 @@ export function getUserInfo() {
     })
 }
 
+// 前端直登（Google id_token 交換應用端 token）
+export function loginWithGoogleIdToken(idToken) {
+    return request({
+        url: '/user/user/google/idtoken-login',
+        method: 'post',
+        data: { idToken }
+    })
+}
+
 // Google第三方授权相关接口
 export function getGoogleAuthUrl() {
     return request({

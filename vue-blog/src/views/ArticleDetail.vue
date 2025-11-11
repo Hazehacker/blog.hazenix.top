@@ -179,6 +179,7 @@ const relatedArticles = ref([])
 const isMobile = ref(false)
 const isAISummaryExpanded = ref(false)
 const shouldScrollToTop = ref(false)
+const isUpdatingUrl = ref(false) // 标记是否正在更新URL（从ID到slug）
 
 // 判断路由参数是ID还是slug（ID是纯数字，slug包含字母或特殊字符）
 const isSlug = computed(() => {
@@ -259,8 +260,17 @@ const loadArticle = async () => {
       article.value = res.data
       
       // 如果文章有slug且当前URL使用的是ID，更新URL为slug
-      if (article.value.slug && !isSlug.value) {
-        router.replace({ name: 'ArticleDetail', params: { id: article.value.slug } })
+      // 标记正在更新URL，避免触发watch重新加载
+      if (article.value.slug && !isSlug.value && routeParam.value !== article.value.slug) {
+        isUpdatingUrl.value = true
+        router.replace({ name: 'ArticleDetail', params: { id: article.value.slug } }).then(() => {
+          // URL更新完成后，重置标志
+          setTimeout(() => {
+            isUpdatingUrl.value = false
+          }, 100)
+        }).catch(() => {
+          isUpdatingUrl.value = false
+        })
       }
       
       // 增加浏览量（使用文章ID，不是slug）
@@ -535,10 +545,21 @@ const goToArticle = (article) => {
   // 如果传入的是对象，优先使用slug
   if (typeof article === 'object' && article !== null) {
     const identifier = article.slug || article.id
-    router.push(`/article/${identifier}`)
+    // 如果是当前文章，不跳转
+    if (article.value && (article.value.id === article.id || article.value.slug === identifier)) {
+      console.log('Already on this article, skipping navigation')
+      return
+    }
+    // 使用路由名称跳转，更可靠
+    router.push({ name: 'ArticleDetail', params: { id: identifier } })
   } else {
     // 如果传入的是ID，直接使用
-    router.push(`/article/${article}`)
+    // 如果是当前文章，不跳转
+    if (article.value && (article.value.id?.toString() === article?.toString() || article.value.id === article)) {
+      console.log('Already on this article, skipping navigation')
+      return
+    }
+    router.push({ name: 'ArticleDetail', params: { id: article } })
   }
 }
 
@@ -591,7 +612,29 @@ const toggleAISummary = () => {
 // 监听路由参数变化
 watch(() => route.params.id, (newId, oldId) => {
   console.log('Route params id changed:', oldId, '->', newId)
-  if (newId && newId !== oldId) {
+  
+  // 如果正在更新URL（从ID到slug），不重新加载文章
+  if (isUpdatingUrl.value) {
+    console.log('Skipping reload: URL update in progress')
+    return
+  }
+  
+  // 如果新ID和旧ID相同，不需要重新加载
+  if (newId === oldId) {
+    return
+  }
+  
+  // 如果新ID对应的文章已经加载（通过比较slug或ID），不需要重新加载
+  if (article.value && newId) {
+    // 检查新ID是否匹配当前文章的slug或ID
+    if (article.value.slug === newId || article.value.id === newId || 
+        article.value.id?.toString() === newId || article.value.slug?.toString() === newId) {
+      console.log('Article already loaded for this ID:', newId)
+      return
+    }
+  }
+  
+  if (newId) {
     console.log('Loading new article due to route change')
     // 清空旧数据
     article.value = null
@@ -784,16 +827,16 @@ onUnmounted(() => {
 /* 固定互动按钮 */
 .fixed-actions {
   position: fixed;
-  right: 2rem;
+  left: 0.3rem;
   top: 50%;
   transform: translateY(-50%);
   z-index: 100;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.3rem;
   background: white;
   border-radius: 12px;
-  padding: 1rem;
+  padding: 0.75rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(229, 231, 235, 1);
 }

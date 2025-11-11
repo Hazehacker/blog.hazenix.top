@@ -434,7 +434,7 @@ const saveArticle = async (status) => {
     }
     emit('save', articleData)
   } catch (error) {
-    console.error('保存文章失败:', error)
+    // console.error('保存文章失败:', error)
     ElMessage.error('保存失败')
   } finally {
     saving.value = false

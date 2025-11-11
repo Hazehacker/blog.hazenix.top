@@ -12,6 +12,7 @@ import top.hazenix.vo.UserVO;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.text.ParseException;
 
 public interface UserService {
     String getGoogleAuthorizingUrl() throws GeneralSecurityException, IOException;
@@ -35,4 +36,6 @@ public interface UserService {
     String getGithubAuthorizingUrl();
 
     UserLoginVO authorizingWithGithubCode(String code) throws JsonProcessingException;
+
+    UserLoginVO idTokenlogin(UserLoginDTO userLoginDTO) throws ParseException;
 }

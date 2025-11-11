@@ -85,7 +85,8 @@ const handleSearch = async () => {
 const goToArticle = (article) => {
   // 优先使用slug，如果没有slug则使用id
   const identifier = article.slug || article.id
-  router.push(`/article/${identifier}`)
+  // 使用路由名称跳转，更可靠
+  router.push({ name: 'ArticleDetail', params: { id: identifier } })
   visible.value = false
 }
 

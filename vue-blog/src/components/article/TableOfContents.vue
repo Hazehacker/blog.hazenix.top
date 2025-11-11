@@ -58,24 +58,6 @@
         <span class="stats-text"> {{ article.commentCount || article.comments || 0 }}</span>
       </div>
     </div>
-
-    <!-- 互动按钮（已移至固定位置，此处隐藏） -->
-    <div v-if="false" class="toc-actions">
-      <div class="action-item" @click="handleLike" :class="{ 'liked': article?.isLiked }">
-        <el-icon class="action-icon" :class="{ 'text-yellow-500': article?.isLiked }">
-          <Star />
-        </el-icon>
-        <span class="action-text">{{ article?.likeCount || article?.likes || 0 }}</span>
-      </div>
-      <div class="action-item" @click="handleCollect" :class="{ 'collected': article?.isCollected }">
-        <el-icon class="action-icon"><Collection /></el-icon>
-        <span class="action-text">{{ article?.isCollected ? '已收藏' : '收藏' }}</span>
-      </div>
-      <div class="action-item" @click="handleShare">
-        <el-icon class="action-icon"><Share /></el-icon>
-        <span class="action-text">分享</span>
-      </div>
-    </div>
   </div>
 </template>
 

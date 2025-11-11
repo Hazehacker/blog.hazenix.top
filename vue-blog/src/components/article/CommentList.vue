@@ -22,9 +22,12 @@
     <div v-if="isLoggedIn && showCommentForm && !activeReplyCommentId" class="comment-form">
       <div class="form-header">
         <div class="form-user-info">
-          <el-avatar :size="32" :src="userInfo?.avatar">
-            {{ userInfo?.username?.charAt(0) || 'U' }}
-          </el-avatar>
+          <img 
+            :src="getUserAvatar(userInfo)" 
+            :alt="userInfo?.username || '用户'"
+            class="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-600"
+            @error="handleAvatarError"
+          />
           <span class="form-username">{{ userInfo?.username || '用户' }}</span>
         </div>
         <el-button 
@@ -152,6 +155,8 @@ import { ChatDotRound, Edit, Warning } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 import { getComments, createComment, likeComment as likeCommentApi } from '@/api/comment'
 import dayjs from 'dayjs'
+import { getAvatarUrl } from '@/utils/helpers'
+import avatarFallback from '@/assets/img/avatar.jpg'
 import CommentItem from './CommentItem.vue'
 
 const props = defineProps({
@@ -185,8 +190,9 @@ const activeReplyCommentId = ref(null)
 // 评论表单
 const commentForm = reactive({
   content: '',
-  parentId: null,
-  replyTo: ''
+  parentId: null, // 被回复的评论ID
+  replyUserId: null, // 被回复者的用户ID
+  replyTo: '' // 被回复者的用户名（用于显示）
 })
 
 // 常用表情（Unicode），无需后端改动
@@ -211,6 +217,26 @@ const commentRules = {
 // 打开登录对话框
 const openLoginDialog = () => {
   window.dispatchEvent(new Event('open-login-dialog'))
+}
+
+// 获取用户头像
+const getUserAvatar = (userInfo) => {
+  if (!userInfo || !userInfo.avatar) {
+    return avatarFallback
+  }
+  const avatarUrl = getAvatarUrl(userInfo.avatar, avatarFallback)
+  return avatarUrl || avatarFallback
+}
+
+// 头像加载错误处理
+// 注意：el-avatar组件的error事件可能不会传递标准的event对象
+const handleAvatarError = (e) => {
+  console.warn('评论头像加载失败:', e?.target?.src || e)
+  // el-avatar在图片加载失败时会自动显示用户名首字母，但我们仍然尝试设置默认头像
+  // 如果e是event对象，尝试设置src
+  if (e?.target && e.target.src !== avatarFallback) {
+    e.target.src = avatarFallback
+  }
 }
 
 // 设置输入框引用（主输入与回复输入共用此 setter）
@@ -289,21 +315,43 @@ const submitComment = async () => {
     return
   }
 
-  if (!commentFormRef.value) return
+  // 检查评论内容是否为空
+  if (!commentForm.content || commentForm.content.trim() === '') {
+    ElMessage.warning('请输入评论内容')
+    return
+  }
+
+  // 如果有表单引用，先验证表单（主要用于顶部评论表单）
+  if (commentFormRef.value) {
+    try {
+      await commentFormRef.value.validate()
+    } catch (error) {
+      // 表单验证失败，不提交
+      if (error === false) {
+        // 这是Element Plus的验证失败标识
+        return
+      }
+      // 其他错误也返回
+      return
+    }
+  }
   
   try {
-    await commentFormRef.value.validate()
-    
     submitting.value = true
     const payload = {
       articleId: props.articleId,
-      content: commentForm.content,
+      content: commentForm.content.trim(),
       // 后端会优先展示传入的昵称
       username: userInfo.value?.username || userInfo.value?.nickname
     }
-    // 如果有parentId，说明是回复评论，需要传递replyId（被回复的评论ID）
+    // 如果有parentId，说明是回复评论
     if (commentForm.parentId) {
-      payload.replyId = commentForm.parentId
+      // 传递parentId：被回复的评论ID（必需）
+      payload.parentId = commentForm.parentId
+      // 传递replyId：被回复者的用户ID（可选，但建议传递）
+      if (commentForm.replyUserId) {
+        payload.replyId = commentForm.replyUserId
+      }
     }
     const response = await createComment(payload)
     
@@ -314,16 +362,14 @@ const submitComment = async () => {
     await loadComments()
     emit('comment-added', response.data)
   } catch (error) {
-    if (error !== false) { // 不是表单验证错误
-      console.error('发表评论失败:', error)
-      if (error.response?.status === 401) {
-        ElMessage.error('登录已过期，请重新登录')
-        openLoginDialog()
-      } else if (error.response?.data?.msg) {
-        ElMessage.error(error.response.data.msg)
-      } else {
-        ElMessage.error('发表评论失败')
-      }
+    console.error('发表评论失败:', error)
+    if (error.response?.status === 401) {
+      ElMessage.error('登录已过期，请重新登录')
+      openLoginDialog()
+    } else if (error.response?.data?.msg) {
+      ElMessage.error(error.response.data.msg)
+    } else {
+      ElMessage.error('发表评论失败')
     }
   } finally {
     submitting.value = false
@@ -340,6 +386,7 @@ const cancelComment = () => {
 // 取消回复
 const cancelReply = () => {
   commentForm.parentId = null
+  commentForm.replyUserId = null
   commentForm.replyTo = ''
   showCommentForm.value = false
   activeReplyCommentId.value = null
@@ -350,6 +397,7 @@ const resetCommentForm = () => {
   Object.assign(commentForm, {
     content: '',
     parentId: null,
+    replyUserId: null,
     replyTo: ''
   })
   commentFormRef.value?.clearValidate()
@@ -367,8 +415,12 @@ const replyToComment = (comment) => {
     return
   }
 
-  // 提交需要携带被回复的评论ID（不是用户ID）
+  // 保存被回复的评论ID（parentId）
   commentForm.parentId = comment.id
+  // 保存被回复者的用户ID（replyId）
+  // 注意：userId 是评论者的用户ID，也就是被回复者的用户ID
+  commentForm.replyUserId = comment.userId || comment.user_id || null
+  // 保存被回复者的用户名（用于显示）
   commentForm.replyTo = comment.username || comment.nickname || '用户'
   showCommentForm.value = true
   activeReplyCommentId.value = comment.id

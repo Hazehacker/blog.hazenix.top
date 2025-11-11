@@ -58,10 +58,12 @@ const themeStore = useThemeStore()
 const latestArticles = ref([])
 const showThemeGuide = ref(false)
 
-// 处理OAuth回调 - 统一处理，通过 source 参数区分来源
+// 处理OAuth回调 - 统一处理，通过 source 参数或 sessionStorage 区分来源
 const handleOAuthCallback = async () => {
   const code = route.query.code
-  const source = route.query.source // 'github' 或 'google'
+  // 优先使用 URL 参数中的 source，如果没有则从 sessionStorage 读取
+  // Google 登录的 redirect_uri 不能包含查询参数，所以需要从 sessionStorage 读取
+  let source = route.query.source || sessionStorage.getItem('oauth_source') || null
   
   // 如果没有 code 参数，不处理
   if (!code) {
@@ -82,16 +84,22 @@ const handleOAuthCallback = async () => {
       console.log('处理 GitHub OAuth 回调')
       await userStore.githubLogin(code)
       ElMessage.success('GitHub登录成功')
+      // 清除 sessionStorage
+      sessionStorage.removeItem('oauth_source')
     } else if (source === 'google') {
       console.log('处理 Google OAuth 回调')
       await userStore.googleLogin(code)
       ElMessage.success('Google登录成功')
+      // 清除 sessionStorage
+      sessionStorage.removeItem('oauth_source')
     } else {
       // 如果没有 source 参数，尝试通过 code 的特征判断
       // 但为了安全，建议明确指定 source
       console.warn('未指定 OAuth 来源，默认尝试 GitHub')
       await userStore.githubLogin(code)
       ElMessage.success('登录成功')
+      // 清除 sessionStorage
+      sessionStorage.removeItem('oauth_source')
     }
     
     // 登录成功后，获取完整的用户信息（包括头像）
@@ -109,6 +117,8 @@ const handleOAuthCallback = async () => {
   } catch (error) {
     ElMessage.error('第三方登录失败: ' + (error.message || '未知错误'))
     console.error('OAuth callback error:', error)
+    // 清除 sessionStorage
+    sessionStorage.removeItem('oauth_source')
     // 即使登录失败，也清除URL中的回调参数
     const cleanQuery = { ...route.query }
     delete cleanQuery.code

@@ -7,6 +7,18 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.*;
 import com.google.api.client.http.javanet.NetHttpTransport;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.jwk.source.RemoteJWKSet;
+import com.nimbusds.jose.proc.BadJOSEException;
+import com.nimbusds.jose.proc.JWSVerificationKeySelector;
+import com.nimbusds.jose.proc.SecurityContext;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
+import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.StringUtils;
 import org.aspectj.bridge.Message;
@@ -39,9 +51,14 @@ import top.hazenix.service.UserService;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
 import java.net.Proxy;
+import java.net.URL;
 import java.security.GeneralSecurityException;
+import java.text.ParseException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -70,6 +87,8 @@ public class UserServiceImpl implements UserService {
     private final RedisTemplate redisTemplate;
     private final UserArticleMapper userArticleMapper;
     private final CommentsMapper commentsMapper;
+
+    private final String GOOGLE_ISSUER = "https://accounts.google.com";
 
     /**
      * 完成用户登录功能的相关逻辑
@@ -232,6 +251,86 @@ public class UserServiceImpl implements UserService {
         return null;
     }
 
+    /**
+     * 【前端方案】使用google idToken登录
+     * @param userLoginDTO
+     * @return
+     */
+    @Override
+    public UserLoginVO idTokenlogin(UserLoginDTO userLoginDTO) throws ParseException {
+        String idToken = userLoginDTO.getIdToken();
+        if(StringUtils.isBlank(idToken)){
+            throw new RuntimeException(MessageConstant.ID_TOKEN_IS_EMPTY);
+        }
+
+        //验证并提取用户邮箱
+
+        //前端方案的目的就是规避网络问题，这里使用 Google 公布的公钥（JWKS）在本地验证签名，而不使用google的api验证id_token
+
+        JWTClaimsSet claims = verifyAndParseIdToken(idToken);
+        if (claims == null ) {
+            throw new SecurityException(MessageConstant.GOOGLE_LOGIN_ERROR);
+        }
+        String email = claims.getStringClaim("email");
+        String username = claims.getStringClaim("name");
+        String avatar = claims.getStringClaim("picture");
+
+
+
+        UserLoginVO userLoginVO = loginLogic(email,username,avatar,null);
+
+        return userLoginVO;
+    }
+
+    private JWTClaimsSet verifyAndParseIdToken(String idToken){
+        try {
+            // 1. 从配置中获取 JWKS JSON 字符串（例如："{\"keys\":[...]}"）
+            String jwksJson = googleAuthorization.getJwks(); // 确保这是完整的 JSON 字符串
+
+            // 2. 解析为 JWKSet 对象
+            JWKSet jwkSet = JWKSet.parse(jwksJson);
+
+            // 3. 创建无网络依赖的 JWKSource
+            JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(jwkSet);
+
+            // 4. 配置 JWT 处理器
+            ConfigurableJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
+            jwtProcessor.setJWSKeySelector(new JWSVerificationKeySelector<>(JWSAlgorithm.RS256, jwkSource));
+            jwtProcessor.setJWTClaimsSetVerifier((claimsSet, context) -> {
+                // 验证 issuer
+                if (!GOOGLE_ISSUER.equals(claimsSet.getIssuer())) {
+                    throw new RuntimeException("无效的issuer: " + claimsSet.getIssuer());
+                }
+                // 验证 audience（必须包含你的 client_id）
+                Object aud = claimsSet.getAudience();
+                if (aud == null || !aud.toString().contains(googleAuthorization.getClientId())) {
+                    throw new RuntimeException(MessageConstant.AUDIENCE_INVALID);
+                }
+                // 验证时间（exp, nbf）
+                // 3. 验证时间有效性
+                Date now = new Date();
+                Date exp = claimsSet.getExpirationTime();
+                Date nbf = claimsSet.getNotBeforeTime();
+                if (exp != null && exp.before(now)) {
+                    throw new SecurityException(MessageConstant.ID_TOKEN_IS_EXPIRED);
+                }
+                if (nbf != null && nbf.after(now)) {
+                    throw new SecurityException(MessageConstant.ID_TOKEN_INVALID);
+                }
+            });
+
+
+            // 处理并验证 token
+            SecurityContext ctx = null; // 可为 null
+            return jwtProcessor.process(idToken, ctx);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("ID Token 验证失败: " + e.getMessage());
+
+        }
+    }
 
     /**
      * 生成用户授权URL，将用户重定向到google登录页面进行身份验证
@@ -260,7 +359,12 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public String getGithubAuthorizingUrl() {
-        String url ="https://github.com/login/oauth/authorize?client_id=Ov23liBxnKosezLaP7Cv&scope=user,user:email";
+
+//        String redirectUrl = githubAuthorization.getRedirectUrl();
+        String clientId = githubAuthorization.getClientId();
+        String scope = githubAuthorization.getScope();
+        String url ="https://github.com/login/oauth/authorize?client_id="+clientId+"&scope="+scope;
+
         return url;
     }
 
@@ -279,27 +383,11 @@ public class UserServiceImpl implements UserService {
         if (authorizationCode.length() > 2048) {
             throw new IllegalArgumentException(MessageConstant.CODE_TOO_LONG);
         }
-        //TODO 这个接口开发环境的测试还没通过，配置代理麻烦
-        // 创建带代理的HTTP传输对象【开发环境】   TODO 服务器环境注意调整
-        HttpTransport httpTransport;
-//        String proxyHost = System.getProperty("http.proxyHost");  // 例如: "127.0.0.1"
-//        String proxyPort = System.getProperty("http.proxyPort");  // 例如: "1080"
-        String proxyHost = "51.158.205.126";
-        String proxyPort = "24957";
-        if (proxyHost != null && proxyPort != null) {
-            Proxy proxy = new Proxy(Proxy.Type.SOCKS,
-                    new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort)));
-            httpTransport = new NetHttpTransport.Builder()
-                    .setProxy(proxy)
-                    .build();
-        } else {
-            // 不使用代理
-            httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-        }
+
 
 
         // 创建请求凭证
-//        HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+        HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
 // 上面代理的代码中创建了
 
         JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
@@ -417,6 +505,9 @@ public class UserServiceImpl implements UserService {
 
         return userLoginVO;
     }
+
+
+
     /**
      * 从 query string 格式解析 access_token
      * @param queryString 例如: access_token=xxx&token_type=bearer&scope=read:user

@@ -29,7 +29,7 @@ public class LinkController {
      * @return
      */
     @GetMapping
-    public Result getLinksList(LinkQueryDTO linkQueryDTO){
+    public Result<PageResult> getLinksList(LinkQueryDTO linkQueryDTO){
         log.info("获取友链列表:{}",linkQueryDTO);
         PageResult pageResult = linkService.listLinks(linkQueryDTO);
         return Result.success(pageResult);

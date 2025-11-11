@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { getToken, setToken, removeToken } from '@/utils/auth'
-import { login as loginApi, register as registerApi, getUserInfo, googleAuthCallback, getGithubAuthUrl, githubAuthCallback, logout as logoutApi } from '@/api/auth'
+import { login as loginApi, register as registerApi, getUserInfo, googleAuthCallback, getGithubAuthUrl, githubAuthCallback, logout as logoutApi, loginWithGoogleIdToken } from '@/api/auth'
 
 // 规范化用户数据，统一role和isAdmin字段
 function normalizeUserData(userData) {
@@ -83,6 +83,18 @@ export const useUserStore = defineStore('user', {
 
         async googleLogin(code) {
             const res = await googleAuthCallback(code)
+            if (res.code === 200) {
+                this.token = res.data.token
+                setToken(res.data.token)
+                const userData = res.data.user || res.data
+                this.userInfo = normalizeUserData(userData)
+            } else {
+                throw new Error(res.msg || 'Google登录失败')
+            }
+        },
+
+        async googleLoginByIdToken(idToken) {
+            const res = await loginWithGoogleIdToken(idToken)
             if (res.code === 200) {
                 this.token = res.data.token
                 setToken(res.data.token)

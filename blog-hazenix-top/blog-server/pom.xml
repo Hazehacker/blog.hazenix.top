@@ -189,6 +189,12 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
+        <!--    JWT解析库    -->
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
+            <version>9.40</version> <!-- 使用最新稳定版 -->
+        </dependency>
     </dependencies>
 
     <build>

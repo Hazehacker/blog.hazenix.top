@@ -110,7 +110,7 @@
                 class="flex items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 <el-icon class="mr-2 text-primary"><InfoFilled /></el-icon>
-                <span class="text-gray-700 dark:text-gray-300">关于我们</span>
+                <span class="text-gray-700 dark:text-gray-300">关于我</span>
               </router-link>
             </div>
           </div>

@@ -133,7 +133,8 @@ import { ref, onMounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
-import { getGoogleAuthUrl } from '@/api/auth'
+import { getGoogleAuthUrl, getGithubAuthUrl } from '@/api/auth'
+import { getGoogleIdToken } from '@/utils/googleAuth'
 
 const router = useRouter()
 const route = useRoute()
@@ -347,37 +348,15 @@ const handleGitHubLogin = async () => {
   
   try {
     githubLoading.value = true
-    // 构建重定向地址，确保指向 /home 路径，并添加 source 参数用于区分
-    const redirectUri = encodeURIComponent(`${window.location.origin}/home?source=github`)
-    // GitHub OAuth 授权地址，包含 client_id、scope 和 redirect_uri
-    const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=Ov23liBxnKosezLaP7Cv&scope=user:email&redirect_uri=${redirectUri}`
     
-    console.log('跳转到 GitHub 授权页面:', githubAuthUrl)
-    // 跳转到 GitHub 授权页面
-    window.location.href = githubAuthUrl
-  } catch (error) {
-    ElMessage.error('GitHub登录失败: ' + (error.message || '未知错误'))
-    console.error('GitHub login error:', error)
-    githubLoading.value = false
-  }
-  // 注意：跳转后页面会卸载，不需要在 finally 中重置 loading
-}
-
-// Google登录处理
-const handleGoogleLogin = async () => {
-  // 防止重复点击
-  if (googleLoading.value) {
-    return
-  }
-  
-  try {
-    googleLoading.value = true
+    // 使用 sessionStorage 记录 GitHub 登录（作为备用方案）
+    sessionStorage.setItem('oauth_source', 'github')
     
-    // 获取Google授权URL
-    const res = await getGoogleAuthUrl()
+    // 获取GitHub授权URL
+    const res = await getGithubAuthUrl()
     let authUrl = res.data
     
-    // 确保回调地址包含 source 参数用于区分
+    // GitHub 登录可以在 redirect_uri 中包含 source 参数
     // 尝试解析 URL 并修改 redirect_uri
     try {
       const url = new URL(authUrl)
@@ -388,13 +367,13 @@ const handleGoogleLogin = async () => {
         const decodedUri = decodeURIComponent(redirectUri)
         const redirectUrl = new URL(decodedUri)
         // 添加 source 参数
-        redirectUrl.searchParams.set('source', 'google')
+        redirectUrl.searchParams.set('source', 'github')
         // 重新编码并设置
         url.searchParams.set('redirect_uri', redirectUrl.toString())
         authUrl = url.toString()
       } else {
         // 如果没有 redirect_uri，添加它
-        url.searchParams.set('redirect_uri', `${window.location.origin}/home?source=google`)
+        url.searchParams.set('redirect_uri', `${window.location.origin}/home?source=github`)
         authUrl = url.toString()
       }
     } catch (urlError) {
@@ -404,15 +383,46 @@ const handleGoogleLogin = async () => {
       // 否则，这里可能需要根据实际情况调整
     }
     
-    console.log('跳转到 Google 授权页面:', authUrl)
-    // 重定向到Google授权页面
+    console.log('跳转到 GitHub 授权页面:', authUrl)
+    // 跳转到 GitHub 授权页面
     window.location.href = authUrl
   } catch (error) {
-    ElMessage.error('获取Google授权链接失败: ' + (error.message || '未知错误'))
-    console.error('Google login error:', error)
-    googleLoading.value = false
+    ElMessage.error('获取GitHub授权链接失败: ' + (error.message || '未知错误'))
+    console.error('GitHub login error:', error)
+    githubLoading.value = false
+    // 清除 sessionStorage
+    sessionStorage.removeItem('oauth_source')
   }
   // 注意：跳转后页面会卸载，不需要在 finally 中重置 loading
+}
+
+// Google登录处理（前端流程：獲取 id_token 再交給後端換取應用 token）
+const handleGoogleLogin = async () => {
+  if (googleLoading.value) return
+  try {
+    googleLoading.value = true
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
+    const idToken = await getGoogleIdToken({ clientId, useOneTap: false })
+    await userStore.googleLoginByIdToken(idToken)
+    try {
+      await userStore.getUserInfo()
+    } catch (e) {
+      console.warn('获取用户信息失败，但登录已成功:', e)
+    }
+    ElMessage.success('登录成功')
+    closeDialog()
+    const redirectTarget = route?.query?.redirect
+    if (typeof redirectTarget === 'string' && redirectTarget) {
+      router.replace(redirectTarget)
+    } else {
+      router.replace('/home')
+    }
+  } catch (error) {
+    ElMessage.error(error?.message || 'Google 登录失败')
+    setTimeout(() => setMessageZIndex(), 10)
+  } finally {
+    googleLoading.value = false
+  }
 }
 
 onMounted(() => {
