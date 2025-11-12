@@ -17,32 +17,35 @@
 
     <!-- 内容区域 -->
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- 長文樣式內容 -->
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-8">
-        <div class="prose dark:prose-invert max-w-none">
-          <h2>关于这个博客</h2>
-          <p>这是一个基于Vue 3构建的现代化博客系统，集成了文章管理、分类标签、评论系统、友链管理等功能。</p>
+        <div class="prose dark:prose-invert max-w-none leading-8">
+          <h2>技术栈</h2>
+          <p>主攻后端开发，会使用以下技术：</p>
+          <!-- <h3>后端与服务</h3> -->
+          <ul>
+            <li>SpringMVC、SpringBoot</li>
+            <li>MyBatis、MyBatis-Plus</li>
+            <li>knife4j 接口文档、Nginx、Docker</li>
+         
+          <!-- <h3>数据库与缓存</h3> -->
           
-          <h3>技术栈</h3>
+            <li>MySQL、PostgreSQL、MongoDB</li>
+            <li>Redis</li>
+          </ul>
+          桌面与跨平台我会这些
           <ul>
-            <li>前端：Vue 3 + Vite + Element Plus</li>
-            <li>样式：Tailwind CSS</li>
-            <li>状态管理：Pinia</li>
-            <li>路由：Vue Router</li>
-            <li>编辑器：Toast UI Editor</li>
+            <li>Qt</li>
+            <li>uni-app</li>
           </ul>
 
-          <h3>功能特性</h3>
+          <h2>兴趣爱好</h2>
           <ul>
-            <li>响应式设计，支持移动端</li>
-            <li>暗色主题切换</li>
-            <li>文章分类和标签管理</li>
-            <li>评论系统</li>
-            <li>友链管理</li>
-            <li>用户认证和个人中心</li>
-            <li>搜索功能</li>
+            <li>喜欢运动：乒乓球、网球、羽毛球、健身</li>
+            <li>喜欢摄影  (*❦ω❦)</li> 
           </ul>
 
-          <h3>联系方式</h3>
+          <h2>联系方式</h2>
           <p>如果您有任何问题或建议，欢迎通过以下方式联系我：</p>
           <ul>
             <li>邮箱：L3542495583@outlook.com</li>

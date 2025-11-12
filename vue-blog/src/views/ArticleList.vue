@@ -261,7 +261,7 @@ const loadArticles = async () => {
     }
 
     const response = await getArticleList(params)
-    console.log('Article list response:', response)
+    // console.log('Article list response:', response)
     
     // 处理响应格式：后端返回的是数组，不是分页格式
     let articleList = []
@@ -315,7 +315,7 @@ const loadArticles = async () => {
     // 前端分页处理
     applyPagination()
   } catch (error) {
-    console.error('Failed to load articles:', error)
+    // console.error('Failed to load articles:', error)
     ElMessage.error('加载文章列表失败')
     
     // Mock数据作为fallback（过滤掉 id=1）
@@ -357,7 +357,7 @@ const loadCategories = async () => {
     const allCategories = response.data || []
     categories.value = allCategories.filter(category => category.articleCount > 0)
   } catch (error) {
-    console.error('Failed to load categories:', error)
+    // console.error('Failed to load categories:', error)
     // Mock数据
     categories.value = [
       { id: 1, name: '技术' },
@@ -373,7 +373,7 @@ const loadTags = async () => {
     const response = await getTagList()
     tags.value = response.data || []
   } catch (error) {
-    console.error('Failed to load tags:', error)
+    // console.error('Failed to load tags:', error)
     // Mock数据
     tags.value = [
       { id: 1, name: 'Vue3' },

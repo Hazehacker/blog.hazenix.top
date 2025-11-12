@@ -148,7 +148,7 @@ const loadStats = async () => {
     const allResponse = await frontendApi.getLinks()
     totalLinks.value = allResponse.data?.length || 0
   } catch (error) {
-    console.error('加载友链统计失败:', error)
+    // console.error('加载友链统计失败:', error)
     // 使用模拟数据
     totalLinks.value = 12
     activeLinks.value = 10

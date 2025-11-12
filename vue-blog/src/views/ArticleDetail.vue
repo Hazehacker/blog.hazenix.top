@@ -135,8 +135,8 @@
     <!-- 固定互动按钮（右侧固定） -->
     <div v-if="article && !isMobile" class="fixed-actions">
       <div class="action-item" @click="likeArticle" :class="{ 'liked': article?.isLiked }">
-        <el-icon class="action-icon" :class="{ 'text-yellow-500': article?.isLiked }">
-          <Star />
+        <el-icon class="action-icon" :class="{ 'text-red-500': article?.isLiked }">
+          <Pointer />
         </el-icon>
         <span class="action-text">{{ article?.likeCount || article?.likes || 0 }}</span>
       </div>
@@ -160,8 +160,9 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Star, Share, Collection, ArrowDown } from '@element-plus/icons-vue'
+import { Pointer, Share, Collection, ArrowDown } from '@element-plus/icons-vue'
 import { getArticleDetail, getArticleBySlug, getRelatedArticles, likeArticle as likeArticleApi, collectArticle as favoriteArticleApi, incrementViewCount } from '@/api/article'
+import { getApiBaseURL } from '@/utils/apiConfig'
 import MarkdownRenderer from '@/components/article/MarkdownRenderer.vue'
 import CommentList from '@/components/article/CommentList.vue'
 import ArticleMetadata from '@/components/article/ArticleMetadata.vue'
@@ -184,8 +185,23 @@ const isUpdatingUrl = ref(false) // 标记是否正在更新URL（从ID到slug�
 // 判断路由参数是ID还是slug（ID是纯数字，slug包含字母或特殊字符）
 const isSlug = computed(() => {
   const id = routeParam.value
-  // 如果包含非数字字符，认为是slug
-  return id && !/^\d+$/.test(id)
+  if (!id) return false
+  
+  // 如果包含非数字字符（字母、连字符、下划线等），认为是slug
+  // 純數字 ID 通常是正整數，不包含負號、小數點等
+  const isNumericId = /^\d+$/.test(id)
+  
+  // 調試信息（僅開發環境）
+  if (import.meta.env.DEV && id) {
+    console.log('路由參數判斷:', {
+      id,
+      isNumericId,
+      isSlug: !isNumericId,
+      length: id.length
+    })
+  }
+  
+  return !isNumericId
 })
 
 // 文章的实际ID（从文章数据中获取，如果是slug则从加载后的文章数据中获取）
@@ -241,23 +257,51 @@ const getTagName = (tag) => {
 // 加载文章详情
 const loadArticle = async () => {
   loading.value = true
+  article.value = null // 清空之前的文章数据
+  
   try {
     const identifier = routeParam.value
-    console.log('Loading article with identifier:', identifier, 'isSlug:', isSlug.value)
-    console.log('API Base URL:', import.meta.env.VITE_API_BASE_URL || 'http://localhost:9090')
+    
+    // 生產環境日誌（僅在開發環境或錯誤時輸出）
+    if (import.meta.env.DEV) {
+      console.log('Loading article with identifier:', identifier, 'isSlug:', isSlug.value)
+      console.log('API Base URL:', getApiBaseURL())
+    }
+    
+    // 验证标识符是否有效
+    if (!identifier) {
+      throw new Error('文章标识符不能为空')
+    }
     
     // 根据是slug还是ID调用不同的API
     let res
+    try {
     if (isSlug.value) {
       res = await getArticleBySlug(identifier)
     } else {
       res = await getArticleDetail(identifier)
     }
-    console.log('Article detail response:', res)
+    } catch (apiError) {
+      // API 請求錯誤，記錄詳細信息
+      console.error('API請求失敗:', {
+        identifier,
+        isSlug: isSlug.value,
+        apiBaseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:9090',
+        error: apiError,
+        response: apiError.response,
+        status: apiError.response?.status,
+        statusText: apiError.response?.statusText,
+        data: apiError.response?.data
+      })
+      throw apiError
+    }
     
-    // 处理不同的响应格式
-    if (res && res.data) {
-      article.value = res.data
+    // 處理不同的響應格式
+    // 支持 res.data 和直接返回數據兩種格式
+    const articleData = res?.data || res
+    
+    if (articleData && (articleData.id || articleData.title)) {
+      article.value = articleData
       
       // 如果文章有slug且当前URL使用的是ID，更新URL为slug
       // 标记正在更新URL，避免触发watch重新加载
@@ -268,21 +312,30 @@ const loadArticle = async () => {
           setTimeout(() => {
             isUpdatingUrl.value = false
           }, 100)
-        }).catch(() => {
+        }).catch((replaceError) => {
+          console.error('更新URL失敗:', replaceError)
           isUpdatingUrl.value = false
         })
       }
       
       // 增加浏览量（使用文章ID，不是slug）
       try {
-        const actualId = article.value.id || identifier
+        const actualId = article.value.id
+        if (actualId) {
         await incrementViewCount(actualId)
+        }
       } catch (viewError) {
+        // 瀏覽量增加失敗不影響文章顯示
         console.warn('Failed to increment view count:', viewError)
       }
       
       // 加载相关文章
+      try {
       await loadRelatedArticles()
+      } catch (relatedError) {
+        // 相關文章加載失敗不影響文章顯示
+        console.warn('Failed to load related articles:', relatedError)
+      }
       
       // 如果是从路由变化触发的，滚动到顶部
       if (shouldScrollToTop.value) {
@@ -290,169 +343,56 @@ const loadArticle = async () => {
         shouldScrollToTop.value = false
       }
     } else {
-      throw new Error('文章数据为空')
+      throw new Error('文章數據格式錯誤或為空')
     }
   } catch (error) {
-    console.error('Failed to load article:', error)
+    console.error('加載文章失敗:', error)
     
-    // 显示更详细的错误信息
-    let errorMessage = '加载文章失败'
+    // 顯示更詳細的錯誤信息
+    let errorMessage = '加載文章失敗'
+    let shouldShowError = true
+    
     if (error.response) {
-      if (error.response.status === 404) {
-        errorMessage = '文章不存在或已被删除'
-      } else if (error.response.status === 500) {
-        errorMessage = '服务器内部错误，请稍后重试'
+      const status = error.response.status
+      if (status === 404) {
+        errorMessage = '文章不存在或已被刪除'
+        // 404 錯誤，跳轉到 404 頁面
+        router.push('/404').catch(() => {})
+        shouldShowError = false
+      } else if (status === 500) {
+        errorMessage = '服務器內部錯誤，請稍後重試'
+      } else if (status === 403) {
+        errorMessage = '沒有權限訪問該文章'
+      } else if (status === 401) {
+        errorMessage = '未授權，請先登錄'
       } else {
-        errorMessage = `请求失败 (${error.response.status})`
+        errorMessage = `請求失敗 (${status})`
       }
-    } else if (error.code === 'ECONNREFUSED') {
-      errorMessage = '无法连接到服务器，请检查后端服务是否启动'
-    } else if (error.message.includes('timeout')) {
-      errorMessage = '请求超时，请检查网络连接'
+    } else if (error.code === 'ECONNREFUSED' || error.code === 'ERR_NETWORK') {
+      errorMessage = '無法連接到服務器，請檢查網絡連接和API配置'
+      console.error('API連接失敗，請檢查:', {
+        apiBaseURL: getApiBaseURL(),
+        identifier: routeParam.value,
+        isSlug: isSlug.value
+      })
+    } else if (error.message?.includes('timeout') || error.code === 'ECONNABORTED') {
+      errorMessage = '請求超時，請檢查網絡連接'
+    } else if (error.message) {
+      errorMessage = error.message
     }
     
+    if (shouldShowError) {
     ElMessage.error(errorMessage)
+    }
     
-    // 使用Mock数据作为fallback
-    console.log('Using mock data as fallback')
-    article.value = {
-      id: articleId.value,
-      title: 'Vue3博客系统开发指南 (Mock数据)',
-      summary: '本文介绍了如何使用Vue3、Element Plus和Tailwind CSS构建一个现代化的博客系统。',
-      content: `# Vue3博客系统开发指南
-
-本文介绍了如何使用Vue3、Element Plus和Tailwind CSS构建一个现代化的博客系统。
-
-## 技术栈
-
-- **Vue 3** - 渐进式JavaScript框架
-- **Element Plus** - Vue 3组件库
-- **Tailwind CSS** - 实用优先的CSS框架
-- **Pinia** - Vue状态管理
-- **Vue Router** - Vue官方路由管理器
-
-## 主要功能
-
-1. **文章管理** - 创建、编辑、删除文章
-2. **评论系统** - 用户评论和回复
-3. **用户认证** - 登录、注册、权限管理
-4. **响应式设计** - 适配各种设备
-
-## 开发过程
-
-### 1. 环境配置
-
-首先需要安装必要的依赖包：
-
-\`\`\`bash
-npm install vue@next
-npm install element-plus
-npm install tailwindcss
-npm install pinia
-npm install vue-router@4
-\`\`\`
-
-### 2. 组件开发
-
-创建各种组件来构建用户界面：
-
-\`\`\`vue
-&lt;template&gt;
-  &lt;div class="article-card"&gt;
-    &lt;h3 class="title"&gt;{{ article.title }}&lt;/h3&gt;
-    &lt;p class="content"&gt;{{ article.summary }}&lt;/p&gt;
-    &lt;div class="meta"&gt;
-      &lt;span class="author"&gt;{{ article.author }}&lt;/span&gt;
-      &lt;span class="date"&gt;{{ formatDate(article.createdAt) }}&lt;/span&gt;
-    &lt;/div&gt;
-  &lt;/div&gt;
-&lt;/template&gt;
-
-&lt;script setup&gt;
-import { computed } from 'vue'
-
-const props = defineProps({
-  article: {
-    type: Object,
-    required: true
-  }
-})
-
-const formatDate = (date) => {
-  return new Date(date).toLocaleDateString()
-}
-&lt;/script&gt;
-\`\`\`
-
-## 代码示例
-
-### JavaScript代码
-
-\`\`\`javascript
-// 文章API服务
-class ArticleService {
-  constructor() {
-    this.baseURL = '/api/articles'
-  }
-  
-  async getArticles(params = {}) {
-    const queryString = new URLSearchParams(params).toString()
-    const response = await fetch(this.baseURL + '?' + queryString)
-    return response.json()
-  }
-  
-  async getArticle(id) {
-    const response = await fetch(this.baseURL + '/' + id)
-    return response.json()
-  }
-}
-\`\`\`
-
-## 表格示例
-
-| 功能 | 技术栈 | 状态 |
-|------|--------|------|
-| 前端框架 | Vue 3 | ✅ 完成 |
-| UI组件库 | Element Plus | ✅ 完成 |
-| 样式框架 | Tailwind CSS | ✅ 完成 |
-| 状态管理 | Pinia | ✅ 完成 |
-| 路由管理 | Vue Router | ✅ 完成 |
-
-## 引用块示例
-
-> **重要提示**: 这是一个Mock数据示例，用于测试Markdown渲染功能。
-> 
-> 实际项目中，请确保：
-> 1. 后端服务正常运行
-> 2. API接口正确配置
-> 3. 数据库连接正常
-
-## 总结
-
-通过这个项目，我们可以学习到现代前端开发的最佳实践：
-
-- **组件化开发** - 提高代码复用性
-- **响应式设计** - 适配各种设备
-- **状态管理** - 统一管理应用状态
-- **路由管理** - 实现单页应用导航
-
----
-
-**注意**: 这是Mock数据，实际文章加载失败。请检查：
-1. 后端服务是否启动 (默认端口: 9090)
-2. API接口是否正确配置
-3. 网络连接是否正常`,
-      author: 'Hazenix',
-      authorName: 'Hazenix',
-      createTime: '2025-01-01',
-      createdAt: '2025-01-01',
-      viewCount: 100,
-      views: 100,
-      commentCount: 5,
-      comments: 5,
-      tags: [{ id: 1, name: 'Vue3' }, { id: 2, name: '前端' }, { id: 3, name: 'JavaScript' }],
-      category: { id: 1, name: '技术' },
-      categoryName: '技术'
+    // 生產環境不使用 Mock 數據，直接顯示錯誤狀態
+    // 只有在開發環境才使用 Mock 數據作為 fallback
+    if (import.meta.env.DEV) {
+      console.warn('開發環境：使用 Mock 數據作為 fallback')
+      article.value = null
+    } else {
+      // 生產環境：清空文章數據，顯示錯誤狀態
+      article.value = null
     }
   } finally {
     loading.value = false
@@ -465,7 +405,7 @@ const loadRelatedArticles = async () => {
     const res = await getRelatedArticles(articleId.value, { limit: 5 })
     relatedArticles.value = res.data
   } catch (error) {
-    console.error('Failed to load related articles:', error)
+    // console.error('Failed to load related articles:', error)
   }
 }
 
@@ -484,7 +424,7 @@ const likeArticle = async () => {
     
     ElMessage.success(article.value.isLiked ? '点赞成功' : '取消点赞')
   } catch (error) {
-    console.error('Like article failed:', error)
+    // console.error('Like article failed:', error)
     ElMessage.error('操作失败')
   }
 }
@@ -506,7 +446,7 @@ const shareArticle = async () => {
       ElMessage.success('链接已复制到剪贴板')
     }
   } catch (error) {
-    console.error('Share article failed:', error)
+    // console.error('Share article failed:', error)
     ElMessage.error('分享失败')
   }
 }
@@ -520,7 +460,7 @@ const collectArticle = async () => {
     article.value.isCollected = !article.value.isCollected
     ElMessage.success(article.value.isCollected ? '收藏成功' : '取消收藏')
   } catch (error) {
-    console.error('Favorite article failed:', error)
+    // console.error('Favorite article failed:', error)
     ElMessage.error('操作失败')
   }
 }
@@ -528,7 +468,7 @@ const collectArticle = async () => {
 // 处理目录点击
 const handleTocClick = (id) => {
   // 目录点击处理逻辑已在TableOfContents组件中实现
-  console.log('TOC clicked:', id)
+  // console.log('TOC clicked:', id)
 }
 
 // 处理评论添加
@@ -547,7 +487,7 @@ const goToArticle = (article) => {
     const identifier = article.slug || article.id
     // 如果是当前文章，不跳转
     if (article.value && (article.value.id === article.id || article.value.slug === identifier)) {
-      console.log('Already on this article, skipping navigation')
+      // console.log('Already on this article, skipping navigation')
       return
     }
     // 使用路由名称跳转，更可靠
@@ -556,7 +496,7 @@ const goToArticle = (article) => {
     // 如果传入的是ID，直接使用
     // 如果是当前文章，不跳转
     if (article.value && (article.value.id?.toString() === article?.toString() || article.value.id === article)) {
-      console.log('Already on this article, skipping navigation')
+      // console.log('Already on this article, skipping navigation')
       return
     }
     router.push({ name: 'ArticleDetail', params: { id: article } })
@@ -611,11 +551,11 @@ const toggleAISummary = () => {
 
 // 监听路由参数变化
 watch(() => route.params.id, (newId, oldId) => {
-  console.log('Route params id changed:', oldId, '->', newId)
+  // console.log('Route params id changed:', oldId, '->', newId)
   
   // 如果正在更新URL（从ID到slug），不重新加载文章
   if (isUpdatingUrl.value) {
-    console.log('Skipping reload: URL update in progress')
+    // console.log('Skipping reload: URL update in progress')
     return
   }
   
@@ -629,13 +569,13 @@ watch(() => route.params.id, (newId, oldId) => {
     // 检查新ID是否匹配当前文章的slug或ID
     if (article.value.slug === newId || article.value.id === newId || 
         article.value.id?.toString() === newId || article.value.slug?.toString() === newId) {
-      console.log('Article already loaded for this ID:', newId)
+      // console.log('Article already loaded for this ID:', newId)
       return
     }
   }
   
   if (newId) {
-    console.log('Loading new article due to route change')
+    // console.log('Loading new article due to route change')
     // 清空旧数据
     article.value = null
     relatedArticles.value = []

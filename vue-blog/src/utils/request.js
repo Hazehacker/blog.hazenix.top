@@ -2,9 +2,10 @@ import axios from "axios";
 import { ElMessage } from "element-plus";
 import router from "@/router/index.js";
 import { getToken } from "@/utils/auth";
+import { getApiBaseURL } from "@/utils/apiConfig";
 
 const request = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:9090",
+    baseURL: getApiBaseURL(),
     timeout: 30000 //后台接口超时时间
 })
 
@@ -22,14 +23,14 @@ request.interceptors.request.use(config => {
         config.headers['Content-Type'] = 'application/json;charset=utf-8';
     }
     // 调试日志：记录所有请求
-    console.log('发送请求:', {
-        method: config.method?.toUpperCase(),
-        url: config.url,
-        baseURL: config.baseURL,
-        fullURL: `${config.baseURL}${config.url}`,
-        data: config.data,
-        headers: config.headers
-    })
+    // console.log('发送请求:', {
+    //     method: config.method?.toUpperCase(),
+    //     url: config.url,
+    //     baseURL: config.baseURL,
+    //     fullURL: `${config.baseURL}${config.url}`,
+    //     data: config.data,
+    //     headers: config.headers
+    // })
     return config
 }, error => {
     return Promise.reject(error)
@@ -47,46 +48,84 @@ request.interceptors.response.use(
         return res;
     },
     error => {
-        console.error('API请求错误:', error)
+        const url = error.config?.url
+        const method = error.config?.method?.toUpperCase()
+        const fullURL = `${error.config?.baseURL || ''}${url}`
+        const isPublicResource = error.config?.isPublicResource || false
+
+        // 記錄詳細錯誤信息
+        console.error('API請求錯誤:', {
+            method,
+            url: fullURL,
+            status: error.response?.status,
+            statusText: error.response?.statusText,
+            data: error.response?.data,
+            code: error.code,
+            message: error.message,
+            isPublicResource
+        })
 
         if (error.response) {
             const status = error.response.status
-            const url = error.config?.url
-            // 判断是否为公开资源（不需要认证的API）
-            const isPublicResource = error.config?.isPublicResource || false
+            const errorData = error.response.data
 
-            console.error(`请求失败: ${status} - ${url}`)
-
+            // 對於公開資源，某些錯誤可以靜默處理
             if (status === 404) {
-                ElMessage.error(`接口不存在: ${url}`)
-            } else if (status === 500) {
-                ElMessage.error('服务器内部错误，请查看后端控制台')
-            } else if (status === 401) {
-                // 对于公开资源，不显示"未授权，请重新登录"的错误
-                // 允许用户继续访问，只是某些需要登录的功能可能不可用
+                // 404 錯誤不顯示通用錯誤提示，由具體頁面處理
                 if (!isPublicResource) {
-                    ElMessage.error('未授权，请重新登录')
+                    console.error(`接口不存在: ${fullURL}`)
+                }
+            } else if (status === 500) {
+                if (!isPublicResource) {
+                    ElMessage.error('服務器內部錯誤，請稍後重試')
+                }
+            } else if (status === 401) {
+                // 對於公開資源，不顯示"未授權，請重新登錄"的錯誤
+                // 允許用戶繼續訪問，只是某些需要登錄的功能可能不可用
+                if (!isPublicResource) {
+                    ElMessage.error('未授權，請重新登錄')
                 } else {
-                    // 公开资源的401错误，静默处理或只记录日志
-                    console.warn('公开资源访问返回401，可能是token过期，但不影响访问')
+                    // 公開資源的401錯誤，靜默處理或只記錄日志
+                    console.warn('公開資源訪問返回401，可能是token過期，但不影響訪問')
                 }
             } else if (status === 403) {
-                ElMessage.error('权限不足')
+                if (!isPublicResource) {
+                    ElMessage.error('權限不足')
+                }
             } else {
-                ElMessage.error(`请求失败 (${status})`)
+                // 其他狀態碼錯誤，根據是否為公開資源決定是否顯示
+                if (!isPublicResource) {
+                    const errorMsg = errorData?.message || errorData?.error || `請求失敗 (${status})`
+                    ElMessage.error(errorMsg)
+                }
             }
-        } else if (error.code === 'ECONNREFUSED') {
-            console.error('连接被拒绝，请检查后端服务是否启动')
-            ElMessage.error('无法连接到服务器，请检查后端服务是否启动')
+        } else if (error.code === 'ECONNREFUSED' || error.code === 'ERR_NETWORK') {
+            console.error('連接失敗:', {
+                code: error.code,
+                url: fullURL,
+                apiBaseURL: error.config?.baseURL,
+                message: error.message
+            })
+            // 網絡錯誤只在非公開資源或生產環境顯示
+            if (!isPublicResource || import.meta.env.PROD) {
+                ElMessage.error('無法連接到服務器，請檢查網絡連接和API配置')
+            }
         } else if (error.code === 'ENOTFOUND') {
-            console.error('域名解析失败')
-            ElMessage.error('网络连接失败，请检查网络设置')
-        } else if (error.message.includes('timeout')) {
-            console.error('请求超时')
-            ElMessage.error('请求超时，请检查网络连接')
+            console.error('域名解析失敗:', error.code)
+            if (!isPublicResource) {
+                ElMessage.error('網絡連接失敗，請檢查網絡設置')
+            }
+        } else if (error.message?.includes('timeout') || error.code === 'ECONNABORTED') {
+            console.error('請求超時:', error.code)
+            if (!isPublicResource) {
+                ElMessage.error('請求超時，請檢查網絡連接')
+            }
         } else {
-            console.error('网络请求失败:', error.message)
-            ElMessage.error('网络请求失败，请检查网络连接')
+            console.error('網絡請求失敗:', error.message)
+            // 其他錯誤根據是否為公開資源決定是否顯示
+            if (!isPublicResource) {
+                ElMessage.error('網絡請求失敗，請檢查網絡連接')
+            }
         }
         return Promise.reject(error)
     }

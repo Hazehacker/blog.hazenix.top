@@ -36,6 +36,8 @@ export const articleApi = {
 
     // 根据slug获取文章
     getArticleBySlug(slug) {
+        // Vue Router 會自動處理 URL 編碼/解碼，axios 也會自動編碼路徑參數
+        // 所以直接使用 slug 即可，不需要手動編碼
         return request({
             url: `/user/articles/slug/${slug}`,
             method: 'get',

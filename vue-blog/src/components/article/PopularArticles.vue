@@ -64,7 +64,7 @@ const loadPopularArticles = async () => {
       timeRange: 'week'
     })
     
-    console.log('Popular articles response:', response)
+    // console.log('Popular articles response:', response)
     
     // 处理不同的响应格式
     let articleList = []
@@ -99,7 +99,7 @@ const loadPopularArticles = async () => {
       return true
     })
   } catch (error) {
-    console.error('加载热门文章失败:', error)
+    // console.error('加载热门文章失败:', error)
     ElMessage.error('加载热门文章失败')
     articles.value = []
   } finally {

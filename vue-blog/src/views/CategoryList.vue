@@ -84,7 +84,7 @@ const recalculateCategoryCounts = async (categoryList) => {
     
     return categoryList
   } catch (error) {
-    console.error('重新计算分类数量失败:', error)
+    // console.error('重新计算分类数量失败:', error)
     return categoryList
   }
 }
@@ -100,7 +100,7 @@ const loadCategories = async () => {
     
     categories.value = categoryList
   } catch (error) {
-    console.error('Failed to load categories:', error)
+    // console.error('Failed to load categories:', error)
     categories.value = []
   } finally {
     loading.value = false

@@ -77,7 +77,7 @@ const loadLinks = async () => {
     const response = await frontendApi.getLinks({ status: 0 })
     links.value = response.data || []
   } catch (error) {
-    console.error('加载友链列表失败:', error)
+    // console.error('加载友链列表失败:', error)
     // 如果API调用失败，使用模拟数据
     const mockLinks = [
       {
@@ -113,7 +113,7 @@ const getLinkAvatar = (avatar) => {
 
 // 图片加载失败处理
 const handleImageError = (event) => {
-  console.warn('友链头像加载失败，使用默认头像:', event.target.src)
+  // console.warn('友链头像加载失败，使用默认头像:', event.target.src)
   // 直接使用默认头像，与用户头像处理方式一致
   event.target.src = avatarFallback
 }

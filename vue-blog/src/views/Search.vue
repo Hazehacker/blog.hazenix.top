@@ -160,7 +160,7 @@ const handleSearch = async () => {
     
     results.value = response.data || []
   } catch (error) {
-    console.error('搜索失败:', error)
+    // console.error('搜索失败:', error)
     ElMessage.error('搜索失败')
     results.value = []
   } finally {

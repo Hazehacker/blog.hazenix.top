@@ -139,7 +139,7 @@ const avatarUrl = computed(() => {
 })
 
 const onAvatarError = (e) => {
-  console.warn('头像加载失败，使用默认头像')
+  // console.warn('头像加载失败，使用默认头像')
   e.target.src = avatarFallback
 }
 
@@ -222,7 +222,7 @@ const loadCategories = async () => {
         }
       }
     } catch (articleError) {
-      console.warn('Failed to load articles for counting:', articleError)
+      // console.warn('Failed to load articles for counting:', articleError)
     }
     
     // 过滤文章：只保留已发布的文章（status=0），排除留言板文章（id=1）
@@ -255,7 +255,7 @@ const loadCategories = async () => {
     
     categories.value = categoriesWithCount
   } catch (error) {
-    console.error('Failed to load categories:', error)
+    // console.error('Failed to load categories:', error)
     categories.value = []
   } finally {
     loadingCategories.value = false

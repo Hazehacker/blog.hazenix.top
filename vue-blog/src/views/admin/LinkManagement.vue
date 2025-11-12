@@ -212,6 +212,7 @@ import { Plus, Search, Refresh } from '@element-plus/icons-vue'
 import { adminApi } from '@/api/admin'
 import { getToken } from '@/utils/auth'
 import { getAvatarUrl } from '@/utils/helpers'
+import { buildApiURL } from '@/utils/apiConfig'
 import avatarFallback from '@/assets/img/avatar.jpg'
 
 // 响应式数据
@@ -266,7 +267,7 @@ const rules = {
 }
 
 // 上传配置
-const uploadAction = computed(() => `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:9090'}/common/upload`)
+const uploadAction = computed(() => buildApiURL('/common/upload'))
 const uploadHeaders = {
   Authorization: `Bearer ${getToken()}`
 }
@@ -297,7 +298,7 @@ const loadLinks = async () => {
     links.value = response.data.records || response.data
     pagination.total = response.data.total || 0
   } catch (error) {
-    console.error('加载友链列表失败:', error)
+    // console.error('加载友链列表失败:', error)
     ElMessage.error('加载友链列表失败')
   } finally {
     loading.value = false
@@ -357,7 +358,7 @@ const toggleStatus = async (link) => {
     ElMessage.success('状态更新成功')
     loadLinks()
   } catch (error) {
-    console.error('更新状态失败:', error)
+    // console.error('更新状态失败:', error)
     ElMessage.error('更新状态失败')
   }
 }
@@ -380,7 +381,7 @@ const deleteLink = async (link) => {
     loadLinks()
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('删除友链失败:', error)
+      // console.error('删除友链失败:', error)
       ElMessage.error('删除失败')
     }
   }
@@ -412,7 +413,7 @@ const batchDelete = async () => {
     loadLinks()
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('批量删除失败:', error)
+      // console.error('批量删除失败:', error)
       ElMessage.error('批量删除失败')
     }
   }
@@ -448,7 +449,7 @@ const submitForm = async () => {
     showCreateDialog.value = false
     loadLinks()
   } catch (error) {
-    console.error('提交失败:', error)
+    // console.error('提交失败:', error)
     ElMessage.error('操作失败')
   } finally {
     submitting.value = false
@@ -467,7 +468,7 @@ const handleUploadSuccess = (response) => {
 
 // 上传失败处理
 const handleUploadError = (error) => {
-  console.error('上传失败:', error)
+  // console.error('上传失败:', error)
   ElMessage.error('上传失败')
 }
 
@@ -481,7 +482,7 @@ const getLinkAvatar = (avatar) => {
 
 // 图片加载失败处理
 const handleImageError = (event) => {
-  console.warn('友链头像加载失败，使用默认头像:', event.target.src)
+  // console.warn('友链头像加载失败，使用默认头像:', event.target.src)
   // 直接使用默认头像，与用户头像处理方式一致
   event.target.src = avatarFallback
 }

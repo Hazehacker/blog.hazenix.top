@@ -85,7 +85,7 @@ const recalculateTagCounts = async (tagList) => {
     
     return tagList
   } catch (error) {
-    console.error('重新计算标签数量失败:', error)
+    // console.error('重新计算标签数量失败:', error)
     return tagList
   }
 }
@@ -101,7 +101,7 @@ const loadTags = async () => {
     
     tags.value = tagList
   } catch (error) {
-    console.error('Failed to load tags:', error)
+    // console.error('Failed to load tags:', error)
     tags.value = []
   } finally {
     loading.value = false

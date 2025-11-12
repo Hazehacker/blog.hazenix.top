@@ -224,7 +224,7 @@ const getUserAvatar = (userInfo) => {
 
 // 头像加载错误处理 - 与友链和用户头像完全一致
 const handleAvatarError = (event) => {
-  console.warn('评论头像加载失败，使用默认头像:', event.target.src)
+  // console.warn('评论头像加载失败，使用默认头像:', event.target.src)
   // 直接使用默认头像，与友链和用户头像处理方式一致
   // 避免无限循环：如果已经是默认头像还失败，则保持现状
   if (event.target.src !== avatarFallback && !event.target.src.includes(avatarFallback)) {
@@ -265,14 +265,14 @@ const handleSubmit = async (commentId) => {
     } catch (error) {
       // 表单验证失败，不提交
       if (error !== false) {
-        console.log('表单验证失败:', error)
+        // console.log('表单验证失败:', error)
       }
     }
     return
   }
   
   if (!formRef) {
-    console.error('表单引用不存在，commentId:', commentId)
+    // console.error('表单引用不存在，commentId:', commentId)
     // 即使没有表单引用，也尝试提交（可能表单引用还没设置好）
     // 让父组件来处理验证
     emit('submit')
@@ -287,7 +287,7 @@ const handleSubmit = async (commentId) => {
   } catch (error) {
     // 表单验证失败，不提交
     if (error !== false) {
-      console.log('表单验证失败:', error)
+      // console.log('表单验证失败:', error)
     }
   }
 }

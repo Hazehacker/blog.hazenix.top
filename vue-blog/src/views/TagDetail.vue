@@ -86,17 +86,17 @@ const totalArticles = ref(0)
 // 方法
 const fetchTagArticles = async () => {
   if (!route.params.id) {
-    console.warn('标签ID不存在，无法获取文章')
+    // console.warn('标签ID不存在，无法获取文章')
     return
   }
   
   loading.value = true
   try {
-    console.log('开始获取标签文章，标签ID:', route.params.id)
+    // console.log('开始获取标签文章，标签ID:', route.params.id)
     
     // 根据图片中的接口，后端返回的是列表，不需要分页参数
     const response = await getTagArticles(route.params.id)
-    console.log('标签文章接口响应:', response)
+    // console.log('标签文章接口响应:', response)
     
     // 处理响应数据：后端返回格式为 { code, msg, data: [...] }
     let articleList = []
@@ -139,9 +139,9 @@ const fetchTagArticles = async () => {
       }
     }
     
-    console.log('成功获取标签文章，数量:', articles.value.length)
+    // console.log('成功获取标签文章，数量:', articles.value.length)
   } catch (error) {
-    console.error('获取标签文章失败:', error)
+    // console.error('获取标签文章失败:', error)
     ElMessage.error('获取标签文章失败，请稍后重试')
     articles.value = []
     tag.value = {

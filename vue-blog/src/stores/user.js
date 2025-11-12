@@ -47,10 +47,10 @@ export const useUserStore = defineStore('user', {
                 setToken(res.data.token)
                 // 处理登录响应：可能data包含user对象，也可能直接是user数据
                 const userData = res.data.user || res.data
-                console.log('登录响应数据:', res.data)
-                console.log('提取的用户数据:', userData)
+                // console.log('登录响应数据:', res.data)
+                // console.log('提取的用户数据:', userData)
                 this.userInfo = normalizeUserData(userData)
-                console.log('规范化后的用户信息:', this.userInfo)
+                // console.log('规范化后的用户信息:', this.userInfo)
             } else {
                 throw new Error(res.msg || '登录失败')
             }
@@ -73,9 +73,9 @@ export const useUserStore = defineStore('user', {
             const res = await getUserInfo()
             // 根据新的API响应格式处理
             if (res.code === 200) {
-                console.log('获取用户信息响应:', res.data)
+                // console.log('获取用户信息响应:', res.data)
                 this.userInfo = normalizeUserData(res.data)
-                console.log('更新后的用户信息:', this.userInfo)
+                // console.log('更新后的用户信息:', this.userInfo)
             } else {
                 throw new Error(res.msg || '获取用户信息失败')
             }
@@ -127,7 +127,7 @@ export const useUserStore = defineStore('user', {
                 await logoutApi()
             } catch (error) {
                 // 即使后端接口调用失败，也要清除本地数据
-                console.error('退出登录接口调用失败:', error)
+                // console.error('退出登录接口调用失败:', error)
             } finally {
                 // 清除本地token和用户信息
                 this.token = ''

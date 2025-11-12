@@ -101,7 +101,7 @@ async function downloadImageAsBlob(imageUrl) {
 
         return blob
     } catch (error) {
-        console.error('下载图片失败:', error)
+        // console.error('下载图片失败:', error)
         throw new Error(`下载图片失败: ${error.message}`)
     }
 }
@@ -132,7 +132,7 @@ async function uploadImageToServer(blob, originalUrl) {
             throw new Error(response.message || '上传失败')
         }
     } catch (error) {
-        console.error('上传图片失败:', error)
+        // console.error('上传图片失败:', error)
         throw new Error(`上传图片失败: ${error.message}`)
     }
 }
@@ -245,7 +245,7 @@ export async function processMarkdownImages(markdownContent, options = {}) {
             }
 
         } catch (error) {
-            console.error(`处理图片失败 ${imageInfo.url}:`, error)
+            // console.error(`处理图片失败 ${imageInfo.url}:`, error)
 
             if (showProgress) {
                 ElMessage.warning(`图片 ${imageInfo.url} 处理失败: ${error.message}`)
@@ -275,7 +275,7 @@ export async function batchProcessMarkdownImages(markdownContent) {
     return processMarkdownImages(markdownContent, {
         showProgress: true,
         onProgress: (current, total, url) => {
-            console.log(`处理进度: ${current}/${total} - ${url}`)
+            // console.log(`处理进度: ${current}/${total} - ${url}`)
         }
     })
 }

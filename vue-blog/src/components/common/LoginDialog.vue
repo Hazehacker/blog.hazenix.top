@@ -312,7 +312,7 @@ const handleLogin = async () => {
     try {
       await userStore.getUserInfo()
     } catch (error) {
-      console.warn('获取用户信息失败，但登录已成功:', error)
+      // console.warn('获取用户信息失败，但登录已成功:', error)
     }
     ElMessage.success('登录成功')
     closeDialog()
@@ -378,17 +378,17 @@ const handleGitHubLogin = async () => {
       }
     } catch (urlError) {
       // 如果 URL 解析失败，尝试简单替换或追加
-      console.warn('URL 解析失败，尝试简单处理:', urlError)
+      // console.warn('URL 解析失败，尝试简单处理:', urlError)
       // 如果后端返回的 URL 已经是完整的，我们相信后端已经处理好了
       // 否则，这里可能需要根据实际情况调整
     }
     
-    console.log('跳转到 GitHub 授权页面:', authUrl)
+    // console.log('跳转到 GitHub 授权页面:', authUrl)
     // 跳转到 GitHub 授权页面
     window.location.href = authUrl
   } catch (error) {
     ElMessage.error('获取GitHub授权链接失败: ' + (error.message || '未知错误'))
-    console.error('GitHub login error:', error)
+    // console.error('GitHub login error:', error)
     githubLoading.value = false
     // 清除 sessionStorage
     sessionStorage.removeItem('oauth_source')
@@ -407,7 +407,7 @@ const handleGoogleLogin = async () => {
     try {
       await userStore.getUserInfo()
     } catch (e) {
-      console.warn('获取用户信息失败，但登录已成功:', e)
+      // console.warn('获取用户信息失败，但登录已成功:', e)
     }
     ElMessage.success('登录成功')
     closeDialog()

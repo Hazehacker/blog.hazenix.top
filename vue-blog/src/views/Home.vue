@@ -72,7 +72,7 @@ const handleOAuthCallback = async () => {
   
   // 标记是否正在处理，避免重复处理
   if (window._oauthCallbackProcessing) {
-    console.log('OAuth 回调正在处理中，跳过')
+    // console.log('OAuth 回调正在处理中，跳过')
     return
   }
   
@@ -81,13 +81,13 @@ const handleOAuthCallback = async () => {
   try {
     // 根据 source 参数决定调用哪个登录方法
     if (source === 'github') {
-      console.log('处理 GitHub OAuth 回调')
+      // console.log('处理 GitHub OAuth 回调')
       await userStore.githubLogin(code)
       ElMessage.success('GitHub登录成功')
       // 清除 sessionStorage
       sessionStorage.removeItem('oauth_source')
     } else if (source === 'google') {
-      console.log('处理 Google OAuth 回调')
+      // console.log('处理 Google OAuth 回调')
       await userStore.googleLogin(code)
       ElMessage.success('Google登录成功')
       // 清除 sessionStorage
@@ -95,7 +95,7 @@ const handleOAuthCallback = async () => {
     } else {
       // 如果没有 source 参数，尝试通过 code 的特征判断
       // 但为了安全，建议明确指定 source
-      console.warn('未指定 OAuth 来源，默认尝试 GitHub')
+      // console.warn('未指定 OAuth 来源，默认尝试 GitHub')
       await userStore.githubLogin(code)
       ElMessage.success('登录成功')
       // 清除 sessionStorage
@@ -106,7 +106,7 @@ const handleOAuthCallback = async () => {
     try {
       await userStore.getUserInfo()
     } catch (error) {
-      console.warn('获取用户信息失败，但登录已成功:', error)
+      // console.warn('获取用户信息失败，但登录已成功:', error)
     }
     
     // 清除URL中的回调参数
@@ -116,7 +116,7 @@ const handleOAuthCallback = async () => {
     router.replace({ path: '/home', query: cleanQuery })
   } catch (error) {
     ElMessage.error('第三方登录失败: ' + (error.message || '未知错误'))
-    console.error('OAuth callback error:', error)
+    // console.error('OAuth callback error:', error)
     // 清除 sessionStorage
     sessionStorage.removeItem('oauth_source')
     // 即使登录失败，也清除URL中的回调参数
@@ -161,7 +161,7 @@ onMounted(async () => {
       page: 1,
       pageSize: 6 // 首页只显示6篇文章
     })
-    console.log('Home page articles response:', res)
+    // console.log('Home page articles response:', res)
     
     // 处理不同的响应格式
     let articleList = []
@@ -205,7 +205,7 @@ onMounted(async () => {
     // 只取前6篇
     latestArticles.value = articleList.slice(0, 6)
   } catch (error) {
-    console.error('Failed to load articles:', error)
+    // console.error('Failed to load articles:', error)
     // 使用mock数据作为fallback
     latestArticles.value = [
       {

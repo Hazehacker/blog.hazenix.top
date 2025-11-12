@@ -145,7 +145,7 @@ const handleUserCommand = async (command) => {
     router.push('/login')
   } else if (command === 'profile') {
     // 跳转到个人设置页面
-    console.log('跳转到个人设置')
+    // console.log('跳转到个人设置')
   }
 }
 

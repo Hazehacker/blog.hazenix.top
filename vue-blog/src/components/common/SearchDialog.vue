@@ -73,7 +73,7 @@ const handleSearch = async () => {
     })
     searchResults.value = res.data || []
   } catch (error) {
-    console.error('Search failed:', error)
+    // console.error('Search failed:', error)
     ElMessage.error('搜索失败')
     searchResults.value = []
   } finally {
@@ -102,9 +102,9 @@ const goToSearchPage = () => {
 // 暴露方法给父组件调用
 defineExpose({
   open: () => {
-    console.log('SearchDialog open method called, visible:', visible.value)
+    // console.log('SearchDialog open method called, visible:', visible.value)
     visible.value = true
-    console.log('SearchDialog visible set to:', visible.value)
+    // console.log('SearchDialog visible set to:', visible.value)
   }
 })
 </script>

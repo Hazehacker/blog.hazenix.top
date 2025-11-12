@@ -21,13 +21,13 @@ const props = defineProps({
 const renderedContent = computed(() => {
   if (!props.content) return ''
   const rendered = md.render(props.content)
-  console.log('Rendered markdown:', rendered)
+  // console.log('Rendered markdown:', rendered)
   
   // 检查是否有标题元素
   const tempDiv = document.createElement('div')
   tempDiv.innerHTML = rendered
   const headings = tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6')
-  console.log('Found headings in rendered content:', Array.from(headings).map(h => ({ id: h.id, text: h.textContent })))
+  // console.log('Found headings in rendered content:', Array.from(headings).map(h => ({ id: h.id, text: h.textContent })))
   
   return rendered
 })

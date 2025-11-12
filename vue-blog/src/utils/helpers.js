@@ -1,5 +1,6 @@
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
+import { getFileURL } from '@/utils/apiConfig'
 
 // 设置dayjs中文语言
 dayjs.locale('zh-cn')
@@ -406,7 +407,7 @@ export async function copyToClipboard(text) {
             return result
         }
     } catch (error) {
-        console.error('复制失败:', error)
+        // console.error('复制失败:', error)
         return false
     }
 }
@@ -549,37 +550,29 @@ export function getAvatarUrl(avatar, defaultAvatar = null) {
         return avatarStr
     }
     
-    // 如果是相对路径（以/开头），拼接API基础URL
+    // 如果是相对路径（以/开头），使用統一的文件 URL 構建函數
     if (avatarStr.startsWith('/')) {
-        const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:9090'
-        const cleanBaseURL = baseURL.replace(/\/$/, '')
-        return `${cleanBaseURL}${avatarStr}`
+        return getFileURL(avatarStr)
     }
     
-    // 如果包含文件扩展名（.jpg, .png, .gif等），认为是文件路径，拼接基础URL
+    // 如果包含文件扩展名（.jpg, .png, .gif等），认为是文件路径，使用統一的文件 URL 構建函數
     const imageExtensions = /\.(jpg|jpeg|png|gif|bmp|webp|svg)(\?.*)?$/i
     if (imageExtensions.test(avatarStr)) {
-        const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:9090'
-        const cleanBaseURL = baseURL.replace(/\/$/, '')
         const cleanAvatar = avatarStr.startsWith('/') ? avatarStr : `/${avatarStr}`
-        return `${cleanBaseURL}${cleanAvatar}`
+        return getFileURL(cleanAvatar)
     }
     
-    // 如果包含常见路径模式（如 uploads/、avatar/ 等），拼接基础URL
+    // 如果包含常见路径模式（如 uploads/、avatar/ 等），使用統一的文件 URL 構建函數
     if (avatarStr.includes('/') || avatarStr.includes('upload') || avatarStr.includes('avatar')) {
-        const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:9090'
-        const cleanBaseURL = baseURL.replace(/\/$/, '')
         const cleanAvatar = avatarStr.startsWith('/') ? avatarStr : `/${avatarStr}`
-        return `${cleanBaseURL}${cleanAvatar}`
+        return getFileURL(cleanAvatar)
     }
     
     // 如果是纯文件名或标识符（不包含路径分隔符和扩展名）
     // 这种情况通常表示后端返回的是文件名，需要拼接上传目录路径
     if (avatarStr.length > 0 && !avatarStr.includes('.') && !avatarStr.includes('/')) {
-        const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:9090'
-        const cleanBaseURL = baseURL.replace(/\/$/, '')
         const uploadPath = `/uploads/${avatarStr}`
-        return `${cleanBaseURL}${uploadPath}`
+        return getFileURL(uploadPath)
     }
     
     // 其他情况（可能是无效的标识符或无法识别的格式），返回默认值

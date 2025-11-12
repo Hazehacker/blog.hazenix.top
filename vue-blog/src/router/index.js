@@ -243,7 +243,7 @@ router.beforeEach(async (to, from, next) => {
       try {
         await userStore.getUserInfo()
       } catch (error) {
-        console.error('获取用户信息失败:', error)
+        // console.error('获取用户信息失败:', error)
         next({
           path: '/',
           query: { login: '1', redirect: to.fullPath }
@@ -265,7 +265,7 @@ router.beforeEach(async (to, from, next) => {
 
 // 路由错误处理
 router.onError((error) => {
-  console.error('路由错误:', error)
+  // console.error('路由错误:', error)
   ElMessage.error('页面加载失败')
 })
 

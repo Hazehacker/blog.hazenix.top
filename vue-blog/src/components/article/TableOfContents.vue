@@ -64,6 +64,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { Document, Star, Collection, Share, View, ChatDotRound } from '@element-plus/icons-vue'
+import MarkdownIt from 'markdown-it'
 
 const props = defineProps({
   content: {
@@ -86,21 +87,93 @@ const tocItems = ref([])
 const activeId = ref('')
 const scrollProgress = ref(0)
 
-// 解析内容生成目录
+// 使用 markdown-it 解析内容，只提取非代码块中的标题
+// markdown-it 的 fence token 是自包含的，所以任何 heading_open token 都不可能在代码块中
 const parseToc = (content) => {
   if (!content) return []
   
   const headings = []
+  
+  // 创建 markdown-it 实例（只用于解析，不渲染）
+  const md = new MarkdownIt()
+  
+  try {
+    // 解析 markdown 内容为 tokens
+    const tokens = md.parse(content, {})
+    
+    // 遍历 tokens，提取标题
+    // markdown-it 会将代码块内容作为单独的 fence token，不会混在其他 token 中
+    // 所以如果遇到 heading_open token，它肯定不在代码块中
+    tokens.forEach((token, index) => {
+      if (token.type === 'heading_open') {
+        // 获取标题内容（下一个 token 应该是 inline 类型，包含标题文本）
+        const nextToken = tokens[index + 1]
+        if (nextToken && nextToken.type === 'inline') {
+          const text = nextToken.content
+          const level = parseInt(token.tag.substring(1)) // h1 -> 1, h2 -> 2, etc.
+          const id = generateId(text)
+          
+          headings.push({
+            id,
+            level,
+            text,
+            line: token.map ? token.map[0] : 0
+          })
+        }
+      }
+    })
+  } catch (error) {
+    // console.error('Error parsing TOC with markdown-it:', error)
+    // 如果解析失败，回退到简单的行解析（但不解析代码块中的内容）
+    return parseTocFallback(content)
+  }
+  
+  // console.log('Generated TOC items:', headings)
+  return headings
+}
+
+// 回退方案：简单的行解析，但排除代码块
+const parseTocFallback = (content) => {
+  if (!content) return []
+  
+  const headings = []
   const lines = content.split('\n')
+  let inCodeBlock = false
+  let codeBlockFence = ''
   
   lines.forEach((line, index) => {
+    const trimmedLine = line.trim()
+    
+    // 检查是否是代码块标记
+    const codeFenceMatch = trimmedLine.match(/^(```+|~~~+)/)
+    
+    if (codeFenceMatch) {
+      const fence = codeFenceMatch[1]
+      const fenceType = fence.substring(0, 3)
+      
+      if (!inCodeBlock) {
+        inCodeBlock = true
+        codeBlockFence = fenceType
+      } else {
+        if (fenceType === codeBlockFence) {
+          inCodeBlock = false
+          codeBlockFence = ''
+        }
+      }
+      return
+    }
+    
+    // 如果在代码块中，跳过
+    if (inCodeBlock) {
+      return
+    }
+    
+    // 检查是否是标题
     const match = line.match(/^(#{1,6})\s+(.+)$/)
     if (match) {
       const level = match[1].length
       const text = match[2].trim()
-      // 改进的ID生成逻辑，支持中文字符
       const id = generateId(text)
-      console.log('TOC parse:', text, '->', id)
       
       headings.push({
         id,
@@ -111,7 +184,6 @@ const parseToc = (content) => {
     }
   })
   
-  console.log('Generated TOC items:', headings)
   return headings
 }
 
@@ -146,13 +218,13 @@ const updateToc = () => {
 
 // 处理目录点击
 const handleTocClick = (id) => {
-  console.log('TOC clicked:', id)
+  // console.log('TOC clicked:', id)
   activeId.value = id
   emit('toc-click', id)
   
   // 滚动到对应位置
   const element = document.getElementById(id)
-  console.log('Found element:', element)
+  // console.log('Found element:', element)
   
   if (element) {
     element.scrollIntoView({ 
@@ -160,10 +232,10 @@ const handleTocClick = (id) => {
       block: 'start'
     })
   } else {
-    console.warn('Element not found for ID:', id)
+    // console.warn('Element not found for ID:', id)
     // 尝试查找所有标题元素进行调试
     const allHeadings = document.querySelectorAll('h1, h2, h3, h4, h5, h6')
-    console.log('All headings:', Array.from(allHeadings).map(h => ({ id: h.id, text: h.textContent })))
+    // console.log('All headings:', Array.from(allHeadings).map(h => ({ id: h.id, text: h.textContent })))
   }
 }
 

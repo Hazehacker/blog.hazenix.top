@@ -591,7 +591,7 @@ const initForm = () => {
         try {
           editor.value.setMarkdown('')
         } catch (error) {
-          console.error('清空编辑器内容失败:', error)
+          // console.error('清空编辑器内容失败:', error)
         }
       })
     }
@@ -644,9 +644,9 @@ const initEditor = async () => {
         }
       })
       
-      console.log('编辑器初始化成功')
+      // console.log('编辑器初始化成功')
     } catch (error) {
-      console.error('编辑器初始化失败:', error)
+      // console.error('编辑器初始化失败:', error)
       ElMessage.error('编辑器初始化失败')
     }
   }
@@ -711,7 +711,7 @@ const handleEditorImageUpload = async (blob, callback) => {
       ElMessage.error(result.message || '图片上传失败')
     }
   } catch (error) {
-    console.error('图片上传失败:', error)
+    // console.error('图片上传失败:', error)
     callback('', '图片上传失败')
     ElMessage.error('网络错误，图片上传失败')
   }
@@ -734,7 +734,7 @@ const setPreviewMode = (mode) => {
         editor.value.changeMode('markdown')
       }
     } catch (error) {
-      console.error('切换预览模式失败:', error)
+      // console.error('切换预览模式失败:', error)
       // 如果切换失败，重新初始化编辑器
       nextTick(() => {
         initEditor()
@@ -783,8 +783,8 @@ const handleFileImport = async (event) => {
   reader.onload = async (e) => {
     try {
       const content = e.target.result
-      console.log('文件内容读取成功，长度:', content.length)
-      console.log('文件内容预览:', content.substring(0, 200) + '...')
+      // console.log('文件内容读取成功，长度:', content.length)
+      // console.log('文件内容预览:', content.substring(0, 200) + '...')
       
       // 检查是否有图片需要处理
       const imageUrls = extractImageUrls(content)
@@ -798,7 +798,7 @@ const handleFileImport = async (event) => {
           processedContent = await batchProcessMarkdownImages(content)
           ElMessage.success('图片自动上传处理完成！')
         } catch (error) {
-          console.error('图片处理失败:', error)
+          // console.error('图片处理失败:', error)
           ElMessage.warning('图片自动上传失败，将使用原始内容')
           processedContent = content
         }
@@ -813,9 +813,9 @@ const handleFileImport = async (event) => {
           editor.value.setMarkdown(processedContent)
           form.content = processedContent
           ElMessage.success('文件导入成功，左右两边都已更新')
-          console.log('编辑器内容已更新')
+          // console.log('编辑器内容已更新')
         } catch (error) {
-          console.error('设置编辑器内容失败:', error)
+          // console.error('设置编辑器内容失败:', error)
           // 如果设置失败，尝试重新初始化编辑器
           form.content = processedContent
           nextTick(() => {
@@ -827,16 +827,16 @@ const handleFileImport = async (event) => {
         // 如果编辑器还没初始化，先保存内容
         form.content = processedContent
         ElMessage.success('文件已读取，编辑器初始化后将自动加载')
-        console.log('编辑器未初始化，内容已保存')
+        // console.log('编辑器未初始化，内容已保存')
       }
     } catch (error) {
-      console.error('文件读取失败:', error)
+      // console.error('文件读取失败:', error)
       ElMessage.error('文件读取失败: ' + error.message)
     }
   }
   
   reader.onerror = (error) => {
-    console.error('文件读取错误:', error)
+    // console.error('文件读取错误:', error)
     ElMessage.error('文件读取失败，请检查文件格式和编码')
   }
   
@@ -844,7 +844,7 @@ const handleFileImport = async (event) => {
   try {
     reader.readAsText(file, 'UTF-8')
   } catch (error) {
-    console.error('开始读取文件时出错:', error)
+    // console.error('开始读取文件时出错:', error)
     ElMessage.error('无法读取文件: ' + error.message)
   }
   
@@ -889,10 +889,10 @@ const saveArticle = async (status) => {
       isTop: isTopValue
     }
     
-    console.log('保存文章数据:', articleData)
+    // console.log('保存文章数据:', articleData)
     emit('save', articleData)
   } catch (error) {
-    console.error('保存文章失败:', error)
+    // console.error('保存文章失败:', error)
     ElMessage.error('保存失败')
   } finally {
     saving.value = false
@@ -949,7 +949,7 @@ const handleCreateCategory = async () => {
     
   } catch (error) {
     if (error !== false) {
-      console.error('创建分类失败:', error)
+      // console.error('创建分类失败:', error)
       ElMessage.error('创建分类失败')
     }
   } finally {
@@ -1007,7 +1007,7 @@ const handleCreateTag = async () => {
     
   } catch (error) {
     if (error !== false) {
-      console.error('创建标签失败:', error)
+      // console.error('创建标签失败:', error)
       ElMessage.error('创建标签失败')
     }
   } finally {
@@ -1033,7 +1033,7 @@ watch(() => props.article, (newArticle) => {
           try {
             editor.value.setMarkdown(newArticle.content)
           } catch (error) {
-            console.error('更新编辑器内容失败:', error)
+            // console.error('更新编辑器内容失败:', error)
           }
         }
       })

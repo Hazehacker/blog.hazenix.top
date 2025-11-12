@@ -110,7 +110,7 @@ const fetchSiteStats = async () => {
       }
     }
   } catch (error) {
-    console.error('获取网站统计数据失败:', error)
+    // console.error('获取网站统计数据失败:', error)
     // 出错时保持默认值 0
   }
 }

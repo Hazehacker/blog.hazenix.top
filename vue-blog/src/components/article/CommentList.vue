@@ -231,7 +231,7 @@ const getUserAvatar = (userInfo) => {
 // 头像加载错误处理
 // 注意：el-avatar组件的error事件可能不会传递标准的event对象
 const handleAvatarError = (e) => {
-  console.warn('评论头像加载失败:', e?.target?.src || e)
+  // console.warn('评论头像加载失败:', e?.target?.src || e)
   // el-avatar在图片加载失败时会自动显示用户名首字母，但我们仍然尝试设置默认头像
   // 如果e是event对象，尝试设置src
   if (e?.target && e.target.src !== avatarFallback) {
@@ -301,7 +301,7 @@ const loadComments = async () => {
       totalComments.value = countAllComments(commentList)
     }
   } catch (error) {
-    console.error('加载评论失败:', error)
+    // console.error('加载评论失败:', error)
     ElMessage.error('加载评论失败')
   } finally {
     loading.value = false
@@ -362,7 +362,7 @@ const submitComment = async () => {
     await loadComments()
     emit('comment-added', response.data)
   } catch (error) {
-    console.error('发表评论失败:', error)
+    // console.error('发表评论失败:', error)
     if (error.response?.status === 401) {
       ElMessage.error('登录已过期，请重新登录')
       openLoginDialog()
@@ -447,7 +447,7 @@ const likeComment = async (comment) => {
     comment.isLiked = !comment.isLiked
     comment.likeCount = (comment.likeCount || 0) + (comment.isLiked ? 1 : -1)
   } catch (error) {
-    console.error('点赞失败:', error)
+    // console.error('点赞失败:', error)
     ElMessage.error('点赞失败')
   }
 }
@@ -471,7 +471,7 @@ const formatTime = (timeString) => {
   try {
     return dayjs(timeString).format('YYYY-MM-DD HH:mm')
   } catch (error) {
-    console.error('时间格式化失败:', error)
+    // console.error('时间格式化失败:', error)
     return timeString
   }
 }

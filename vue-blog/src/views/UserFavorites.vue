@@ -158,7 +158,7 @@ const loadFavoriteArticles = async () => {
     favoriteArticles.value = response.data.records || response.data || []
     total.value = response.data.total || favoriteArticles.value.length
   } catch (error) {
-    console.error('加载收藏文章失败:', error)
+    // console.error('加载收藏文章失败:', error)
     ElMessage.error('加载收藏文章失败')
   } finally {
     loading.value = false
@@ -191,7 +191,7 @@ const removeFavorite = async (articleId) => {
     loadFavoriteArticles()
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('取消收藏失败:', error)
+      // console.error('取消收藏失败:', error)
       ElMessage.error('操作失败')
     }
   }

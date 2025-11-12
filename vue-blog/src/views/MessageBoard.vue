@@ -167,13 +167,13 @@ const loadArticle = async () => {
       try {
         await incrementViewCount(1)
       } catch (viewError) {
-        console.warn('Failed to increment view count:', viewError)
+        // console.warn('Failed to increment view count:', viewError)
       }
     } else {
       throw new Error('留言板内容为空')
     }
   } catch (error) {
-    console.error('Failed to load message board:', error)
+    // console.error('Failed to load message board:', error)
     
     let errorMessage = '加载留言板失败'
     if (error.response) {
@@ -206,7 +206,7 @@ const likeArticle = async () => {
     
     ElMessage.success(article.value.isLiked ? '点赞成功' : '取消点赞')
   } catch (error) {
-    console.error('Like article failed:', error)
+    // console.error('Like article failed:', error)
     ElMessage.error('操作失败')
   }
 }
@@ -227,7 +227,7 @@ const shareArticle = async () => {
       ElMessage.success('链接已复制到剪贴板')
     }
   } catch (error) {
-    console.error('Share article failed:', error)
+    // console.error('Share article failed:', error)
     ElMessage.error('分享失败')
   }
 }
@@ -241,14 +241,14 @@ const collectArticle = async () => {
     article.value.isCollected = !article.value.isCollected
     ElMessage.success(article.value.isCollected ? '收藏成功' : '取消收藏')
   } catch (error) {
-    console.error('Favorite article failed:', error)
+    // console.error('Favorite article failed:', error)
     ElMessage.error('操作失败')
   }
 }
 
 // 处理目录点击
 const handleTocClick = (id) => {
-  console.log('TOC clicked:', id)
+  // console.log('TOC clicked:', id)
 }
 
 // 处理评论添加
