@@ -136,6 +136,15 @@ const updates = ref([
     type: 'optimization',
     releaseDate: '2025-11-07',
     content: '根据反馈进行样式与交互微调，完成测试与材料编写，正式发布。'
+  },
+  {
+    id: '2025-12-19',
+    version: 'v1.0.2',
+    title: '优化文章展示',
+    isImportant: false,
+    type: 'bugfix',
+    releaseDate: '2025-12-19',
+    content: '修复与优化文章展示页面，提升了美观度；增加了微信联系方式'
   }
 ])
 

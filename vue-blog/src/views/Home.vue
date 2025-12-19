@@ -210,21 +210,21 @@ onMounted(async () => {
     latestArticles.value = [
       {
         id: 1,
-        title: 'Vue3博客系统开发指南',
-        summary: '本文介绍了如何使用Vue3、Element Plus和Tailwind CSS构建一个现代化的博客系统...',
+        title: '服务器故障，欢迎联系我修复',
+        summary: '...',
         author: 'Hazenix',
-        createTime: '2025-01-01',
+        createTime: '2025-12-19',
         viewCount: 100,
-        tags: [{ id: 1, name: 'Vue3' }, { id: 2, name: '前端' }]
+        tags: [{ id: 1, name: '运维' }, { id: 2, name: '后端' }]
       },
       {
         id: 2,
-        title: '现代前端开发最佳实践',
-        summary: '探索现代前端开发中的最佳实践，包括组件设计、状态管理、性能优化等方面...',
+        title: '也可能是网络问题',
+        summary: '..',
         author: 'Hazenix',
-        createTime: '2025-01-02',
+        createTime: '2025-12-19',
         viewCount: 85,
-        tags: [{ id: 3, name: 'JavaScript' }, { id: 4, name: '最佳实践' }]
+        tags: [{ id: 3, name: '运维' }, { id: 4, name: '后端' }]
       }
     ]
   }

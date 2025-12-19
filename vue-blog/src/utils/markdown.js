@@ -203,6 +203,53 @@ md.renderer.rules.link_open = function (tokens, idx, options, env, renderer) {
     return renderer.renderToken(tokens, idx, options)
 }
 
+// 添加高亮语法支持：==文字== 会被高亮显示
+// 使用 markdown-it 的自定义 inline 规则来实现
+md.inline.ruler.before('emphasis', 'highlight', function(state, silent) {
+    const start = state.pos
+    const max = state.posMax
+    
+    // 检查是否以 == 开头
+    if (state.src.charCodeAt(start) !== 0x3D/* = */ || 
+        state.src.charCodeAt(start + 1) !== 0x3D/* = */) {
+        return false
+    }
+    
+    // 查找结束的 ==
+    let pos = start + 2
+    let found = false
+    
+    while (pos < max - 1) {
+        if (state.src.charCodeAt(pos) === 0x3D/* = */ && 
+            state.src.charCodeAt(pos + 1) === 0x3D/* = */) {
+            found = true
+            break
+        }
+        pos++
+    }
+    
+    if (!found || pos === start + 2) {
+        return false
+    }
+    
+    const content = state.src.slice(start + 2, pos)
+    
+    if (!silent) {
+        const token = state.push('highlight', 'mark', 0)
+        token.content = content
+        token.markup = '=='
+    }
+    
+    state.pos = pos + 2
+    return true
+})
+
+// 添加高亮渲染规则
+md.renderer.rules.highlight = function(tokens, idx, options, env, renderer) {
+    const token = tokens[idx]
+    return `<mark class="markdown-highlight">${md.utils.escapeHtml(token.content)}</mark>`
+}
+
 // 導出重置函數和 ID 生成函數，用於在每次渲染新內容時重置已使用的ID
 export { resetUsedIds, generateId }
 

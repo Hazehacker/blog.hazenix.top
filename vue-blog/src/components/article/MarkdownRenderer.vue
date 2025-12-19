@@ -218,6 +218,12 @@ const renderedContent = computed(() => {
   @apply italic;
 }
 
+/* 高亮样式 */
+:deep(mark.markdown-highlight) {
+  @apply bg-[#ffff00] text-gray-900 dark:text-gray-100 px-1 rounded;
+  font-weight: 500;
+}
+
 /* 删除线样式 */
 :deep(del) {
   @apply line-through text-gray-500 dark:text-gray-500;
