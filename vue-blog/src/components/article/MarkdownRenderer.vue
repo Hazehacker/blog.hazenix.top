@@ -135,18 +135,18 @@ const renderedContent = computed(() => {
 
 :deep(ul) {
   list-style-type: disc;
-  list-style-position: inside;
+  list-style-position: outside;
 }
 
 :deep(ol) {
   list-style-type: decimal;
-  list-style-position: inside;
+  list-style-position: outside;
 }
 
 :deep(li) {
   @apply text-gray-700 dark:text-gray-300;
   margin: 0.25rem 0;
-  padding: 0;
+  padding-left: 0.5rem;
   line-height: 1.75;
   display: list-item;
 }
