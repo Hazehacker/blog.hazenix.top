@@ -132,7 +132,7 @@
       />
     </div>
 
-    <!-- 固定互动按钮（右侧固定） -->
+    <!-- 固定互动按钮（左侧固定） -->
     <div v-if="article && !isMobile" class="fixed-actions">
       <div class="action-item" @click="likeArticle" :class="{ 'liked': article?.isLiked }">
         <el-icon class="action-icon" :class="{ 'text-red-500': article?.isLiked }">
@@ -605,7 +605,7 @@ onUnmounted(() => {
 .article-container {
   @apply max-w-7xl mx-auto px-4 py-8;
   display: grid;
-  grid-template-columns: 1fr 300px;
+  grid-template-columns: 1fr 280px;
   gap: 2rem;
 }
 
@@ -776,9 +776,9 @@ onUnmounted(() => {
   gap: 0.3rem;
   background: white;
   border-radius: 12px;
-  padding: 0.75rem;
+  padding: 0.rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(229, 231, 235, 1);
+  border: 0.5px solid rgba(229, 231, 235, 1);
 }
 
 .dark .fixed-actions {

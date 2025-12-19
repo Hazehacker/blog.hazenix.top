@@ -22,8 +22,16 @@ const renderedContent = computed(() => {
   if (!props.content) return ''
   // 在每次渲染前重置已使用的ID，確保每個標題都有唯一的ID
   resetUsedIds()
-  const rendered = md.render(props.content)
-  // console.log('Rendered markdown:', rendered)
+  
+  // 预处理：将 [spacer] 替换为 HTML 空行元素（在渲染前处理，因为 Markdown 支持 HTML）
+  // 有几个 [spacer] 就添加几个空行
+  let processedContent = props.content.replace(/\[spacer\]/gi, () => {
+    // 每个 [spacer] 替换为一个空行 div（高度为 1.5em，相当于一行半的高度，形成明显的空行效果）
+    return '<div class="markdown-spacer" style="height: 1.5em; margin: 0; padding: 0;"></div>'
+  })
+  
+  // 渲染 Markdown（HTML 会被保留）
+  const rendered = md.render(processedContent)
   
   // 检查是否有标题元素
   const tempDiv = document.createElement('div')
@@ -101,27 +109,39 @@ const renderedContent = computed(() => {
 
 /* 标题样式 */
 :deep(h1) {
-  @apply text-3xl font-bold text-gray-900 dark:text-gray-100 mt-8 mb-4 pb-2 border-b border-gray-200 dark:border-gray-700;
+  @apply font-bold text-gray-900 dark:text-gray-100 mt-8 mb-4 pb-2 border-b border-gray-200 dark:border-gray-700;
+  font-size: 2.25rem; /* 36px - 最大标题 */
+  line-height: 1.2;
 }
 
 :deep(h2) {
-  @apply text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-6 mb-3;
+  @apply font-semibold text-gray-900 dark:text-gray-100 mt-6 mb-3;
+  font-size: 1.875rem; /* 30px - 二级标题 */
+  line-height: 1.3;
 }
 
 :deep(h3) {
-  @apply text-xl font-semibold text-gray-900 dark:text-gray-100 mt-5 mb-2;
+  @apply font-semibold text-gray-900 dark:text-gray-100 mt-5 mb-2;
+  font-size: 1.65rem; /* 24px - 三级标题 */
+  line-height: 1.4;
 }
 
 :deep(h4) {
-  @apply text-lg font-semibold text-gray-900 dark:text-gray-100 mt-4 mb-2;
+  @apply font-semibold text-gray-900 dark:text-gray-100 mt-4 mb-2;
+  font-size: 1.35rem; /* 20px - 四级标题，明显大于加粗字体(16px) */
+  line-height: 1.5;
 }
 
 :deep(h5) {
-  @apply text-base font-semibold text-gray-900 dark:text-gray-100 mt-3 mb-2;
+  @apply font-semibold text-gray-900 dark:text-gray-100 mt-3 mb-2;
+  font-size: 1.125rem; /* 18px */
+  line-height: 1.5;
 }
 
 :deep(h6) {
-  @apply text-sm font-semibold text-gray-900 dark:text-gray-100 mt-3 mb-2;
+  @apply font-semibold text-gray-900 dark:text-gray-100 mt-3 mb-2;
+  font-size: 1rem; /* 16px */
+  line-height: 1.5;
 }
 
 /* 列表样式 */
@@ -231,15 +251,19 @@ const renderedContent = computed(() => {
   }
   
   :deep(h1) {
-    @apply text-2xl;
+    font-size: 1.875rem; /* 30px */
   }
   
   :deep(h2) {
-    @apply text-xl;
+    font-size: 1.5rem; /* 24px */
   }
   
   :deep(h3) {
-    @apply text-lg;
+    font-size: 1.25rem; /* 20px */
+  }
+  
+  :deep(h4) {
+    font-size: 1.125rem; /* 18px */
   }
 }
 </style>
