@@ -62,7 +62,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { Document, Star, Collection, Share, View, ChatDotRound } from '@element-plus/icons-vue'
 import MarkdownIt from 'markdown-it'
 
@@ -87,10 +87,17 @@ const tocItems = ref([])
 const activeId = ref('')
 const scrollProgress = ref(0)
 
+// 注意：TableOfContents 现在直接从 DOM 读取 ID，不再自己生成
+// 保留 usedIds 用于回退方案
+const usedIds = new Map()
+
 // 使用 markdown-it 解析内容，只提取非代码块中的标题
 // markdown-it 的 fence token 是自包含的，所以任何 heading_open token 都不可能在代码块中
 const parseToc = (content) => {
   if (!content) return []
+  
+  // 重置已使用的ID
+  usedIds.clear()
   
   const headings = []
   
@@ -111,7 +118,7 @@ const parseToc = (content) => {
         if (nextToken && nextToken.type === 'inline') {
           const text = nextToken.content
           const level = parseInt(token.tag.substring(1)) // h1 -> 1, h2 -> 2, etc.
-          const id = generateId(text)
+          const id = generateId(text, true) // 使用唯一ID生成函数
           
           headings.push({
             id,
@@ -135,6 +142,9 @@ const parseToc = (content) => {
 // 回退方案：简单的行解析，但排除代码块
 const parseTocFallback = (content) => {
   if (!content) return []
+  
+  // 重置已使用的ID
+  usedIds.clear()
   
   const headings = []
   const lines = content.split('\n')
@@ -173,7 +183,7 @@ const parseTocFallback = (content) => {
     if (match) {
       const level = match[1].length
       const text = match[2].trim()
-      const id = generateId(text)
+      const id = generateId(text, true) // 使用唯一ID生成函数
       
       headings.push({
         id,
@@ -187,8 +197,8 @@ const parseTocFallback = (content) => {
   return headings
 }
 
-// 生成ID的函数，支持中文字符
-const generateId = (text) => {
+// 生成ID的函数，支持中文字符，并为重复的标题添加序号后缀（与 markdown.js 中的逻辑一致）
+const generateId = (text, isUnique = false) => {
   if (!text) return ''
   
   // 移除HTML标签
@@ -208,35 +218,119 @@ const generateId = (text) => {
     id = `heading-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
   }
   
+  // 如果需要唯一ID，检查是否已存在，如果存在则添加序号后缀
+  if (isUnique) {
+    const baseId = id
+    let counter = 1
+    while (usedIds.has(id)) {
+      id = `${baseId}-${counter}`
+      counter++
+    }
+    usedIds.set(id, true)
+  }
+  
   return id
 }
 
 // 更新目录
 const updateToc = () => {
   tocItems.value = parseToc(props.content)
+  
+  // 等待 DOM 更新后，从实际渲染的标题中同步 ID
+  setTimeout(() => {
+    syncTocIdsFromDOM()
+  }, 300)
+}
+
+// 从 DOM 中同步标题 ID，确保目录 ID 与实际渲染的标题 ID 一致
+const syncTocIdsFromDOM = () => {
+  // 在文章内容区域查找标题（避免找到其他地方的标题）
+  const articleContent = document.querySelector('.markdown-content, .article-body, .prose')
+  const searchContainer = articleContent || document
+  
+  const domHeadings = Array.from(searchContainer.querySelectorAll('h1, h2, h3, h4, h5, h6'))
+    .filter(h => h.id) // 只获取有 ID 的标题
+  
+  if (domHeadings.length === 0) {
+    // 如果 DOM 中还没有标题，稍后重试
+    setTimeout(() => syncTocIdsFromDOM(), 200)
+    return
+  }
+  
+  // 按顺序匹配目录项和 DOM 标题
+  const updatedItems = []
+  let domIndex = 0
+  
+  for (let i = 0; i < tocItems.value.length; i++) {
+    const tocItem = tocItems.value[i]
+    let matched = false
+    
+    // 从当前位置开始查找匹配的标题
+    for (let j = domIndex; j < domHeadings.length; j++) {
+      const heading = domHeadings[j]
+      const headingText = heading.textContent.trim()
+      
+      // 如果文本匹配（允许一些容差）
+      if (headingText === tocItem.text || 
+          headingText.includes(tocItem.text) || 
+          tocItem.text.includes(headingText)) {
+        updatedItems.push({
+          ...tocItem,
+          id: heading.id
+        })
+        domIndex = j + 1
+        matched = true
+        break
+      }
+    }
+    
+    // 如果没有找到匹配，保持原来的 ID
+    if (!matched) {
+      updatedItems.push(tocItem)
+    }
+  }
+  
+  tocItems.value = updatedItems
+  
+  // 同步完成后，更新活动标题
+  nextTick(() => {
+    updateActiveHeading()
+  })
 }
 
 // 处理目录点击
 const handleTocClick = (id) => {
-  // console.log('TOC clicked:', id)
   activeId.value = id
   emit('toc-click', id)
   
-  // 滚动到对应位置
-  const element = document.getElementById(id)
-  // console.log('Found element:', element)
-  
-  if (element) {
-    element.scrollIntoView({ 
-      behavior: 'smooth',
-      block: 'start'
-    })
-  } else {
-    // console.warn('Element not found for ID:', id)
-    // 尝试查找所有标题元素进行调试
-    const allHeadings = document.querySelectorAll('h1, h2, h3, h4, h5, h6')
-    // console.log('All headings:', Array.from(allHeadings).map(h => ({ id: h.id, text: h.textContent })))
+  // 滚动到对应位置，添加重试机制
+  const scrollToElement = (retries = 3) => {
+    const element = document.getElementById(id)
+    
+    if (element) {
+      // 计算偏移量，考虑固定头部
+      const offset = 100
+      const elementPosition = element.getBoundingClientRect().top + window.pageYOffset
+      const offsetPosition = elementPosition - offset
+      
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      })
+      
+      // 滚动完成后更新活动标题
+      setTimeout(() => {
+        updateActiveHeading()
+      }, 500)
+    } else if (retries > 0) {
+      // 如果元素还没渲染，等待一下再重试
+      setTimeout(() => {
+        scrollToElement(retries - 1)
+      }, 100)
+    }
   }
+  
+  scrollToElement()
 }
 
 // 更新滚动进度
@@ -250,14 +344,46 @@ const updateScrollProgress = () => {
 // 更新活动标题
 const updateActiveHeading = () => {
   const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6')
-  let current = ''
+  if (headings.length === 0) return
   
+  let current = ''
+  let currentTop = Infinity
+  
+  // 找到当前最接近顶部但仍在视口上方的标题
   headings.forEach(heading => {
+    if (!heading.id) return // 跳过没有ID的标题
+    
     const rect = heading.getBoundingClientRect()
-    if (rect.top <= 100) {
-      current = heading.id
+    const top = rect.top
+    
+    // 如果标题在视口上方或刚刚进入视口（距离顶部150px以内）
+    if (top <= 150) {
+      // 选择最接近顶部但仍在视口上方的标题
+      if (top > currentTop || currentTop === Infinity) {
+        current = heading.id
+        currentTop = top
+      }
     }
   })
+  
+  // 如果没有找到在视口上方的标题，选择第一个在视口内的标题
+  if (!current) {
+    for (let i = 0; i < headings.length; i++) {
+      const heading = headings[i]
+      if (!heading.id) continue
+      
+      const rect = heading.getBoundingClientRect()
+      if (rect.top >= 0 && rect.top <= 300) {
+        current = heading.id
+        break
+      }
+    }
+  }
+  
+  // 如果还是没有找到，选择第一个标题
+  if (!current && headings.length > 0 && headings[0].id) {
+    current = headings[0].id
+  }
   
   activeId.value = current
 }
@@ -291,6 +417,10 @@ const handleShare = () => {
 onMounted(() => {
   updateToc()
   window.addEventListener('scroll', handleScroll)
+  // 等待 DOM 渲染完成后初始化活动标题
+  setTimeout(() => {
+    updateActiveHeading()
+  }, 200)
 })
 
 onUnmounted(() => {
@@ -300,6 +430,10 @@ onUnmounted(() => {
 // 监听内容变化
 watch(() => props.content, () => {
   updateToc()
+  // 内容更新后，等待 DOM 更新再初始化活动标题
+  setTimeout(() => {
+    updateActiveHeading()
+  }, 100)
 }, { immediate: true })
 </script>
 

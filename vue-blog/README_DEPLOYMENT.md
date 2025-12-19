@@ -125,3 +125,5 @@ proxy_set_header X-Forwarded-Proto $scheme;
 2. 確認 `VITE_API_BASE_URL` 不包含末尾斜杠
 3. 確認 Nginx `proxy_pass` 配置正確
 
+
+

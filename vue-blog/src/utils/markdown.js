@@ -39,8 +39,11 @@ const md = new MarkdownIt({
     }
 })
 
-// 生成ID的函数，支持中文字符
-const generateId = (text) => {
+// 用于追踪已使用的ID，确保每个标题都有唯一的ID
+const usedIds = new Map()
+
+// 生成ID的函数，支持中文字符，并为重复的标题添加序号后缀
+const generateId = (text, isUnique = false) => {
     if (!text) return ''
 
     // 移除HTML标签
@@ -60,15 +63,30 @@ const generateId = (text) => {
         id = `heading-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
     }
 
-    console.log('Slugify:', text, '->', id)
+    // 如果需要唯一ID，检查是否已存在，如果存在则添加序号后缀
+    if (isUnique) {
+        const baseId = id
+        let counter = 1
+        while (usedIds.has(id)) {
+            id = `${baseId}-${counter}`
+            counter++
+        }
+        usedIds.set(id, true)
+    }
+
     return id
+}
+
+// 重置已使用的ID（在每次渲染新内容时调用）
+const resetUsedIds = () => {
+    usedIds.clear()
 }
 
 // 添加锚点插件
 md.use(anchor, {
     permalink: false, // 不显示锚点链接，只添加ID
     level: [1, 2, 3, 4, 5, 6],
-    slugify: generateId,
+    slugify: (text) => generateId(text, true), // 使用唯一ID生成函数
     // 确保插件正确工作
     tabIndex: false
 })
@@ -95,8 +113,8 @@ md.renderer.rules.heading_open = function (tokens, idx, options, env, renderer) 
 
     if (nextToken && nextToken.type === 'inline') {
         const text = nextToken.content
-        const id = generateId(text)
-        console.log('Manual heading ID:', text, '->', id)
+        // 使用 isUnique=true 确保每个标题都有唯一的ID
+        const id = generateId(text, true)
         return `<${level} id="${id}">`
     }
 
@@ -125,7 +143,7 @@ md.renderer.rules.td_open = function () {
 }
 
 md.renderer.rules.blockquote_open = function () {
-    return '<blockquote class="border-l-4 border-blue-500 pl-4 italic text-gray-600 dark:text-gray-400 my-4">'
+    return '<blockquote class="border-l-4 border-blue-500 pl-4 text-gray-600 dark:text-gray-400 my-4" style="font-style: normal !important;">'
 }
 
 md.renderer.rules.blockquote_close = function () {
@@ -184,5 +202,8 @@ md.renderer.rules.link_open = function (tokens, idx, options, env, renderer) {
 
     return renderer.renderToken(tokens, idx, options)
 }
+
+// 導出重置函數和 ID 生成函數，用於在每次渲染新內容時重置已使用的ID
+export { resetUsedIds, generateId }
 
 export default md

@@ -84,7 +84,7 @@ public class RedisConfiguration {
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(jsonRedisSerializer))
                 //GenericJackson2JsonRedisSerializer 会保留类型信息（通过 @class 字段），能正确反序列化泛型
-                .entryTtl(Duration.ofHours(1)); // 设置默认过期时间
+                .entryTtl(Duration.ofMinutes(30)); // 设置默认过期时间
 
         return RedisCacheManager.builder(factory).cacheDefaults(config).build();
     }

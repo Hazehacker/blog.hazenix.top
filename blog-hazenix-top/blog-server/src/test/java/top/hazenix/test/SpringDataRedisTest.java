@@ -6,6 +6,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.connection.DataType;
 import org.springframework.data.redis.core.*;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -78,5 +80,22 @@ public class SpringDataRedisTest {
 //        redisTemplate.delete("mylist");//根据key删除
 //
 //    }
+    public void test(){
+        Boolean flag  = false;
+        if(flag){
 
+        }
+        int max = Integer.MAX_VALUE;
+        int s = 1,t = 2;
+
+        int[] arr = {0,0};
+        int a = 1;int b = 3;
+
+        StringBuilder temp1 = new StringBuilder(s);
+        StringBuilder temp2 = new StringBuilder(s);
+        if(temp1.equals(temp2)){}
+        char c1 = temp1.charAt(0);
+        int[] nums = {1,2,3};
+        Arrays.sort(nums);
+    }
 }

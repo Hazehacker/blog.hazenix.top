@@ -9,7 +9,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import md from '@/utils/markdown'
+import md, { resetUsedIds } from '@/utils/markdown'
 
 const props = defineProps({
   content: {
@@ -20,6 +20,8 @@ const props = defineProps({
 
 const renderedContent = computed(() => {
   if (!props.content) return ''
+  // 在每次渲染前重置已使用的ID，確保每個標題都有唯一的ID
+  resetUsedIds()
   const rendered = md.render(props.content)
   // console.log('Rendered markdown:', rendered)
   
@@ -72,7 +74,14 @@ const renderedContent = computed(() => {
 
 /* 引用块样式 */
 :deep(blockquote) {
-  @apply border-l-4 border-blue-500 pl-4 italic text-gray-600 dark:text-gray-400 my-4 bg-gray-50 dark:bg-gray-800 py-2 rounded-r;
+  @apply border-l-4 border-blue-500 pl-4 text-gray-600 dark:text-gray-400 my-4 bg-gray-50 dark:bg-gray-800 py-2 rounded-r;
+  font-style: normal !important; /* 覆盖 Tailwind prose 的默认斜体样式 */
+}
+
+/* 引用块内的文字不应该是斜体 */
+:deep(blockquote p),
+:deep(blockquote *:not(em):not(i)) {
+  font-style: normal !important;
 }
 
 /* 链接样式 */

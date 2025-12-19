@@ -38,4 +38,6 @@ public interface ArticleService {
     void favoriteArticle(Long id);
 
     List<ArticleShortVO> getRelatedArticles(Long id,Integer limit);
+
+    void addArticleViewByMe(Long id, Integer count);
 }

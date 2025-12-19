@@ -52,6 +52,7 @@ public class ArticleController {
      * @return
      */
     @GetMapping("/{id}")
+    @Cacheable(cacheNames = "articlesCache", key = "#id")
     public Result getArticleDetail(@PathVariable Long id){
         log.info("获取文章详情");
         ArticleDetailVO articleDetailVO = articleService.getArticleDetail(id);
@@ -184,6 +185,19 @@ public class ArticleController {
         //TODO 后期可以做一个redis缓存，然后定期持久化到数据库
         log.info("更新文章浏览数:{}",id);
         articleService.updateArticleView(id);
+        return Result.success();
+    }
+
+    /**
+     * 增加文章浏览量
+     * @param id
+     * @param count
+     * @return
+     */
+    @PostMapping("/{id}/view/{count}")
+    public Result updateArticleView(@PathVariable Long id,@PathVariable Integer count){
+        log.info("更新文章浏览数:{}",id);
+        articleService.addArticleViewByMe(id,count);
         return Result.success();
     }
 

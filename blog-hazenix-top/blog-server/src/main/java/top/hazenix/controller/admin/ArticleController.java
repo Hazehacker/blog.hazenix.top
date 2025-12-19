@@ -49,6 +49,7 @@ public class ArticleController {
     /**
      * 获取文章列表（分页展示支持筛选）
      * @return
+     * [用得少，暂时不加redis]
      */
     //categoryID可以为空
     @GetMapping

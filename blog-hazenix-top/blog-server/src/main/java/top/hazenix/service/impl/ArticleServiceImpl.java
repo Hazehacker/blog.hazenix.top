@@ -416,6 +416,16 @@ public class ArticleServiceImpl implements ArticleService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public void addArticleViewByMe(Long id, Integer count) {
+        Article article = Article.builder()
+                .id(id)
+                .viewCount(articleMapper.getById(id).getViewCount()+count)
+                .build();
+        articleMapper.update(article);
+        return;
+    }
+
     /**
      * 获取文章列表(主要用于用户端)
      * @param
