@@ -26,6 +26,7 @@ public class AutoFillAspect {
     /**
      * 切入点
      */
+    // 【cv注意修改切入点表达式】
     @Pointcut("execution(* top.hazenix.mapper.*.*(..)) && @annotation(top.hazenix.annotation.AutoFill)")
     public void  autoFillPointCut(){}
 

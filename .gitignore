@@ -1,12 +1,87 @@
-HELP.md
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+
+# ==========================
+# 通用忽略项
+# ==========================
+
+# 编译/打包文件
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.zip
+*.tar.gz
+*.rar
+
+# 日志文件
+*.log
+hs_err_pid*
+replay_pid*
+
+# IDE 和编辑器
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# 构建产物（前端 & 小程序）
+/dist/
+/build/
+/miniprogram-dist/
+/output/
+/out/
+/temp/
+/tmp/
+
+# Node.js 依赖
+node_modules/
+npm-debug.log*
+yarn-error.log*
+yarn.lock
+
+
+# Java
+target/
+out/
+bin/
+.classpath
+.project
+.settings/
+.metadata/
+
+# SpringBoot
+application-*.yml
+application-*.yaml
+
+# SpringCloud
+bootstrap-*.yml
+bootstrap-*.yaml
+
+# 其他常见
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.npmrc
+.pnpm-store
+*.lock
+*.iml
+
+
 target/
 !.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+!.mvn/wrapper/maven-wrapper.properties
 
-.env
-.env.devlopment
-.env.production
+# ---一些编译器
 
 ### STS ###
 .apt_generated
@@ -30,11 +105,19 @@ target/
 /nbdist/
 /.nb-gradle/
 build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
 ### VS Code ###
 .vscode/
+/src/test/java/com/louyy/zxxk/temp/
+/src/main/java/com/louyy/zxxk/controller/Test/
 
-application-*.yml
-application-dev.yml
+
+
+#---
+
+
+
+
+# 如果用了 Docker，可以加：
+docker-compose.yml
+Dockerfile

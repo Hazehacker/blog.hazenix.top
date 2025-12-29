@@ -23,7 +23,6 @@ public class WebController {
 
     private final AliOssUtil aliOssUtil;
 
-
     @PostMapping("/upload")
     public Result upload(MultipartFile file) {
         log.info("文件上传：{}",file.getOriginalFilename());
