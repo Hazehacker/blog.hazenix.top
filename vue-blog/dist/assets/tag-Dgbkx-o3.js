@@ -1,1 +1,0 @@
-import{a2 as e}from"./index-cinz6B6s.js";function u(){return e({url:"/user/tags",method:"get",isPublicResource:!0})}function a(t,r={}){return e({url:`/user/tags/${t}/articles`,method:"get",isPublicResource:!0,params:r})}export{a,u as g};

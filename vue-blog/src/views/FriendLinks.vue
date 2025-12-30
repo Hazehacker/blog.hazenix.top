@@ -93,7 +93,7 @@
                           在本站扫码加我的，请加上
                         </p>
                         <p class="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">
-                          "[blog.hazenix.top]"
+                          "[blog]"
                         </p>
                         <p class="text-xs text-gray-600 dark:text-gray-400">
                           前缀，感谢配合
