@@ -28,10 +28,10 @@
               <h3 class="article-title">{{ article.title }}</h3>
               
               <div class="article-meta">
-                <span class="meta-item">
+                <!-- <span class="meta-item">
                   <el-icon><View /></el-icon>
                   {{ article.viewCount || 0 }} 阅读
-                </span>
+                </span> -->
                 <span class="meta-item">
                   <el-icon><Star /></el-icon>
                   {{ article.likeCount || 0 }} 点赞

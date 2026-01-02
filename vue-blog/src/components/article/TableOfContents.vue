@@ -49,10 +49,10 @@
 
     <!-- 文章统计信息 -->
     <div v-if="!isMobile && article" class="article-stats" style="display: flex;padding-left: 40px;">
-      <div class="stats-item" style="display: flex;width: 50%;">
+      <!-- <div class="stats-item" style="display: flex;width: 50%;">
         <el-icon class="stats-icon"><View /></el-icon>
         <span class="stats-text">  {{ article.viewCount || article.views || 0 }}</span>
-      </div>
+      </div> -->
       <div class="stats-item" style="display: flex;width: 50%;margin-bottom: 8px;">
         <el-icon class="stats-icon"><ChatDotRound /></el-icon>
         <span class="stats-text"> {{ article.commentCount || article.comments || 0 }}</span>

@@ -152,10 +152,10 @@
                   <el-icon><Calendar /></el-icon>
                   <span>{{ formatDate(article.createTime || article.createdAt) }}</span>
                 </div>
-                <div class="meta-item">
+                <!-- <div class="meta-item">
                   <el-icon><View /></el-icon>
                   <span>{{ formatNumber(article.viewCount || article.views || 0) }}</span>
-                </div>
+                </div> -->
                 <div class="meta-item">
                   <el-icon><ChatDotRound /></el-icon>
                   <span>{{ formatNumber(article.commentCount || article.comments || 0) }}</span>

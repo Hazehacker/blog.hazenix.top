@@ -18,10 +18,10 @@
         <div class="article-content">
           <h4 class="article-title">{{ article.title }}</h4>
           <div class="article-meta">
-            <span class="meta-item">
+            <!-- <span class="meta-item">
               <el-icon><View /></el-icon>
               {{ article.viewCount || 0 }}
-            </span>
+            </span> -->
             <span class="meta-item">
               <el-icon><Star /></el-icon>
               {{ article.likeCount || 0 }}

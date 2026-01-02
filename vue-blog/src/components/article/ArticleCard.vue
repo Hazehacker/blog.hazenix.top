@@ -16,7 +16,7 @@
       <div class="flex items-center space-x-4">
         <span>{{ article.author }}</span>
         <span>{{ formatDate(article.createTime) }}</span>
-        <span>浏览 {{ article.viewCount }}</span>
+        <!-- <span>浏览 {{ article.viewCount }}</span> -->
       </div>
       
       <div class="flex items-center space-x-2">

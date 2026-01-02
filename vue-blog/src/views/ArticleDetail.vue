@@ -14,7 +14,6 @@
               :created-at="article.createTime || article.createdAt"
               :updated-at="article.updatedAt || article.updateTime"
               :content="article.content"
-              :views="article.viewCount || article.views || 0"
               :category-name="getCategoryName(article)"
               :tags="article.tags"
             />
@@ -98,7 +97,7 @@
             >
               <h4 class="related-title">{{ related.title }}</h4>
               <p class="related-meta">
-                {{ formatDate(related.createTime) }} · {{ related.viewCount || 0 }} 阅读
+                {{ formatDate(related.createTime) }} <!-- · {{ related.viewCount || 0 }} 阅读 -->
               </p>
             </div>
           </div>

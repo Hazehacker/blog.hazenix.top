@@ -16,10 +16,10 @@
           <div class="text-2xl font-bold text-primary">{{ stats.articleCount }}</div>
           <div class="text-sm text-gray-500">文章</div>
         </div>
-        <div class="text-center">
+        <!-- <div class="text-center">
           <div class="text-2xl font-bold text-primary">{{ stats.totalViewCount }}</div>
           <div class="text-sm text-gray-500">浏览</div>
-        </div>
+        </div> -->
         <div class="text-center">
           <div class="text-2xl font-bold text-primary">{{ stats.totalLikeCount }}</div>
           <div class="text-sm text-gray-500">点赞</div>

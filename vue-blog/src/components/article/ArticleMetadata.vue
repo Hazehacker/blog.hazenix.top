@@ -17,10 +17,10 @@
 
 
       <!-- 阅读量 -->
-      <div class="metadata-item">
+      <!-- <div class="metadata-item">
         <el-icon class="metadata-icon"><View /></el-icon>
         <span class="metadata-value">{{ views || 0 }} views</span>
-      </div>
+      </div> -->
 
       <!-- 预计阅读时长 -->
       <div class="metadata-item">
