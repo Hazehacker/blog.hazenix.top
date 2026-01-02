@@ -59,7 +59,7 @@
                 <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">部署与运维</h3>
                 <ul class="list-disc pl-6 text-gray-700 dark:text-gray-300">
                   <li>Docker ，Nginx </li>
-                  <li>CI/CD（GitHub Actions）</li>
+                  <li>Jenkins </li>
                   <li>CDN与WAF</li>
                 </ul>
               </div>
