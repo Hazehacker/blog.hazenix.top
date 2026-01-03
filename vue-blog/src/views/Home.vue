@@ -92,6 +92,12 @@ const handleOAuthCallback = async () => {
       ElMessage.success('Google登录成功')
       // 清除 sessionStorage
       sessionStorage.removeItem('oauth_source')
+    } else if (source === 'wechat') {
+      // console.log('处理微信 OAuth 回调')
+      await userStore.wechatLogin(code)
+      ElMessage.success('微信登录成功')
+      // 清除 sessionStorage
+      sessionStorage.removeItem('oauth_source')
     } else {
       // 如果没有 source 参数，尝试通过 code 的特征判断
       // 但为了安全，建议明确指定 source

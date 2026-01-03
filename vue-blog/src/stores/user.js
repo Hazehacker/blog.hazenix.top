@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { getToken, setToken, removeToken } from '@/utils/auth'
-import { login as loginApi, register as registerApi, getUserInfo, googleAuthCallback, getGithubAuthUrl, githubAuthCallback, logout as logoutApi, loginWithGoogleIdToken } from '@/api/auth'
+import { login as loginApi, register as registerApi, getUserInfo, googleAuthCallback, getGithubAuthUrl, githubAuthCallback, logout as logoutApi, loginWithGoogleIdToken, wechatAuthCallback } from '@/api/auth'
 
 // 规范化用户数据，统一role和isAdmin字段
 function normalizeUserData(userData) {
@@ -118,6 +118,19 @@ export const useUserStore = defineStore('user', {
                 this.userInfo = normalizeUserData(userData)
             } else {
                 throw new Error(res.msg || 'GitHub登录失败')
+            }
+        },
+
+        async wechatLogin(code) {
+            const res = await wechatAuthCallback(code)
+            if (res.code === 200) {
+                this.token = res.data.token
+                setToken(res.data.token)
+                // 从 data 中提取用户信息（排除 token 字段）
+                const { token, ...userData } = res.data
+                this.userInfo = normalizeUserData(userData)
+            } else {
+                throw new Error(res.msg || '微信登录失败')
             }
         },
 

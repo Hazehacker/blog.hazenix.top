@@ -38,4 +38,8 @@ public interface UserService {
     UserLoginVO authorizingWithGithubCode(String code) throws JsonProcessingException;
 
     UserLoginVO idTokenlogin(UserLoginDTO userLoginDTO) throws ParseException;
+
+    String getWechatAuthorizingUrl();
+
+    UserLoginVO authorizingWithWechatCode(String code) throws JsonProcessingException;
 }

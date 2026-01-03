@@ -64,6 +64,22 @@ export function githubAuthCallback(code) {
     })
 }
 
+// 微信第三方授权相关接口
+export function getWechatAuthUrl() {
+    return request({
+        url: '/user/user/wechat/url',
+        method: 'get'
+    })
+}
+
+export function wechatAuthCallback(code) {
+    return request({
+        url: '/user/user/wechat/callback',
+        method: 'get',
+        params: { code }
+    })
+}
+
 // 用户退出登录
 export function logout() {
     return request({

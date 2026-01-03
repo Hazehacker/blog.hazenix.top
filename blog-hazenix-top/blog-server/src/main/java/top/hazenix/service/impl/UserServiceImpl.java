@@ -40,6 +40,7 @@ import top.hazenix.dto.UserDTO;
 import top.hazenix.dto.UserLoginDTO;
 import top.hazenix.entity.GithubAuthorization;
 import top.hazenix.entity.GoogleAuthorization;
+import top.hazenix.entity.WechatAuthorization;
 import top.hazenix.entity.User;
 import top.hazenix.entity.UserArticle;
 import top.hazenix.exception.PasswordErrorException;
@@ -82,6 +83,7 @@ public class UserServiceImpl implements UserService {
 
     private final GoogleAuthorization googleAuthorization;
     private final GithubAuthorization githubAuthorization;
+    private final WechatAuthorization wechatAuthorization;
     private final UserMapper userMapper;
     private final JwtProperties jwtProperties;
     private final RedisTemplate redisTemplate;
@@ -354,6 +356,27 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
+     * 生成用户授权URL，将用户重定向到微信登录页面进行身份验证
+     * @return
+     */
+    @Override
+    public String getWechatAuthorizingUrl() {
+        try {
+            String appId = wechatAuthorization.getAppId();
+            String redirectUrl = wechatAuthorization.getRedirectUrl();
+            String scope = wechatAuthorization.getScope();
+            // 微信OAuth2.0授权URL格式
+            String url = "https://open.weixin.qq.com/connect/qrconnect?appid=" + appId 
+                    + "&redirect_uri=" + java.net.URLEncoder.encode(redirectUrl, "UTF-8")
+                    + "&response_type=code&scope=" + scope 
+                    + "&state=STATE#wechat_redirect";
+            return url;
+        } catch (Exception e) {
+            throw new RuntimeException("生成微信授权URL失败", e);
+        }
+    }
+
+    /**
      * 生成用户授权URL，将用户重定向到github登录页面进行身份验证
      * @return
      */
@@ -506,7 +529,79 @@ public class UserServiceImpl implements UserService {
         return userLoginVO;
     }
 
-
+    /**
+     * 使用授权码获得登录token【微信】
+     * @param authorizationCode
+     * @return
+     */
+    @Override
+    public UserLoginVO authorizingWithWechatCode(String authorizationCode) throws JsonProcessingException {
+        //安全性验证
+        if (StringUtils.isBlank(authorizationCode)) {
+            throw new IllegalArgumentException(MessageConstant.NOT_AUTHED);
+        }
+        // 限制授权码长度，防止潜在的恶意输入
+        if (authorizationCode.length() > 2048) {
+            throw new IllegalArgumentException(MessageConstant.CODE_TOO_LONG);
+        }
+        
+        // 1. 构建请求参数（用于获取 access_token）
+        RestTemplate restTemplate = new RestTemplate();
+        
+        // 微信要求使用 GET 请求，参数在URL中
+        String tokenUrl = "https://api.weixin.qq.com/sns/oauth2/access_token"
+                + "?appid=" + wechatAuthorization.getAppId()
+                + "&secret=" + wechatAuthorization.getAppSecret()
+                + "&code=" + authorizationCode
+                + "&grant_type=authorization_code";
+        
+        // 2. 发送 GET 请求到微信获取 access_token
+        ResponseEntity<String> tokenResponse = restTemplate.getForEntity(tokenUrl, String.class);
+        
+        // 3. 解析响应，获取 access_token
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode tokenNode = objectMapper.readTree(tokenResponse.getBody());
+        
+        // 检查是否有错误
+        if (tokenNode.has("errcode")) {
+            String errMsg = tokenNode.has("errmsg") ? tokenNode.get("errmsg").asText() : "微信授权失败";
+            throw new RuntimeException("微信授权失败: " + errMsg);
+        }
+        
+        String accessToken = tokenNode.get("access_token") != null ? tokenNode.get("access_token").asText() : null;
+        String openid = tokenNode.get("openid") != null ? tokenNode.get("openid").asText() : null;
+        
+        if (StringUtils.isBlank(accessToken) || StringUtils.isBlank(openid)) {
+            throw new RuntimeException("微信授权失败: 无法获取access_token或openid");
+        }
+        
+        // 4. 使用 access_token 和 openid 获取用户信息
+        String userInfoUrl = "https://api.weixin.qq.com/sns/userinfo"
+                + "?access_token=" + accessToken
+                + "&openid=" + openid;
+        
+        ResponseEntity<String> userResponse = restTemplate.getForEntity(userInfoUrl, String.class);
+        
+        // 5. 解析用户信息
+        JsonNode userNode = objectMapper.readTree(userResponse.getBody());
+        
+        // 检查是否有错误
+        if (userNode.has("errcode")) {
+            String errMsg = userNode.has("errmsg") ? userNode.get("errmsg").asText() : "获取微信用户信息失败";
+            throw new RuntimeException("获取微信用户信息失败: " + errMsg);
+        }
+        
+        String nickname = userNode.get("nickname") != null ? userNode.get("nickname").asText() : null;
+        String avatar = userNode.get("headimgurl") != null ? userNode.get("headimgurl").asText() : null;
+        // 微信可能不返回邮箱，使用openid作为唯一标识
+        String email = openid + "@wechat.local"; // 使用openid构造一个虚拟邮箱
+        // 【一个用户可以有多个账号】
+        
+        // 6. 调用登录逻辑
+        UserLoginVO userLoginVO = loginLogic(email, nickname, avatar, null);
+        
+        return userLoginVO;
+    }
 
     /**
      * 从 query string 格式解析 access_token

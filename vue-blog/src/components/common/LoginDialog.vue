@@ -49,6 +49,14 @@
               Google
             </button>
           </div>
+          
+          <!-- 微信登录按钮（单独一行，更大） -->
+          <button class="wechat-login-btn" @click="handleWechatLogin" :disabled="wechatLoading">
+            <svg class="wechat-icon" viewBox="0 0 24 24" width="24" height="24">
+              <path fill="#07C160" d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.496-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.68c-2.316 0-4.198 1.807-4.198 4.034 0 2.227 1.882 4.034 4.198 4.034a4.2 4.2 0 0 0 3.113-1.356.662.662 0 0 1 .51-.24c.06 0 .12.01.175.03l.854.496a.236.236 0 0 0 .22.01.238.238 0 0 0 .12-.14l.2-.75a.55.55 0 0 1 .33-.38c.64-.25 1.22-.6 1.71-1.03a4.06 4.06 0 0 0 1.418-3.054c0-2.227-1.882-4.034-4.198-4.034zm-2.51 2.68c.356 0 .645.293.645.654a.642.642 0 0 1-.645.652.642.642 0 0 1-.645-.652c0-.361.289-.654.645-.654zm3.79 0c.356 0 .645.293.645.654a.642.642 0 0 1-.645.652.642.642 0 0 1-.645-.652c0-.361.289-.654.645-.654z"/>
+            </svg>
+            <span class="wechat-text">微信</span>
+          </button>
         </div>
         
         <!-- 邮箱登录表单 -->
@@ -133,7 +141,7 @@ import { ref, onMounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
-import { getGoogleAuthUrl, getGithubAuthUrl } from '@/api/auth'
+import { getGoogleAuthUrl, getGithubAuthUrl, getWechatAuthUrl } from '@/api/auth'
 import { getGoogleIdToken } from '@/utils/googleAuth'
 
 const router = useRouter()
@@ -143,6 +151,7 @@ const formRef = ref()
 const loading = ref(false)
 const googleLoading = ref(false)
 const githubLoading = ref(false)
+const wechatLoading = ref(false)
 const visible = ref(false)
 const showEmailForm = ref(false)
 const captchaCode = ref('')
@@ -425,6 +434,63 @@ const handleGoogleLogin = async () => {
   }
 }
 
+// 微信登录处理
+const handleWechatLogin = async () => {
+  // 防止重复点击
+  if (wechatLoading.value) {
+    return
+  }
+  
+  try {
+    wechatLoading.value = true
+    
+    // 使用 sessionStorage 记录微信登录（作为备用方案）
+    sessionStorage.setItem('oauth_source', 'wechat')
+    
+    // 获取微信授权URL
+    const res = await getWechatAuthUrl()
+    let authUrl = res.data
+    
+    // 微信登录可以在 redirect_uri 中包含 source 参数
+    // 尝试解析 URL 并修改 redirect_uri
+    try {
+      const url = new URL(authUrl)
+      let redirectUri = url.searchParams.get('redirect_uri')
+      
+      if (redirectUri) {
+        // 解码现有的 redirect_uri
+        const decodedUri = decodeURIComponent(redirectUri)
+        const redirectUrl = new URL(decodedUri)
+        // 添加 source 参数
+        redirectUrl.searchParams.set('source', 'wechat')
+        // 重新编码并设置
+        url.searchParams.set('redirect_uri', redirectUrl.toString())
+        authUrl = url.toString()
+      } else {
+        // 如果没有 redirect_uri，添加它
+        url.searchParams.set('redirect_uri', `${window.location.origin}/home?source=wechat`)
+        authUrl = url.toString()
+      }
+    } catch (urlError) {
+      // 如果 URL 解析失败，尝试简单替换或追加
+      // console.warn('URL 解析失败，尝试简单处理:', urlError)
+      // 如果后端返回的 URL 已经是完整的，我们相信后端已经处理好了
+      // 否则，这里可能需要根据实际情况调整
+    }
+    
+    // console.log('跳转到微信授权页面:', authUrl)
+    // 跳转到微信授权页面
+    window.location.href = authUrl
+  } catch (error) {
+    ElMessage.error('获取微信授权链接失败: ' + (error.message || '未知错误'))
+    // console.error('WeChat login error:', error)
+    wechatLoading.value = false
+    // 清除 sessionStorage
+    sessionStorage.removeItem('oauth_source')
+  }
+  // 注意：跳转后页面会卸载，不需要在 finally 中重置 loading
+}
+
 onMounted(() => {
   generateCaptcha()
 })
@@ -586,6 +652,47 @@ defineExpose({
 
 .google-icon {
   flex-shrink: 0;
+}
+
+/* 微信登录按钮（单独一行，更大） */
+.wechat-login-btn {
+  width: 100%;
+  height: 52px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 500;
+  background: white;
+  border: 1px solid #07C160;
+  color: #07C160;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  margin-top: 12px;
+}
+
+.wechat-login-btn:hover {
+  background: #E8F5E9;
+  border-color: #07C160;
+  transform: translateY(-1px);
+}
+
+.wechat-login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.wechat-icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+}
+
+.wechat-text {
+  flex: 0 0 auto;
 }
 
 /* 邮箱登录表单 */
@@ -788,7 +895,7 @@ defineExpose({
     margin: 20px;
     padding: 32px;
     max-width: none;
-    border-radius: 16px;
+    border-radius: 168x;
   }
   
   .login-title {
@@ -840,6 +947,13 @@ defineExpose({
     width: 100%;
     height: 44px;
     font-size: 15px;
+  }
+  
+  .wechat-login-btn {
+    width: 100%;
+    height: 52px;
+    font-size: 16px;
+    margin-top: 10px;
   }
   
   .email-login-btn {
@@ -910,6 +1024,17 @@ defineExpose({
   .google-login-btn:hover {
     background: #333;
     border-color: #555;
+  }
+  
+  .wechat-login-btn {
+    background: #2a2a2a;
+    border-color: #07C160;
+    color: #07C160;
+  }
+  
+  .wechat-login-btn:hover {
+    background: #1a3a1a;
+    border-color: #07C160;
   }
   
   .back-btn {

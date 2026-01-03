@@ -147,6 +147,28 @@ public class UserController {
     }
 
     /**
+     * 生成用户授权URL，将用户重定向到微信登录页面进行身份验证
+     * @return
+     */
+    @GetMapping("/wechat/url")
+    public Result getWechatUrl(){
+        return Result.success(userService.getWechatAuthorizingUrl());
+    }
+
+    /**
+     * 使用授权码获得登录token和用户信息【微信】
+     * @param code
+     * @return
+     * @throws JsonProcessingException
+     */
+    @GetMapping("/wechat/callback")
+    public Result handleWechatCallback(@RequestParam String code) throws JsonProcessingException {
+        log.info("微信第三方登录：{}",code);
+        UserLoginVO userLoginVO = userService.authorizingWithWechatCode(code);
+        return Result.success(userLoginVO);
+    }
+
+    /**
      * 获取当前用户信息
      * @return
      */
