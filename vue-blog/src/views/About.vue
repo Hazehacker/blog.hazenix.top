@@ -24,16 +24,16 @@
           <p>主攻后端开发，会使用以下技术：</p>
           <!-- <h3>后端与服务</h3> -->
           <ul>
-            <li>SpringMVC、SpringBoot、SpringCloud</li>
+            <li>SpringMVC、SpringBoot、SpringCloud、SpringSecurity</li>
             <li>MyBatis、MyBatis-Plus</li>
-            <li>knife4j 、Nginx、Docker、Jenkins</li>
+            <li>knife4j 、Nginx、Docker</li>
          
           <!-- <h3>数据库与缓存</h3> -->
           
             <li>MySQL、PostgreSQL、MongoDB</li>
             <li>Redis</li>
           <!-- 中间件-->
-            <li>RabbitMQ、Elasticsearch</li>
+            <li>RabbitMQ/RocketMQ/Kafka、Elasticsearch</li>
             <li>Nacos、Seata、Sentinel、SkyWalking</li>
           </ul>
           桌面与跨平台我会这些
