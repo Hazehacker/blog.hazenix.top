@@ -1,12 +1,9 @@
 package top.hazenix.exception;
 
-public class FailUploadException extends BaseException {
 
-    public FailUploadException() {
+public class FailUploadException extends BussinessException {
+
+    public FailUploadException(String b00004, String uploadFailed) {
+        super(b00004, uploadFailed);
     }
-
-    public FailUploadException(String msg) {
-        super(msg);
-    }
-
 }

@@ -1,8 +1,10 @@
 package top.hazenix.controller.user;
 
+import cn.hutool.core.bean.BeanUtil;
 import io.swagger.annotations.ApiModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import top.hazenix.dto.LinkDTO;
@@ -40,7 +42,6 @@ public class LinkController {
     @PostMapping("/apply")
     public Result applyLink(@RequestBody LinkDTO linkDTO){
         log.info("申请友链");
-        linkDTO.setStatus(2);//默认状态设成审核中
         LinkService.addLink(linkDTO);
         return Result.success();
     }

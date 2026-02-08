@@ -1,6 +1,7 @@
 package top.hazenix.vo;
 
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,12 +12,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StatisticVO {
-    //文章总数
+    @ApiModelProperty(value = "文章总数", example = "100")
     private Integer totalArticles;
-    //文章种类数
+    
+    @ApiModelProperty(value = "文章种类数", example = "10")
     private Integer totalCategories;
-    //文章标签数
+    
+    @ApiModelProperty(value = "文章标签数", example = "20")
     private Integer totalTags;
-    //评论总数
+    
+    @ApiModelProperty(value = "评论总数", example = "500")
     private Integer totalComments;
 }

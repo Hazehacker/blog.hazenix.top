@@ -1,12 +1,7 @@
 package top.hazenix.exception;
 
-public class DeleteNotAllowedException extends BaseException {
-
-    public DeleteNotAllowedException() {
+public class DeleteNotAllowedException extends BussinessException {
+    public DeleteNotAllowedException(String a04001, String deleteNotAllowedThisCategoryHasArticles) {
+        super(a04001, deleteNotAllowedThisCategoryHasArticles);
     }
-
-    public DeleteNotAllowedException(String msg) {
-        super(msg);
-    }
-
 }

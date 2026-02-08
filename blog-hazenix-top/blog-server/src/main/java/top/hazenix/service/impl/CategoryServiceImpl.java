@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import top.hazenix.constant.ErrorCode;
 import top.hazenix.constant.MessageConstant;
 import top.hazenix.dto.CategoryDTO;
 import top.hazenix.dto.DeleteCategoryRequestDTO;
@@ -78,7 +79,7 @@ public class CategoryServiceImpl implements CategoryService {
         Integer count = articleMapper.countByIds(Collections.singletonList(id));
 
         if(count != 0){
-            throw new DeleteNotAllowedException(MessageConstant.DELETE_NOT_ALLOWED_THIS_CATEGORY_HAS_ARTICLES);
+            throw new DeleteNotAllowedException(ErrorCode.A04001, MessageConstant.DELETE_NOT_ALLOWED_THIS_CATEGORY_HAS_ARTICLES);
         }
         categoryMapper.deleteBatch(Collections.singletonList(id));
     }
@@ -93,7 +94,7 @@ public class CategoryServiceImpl implements CategoryService {
         //如果这个标签关联了文章，就不能删除
         Integer count = articleMapper.countByIds(ids);
         if(count != 0){
-            throw new DeleteNotAllowedException(MessageConstant.DELETE_NOT_ALLOWED_THIS_CATEGORY_HAS_ARTICLES);
+            throw new DeleteNotAllowedException(ErrorCode.A04001, MessageConstant.DELETE_NOT_ALLOWED_THIS_CATEGORY_HAS_ARTICLES);
         }
         categoryMapper.deleteBatch(ids);
     }

@@ -114,7 +114,7 @@ public class ArticleController {
     public Result getArticlesSlugList(){
         log.info("获取文章slug列表");
         //TODO 后期做
-        return null;
+        return Result.success();
     }
     //### 2.13 获取所有已发布文章的slug
     //- **URL**: `GET /user/articles/slugs`

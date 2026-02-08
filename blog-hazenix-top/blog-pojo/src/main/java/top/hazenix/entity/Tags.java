@@ -1,5 +1,6 @@
 package top.hazenix.entity;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,23 +16,25 @@ import java.time.LocalDateTime;
 public class Tags implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    @ApiModelProperty(value = "主键ID", example = "1")
     private Long id;
 
-    //标签名
+    @ApiModelProperty(value = "标签名称", example = "标签名称")
     private String name;
 
-    //URL标识符
+    @ApiModelProperty(value = "标签URL标识符", example = "标签URL标识符")
     private String slug;
 
-    //排序字段
+    @ApiModelProperty(value = "排序字段", example = "1")
     private Integer sort;
-    //状态：0禁用，1启用
+
+    @ApiModelProperty(value = "状态[0:禁用 | 1:启用]", example = "1")
     private Integer status;
 
-    //创建时间
+    @ApiModelProperty(value = "创建时间", example = "2020-01-01 00:00:00")
     private LocalDateTime createTime;
 
-    //修改时间
+    @ApiModelProperty(value = "修改时间", example = "2020-01-01 00:00:00")
     private LocalDateTime updateTime;
 
 

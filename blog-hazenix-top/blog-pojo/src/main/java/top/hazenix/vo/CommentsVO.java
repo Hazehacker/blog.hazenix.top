@@ -1,5 +1,6 @@
 package top.hazenix.vo;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,31 +20,43 @@ import java.util.List;
 public class CommentsVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    @ApiModelProperty(value = "主键ID", example = "1")
     private Long id;
-    //父级评论id
+    
+    @ApiModelProperty(value = "父级评论ID", example = "1")
     private Long parentId;
-    //评论者id
+    
+    @ApiModelProperty(value = "评论者ID", example = "1")
     private Long userId;
-    //评论者名称
+    
+    @ApiModelProperty(value = "评论者名称", example = "username")
     private String username;
-    //评论者头像
+    
+    @ApiModelProperty(value = "评论者头像", example = "avatar.jpg")
     private String avatar;
-    //评论内容
+    
+    @ApiModelProperty(value = "评论内容", example = "评论内容")
     private String content;
-    //文章id
+    
+    @ApiModelProperty(value = "文章ID", example = "1")
     private Long articleId;
-    //文章标题
+    
+    @ApiModelProperty(value = "文章标题", example = "文章标题")
     private String articleTitle;
-    //被回复者id
-    //(TODO 评论者或被回复者如果改了用户名，要在comements表里面更新username或reply_username字段)
+    
+    @ApiModelProperty(value = "被回复者ID", example = "1")
     private Long replyId;
-    //被回复者名称
+    
+    @ApiModelProperty(value = "被回复者名称", example = "replyUsername")
     private String replyUsername;
-    //评论状态
+    
+    @ApiModelProperty(value = "评论状态[0:正常 | 1:不展示]", example = "0")
     private Integer status;
-    //评论时间
+    
+    @ApiModelProperty(value = "评论时间", example = "2020-01-01 00:00:00")
     private LocalDateTime createTime;
-    //子评论列表
+    
+    @ApiModelProperty(value = "子评论列表")
     private List<CommentsVO> replies = new ArrayList<>();
 
 }

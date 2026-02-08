@@ -62,6 +62,7 @@ public class LinkServiceImpl implements LinkService {
         Link link = new Link();
         BeanUtils.copyProperties(linkDTO,link);
         link.setCreateTime(LocalDateTime.now());
+        link.setStatus(1);
         linkMapper.insert(link);
     }
 

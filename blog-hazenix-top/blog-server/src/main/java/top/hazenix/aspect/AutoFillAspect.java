@@ -61,7 +61,7 @@ public class AutoFillAspect {
 //                setCreateUser.invoke(entity,currentId);
 
             }catch(Exception e){
-                e.printStackTrace();
+                log.error("错误信息:{}", e);
             }
 
         }
@@ -74,7 +74,7 @@ public class AutoFillAspect {
             setUpdateTime.invoke(entity,now);
 //            setUpdateUser.invoke(entity,currentId);
         }catch(Exception e){
-            e.printStackTrace();
+            log.error("错误信息:{}", e);
         }
     }
 

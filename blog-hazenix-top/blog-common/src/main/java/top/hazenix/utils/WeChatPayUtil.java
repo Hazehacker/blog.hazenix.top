@@ -3,6 +3,7 @@ package top.hazenix.utils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import top.hazenix.properties.WeChatProperties;
 import com.wechat.pay.contrib.apache.httpclient.WechatPayHttpClientBuilder;
 import com.wechat.pay.contrib.apache.httpclient.util.PemUtil;
@@ -33,6 +34,7 @@ import java.util.List;
 /**
  * 微信支付工具类
  */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class WeChatPayUtil {
@@ -69,7 +71,7 @@ public class WeChatPayUtil {
             CloseableHttpClient httpClient = builder.build();
             return httpClient;
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            log.error("错误信息:{}", e);
             return null;
         }
     }

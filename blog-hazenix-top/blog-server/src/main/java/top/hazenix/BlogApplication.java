@@ -14,9 +14,9 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableKnife4j
 @EnableSwagger2
 @EnableCaching//开启缓存注解功能
-public class SkyApplication {
+public class BlogApplication {
     public static void main(String[] args) {
-        SpringApplication.run(SkyApplication.class, args);
+        SpringApplication.run(BlogApplication.class, args);
         log.info("server started");
     }
 }

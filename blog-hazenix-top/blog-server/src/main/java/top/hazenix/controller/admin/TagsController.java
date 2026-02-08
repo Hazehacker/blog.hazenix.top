@@ -91,11 +91,8 @@ public class TagsController {
     @CacheEvict(cacheNames = "tagsCache",allEntries = true)
     public Result deleteTags(@RequestBody DeleteTagsRequestDTO deleteTagsRequestDTO){
         log.info("批量删除标签");
-        try {
-            tagsService.deleteTags(deleteTagsRequestDTO);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        tagsService.deleteTags(deleteTagsRequestDTO);
+
         return Result.success();
     }
 

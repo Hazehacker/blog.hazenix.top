@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import top.hazenix.constant.ErrorCode;
 import top.hazenix.constant.MessageConstant;
 import top.hazenix.exception.FailUploadException;
 import top.hazenix.result.Result;
@@ -31,8 +32,8 @@ public class WebController {
         try {
             url = aliOssUtil.upload(file.getBytes(),file.getOriginalFilename());
         } catch (IOException e) {
-            e.printStackTrace();
-            throw new FailUploadException(MessageConstant.UPLOAD_FAILED);
+            log.error("错误信息:{}", e);
+            throw new FailUploadException(ErrorCode.B00004, MessageConstant.UPLOAD_FAILED);
         }
         return Result.success(url);
     }

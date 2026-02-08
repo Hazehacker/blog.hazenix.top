@@ -83,7 +83,7 @@ public class CommentsController {
         try {
             commentsService.deleteComments(ids);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("错误信息:{}", e);
 
         }
         return Result.success();

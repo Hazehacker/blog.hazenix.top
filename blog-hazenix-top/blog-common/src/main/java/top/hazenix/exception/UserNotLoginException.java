@@ -1,12 +1,5 @@
 package top.hazenix.exception;
 
-public class UserNotLoginException extends BaseException {
-
-    public UserNotLoginException() {
-    }
-
-    public UserNotLoginException(String msg) {
-        super(msg);
-    }
+public class UserNotLoginException extends BussinessException {
 
 }

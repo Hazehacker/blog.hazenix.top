@@ -4,16 +4,14 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.hazenix.constant.ErrorCode;
 import top.hazenix.constant.MessageConstant;
+import top.hazenix.exception.BussinessException;
 import top.hazenix.context.BaseContext;
 import top.hazenix.dto.CommentsDTO;
-import top.hazenix.entity.Article;
-import top.hazenix.entity.Category;
 import top.hazenix.entity.Comments;
-import top.hazenix.entity.User;
 import top.hazenix.mapper.ArticleMapper;
 import top.hazenix.mapper.CommentsMapper;
 import top.hazenix.mapper.UserMapper;
@@ -22,7 +20,6 @@ import top.hazenix.service.CommentsService;
 import top.hazenix.vo.CommentShortVO;
 import top.hazenix.vo.CommentsVO;
 
-import javax.xml.stream.events.Comment;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -158,7 +155,7 @@ public class CommentsServiceImpl implements CommentsService {
             if (userMapper.getById(commentsDTO.getReplyId())!=null) {
                 comments.setReplyUsername(userMapper.getById(commentsDTO.getReplyId()).getUsername());
             }else{
-                throw new RuntimeException(MessageConstant.REPLYER_NOT_FOUND);
+                throw new BussinessException(ErrorCode.A03001, MessageConstant.REPLYER_NOT_FOUND);
             }
         }
         comments.setStatus(0);

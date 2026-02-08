@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import top.hazenix.constant.ErrorCode;
 import top.hazenix.constant.MessageConstant;
 import top.hazenix.dto.DeleteTagsRequestDTO;
 import top.hazenix.dto.TagsDTO;
@@ -80,7 +81,7 @@ public class TagsServiceImpl implements TagsService {
         //如果这个标签关联了文章，就不能删除
         Integer count = articleTagsMapper.countByIds(Collections.singletonList(id));
         if(count != 0){
-            throw new DeleteNotAllowedException(MessageConstant.DELETE_NOT_ALLOWED_THIS_TAG_HAS_RELATED_ARTICLE);
+            throw new DeleteNotAllowedException(ErrorCode.A05001, MessageConstant.DELETE_NOT_ALLOWED_THIS_TAG_HAS_RELATED_ARTICLE);
         }
         tagsMapper.deleteBatch(Collections.singletonList(id));
     }
@@ -108,7 +109,7 @@ public class TagsServiceImpl implements TagsService {
         //如果这个标签关联了文章，就不能删除
         Integer count = articleTagsMapper.countByIds(ids);
         if(count != 0){
-            throw new DeleteNotAllowedException(MessageConstant.DELETE_NOT_ALLOWED_THIS_TAG_HAS_RELATED_ARTICLE);
+            throw new DeleteNotAllowedException(ErrorCode.A05001, MessageConstant.DELETE_NOT_ALLOWED_THIS_TAG_HAS_RELATED_ARTICLE);
         }
 
         tagsMapper.deleteBatch(ids);

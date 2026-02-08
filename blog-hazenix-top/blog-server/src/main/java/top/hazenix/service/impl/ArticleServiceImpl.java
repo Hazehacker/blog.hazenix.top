@@ -3,13 +3,13 @@ package top.hazenix.service.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import lombok.RequiredArgsConstructor;
-import org.aspectj.bridge.Message;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.hazenix.constant.ErrorCode;
 import top.hazenix.constant.MessageConstant;
+import top.hazenix.exception.BussinessException;
 import top.hazenix.context.BaseContext;
 import top.hazenix.dto.ArticleDTO;
 import top.hazenix.dto.ArticleTagsDTO;
@@ -98,7 +98,7 @@ public class ArticleServiceImpl implements ArticleService {
     public ArticleDetailVO getArticleDetail(Long id) {
         Article article = articleMapper.getById(id);
         if(article == null){
-            throw new RuntimeException(MessageConstant.ARTICLE_NOT_FOUND);
+            throw new BussinessException(ErrorCode.A02001, MessageConstant.ARTICLE_NOT_FOUND);
         }
         ArticleDetailVO articleDetailVO = new ArticleDetailVO();
         BeanUtils.copyProperties(article,articleDetailVO);
@@ -139,13 +139,13 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     @Transactional
     public void addArticle(ArticleDTO articleDTO) {
-        if(articleDTO.getContent()==null && articleDTO.getTitle().length()==0){
-            throw new RuntimeException(MessageConstant.ARTICLLE_CONTENT_IS_NULL);
+        if(articleDTO.getContent()==null && StringUtils.isEmpty(articleDTO.getTitle())){
+            throw new BussinessException(ErrorCode.A02002, MessageConstant.ARTICLLE_CONTENT_IS_NULL);
         }else{
             //判断字数是否超出限制
             // 计算 UTF-8 编码下的字节数
             if(articleDTO.getContent().getBytes(StandardCharsets.UTF_8).length>MAX_CONTENT_SIZE_BYTES){
-                throw new RuntimeException(MessageConstant.ARTICLE_SIZE_EXCEED_LIMIT);
+                throw new BussinessException(ErrorCode.A02003, MessageConstant.ARTICLE_SIZE_EXCEED_LIMIT);
             }
         }
         //TODO (检验slug是否已经在数据库中存在)
@@ -329,52 +329,53 @@ public class ArticleServiceImpl implements ArticleService {
 
         //如果用户没登录，不能收藏
         if(userId == null){
-            throw new RuntimeException(MessageConstant.ARTICLE_FAVORITE_NEED_LOGIN);
+            throw new BussinessException(ErrorCode.A02004, MessageConstant.ARTICLE_FAVORITE_NEED_LOGIN);
+
+        }
+
+        //查询关联表中是否已经有了这个用户和这篇文章的数据
+        UserArticle userArticle = userArticleMapper.getByUserIdAndArticleId(userId,id);
+        if(userArticle != null){
+            Article article = Article.builder()
+                    .id(id)
+                    .build();
+
+            //已经有了，执行更新逻辑
+            Integer isFavorite = userArticle.getIsFavorite();
+            if(isFavorite == 1){
+                //已经收藏了，执行取消收藏逻辑
+                userArticle.setIsFavorite(0);
+                userArticleMapper.update(userArticle);
+                //并减少文章的点赞数
+                article.setFavoriteCount(articleMapper.getById(id).getFavoriteCount()-1);
+            }else{
+                //没有收藏，执行收藏逻辑；并增加文章的收藏数
+                userArticle.setIsLiked(1);
+                userArticleMapper.update(userArticle);
+
+                article.setFavoriteCount(articleMapper.getById(id).getFavoriteCount()+1);
+            }
+
+            articleMapper.update(article);
+
+
 
         }else{
-            //查询关联表中是否已经有了这个用户和这篇文章的数据
-            UserArticle userArticle = userArticleMapper.getByUserIdAndArticleId(userId,id);
-            if(userArticle != null){
-                Article article = Article.builder()
-                        .id(id)
-                        .build();
-
-                //已经有了，执行更新逻辑
-                Integer isFavorite = userArticle.getIsLiked();
-                if(isFavorite == 1){
-                    //已经收藏了，执行取消收藏逻辑
-                    userArticle.setIsLiked(0);
-                    userArticleMapper.update(userArticle);
-                    //并减少文章的点赞数
-                    article.setFavoriteCount(articleMapper.getById(id).getFavoriteCount()-1);
-                }else{
-                    //没有收藏，执行收藏逻辑；并增加文章的收藏数
-                    userArticle.setIsLiked(1);
-                    userArticleMapper.update(userArticle);
-
-                    article.setFavoriteCount(articleMapper.getById(id).getFavoriteCount()+1);
-                }
-
-                articleMapper.update(article);
-
-
-
-            }else{
-                //还没有条目，执行插入；文章收藏数增加
-                UserArticle userArticleInsertUse = UserArticle.builder()
-                        .userId(userId)
-                        .articleId(id)
-                        .isLiked(0)
-                        .isFavorite(1)
-                        .build();
-                userArticleMapper.insert(userArticleInsertUse);
-                Article article = Article.builder()
-                        .id(id)
-                        .likeCount(articleMapper.getById(id).getFavoriteCount()+1)
-                        .build();
-                articleMapper.update(article);
-            }
+            //还没有条目，执行插入；文章收藏数增加
+            UserArticle userArticleInsertUse = UserArticle.builder()
+                    .userId(userId)
+                    .articleId(id)
+                    .isLiked(0)
+                    .isFavorite(1)
+                    .build();
+            userArticleMapper.insert(userArticleInsertUse);
+            Article article = Article.builder()
+                    .id(id)
+                    .favoriteCount(articleMapper.getById(id).getFavoriteCount()+1)
+                    .build();
+            articleMapper.update(article);
         }
+
     }
 
     /**
@@ -388,7 +389,7 @@ public class ArticleServiceImpl implements ArticleService {
         // 获取当前文章的信息
         Article currentArticle = articleMapper.getById(id);
         if (currentArticle == null) {
-            throw new RuntimeException(MessageConstant.ARTICLE_NOT_FOUND);
+            throw new BussinessException(ErrorCode.A02001, MessageConstant.ARTICLE_NOT_FOUND);
         }
 
 
@@ -441,7 +442,7 @@ public class ArticleServiceImpl implements ArticleService {
 
         List<Article> list = articleMapper.getArticleList(articleListQuery);
         if(list == null || list.size() == 0){
-            throw new RuntimeException(MessageConstant.ARTICLE_NOT_FOUND);
+            throw new BussinessException(ErrorCode.A02001, MessageConstant.ARTICLE_NOT_FOUND);
         }
         List<ArticleDetailVO> listRes = new ArrayList<>();
         for(Article article:list){
@@ -452,11 +453,7 @@ public class ArticleServiceImpl implements ArticleService {
                 articleDetailVO.setCategoryName(categoryMapper.getById(article.getCategoryId()).getName());
             }
             List<Integer> tagIds = null;
-            try {
-                tagIds = articleTagsMapper.getListByArticleId(article.getId());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            tagIds = articleTagsMapper.getListByArticleId(article.getId());
             List<Tags> tags = tagIds.stream()
                     .map(tagId -> {
                         String tagName = tagsMapper.getById(tagId).getName();
@@ -498,7 +495,7 @@ public class ArticleServiceImpl implements ArticleService {
     public ArticleDetailVO getArticleDetailBySlug(String slug) {
         Article article = articleMapper.getBySlug(slug);//【】
         if(article == null){
-            throw new RuntimeException(MessageConstant.ARTICLE_NOT_FOUND);
+            throw new BussinessException(ErrorCode.A02001, MessageConstant.ARTICLE_NOT_FOUND);
         }
         ArticleDetailVO articleDetailVO = new ArticleDetailVO();
         BeanUtils.copyProperties(article,articleDetailVO);

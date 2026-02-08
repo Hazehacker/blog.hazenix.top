@@ -1,5 +1,6 @@
 package top.hazenix.entity;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,44 +16,45 @@ import java.time.LocalDateTime;
 public class User implements Serializable {
 //
 //    private static final long serialVersionUID = 1L;
-
+    @ApiModelProperty(value = "主键ID", example = "1")
     private Long id;
 
     //微信用户唯一标识
 //    private String openid;
 
-    //姓名
+    @ApiModelProperty(value = "用户名", example = "用户名")
     private String username;
 
+    @ApiModelProperty(value = "密码", example = "密码")
     private String password;
 
-    //手机号
+    @ApiModelProperty(value = "手机号", example = "手机号")
     private String phone;
 
-    //邮箱
+    @ApiModelProperty(value = "邮箱", example = "邮箱")
     private String email;
 
-    //refreshToken
+    @ApiModelProperty(value = "刷新令牌", example = "刷新令牌")
     private String refreshToken;
 
-    //头像
+    @ApiModelProperty(value = "头像", example = "头像")
     private String avatar;
 
-    //性别 0 女 1 男
+    @ApiModelProperty(value = "性别[0:女 | 1:男]", example = "0")
     private Integer gender;
 
-    //身份证号
+    @ApiModelProperty(value = "状态[0:正常 | 1:锁定]", example = "0")
     private Integer status;
 
-    //角色
+    @ApiModelProperty(value = "角色[0:管理员 | 1:作者 | 2:普通用户(默认)]", example = "0")
     private Integer role;
 
-    //注册时间
+    @ApiModelProperty(value = "注册时间", example = "2020-01-01 00:00:00")
     private LocalDateTime createTime;
 
-    //更新时间
+    @ApiModelProperty(value = "更新时间", example = "2020-01-01 00:00:00")
     private LocalDateTime updateTime;
 
-    //上次登录时间
+    @ApiModelProperty(value = "上次登录时间", example = "2020-01-01 00:00:00")
     private LocalDateTime lastLoginTime;
 }

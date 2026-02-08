@@ -6,25 +6,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.*;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.jwk.source.RemoteJWKSet;
-import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jose.proc.JWSVerificationKeySelector;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.aspectj.bridge.Message;
 import org.springframework.beans.BeanUtils;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.*;
 import org.springframework.http.HttpHeaders;
@@ -33,16 +28,16 @@ import org.springframework.util.DigestUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import top.hazenix.constant.ErrorCode;
 import top.hazenix.constant.JwtClaimsConstant;
 import top.hazenix.constant.MessageConstant;
+import top.hazenix.exception.BussinessException;
 import top.hazenix.context.BaseContext;
 import top.hazenix.dto.UserDTO;
 import top.hazenix.dto.UserLoginDTO;
 import top.hazenix.entity.GithubAuthorization;
 import top.hazenix.entity.GoogleAuthorization;
 import top.hazenix.entity.User;
-import top.hazenix.entity.UserArticle;
-import top.hazenix.exception.PasswordErrorException;
 import top.hazenix.mapper.CommentsMapper;
 import top.hazenix.mapper.UserArticleMapper;
 import top.hazenix.mapper.UserMapper;
@@ -50,13 +45,8 @@ import top.hazenix.properties.JwtProperties;
 import top.hazenix.service.UserService;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
-import java.net.Proxy;
-import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.text.ParseException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
@@ -73,6 +63,7 @@ import top.hazenix.vo.UserVO;
 import javax.servlet.http.HttpServletRequest;
 
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -99,15 +90,15 @@ public class UserServiceImpl implements UserService {
     public UserLoginVO login(UserLoginDTO userLoginDTO) {
         User user = userMapper.selectByEmail(userLoginDTO.getEmail());
         if (user == null) {
-            throw new RuntimeException(MessageConstant.CURRENT_EMAIL_NOT_REGISTERD);
+            throw new BussinessException(ErrorCode.A01001, MessageConstant.CURRENT_EMAIL_NOT_REGISTERD);
         }
         //【数据库的密码是加密过的】
         String processedPassword = DigestUtils.md5DigestAsHex(userLoginDTO.getPassword().getBytes());
         if(!processedPassword.equals(user.getPassword())){
-            throw new RuntimeException(MessageConstant.EMAIL_OR_PASSWORD_ERROR);
+            throw new BussinessException(ErrorCode.A01002, MessageConstant.EMAIL_OR_PASSWORD_ERROR);
         }
         if(user.getStatus()!=null && user.getStatus()==1){
-            throw new RuntimeException(MessageConstant.CURRENT_USER_IS_ILLEGAL);
+            throw new BussinessException(ErrorCode.A01005, MessageConstant.CURRENT_USER_IS_ILLEGAL);
         }
         user.setPassword("*");
 
@@ -141,7 +132,7 @@ public class UserServiceImpl implements UserService {
     public UserLoginVO register(UserLoginDTO userLoginDTO) {
 
         if (userMapper.selectByEmail(userLoginDTO.getEmail()) != null){
-            throw new RuntimeException(MessageConstant.CURRENT_EMAIL_HAS_REGISTERED);
+            throw new BussinessException(ErrorCode.A01004, MessageConstant.CURRENT_EMAIL_HAS_REGISTERED);
         }
         //!!【密码要先加密才能插入数据库】
         String processedPassword = DigestUtils.md5DigestAsHex(userLoginDTO.getPassword().getBytes());
@@ -201,7 +192,7 @@ public class UserServiceImpl implements UserService {
 
         String token = request.getHeader(jwtProperties.getUserTokenName());
         if(token == null){
-            throw new RuntimeException("当前用户还未登录");
+            throw new BussinessException(ErrorCode.A01003, MessageConstant.USER_NOT_LOGIN);
         }
         if (StringUtils.isNotBlank(token)) {
             // 将token加入黑名单，设置过期时间
@@ -227,7 +218,7 @@ public class UserServiceImpl implements UserService {
         Long  userId = BaseContext.getCurrentId();
         User user = userMapper.getById(userId);
         if (user == null) {
-            throw new RuntimeException(MessageConstant.USER_NOT_LOGIN);
+            throw new BussinessException(ErrorCode.A01003, MessageConstant.USER_NOT_LOGIN);
         }
         return UserVO.builder()
                 .id(user.getId())
@@ -260,7 +251,7 @@ public class UserServiceImpl implements UserService {
     public UserLoginVO idTokenlogin(UserLoginDTO userLoginDTO) throws ParseException {
         String idToken = userLoginDTO.getIdToken();
         if(StringUtils.isBlank(idToken)){
-            throw new RuntimeException(MessageConstant.ID_TOKEN_IS_EMPTY);
+            throw new BussinessException(ErrorCode.A01006, MessageConstant.ID_TOKEN_IS_EMPTY);
         }
 
         //验证并提取用户邮箱
@@ -299,12 +290,12 @@ public class UserServiceImpl implements UserService {
             jwtProcessor.setJWTClaimsSetVerifier((claimsSet, context) -> {
                 // 验证 issuer
                 if (!GOOGLE_ISSUER.equals(claimsSet.getIssuer())) {
-                    throw new RuntimeException("无效的issuer: " + claimsSet.getIssuer());
+                    throw new BussinessException(ErrorCode.B01002, "无效的issuer: " + claimsSet.getIssuer());
                 }
                 // 验证 audience（必须包含你的 client_id）
                 Object aud = claimsSet.getAudience();
                 if (aud == null || !aud.toString().contains(googleAuthorization.getClientId())) {
-                    throw new RuntimeException(MessageConstant.AUDIENCE_INVALID);
+                    throw new BussinessException(ErrorCode.A01007, MessageConstant.AUDIENCE_INVALID);
                 }
                 // 验证时间（exp, nbf）
                 // 3. 验证时间有效性
@@ -326,8 +317,8 @@ public class UserServiceImpl implements UserService {
 
 
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("ID Token 验证失败: " + e.getMessage());
+            log.error("错误信息:{}", e);
+            throw new BussinessException(ErrorCode.B01001, "ID Token 验证失败: " + e.getMessage());
 
         }
     }
@@ -475,7 +466,7 @@ public class UserServiceImpl implements UserService {
         String accessToken = parseAccessTokenFromQueryString(tokenResponseBody);
 
         if (StringUtils.isBlank(accessToken)) {
-            throw new RuntimeException(MessageConstant.GITHUB_AUTH_FAILED);
+            throw new BussinessException(ErrorCode.C01001, MessageConstant.GITHUB_AUTH_FAILED);
         }
 
         // 4. 使用 access_token 获取用户信息
@@ -542,7 +533,7 @@ public class UserServiceImpl implements UserService {
         }
         //【处理status】
         if(user.getStatus()!=null && user.getStatus()==1){
-            throw new RuntimeException(MessageConstant.CURRENT_USER_IS_ILLEGAL);
+            throw new BussinessException(ErrorCode.A01005, MessageConstant.CURRENT_USER_IS_ILLEGAL);
         }
 
         user.setLastLoginTime( LocalDateTime.now());
@@ -578,12 +569,12 @@ public class UserServiceImpl implements UserService {
     public UserVO updateProfile(UserDTO userDTO) {
         //验证邮箱格式
         if (userDTO.getEmail() != null && !userDTO.getEmail().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
-            throw new RuntimeException(MessageConstant.EMAIL_FOEMAT_ERROR);
+            throw new BussinessException(ErrorCode.A01008, MessageConstant.EMAIL_FOEMAT_ERROR);
         }
 
         //验证昵称长度不能超过个字30个字符
         if (userDTO.getUsername() != null && userDTO.getUsername().length() > 30) {
-            throw new RuntimeException(MessageConstant.USERNAME_TOO_LONG);
+            throw new BussinessException(ErrorCode.A01009, MessageConstant.USERNAME_TOO_LONG);
         }
 
 
@@ -615,13 +606,13 @@ public class UserServiceImpl implements UserService {
         //【数据库的密码是加密过的】
         String processedPassword = DigestUtils.md5DigestAsHex(userDTO.getCurrentPassword().getBytes());
         if (!user.getPassword().equals(processedPassword)) {
-            throw new RuntimeException(MessageConstant.CURRENT_PASSWORD_ERROR);
+            throw new BussinessException(ErrorCode.A01010, MessageConstant.CURRENT_PASSWORD_ERROR);
         }
 //        if (userDTO.getNewPassword().length() < 6 || userDTO.getNewPassword().length() > 20) {
-//            throw new RuntimeException("密码长度必须在6-20个字符之间");
+//            throw new BaseException(ErrorCode.A010XX, "密码长度必须在6-20个字符之间");
 //        }
         if(userDTO.getCurrentPassword().equals(userDTO.getNewPassword())){
-            throw new RuntimeException(MessageConstant.PASSWORD_NOT_CHANGE);
+            throw new BussinessException(ErrorCode.A01011, MessageConstant.PASSWORD_NOT_CHANGE);
         }
         String processedNewPassword = DigestUtils.md5DigestAsHex(userDTO.getNewPassword().getBytes());
         user.setPassword(processedNewPassword);
@@ -636,7 +627,7 @@ public class UserServiceImpl implements UserService {
     public UserStatisticsVO getStats() {
         Long currentId = BaseContext.getCurrentId();
         if (currentId == null) {
-            throw new RuntimeException(MessageConstant.USER_NOT_LOGIN);
+            throw new BussinessException(ErrorCode.A01003, MessageConstant.USER_NOT_LOGIN);
         }
         Integer favoriteCount = userArticleMapper.getFavoriteCount(currentId);
         Integer likeCount = userArticleMapper.getLikeCount(currentId);
