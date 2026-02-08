@@ -46,7 +46,7 @@ public class GlobalExceptionHandler {
 
     // 用于在日志和返回中标识请求
     private String getRequestId() {
-        return UUID.randomUUID().toString().substring(0, 8);
+        return UUID.randomUUID().toString().substring(0, DefaultConstants.REQUEST_ID_LENGTH);
     }
 
     /**

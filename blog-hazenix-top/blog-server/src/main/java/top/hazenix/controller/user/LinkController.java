@@ -8,6 +8,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import top.hazenix.dto.LinkDTO;
+
+import javax.validation.Valid;
 import top.hazenix.entity.Link;
 import top.hazenix.result.Result;
 import top.hazenix.service.LinkService;
@@ -40,7 +42,7 @@ public class LinkController {
      * @return
      */
     @PostMapping("/apply")
-    public Result applyLink(@RequestBody LinkDTO linkDTO){
+    public Result applyLink(@Valid @RequestBody LinkDTO linkDTO){
         log.info("申请友链");
         LinkService.addLink(linkDTO);
         return Result.success();

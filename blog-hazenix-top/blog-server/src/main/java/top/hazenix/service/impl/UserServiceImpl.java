@@ -31,6 +31,7 @@ import org.springframework.web.client.RestTemplate;
 import top.hazenix.constant.ErrorCode;
 import top.hazenix.constant.JwtClaimsConstant;
 import top.hazenix.constant.MessageConstant;
+import top.hazenix.constant.UserConstants;
 import top.hazenix.exception.BussinessException;
 import top.hazenix.context.BaseContext;
 import top.hazenix.dto.UserDTO;
@@ -143,7 +144,7 @@ public class UserServiceImpl implements UserService {
                 .username(userLoginDTO.getUsername())
                 .email(userLoginDTO.getEmail())
                 .password(processedPassword)
-                .role(2)//默认普通用户
+                .role(UserConstants.ROLE_USER)//默认普通用户
                 .lastLoginTime(LocalDateTime.now())
                 .build();
         userMapper.insert(user);
@@ -248,7 +249,7 @@ public class UserServiceImpl implements UserService {
      * @return
      */
     @Override
-    public UserLoginVO idTokenlogin(UserLoginDTO userLoginDTO) throws ParseException {
+    public UserLoginVO idTokenLogin(UserLoginDTO userLoginDTO) throws ParseException {
         String idToken = userLoginDTO.getIdToken();
         if(StringUtils.isBlank(idToken)){
             throw new BussinessException(ErrorCode.A01006, MessageConstant.ID_TOKEN_IS_EMPTY);
@@ -532,7 +533,7 @@ public class UserServiceImpl implements UserService {
 
         }
         //【处理status】
-        if(user.getStatus()!=null && user.getStatus()==1){
+        if(user.getStatus()!=null && user.getStatus().equals(UserConstants.STATUS_LOCKED)){
             throw new BussinessException(ErrorCode.A01005, MessageConstant.CURRENT_USER_IS_ILLEGAL);
         }
 
@@ -573,7 +574,7 @@ public class UserServiceImpl implements UserService {
         }
 
         //验证昵称长度不能超过个字30个字符
-        if (userDTO.getUsername() != null && userDTO.getUsername().length() > 30) {
+        if (userDTO.getUsername() != null && userDTO.getUsername().length() > UserConstants.USERNAME_MAX_LENGTH) {
             throw new BussinessException(ErrorCode.A01009, MessageConstant.USERNAME_TOO_LONG);
         }
 
@@ -608,8 +609,8 @@ public class UserServiceImpl implements UserService {
         if (!user.getPassword().equals(processedPassword)) {
             throw new BussinessException(ErrorCode.A01010, MessageConstant.CURRENT_PASSWORD_ERROR);
         }
-//        if (userDTO.getNewPassword().length() < 6 || userDTO.getNewPassword().length() > 20) {
-//            throw new BaseException(ErrorCode.A010XX, "密码长度必须在6-20个字符之间");
+//        if (userDTO.getNewPassword().length() < 3 || userDTO.getNewPassword().length() > 20) {
+//            throw new BaseException(ErrorCode.A010XX, "密码长度必须在3-20个字符之间");
 //        }
         if(userDTO.getCurrentPassword().equals(userDTO.getNewPassword())){
             throw new BussinessException(ErrorCode.A01011, MessageConstant.PASSWORD_NOT_CHANGE);

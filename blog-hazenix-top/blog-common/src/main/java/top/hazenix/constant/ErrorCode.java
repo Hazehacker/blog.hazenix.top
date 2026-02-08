@@ -66,6 +66,8 @@ public class ErrorCode {
     public static final String A02003 = "A02003";
     /** 登录之后才能收藏文章 */
     public static final String A02004 = "A02004";
+    /** 要删除的文章不能为空 */
+    public static final String A02005 = "A02005";
 
     // ==================== 03 - 评论中心 ====================
     /** 不存在该被回复者 */

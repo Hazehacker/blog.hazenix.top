@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.hazenix.constant.ErrorCode;
 import top.hazenix.constant.MessageConstant;
+import top.hazenix.constant.CommonStatusConstants;
 import top.hazenix.exception.BussinessException;
 import top.hazenix.context.BaseContext;
 import top.hazenix.dto.CommentsDTO;
@@ -97,10 +98,10 @@ public class CommentsServiceImpl implements CommentsService {
      * @param commentsDTO
      */
     @Override
-    public List<CommentsVO> getCommentsList(CommentsDTO commentsDTO) {commentsDTO.setStatus(0);
+    public List<CommentsVO> getCommentsList(CommentsDTO commentsDTO) {commentsDTO.setStatus(CommonStatusConstants.NORMAL);
         List<Comments> list = commentsMapper.list(commentsDTO);
         //如果没有评论，下面的步骤就不用进行了
-        if(list == null || list.size()==0){
+        if(list.isEmpty()){
             return null;
         }
         List<CommentsVO> resList = new ArrayList<>();
@@ -158,7 +159,7 @@ public class CommentsServiceImpl implements CommentsService {
                 throw new BussinessException(ErrorCode.A03001, MessageConstant.REPLYER_NOT_FOUND);
             }
         }
-        comments.setStatus(0);
+        comments.setStatus(CommonStatusConstants.NORMAL);
         comments.setCreateTime(LocalDateTime.now());//comments表没有update_time字段，直接这边填充
         commentsMapper.insert(comments);
     }

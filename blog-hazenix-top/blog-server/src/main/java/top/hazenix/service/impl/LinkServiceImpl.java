@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.hazenix.dto.DeleteLinksRequestDTO;
 import top.hazenix.dto.LinkDTO;
+import top.hazenix.constant.CommonStatusConstants;
 import top.hazenix.entity.Link;
 import top.hazenix.mapper.LinkMapper;
 import top.hazenix.query.LinkQueryDTO;
@@ -62,7 +63,7 @@ public class LinkServiceImpl implements LinkService {
         Link link = new Link();
         BeanUtils.copyProperties(linkDTO,link);
         link.setCreateTime(LocalDateTime.now());
-        link.setStatus(1);
+        link.setStatus(CommonStatusConstants.ENABLE);
         linkMapper.insert(link);
     }
 
@@ -105,7 +106,8 @@ public class LinkServiceImpl implements LinkService {
      */
     @Override
     public void updateLinkStatus(Long id) {
-        Integer status = (linkMapper.getLinkById(id).getStatus()==0) ? 1:0;
+        Integer status = (linkMapper.getLinkById(id).getStatus().equals(CommonStatusConstants.NORMAL)) 
+                ? CommonStatusConstants.ENABLE : CommonStatusConstants.NORMAL;
         Link link = Link.builder()
                 .id( id)
                 .status(status)

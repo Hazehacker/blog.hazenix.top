@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import top.hazenix.dto.DeleteLinksRequestDTO;
+
+import javax.validation.Valid;
 import top.hazenix.dto.LinkDTO;
 import top.hazenix.query.LinkQueryDTO;
 import top.hazenix.result.PageResult;
@@ -53,7 +55,7 @@ public class LinkController {
      * @return
      */
     @PostMapping
-    public Result addLink(@RequestBody LinkDTO linkDTO){
+    public Result addLink(@Valid @RequestBody LinkDTO linkDTO){
         log.info("添加友链:{}",linkDTO);
         linkService.addLink(linkDTO);
         return Result.success();
@@ -66,7 +68,7 @@ public class LinkController {
      * @return
      */
     @PutMapping("/{id}")
-    public Result updateLink(@PathVariable Long id, @RequestBody LinkDTO linkDTO){
+    public Result updateLink(@PathVariable Long id, @Valid @RequestBody LinkDTO linkDTO){
         log.info("更新友链:{}",linkDTO);
         linkService.updateLink(id,linkDTO);
         return Result.success();
@@ -103,7 +105,7 @@ public class LinkController {
      * @return
      */
     @DeleteMapping("/batch")
-    public Result deleteLinks(@RequestBody DeleteLinksRequestDTO deleteLinksRequestDTO){
+    public Result deleteLinks(@Valid @RequestBody DeleteLinksRequestDTO deleteLinksRequestDTO){
         log.info("批量删除友链:{}",deleteLinksRequestDTO);
 
         linkService.deleteLinks(deleteLinksRequestDTO);

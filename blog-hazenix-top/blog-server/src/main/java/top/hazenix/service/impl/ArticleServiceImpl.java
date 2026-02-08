@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.hazenix.constant.ErrorCode;
 import top.hazenix.constant.MessageConstant;
+import top.hazenix.constant.ArticleConstants;
+import top.hazenix.constant.InteractionConstants;
+import top.hazenix.constant.UserConstants;
 import top.hazenix.exception.BussinessException;
 import top.hazenix.context.BaseContext;
 import top.hazenix.dto.ArticleDTO;
@@ -46,10 +49,8 @@ public class ArticleServiceImpl implements ArticleService {
     private final CommentsMapper commentsMapper;
 
     private final UserArticleMapper userArticleMapper;
-    // 设置最大允许字节数（TEXT 类型最大为 65535）
-    private static final int MAX_CONTENT_SIZE_BYTES = 16777220; // 留点余量
     /**
-     * 获取最新点的文章列表
+     * 获取最新的文章列表
      * @param i
      * @return
      */
@@ -76,8 +77,8 @@ public class ArticleServiceImpl implements ArticleService {
         List<ArticleShortVO> list = pageRes.getResult();
 
         if (categoryId != null) {
+            Category temp = categoryMapper.getById(categoryId);
             for(ArticleShortVO vo:list){
-                Category temp = categoryMapper.getById(categoryId);
                 Category category = Category.builder()
                         .id(categoryId)
                         .name(temp.getName())
@@ -144,7 +145,7 @@ public class ArticleServiceImpl implements ArticleService {
         }else{
             //判断字数是否超出限制
             // 计算 UTF-8 编码下的字节数
-            if(articleDTO.getContent().getBytes(StandardCharsets.UTF_8).length>MAX_CONTENT_SIZE_BYTES){
+            if(articleDTO.getContent().getBytes(StandardCharsets.UTF_8).length > ArticleConstants.MAX_CONTENT_SIZE_BYTES){
                 throw new BussinessException(ErrorCode.A02003, MessageConstant.ARTICLE_SIZE_EXCEED_LIMIT);
             }
         }
@@ -154,12 +155,12 @@ public class ArticleServiceImpl implements ArticleService {
         BeanUtils.copyProperties(articleDTO,article);
         article.setUserId(BaseContext.getCurrentId());
         if (article.getUserId() == null) {
-            article.setUserId(1L);
+            article.setUserId(UserConstants.DEFAULT_USER_ID);
         }
-        article.setLikeCount(0);
-        article.setFavoriteCount(0);
-        article.setViewCount(1);
-        article.setIsTop(0);//默认不指定
+        article.setLikeCount(ArticleConstants.INITIAL_LIKE_COUNT);
+        article.setFavoriteCount(ArticleConstants.INITIAL_FAVORITE_COUNT);
+        article.setViewCount(ArticleConstants.INITIAL_VIEW_COUNT);
+        article.setIsTop(ArticleConstants.IS_TOP_NO);//默认不置顶
         article.setStatus(articleDTO.getStatus());
         articleMapper.insert(article);
 
@@ -272,9 +273,9 @@ public class ArticleServiceImpl implements ArticleService {
 
                 //已经有了，执行更新逻辑
                 Integer isLiked = userArticle.getIsLiked();
-                if(isLiked == 1){
+                if(isLiked.equals(InteractionConstants.IS_LIKED_YES)){
                     //已经点过赞了，执行取消点赞逻辑
-                    userArticle.setIsLiked(0);
+                    userArticle.setIsLiked(InteractionConstants.IS_LIKED_NO);
                     userArticleMapper.update(userArticle);
                     //并减少文章的点赞数
 //                    Article article = Article.builder()
@@ -285,7 +286,7 @@ public class ArticleServiceImpl implements ArticleService {
                     article.setLikeCount(articleMapper.getById(id).getLikeCount()-1);
                 }else{
                     //没有点过赞，执行点赞逻辑；并增加文章的点赞数
-                    userArticle.setIsLiked(1);
+                    userArticle.setIsLiked(InteractionConstants.IS_LIKED_YES);
                     userArticleMapper.update(userArticle);
 //                    Article article = Article.builder()
 //                            .id(id)
@@ -304,8 +305,8 @@ public class ArticleServiceImpl implements ArticleService {
                 UserArticle userArticleInsertUse = UserArticle.builder()
                         .userId(userId)
                         .articleId(id)
-                        .isLiked(1)
-                        .isFavorite(0)
+                        .isLiked(InteractionConstants.IS_LIKED_YES)
+                        .isFavorite(InteractionConstants.IS_FAVORITE_NO)
                         .build();
                 userArticleMapper.insert(userArticleInsertUse);
                 Article article = Article.builder()
@@ -342,15 +343,15 @@ public class ArticleServiceImpl implements ArticleService {
 
             //已经有了，执行更新逻辑
             Integer isFavorite = userArticle.getIsFavorite();
-            if(isFavorite == 1){
+            if(isFavorite.equals(InteractionConstants.IS_FAVORITE_YES)){
                 //已经收藏了，执行取消收藏逻辑
-                userArticle.setIsFavorite(0);
+                userArticle.setIsFavorite(InteractionConstants.IS_FAVORITE_NO);
                 userArticleMapper.update(userArticle);
                 //并减少文章的点赞数
                 article.setFavoriteCount(articleMapper.getById(id).getFavoriteCount()-1);
             }else{
                 //没有收藏，执行收藏逻辑；并增加文章的收藏数
-                userArticle.setIsLiked(1);
+                userArticle.setIsFavorite(InteractionConstants.IS_FAVORITE_YES);
                 userArticleMapper.update(userArticle);
 
                 article.setFavoriteCount(articleMapper.getById(id).getFavoriteCount()+1);
@@ -365,8 +366,8 @@ public class ArticleServiceImpl implements ArticleService {
             UserArticle userArticleInsertUse = UserArticle.builder()
                     .userId(userId)
                     .articleId(id)
-                    .isLiked(0)
-                    .isFavorite(1)
+                    .isLiked(InteractionConstants.IS_LIKED_NO)
+                    .isFavorite(InteractionConstants.IS_FAVORITE_YES)
                     .build();
             userArticleMapper.insert(userArticleInsertUse);
             Article article = Article.builder()
@@ -441,7 +442,7 @@ public class ArticleServiceImpl implements ArticleService {
 
 
         List<Article> list = articleMapper.getArticleList(articleListQuery);
-        if(list == null || list.size() == 0){
+        if(list.isEmpty()){
             throw new BussinessException(ErrorCode.A02001, MessageConstant.ARTICLE_NOT_FOUND);
         }
         List<ArticleDetailVO> listRes = new ArrayList<>();

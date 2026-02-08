@@ -48,4 +48,5 @@ public class MessageConstant {
     public static final String ID_TOKEN_INVALID = "id_token无效";
     public static final String AUDIENCE_INVALID = "无效的audience";
     public static final String GOOGLE_LOGIN_ERROR = "google登录失败";
+    public static final String ARTICLLE_TO_BE_DELETED_IS_NULL = "请选择要删除的文章";
 }

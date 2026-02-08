@@ -10,6 +10,7 @@ import top.hazenix.dto.DeleteLinksRequestDTO;
 import top.hazenix.dto.LinkDTO;
 import top.hazenix.dto.TreeCommentsDTO;
 import top.hazenix.entity.Link;
+import top.hazenix.constant.CommonStatusConstants;
 import top.hazenix.entity.TreeComments;
 import top.hazenix.mapper.LinkMapper;
 import top.hazenix.mapper.TreeCommentsMapper;
@@ -51,7 +52,7 @@ public class TreeCommentsServiceImpl implements TreeCommentsService {
         TreeComments treeComments = new TreeComments();
         BeanUtils.copyProperties(treeCommentsDTO,treeComments);
 //        treeComments.setUserId(treeCommentsDTO.getUserId());
-        treeComments.setStatus(0);
+        treeComments.setStatus(CommonStatusConstants.NORMAL);
         treeComments.setCreateTime(LocalDateTime.now());
         treeCommentsMapper.insert(treeComments);
     }

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.hazenix.constant.ErrorCode;
 import top.hazenix.constant.MessageConstant;
+import top.hazenix.constant.CommonStatusConstants;
 import top.hazenix.dto.DeleteTagsRequestDTO;
 import top.hazenix.dto.TagsDTO;
 import top.hazenix.entity.Category;
@@ -52,7 +53,7 @@ public class TagsServiceImpl implements TagsService {
         Tags tags = new Tags();
         BeanUtils.copyProperties(tagsDTO,tags);
         if(tags.getStatus()==null){
-            tags.setStatus(1);//默认禁用
+            tags.setStatus(CommonStatusConstants.ENABLE);//默认启用
         }
         tagsMapper.insert(tags);
     }

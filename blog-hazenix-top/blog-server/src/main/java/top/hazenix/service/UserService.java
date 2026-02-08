@@ -37,5 +37,5 @@ public interface UserService {
 
     UserLoginVO authorizingWithGithubCode(String code) throws JsonProcessingException;
 
-    UserLoginVO idTokenlogin(UserLoginDTO userLoginDTO) throws ParseException;
+    UserLoginVO idTokenLogin(UserLoginDTO userLoginDTO) throws ParseException;
 }

@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.web.bind.annotation.*;
 import top.hazenix.dto.CategoryDTO;
+
+import javax.validation.Valid;
 import top.hazenix.dto.DeleteCategoryRequestDTO;
 import top.hazenix.result.PageResult;
 import top.hazenix.result.Result;
@@ -50,7 +52,7 @@ public class CategoryController {
      */
     @PostMapping
     @CacheEvict(cacheNames = "categoriesCache", allEntries = true)
-    public Result addCategory(@RequestBody CategoryDTO categoryDTO){
+    public Result addCategory(@Valid @RequestBody CategoryDTO categoryDTO){
         log.info("创建分类：{}",categoryDTO);
         categoryService.addCategory(categoryDTO);
         return Result.success();
@@ -64,7 +66,7 @@ public class CategoryController {
      */
     @PutMapping("/{id}")
     @CacheEvict(cacheNames = "categoriesCache", allEntries = true)
-    public Result updateCategory(@PathVariable Integer id,@RequestBody CategoryDTO categoryDTO){
+    public Result updateCategory(@PathVariable Integer id, @Valid @RequestBody CategoryDTO categoryDTO){
         log.info("更新分类：{}",categoryDTO);
         categoryService.updateCategory(id,categoryDTO);
         return Result.success();
@@ -90,7 +92,7 @@ public class CategoryController {
      */
     @DeleteMapping("/batch")
     @CacheEvict(cacheNames = "categoriesCache", allEntries = true)
-    public Result deleteCategories(@RequestBody DeleteCategoryRequestDTO deleteCategoryRequestDTO){
+    public Result deleteCategories(@Valid @RequestBody DeleteCategoryRequestDTO deleteCategoryRequestDTO){
         log.info("删除分类：{}",deleteCategoryRequestDTO);
         categoryService.deleteCategories(deleteCategoryRequestDTO);
 

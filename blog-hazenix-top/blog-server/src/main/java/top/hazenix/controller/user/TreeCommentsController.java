@@ -7,6 +7,8 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 import top.hazenix.dto.TreeCommentsDTO;
+
+import javax.validation.Valid;
 import top.hazenix.entity.TreeComments;
 import top.hazenix.result.Result;
 import top.hazenix.service.TreeCommentsService;
@@ -41,7 +43,7 @@ public class TreeCommentsController {
      */
     @PostMapping
     @CacheEvict(cacheNames = "treeCache", allEntries = true)
-    public Result addTreeComments(@RequestBody TreeCommentsDTO treeCommentsDTO){
+    public Result addTreeComments(@Valid @RequestBody TreeCommentsDTO treeCommentsDTO){
         log.info("添加树洞弹幕:{}", treeCommentsDTO);
         treeCommentsService.addTreeComments(treeCommentsDTO);
         return Result.success();

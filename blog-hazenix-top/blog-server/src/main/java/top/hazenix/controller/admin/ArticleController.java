@@ -10,6 +10,10 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import top.hazenix.constant.ErrorCode;
+import top.hazenix.constant.MessageConstant;
+import top.hazenix.constant.DefaultConstants;
 import top.hazenix.dto.ArticleDTO;
 import top.hazenix.dto.DeleteArticleRequestDTO;
 import top.hazenix.result.PageResult;
@@ -35,13 +39,13 @@ public class ArticleController {
 
 
     /**
-     * 获取最新点的文章列表（5篇）
+     * 获取最新的文章列表（5篇）
      * @return
      */
     @GetMapping("/recent")
     @Cacheable(cacheNames = "articlesCache", key = "#root.method")
     public Result getRecentArticles() {
-        List<ArticleShortVO> list = articleService.getRecentArticles(5);
+        List<ArticleShortVO> list = articleService.getRecentArticles(DefaultConstants.RECENT_ARTICLES_COUNT);
         return Result.success(list);
     }
 
@@ -88,7 +92,7 @@ public class ArticleController {
      */
     @PostMapping
     @CacheEvict(cacheNames = "articlesCache", allEntries = true)
-    public Result addArticle(@RequestBody ArticleDTO articleDTO){
+    public Result addArticle(@Valid @RequestBody ArticleDTO articleDTO){
         log.info("新增文章：{}",articleDTO);
         articleService.addArticle(articleDTO);
         return Result.success();
@@ -102,7 +106,7 @@ public class ArticleController {
      */
     @PutMapping("/{id}")
     @CacheEvict(cacheNames = "articlesCache", key = "#id")
-    public Result updateArticle(@PathVariable Long id,@RequestBody ArticleDTO articleDTO){
+    public Result updateArticle(@PathVariable Long id, @Valid @RequestBody ArticleDTO articleDTO){
         log.info("更新文章：{}",id);
         articleService.updateArticle(id,articleDTO);
         return Result.success();
@@ -128,11 +132,11 @@ public class ArticleController {
      */
     @DeleteMapping("/batch")
     @CacheEvict(cacheNames = "articlesCache", allEntries = true)
-    public Result deleteArticles(@RequestBody DeleteArticleRequestDTO deleteArticleRequestDTO){
+    public Result deleteArticles(@Valid @RequestBody DeleteArticleRequestDTO deleteArticleRequestDTO){
         List<Long> ids = deleteArticleRequestDTO.getIds();
         log.info("批量删除文章：{}",ids);
-        if(ids.size()==0){
-            return null;
+        if(ids.isEmpty()){
+            return Result.error(ErrorCode.A02005, MessageConstant.ARTICLLE_TO_BE_DELETED_IS_NULL);
         }
         articleService.deleteArticles(ids);
         return Result.success();

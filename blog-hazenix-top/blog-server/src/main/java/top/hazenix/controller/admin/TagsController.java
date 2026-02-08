@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.cache.annotation.*;
 import top.hazenix.dto.DeleteCategoryRequestDTO;
+
+import javax.validation.Valid;
 import top.hazenix.dto.DeleteTagsRequestDTO;
 import top.hazenix.dto.TagsDTO;
 import top.hazenix.result.PageResult;
@@ -50,7 +52,7 @@ public class TagsController {
      */
     @PostMapping
     @CacheEvict(cacheNames = "tagsCache",allEntries = true)
-    public Result addTag(@RequestBody TagsDTO tagsDTO){
+    public Result addTag(@Valid @RequestBody TagsDTO tagsDTO){
         log.info("新增标签");
         tagsService.addTag(tagsDTO);
         return Result.success();
@@ -63,7 +65,7 @@ public class TagsController {
      */
     @PutMapping("/{id}")
     @CacheEvict(cacheNames = "tagsCache",allEntries = true)
-    public Result updateTag(@PathVariable Long id,@RequestBody TagsDTO tagsDTO){
+    public Result updateTag(@PathVariable Long id, @Valid @RequestBody TagsDTO tagsDTO){
         log.info("更新制定标签");
         tagsService.updateTag(id,tagsDTO);
         return Result.success();
@@ -89,7 +91,7 @@ public class TagsController {
      */
     @DeleteMapping("/batch")
     @CacheEvict(cacheNames = "tagsCache",allEntries = true)
-    public Result deleteTags(@RequestBody DeleteTagsRequestDTO deleteTagsRequestDTO){
+    public Result deleteTags(@Valid @RequestBody DeleteTagsRequestDTO deleteTagsRequestDTO){
         log.info("批量删除标签");
         tagsService.deleteTags(deleteTagsRequestDTO);
 

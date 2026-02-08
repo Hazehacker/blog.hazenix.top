@@ -8,6 +8,9 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 import top.hazenix.dto.DeleteCommentsRequestDTO;
+import top.hazenix.constant.DefaultConstants;
+
+import javax.validation.Valid;
 import top.hazenix.result.PageResult;
 import top.hazenix.result.Result;
 import top.hazenix.service.CommentsService;
@@ -31,7 +34,7 @@ public class CommentsController {
      */
     @GetMapping("/recent")
     public Result getRecentComments(){
-        List<CommentShortVO> list = commentsService.getRecentComments(5);
+        List<CommentShortVO> list = commentsService.getRecentComments(DefaultConstants.RECENT_COMMENTS_COUNT);
         return Result.success(list);
     }
 
@@ -77,7 +80,7 @@ public class CommentsController {
      */
     @DeleteMapping("/batch")
     @CacheEvict(cacheNames = "commentsCache", allEntries = true)
-    public Result deleteComments(@RequestBody DeleteCommentsRequestDTO deleteCommentsRequestDTO){
+    public Result deleteComments(@Valid @RequestBody DeleteCommentsRequestDTO deleteCommentsRequestDTO){
         log.info("删除评论：{}",deleteCommentsRequestDTO);
         List<Long> ids = deleteCommentsRequestDTO.getIds();
         try {

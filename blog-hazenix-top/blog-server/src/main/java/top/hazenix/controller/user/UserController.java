@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import top.hazenix.constant.JwtClaimsConstant;
+
+import javax.validation.Valid;
 import top.hazenix.context.BaseContext;
 import top.hazenix.dto.UserDTO;
 import top.hazenix.dto.UserLoginDTO;
@@ -63,7 +65,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/login")
-    public Result<UserLoginVO> login(@RequestBody UserLoginDTO userLoginDTO){
+    public Result<UserLoginVO> login(@Valid @RequestBody UserLoginDTO userLoginDTO){
         log.info("用户登录:{}",userLoginDTO);
         UserLoginVO userLoginVO = userService.login(userLoginDTO);
         return Result.success(userLoginVO);
@@ -75,7 +77,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/register")
-    public Result<UserLoginVO> register(@RequestBody UserLoginDTO userLoginDTO){
+    public Result<UserLoginVO> register(@Valid @RequestBody UserLoginDTO userLoginDTO){
         log.info("用户注册:{}",userLoginDTO);
         UserLoginVO userLoginVO = userService.register(userLoginDTO);
         return Result.success(userLoginVO);
@@ -94,9 +96,9 @@ public class UserController {
      * @return
      */
     @PostMapping("/google/idtoken-login")
-    public Result<UserLoginVO> googleIdTokenLogin(@RequestBody UserLoginDTO userLoginDTO) throws ParseException {
+    public Result<UserLoginVO> googleIdTokenLogin(@Valid @RequestBody UserLoginDTO userLoginDTO) throws ParseException {
         log.info("id token登录:{}",userLoginDTO);
-        UserLoginVO userLoginVO = userService.idTokenlogin(userLoginDTO);
+        UserLoginVO userLoginVO = userService.idTokenLogin(userLoginDTO);
         return Result.success(userLoginVO);
     }
 
@@ -174,13 +176,13 @@ public class UserController {
      * @return
      */
     @PutMapping("/profile")
-    public Result updateProfile(@RequestBody UserDTO userDTO){
+    public Result updateProfile(@Valid @RequestBody UserDTO userDTO){
         log.info("更新用户信息:{}",userDTO);
         UserVO userVO = userService.updateProfile(userDTO);
         return Result.success(userVO);
     }
     @PutMapping("/password")
-    public Result updatePassword(@RequestBody UserDTO userDTO){
+    public Result updatePassword(@Valid @RequestBody UserDTO userDTO){
         log.info("更新用户密码:{}",userDTO);
         userService.updatePassword(userDTO);
         return Result.success();

@@ -8,6 +8,8 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 import top.hazenix.dto.CommentsDTO;
+
+import javax.validation.Valid;
 import top.hazenix.result.PageResult;
 import top.hazenix.result.Result;
 import top.hazenix.service.ArticleService;
@@ -45,7 +47,7 @@ public class CommentsController {
      */
     @PostMapping
     @CacheEvict(cacheNames = "commentsCache", key = "#root.args[0].articleId+ '_' + #root.args[0].status")
-    public Result addComment(@RequestBody CommentsDTO commentsDTO){
+    public Result addComment(@Valid @RequestBody CommentsDTO commentsDTO){
         log.info("用户新增评论：{}",commentsDTO);
         commentsService.addComments(commentsDTO);
         return Result.success();

@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 @Data
@@ -14,5 +15,6 @@ import java.util.List;
 @NoArgsConstructor
 public class DeleteTreeCommentsDTO {
     @ApiModelProperty(value = "ID列表", example = "[1, 2, 3]")
+    @NotEmpty(message = "ID列表不能为空")
     private List<Long> ids;
 }
