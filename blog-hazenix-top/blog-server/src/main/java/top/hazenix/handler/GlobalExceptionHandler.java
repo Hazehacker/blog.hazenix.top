@@ -3,6 +3,7 @@ package top.hazenix.handler;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import top.hazenix.constant.DefaultConstants;
 import top.hazenix.constant.ErrorCode;
 import top.hazenix.exception.BussinessException;
 import org.springframework.web.bind.MethodArgumentNotValidException;

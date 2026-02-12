@@ -24,7 +24,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.util.DigestUtils;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -79,6 +79,7 @@ public class UserServiceImpl implements UserService {
     private final RedisTemplate redisTemplate;
     private final UserArticleMapper userArticleMapper;
     private final CommentsMapper commentsMapper;
+    private final PasswordEncoder passwordEncoder;
 
     private final String GOOGLE_ISSUER = "https://accounts.google.com";
 
@@ -93,9 +94,8 @@ public class UserServiceImpl implements UserService {
         if (user == null) {
             throw new BussinessException(ErrorCode.A01001, MessageConstant.CURRENT_EMAIL_NOT_REGISTERD);
         }
-        //【数据库的密码是加密过的】
-        String processedPassword = DigestUtils.md5DigestAsHex(userLoginDTO.getPassword().getBytes());
-        if(!processedPassword.equals(user.getPassword())){
+        //【数据库的密码是使用 BCrypt 加密的】
+        if(!passwordEncoder.matches(userLoginDTO.getPassword(), user.getPassword())){
             throw new BussinessException(ErrorCode.A01002, MessageConstant.EMAIL_OR_PASSWORD_ERROR);
         }
         if(user.getStatus()!=null && user.getStatus()==1){
@@ -135,15 +135,12 @@ public class UserServiceImpl implements UserService {
         if (userMapper.selectByEmail(userLoginDTO.getEmail()) != null){
             throw new BussinessException(ErrorCode.A01004, MessageConstant.CURRENT_EMAIL_HAS_REGISTERED);
         }
-        //!!【密码要先加密才能插入数据库】
-        String processedPassword = DigestUtils.md5DigestAsHex(userLoginDTO.getPassword().getBytes());
-
-
         //插入user表
         User user = User.builder()
                 .username(userLoginDTO.getUsername())
                 .email(userLoginDTO.getEmail())
-                .password(processedPassword)
+                //【使用 BCrypt 对密码进行加密存储】
+                .password(passwordEncoder.encode(userLoginDTO.getPassword()))
                 .role(UserConstants.ROLE_USER)//默认普通用户
                 .lastLoginTime(LocalDateTime.now())
                 .build();
@@ -604,9 +601,8 @@ public class UserServiceImpl implements UserService {
     public void updatePassword(UserDTO userDTO) {
         Long currentId = BaseContext.getCurrentId();
         User user = userMapper.getById(currentId);
-        //【数据库的密码是加密过的】
-        String processedPassword = DigestUtils.md5DigestAsHex(userDTO.getCurrentPassword().getBytes());
-        if (!user.getPassword().equals(processedPassword)) {
+        //【数据库的密码是使用 BCrypt 加密的】
+        if (!passwordEncoder.matches(userDTO.getCurrentPassword(), user.getPassword())) {
             throw new BussinessException(ErrorCode.A01010, MessageConstant.CURRENT_PASSWORD_ERROR);
         }
 //        if (userDTO.getNewPassword().length() < 3 || userDTO.getNewPassword().length() > 20) {
@@ -615,8 +611,9 @@ public class UserServiceImpl implements UserService {
         if(userDTO.getCurrentPassword().equals(userDTO.getNewPassword())){
             throw new BussinessException(ErrorCode.A01011, MessageConstant.PASSWORD_NOT_CHANGE);
         }
-        String processedNewPassword = DigestUtils.md5DigestAsHex(userDTO.getNewPassword().getBytes());
-        user.setPassword(processedNewPassword);
+        // 使用 BCrypt 加密新密码
+        String encodedNewPassword = passwordEncoder.encode(userDTO.getNewPassword());
+        user.setPassword(encodedNewPassword);
         userMapper.update(user);
     }
 
