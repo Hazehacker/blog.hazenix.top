@@ -2,7 +2,10 @@ package top.hazenix.interceptor;
 
 import lombok.RequiredArgsConstructor;
 import top.hazenix.constant.JwtClaimsConstant;
+import top.hazenix.constant.UserConstants;
 import top.hazenix.context.BaseContext;
+import top.hazenix.entity.User;
+import top.hazenix.mapper.UserMapper;
 import top.hazenix.properties.JwtProperties;
 import top.hazenix.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
@@ -16,7 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * jwt令牌校验的拦截器
- * 【使用这个拦截器拦截管理端所有请求，校验id，如果id不为1，就不放行】
+ * 【使用这个拦截器拦截管理端所有请求，根据用户角色判断是否为管理员】
  */
 @Component
 @Slf4j
@@ -25,6 +28,8 @@ public class JwtTokenAdminInterceptor implements HandlerInterceptor {
 
 
     private final JwtProperties jwtProperties;
+
+    private final UserMapper userMapper;
 
     /**
      * 校验jwt
@@ -52,9 +57,13 @@ public class JwtTokenAdminInterceptor implements HandlerInterceptor {
             Claims claims = JwtUtil.parseJWT(jwtProperties.getUserSecretKey(), token);
             Long userId = Long.valueOf(claims.get(JwtClaimsConstant.USER_ID).toString());
             BaseContext.setCurrentId(userId);
-            log.info("当前用户id：", userId);
-            //如果id不为1，就不是管理员，不放行
-            if(userId != 1L){
+            log.info("当前用户id：{}", userId);
+
+            // 根据用户角色判断是否为管理员（role == 0）
+            User user = userMapper.getById(userId);
+            if (user == null || user.getRole() == null || !UserConstants.ROLE_ADMIN.equals(user.getRole())) {
+                // 非管理员用户，不放行
+                response.setStatus(403);
                 return false;
             }
             //3、通过，放行

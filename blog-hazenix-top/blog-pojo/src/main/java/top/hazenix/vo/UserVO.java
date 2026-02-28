@@ -26,6 +26,9 @@ public class UserVO implements Serializable {
     
     @ApiModelProperty(value = "性别[0:女 | 1:男]", example = "0")
     private Integer gender;
+
+    @ApiModelProperty(value = "角色[0:管理员 | 1:作者 | 2:普通用户(默认)]", example = "0")
+    private Integer role;
     
     @ApiModelProperty(value = "邮箱", example = "user@example.com")
     private String email;

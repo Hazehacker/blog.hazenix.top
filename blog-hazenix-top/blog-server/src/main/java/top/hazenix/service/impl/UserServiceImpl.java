@@ -116,6 +116,7 @@ public class UserServiceImpl implements UserService {
         String token = JwtUtil.createJWT(jwtProperties.getUserSecretKey(),jwtProperties.getUserTtl(),claims);
         UserLoginVO userLoginVO = UserLoginVO.builder()
                 .id(user.getId())
+                .role(user.getRole())
                 .username(user.getUsername())
                 .avatar(user.getAvatar())
                 .email(user.getEmail())
@@ -153,6 +154,7 @@ public class UserServiceImpl implements UserService {
         //组装对象
         UserLoginVO userLoginVO = UserLoginVO.builder()
                 .id(user.getId())
+                .role(user.getRole())
                 .username(user.getUsername())
                 .avatar(user.getAvatar())
                 .email(user.getEmail())
@@ -223,6 +225,7 @@ public class UserServiceImpl implements UserService {
                 .username(user.getUsername())
                 .avatar(user.getAvatar())
                 .gender(user.getGender())
+                .role(user.getRole())
                 .email(user.getEmail())
                 .build();
     }
@@ -526,6 +529,8 @@ public class UserServiceImpl implements UserService {
             user.setUsername( username);
             user.setEmail( email);
             user.setAvatar( avatar);
+            // 第三方登录首次创建用户时，默认设置为普通用户
+            user.setRole(UserConstants.ROLE_USER);
             userMapper.insert(user);
 
         }
@@ -549,6 +554,7 @@ public class UserServiceImpl implements UserService {
         //组装返回对象
         UserLoginVO userLoginVO = UserLoginVO.builder()
                 .id(user.getId())
+                .role(user.getRole())
                 .username(user.getUsername())
                 .avatar(user.getAvatar())
                 .email(email)
@@ -588,6 +594,7 @@ public class UserServiceImpl implements UserService {
                 .username(userNow.getUsername())
                 .avatar(userNow.getAvatar())
                 .gender(userNow.getGender())
+                .role(userNow.getRole())
                 .email(userNow.getEmail())
                 .build();
         return userVO;
