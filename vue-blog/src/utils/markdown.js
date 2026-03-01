@@ -86,9 +86,10 @@ const resetUsedIds = () => {
 md.use(anchor, {
     permalink: false, // 不显示锚点链接，只添加ID
     level: [1, 2, 3, 4, 5, 6],
-    slugify: (text) => generateId(text, true), // 使用唯一ID生成函数
+    slugify: (text) => generateId(text, true), // 使用唯一ID生成函数，确保与 TOC 一致
     // 确保插件正确工作
-    tabIndex: false
+    tabIndex: false,
+    uniqueSlugStartIndex: 1 // 确保重复标题有唯一ID
 })
 
 // 添加目录插件
@@ -100,26 +101,14 @@ md.use(toc, {
     linkClass: 'toc-link',
     level: [1, 2, 3, 4, 5, 6],
     listType: 'ul',
+    slugify: (text) => generateId(text, true), // 使用与 anchor 相同的 slugify 函数，确保 ID 匹配
     format: function (heading, opts) {
         return heading
     }
 })
 
-// 添加自定义标题渲染规则，手动添加ID
-md.renderer.rules.heading_open = function (tokens, idx, options, env, renderer) {
-    const token = tokens[idx]
-    const level = token.tag
-    const nextToken = tokens[idx + 1]
-
-    if (nextToken && nextToken.type === 'inline') {
-        const text = nextToken.content
-        // 使用 isUnique=true 确保每个标题都有唯一的ID
-        const id = generateId(text, true)
-        return `<${level} id="${id}">`
-    }
-
-    return `<${level}>`
-}
+// 注意：不再需要自定义 heading_open 规则
+// anchor 插件会自动为标题添加 ID，使用相同的 slugify 函数确保 ID 匹配
 
 // 添加自定义渲染规则
 md.renderer.rules.table_open = function () {
@@ -176,10 +165,14 @@ md.renderer.rules.fence = function (tokens, idx, options, env, renderer) {
         }
     }
 
+    // 使用 base64 编码存储代码内容，避免特殊字符问题
+    // 先使用 encodeURIComponent 处理 Unicode 字符，再 base64 编码
+    const encodedContent = btoa(unescape(encodeURIComponent(token.content)))
+    
     return `<div class="code-block-wrapper">
     <div class="code-block-header">
       <span class="code-block-lang">${langName || 'text'}</span>
-      <button class="copy-btn" onclick="navigator.clipboard.writeText(\`${token.content.replace(/`/g, '\\`')}\`)">复制</button>
+      <button class="copy-btn" data-code="${encodedContent}">复制</button>
     </div>
     <pre class="hljs"><code>${highlighted}</code></pre>
   </div>`

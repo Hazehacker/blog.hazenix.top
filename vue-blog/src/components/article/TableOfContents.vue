@@ -300,33 +300,83 @@ const syncTocIdsFromDOM = () => {
 
 // 处理目录点击
 const handleTocClick = (id) => {
+  console.log('侧边栏目录点击，ID:', id)
   activeId.value = id
   emit('toc-click', id)
   
   // 滚动到对应位置，添加重试机制
-  const scrollToElement = (retries = 3) => {
-    const element = document.getElementById(id)
+  const scrollToElement = (retries = 5) => {
+    // 在文章内容区域查找标题（避免找到其他地方的标题）
+    const articleContent = document.querySelector('.markdown-content, .article-body, .prose')
+    const searchContainer = articleContent || document
+    
+    // 使用多种方式查找元素
+    let element = null
+    
+    // 方法1: 直接通过 ID 查找
+    try {
+      if (CSS && CSS.escape) {
+        element = searchContainer.querySelector(`#${CSS.escape(id)}`) || document.getElementById(id)
+      } else {
+        element = document.getElementById(id)
+      }
+    } catch (e) {
+      element = document.getElementById(id)
+    }
+    
+    // 方法2: 如果找不到，尝试在所有标题中查找匹配的
+    if (!element) {
+      const allHeadings = searchContainer.querySelectorAll('h1, h2, h3, h4, h5, h6')
+      for (const heading of allHeadings) {
+        if (heading.id === id) {
+          element = heading
+          break
+        }
+      }
+    }
+    
+    // 方法3: 尝试解码 URL 编码的 ID
+    if (!element) {
+      try {
+        const decodedId = decodeURIComponent(id)
+        if (CSS && CSS.escape) {
+          element = searchContainer.querySelector(`#${CSS.escape(decodedId)}`) || document.getElementById(decodedId)
+        } else {
+          element = document.getElementById(decodedId)
+        }
+      } catch (e) {
+        // 忽略错误
+      }
+    }
     
     if (element) {
+      console.log('侧边栏目录：找到目标元素，开始滚动')
       // 计算偏移量，考虑固定头部
       const offset = 100
       const elementPosition = element.getBoundingClientRect().top + window.pageYOffset
-      const offsetPosition = elementPosition - offset
+      const offsetPosition = Math.max(0, elementPosition - offset)
       
       window.scrollTo({
         top: offsetPosition,
         behavior: 'smooth'
       })
       
+      // 更新 URL hash（不触发滚动）
+      history.pushState(null, '', `#${id}`)
+      
       // 滚动完成后更新活动标题
       setTimeout(() => {
         updateActiveHeading()
       }, 500)
     } else if (retries > 0) {
+      console.log(`侧边栏目录：未找到目标元素，剩余重试次数: ${retries - 1}, ID: ${id}`)
       // 如果元素还没渲染，等待一下再重试
       setTimeout(() => {
         scrollToElement(retries - 1)
       }, 100)
+    } else {
+      console.warn('侧边栏目录：找不到目标元素，ID:', id)
+      console.log('当前页面所有标题 ID:', Array.from(searchContainer.querySelectorAll('h1, h2, h3, h4, h5, h6')).map(h => h.id))
     }
   }
   

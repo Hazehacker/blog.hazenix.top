@@ -160,10 +160,10 @@ export default {
                             fontSize: '0.875em',
                         },
                         'code::before': {
-                            content: '"`"',
+                            content: '""',
                         },
                         'code::after': {
-                            content: '"`"',
+                            content: '""',
                         },
                         'a code': {
                             color: 'inherit',
