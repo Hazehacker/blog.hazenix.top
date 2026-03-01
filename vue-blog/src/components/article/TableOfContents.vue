@@ -116,7 +116,30 @@ const parseToc = (content) => {
         // 获取标题内容（下一个 token 应该是 inline 类型，包含标题文本）
         const nextToken = tokens[index + 1]
         if (nextToken && nextToken.type === 'inline') {
-          const text = nextToken.content
+          // 从 inline token 中提取纯文本
+          // 需要遍历 inline token 的子 tokens，提取文本内容
+          let text = ''
+          if (nextToken.children) {
+            // 遍历子 tokens，提取文本内容
+            nextToken.children.forEach(child => {
+              if (child.type === 'text') {
+                text += child.content
+              } else if (child.type === 'highlight') {
+                // 高亮标记的内容
+                text += child.content
+              } else if (child.content) {
+                // 其他类型的 token，如果有 content 也添加
+                text += child.content
+              }
+            })
+          } else {
+            // 如果没有子 tokens，直接使用 content
+            text = nextToken.content || ''
+          }
+          
+          // 移除高亮标记 ==文本== 中的 == 符号（如果还有残留）
+          text = text.replace(/==([^=]+)==/g, '$1').trim()
+          
           const level = parseInt(token.tag.substring(1)) // h1 -> 1, h2 -> 2, etc.
           const id = generateId(text, true) // 使用唯一ID生成函数
           
@@ -182,7 +205,11 @@ const parseTocFallback = (content) => {
     const match = line.match(/^(#{1,6})\s+(.+)$/)
     if (match) {
       const level = match[1].length
-      const text = match[2].trim()
+      let text = match[2].trim()
+      
+      // 移除高亮标记 ==文本== 中的 == 符号
+      text = text.replace(/==([^=]+)==/g, '$1').trim()
+      
       const id = generateId(text, true) // 使用唯一ID生成函数
       
       headings.push({
@@ -202,7 +229,11 @@ const generateId = (text, isUnique = false) => {
   if (!text) return ''
   
   // 移除HTML标签
-  const cleanText = text.replace(/<[^>]*>/g, '')
+  let cleanText = text.replace(/<[^>]*>/g, '')
+  
+  // 移除高亮标记 ==文本== 中的 == 符号
+  // 匹配 ==文本== 格式，提取中间的文本
+  cleanText = cleanText.replace(/==([^=]+)==/g, '$1')
   
   // 转换为小写
   let id = cleanText.toLowerCase()
@@ -268,10 +299,18 @@ const syncTocIdsFromDOM = () => {
     // 从当前位置开始查找匹配的标题
     for (let j = domIndex; j < domHeadings.length; j++) {
       const heading = domHeadings[j]
-      const headingText = heading.textContent.trim()
+      let headingText = heading.textContent.trim()
+      // 移除高亮标记 ==文本== 中的 == 符号
+      headingText = headingText.replace(/==([^=]+)==/g, '$1').trim()
+      
+      // 清理目录项文本，移除高亮标记
+      let cleanTocText = tocItem.text.replace(/==([^=]+)==/g, '$1').trim()
       
       // 如果文本匹配（允许一些容差）
-      if (headingText === tocItem.text || 
+      if (headingText === cleanTocText || 
+          headingText === tocItem.text ||
+          headingText.includes(cleanTocText) || 
+          cleanTocText.includes(headingText) ||
           headingText.includes(tocItem.text) || 
           tocItem.text.includes(headingText)) {
         updatedItems.push({
@@ -300,7 +339,15 @@ const syncTocIdsFromDOM = () => {
 
 // 处理目录点击
 const handleTocClick = (id) => {
-  console.log('侧边栏目录点击，ID:', id)
+  // 找到对应的目录项，获取文本用于匹配
+  const tocItem = tocItems.value.find(item => item.id === id)
+  // 保存原始文本（可能包含==）
+  const originalTocText = tocItem ? tocItem.text : ''
+  // 清理目录文本，移除高亮标记
+  let cleanTocText = originalTocText.replace(/==([^=]+)==/g, '$1').trim()
+  // 准备带高亮标记的版本（用于匹配）
+  let highlightedTocText = `==${cleanTocText}==`
+  
   activeId.value = id
   emit('toc-click', id)
   
@@ -324,7 +371,7 @@ const handleTocClick = (id) => {
       element = document.getElementById(id)
     }
     
-    // 方法2: 如果找不到，尝试在所有标题中查找匹配的
+    // 方法2: 如果找不到，尝试在所有标题中查找匹配的 ID
     if (!element) {
       const allHeadings = searchContainer.querySelectorAll('h1, h2, h3, h4, h5, h6')
       for (const heading of allHeadings) {
@@ -349,8 +396,121 @@ const handleTocClick = (id) => {
       }
     }
     
+    // 方法4: 如果还是找不到，尝试通过 ID 的大小写不敏感匹配
+    if (!element) {
+      const allHeadings = searchContainer.querySelectorAll('h1, h2, h3, h4, h5, h6')
+      const idLower = id.toLowerCase()
+      for (const heading of allHeadings) {
+        if (!heading.id) continue
+        if (heading.id.toLowerCase() === idLower) {
+          element = heading
+          break
+        }
+      }
+    }
+    
+    // 方法4.5: 如果ID匹配失败，立即尝试文本匹配（提前到ID匹配之后）
+    if (!element && cleanTocText) {
+      const allHeadings = searchContainer.querySelectorAll('h1, h2, h3, h4, h5, h6')
+      for (const heading of allHeadings) {
+        if (!heading.id) continue
+        
+        // 获取标题文本
+        let headingText = heading.textContent.trim()
+        headingText = headingText.replace(/==([^=]+)==/g, '$1').trim()
+        
+        // 获取标题HTML（用于检查是否包含高亮标记）
+        const headingHTML = heading.innerHTML || ''
+        const hasHighlight = headingHTML.includes('<mark') || headingHTML.includes('markdown-highlight')
+        
+        // 尝试匹配清理后的文本
+        const tocTextLower = cleanTocText.toLowerCase()
+        const headingTextLower = headingText.toLowerCase()
+        
+        const match1 = headingText === cleanTocText
+        const match2 = headingTextLower === tocTextLower
+        const match3 = headingText.includes(cleanTocText)
+        const match4 = cleanTocText.includes(headingText)
+        const match5 = headingTextLower.includes(tocTextLower)
+        const match6 = tocTextLower.includes(headingTextLower)
+        
+        if (match1 || match2 || match3 || match4 || match5 || match6) {
+          element = heading
+          break
+        }
+        
+        // 如果标题HTML中包含高亮标记，也尝试匹配带==的版本
+        if (hasHighlight) {
+          const htmlMatch1 = headingHTML.includes(cleanTocText)
+          const htmlMatch2 = headingHTML.toLowerCase().includes(tocTextLower)
+          const htmlMatch3 = headingText === cleanTocText
+          
+          if (htmlMatch1 || htmlMatch2 || htmlMatch3) {
+            element = heading
+            break
+          }
+        }
+      }
+    }
+    
+    // 方法5: 如果还是找不到，尝试通过标题文本进行更深入的模糊匹配
+    if (!element && cleanTocText) {
+      const allHeadings = searchContainer.querySelectorAll('h1, h2, h3, h4, h5, h6')
+      
+      for (const heading of allHeadings) {
+        if (!heading.id) continue
+        
+        // 获取标题文本，textContent 会自动移除 HTML 标签，包括 <mark> 标签
+        let headingText = heading.textContent.trim()
+        // 再次移除可能残留的高亮标记（虽然 textContent 应该已经处理了）
+        headingText = headingText.replace(/==([^=]+)==/g, '$1').trim()
+        
+        // 获取标题HTML（用于检查是否包含高亮标记）
+        const headingHTML = heading.innerHTML || ''
+        
+        // 尝试多种匹配方式：
+        // 1. 精确匹配（忽略大小写）- 使用清理后的文本
+        // 2. 标题文本包含目录文本
+        // 3. 目录文本包含标题文本
+        // 4. 尝试匹配HTML中的内容（如果包含高亮标记）
+        const tocTextLower = cleanTocText.toLowerCase()
+        const headingTextLower = headingText.toLowerCase()
+        
+        // 检查原始标题HTML是否包含高亮标记
+        const hasHighlightInHTML = headingHTML.includes('<mark') || headingHTML.includes('markdown-highlight')
+        
+        if (headingText === cleanTocText || 
+            headingTextLower === tocTextLower ||
+            headingText.includes(cleanTocText) || 
+            cleanTocText.includes(headingText) ||
+            headingTextLower.includes(tocTextLower) ||
+            tocTextLower.includes(headingTextLower) ||
+            // 如果标题HTML中包含高亮标记，也尝试匹配HTML内容
+            (hasHighlightInHTML && (
+              headingHTML.includes(cleanTocText) ||
+              headingHTML.toLowerCase().includes(tocTextLower)
+            ))) {
+          element = heading
+          break
+        }
+      }
+    }
+    
+    // 方法6: 如果还是找不到，尝试通过 ID 的部分匹配（处理可能的序号后缀）
+    if (!element) {
+      const allHeadings = searchContainer.querySelectorAll('h1, h2, h3, h4, h5, h6')
+      const idBase = id.replace(/-\d+$/, '') // 移除可能的序号后缀
+      for (const heading of allHeadings) {
+        if (!heading.id) continue
+        const headingIdBase = heading.id.replace(/-\d+$/, '')
+        if (headingIdBase === idBase || heading.id.startsWith(idBase + '-')) {
+          element = heading
+          break
+        }
+      }
+    }
+    
     if (element) {
-      console.log('侧边栏目录：找到目标元素，开始滚动')
       // 计算偏移量，考虑固定头部
       const offset = 100
       const elementPosition = element.getBoundingClientRect().top + window.pageYOffset
@@ -361,23 +521,26 @@ const handleTocClick = (id) => {
         behavior: 'smooth'
       })
       
-      // 更新 URL hash（不触发滚动）
-      history.pushState(null, '', `#${id}`)
+      // 更新 URL hash（使用实际找到的元素 ID，不触发滚动）
+      history.pushState(null, '', `#${element.id}`)
+      
+      // 更新活动 ID 为实际找到的元素 ID
+      activeId.value = element.id
       
       // 滚动完成后更新活动标题
       setTimeout(() => {
         updateActiveHeading()
       }, 500)
+      return true
     } else if (retries > 0) {
-      console.log(`侧边栏目录：未找到目标元素，剩余重试次数: ${retries - 1}, ID: ${id}`)
       // 如果元素还没渲染，等待一下再重试
       setTimeout(() => {
         scrollToElement(retries - 1)
       }, 100)
-    } else {
-      console.warn('侧边栏目录：找不到目标元素，ID:', id)
-      console.log('当前页面所有标题 ID:', Array.from(searchContainer.querySelectorAll('h1, h2, h3, h4, h5, h6')).map(h => h.id))
+      return true // 表示正在处理中
     }
+    
+    return false
   }
   
   scrollToElement()

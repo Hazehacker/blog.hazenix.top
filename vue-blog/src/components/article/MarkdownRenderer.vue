@@ -20,16 +20,167 @@ const props = defineProps({
 
 const markdownContainerRef = ref(null)
 
-// 统一的事件处理函数
-const handleMarkdownClick = (event) => {
-  console.log('Markdown 容器点击事件触发', event.target)
-  // 先处理 TOC 链接点击
-  const tocHandled = handleTocLinkClick(event)
-  // 如果 TOC 链接已处理，就不处理复制按钮了
-  if (!tocHandled) {
-    // 再处理复制按钮点击
-    handleCopyClick(event)
+// 处理普通锚点链接点击（文章内容中的链接）
+const handleAnchorLinkClick = async (event) => {
+  const link = event.target.closest('a')
+  if (!link) {
+    return false
   }
+
+  const href = link.getAttribute('href')
+  
+  // 只处理锚点链接（以 # 开头）
+  if (!href || !href.startsWith('#')) {
+    return false
+  }
+
+  // 排除外部链接和 TOC 链接
+  if (link.classList.contains('toc-link')) {
+    return false
+  }
+
+  event.preventDefault()
+  event.stopPropagation()
+
+  const targetId = href.substring(1) // 移除 # 号
+  const linkText = link.textContent.trim() // 保存链接文本，用于文本匹配
+
+  // 等待 DOM 更新
+  await nextTick()
+
+  // 尝试查找目标元素并滚动
+  const findAndScroll = (retries = 5) => {
+    const container = markdownContainerRef.value
+    const searchScope = container || document
+    
+    let targetElement = null
+    
+    // 方法1: 直接通过 ID 查找（支持特殊字符）
+    try {
+      if (CSS && CSS.escape) {
+        targetElement = searchScope.querySelector(`#${CSS.escape(targetId)}`)
+      } else {
+        targetElement = document.getElementById(targetId)
+      }
+    } catch (e) {
+      targetElement = document.getElementById(targetId)
+    }
+    
+    // 方法2: 如果找不到，尝试在所有标题中查找匹配的 ID
+    if (!targetElement) {
+      const allHeadings = searchScope.querySelectorAll('h1, h2, h3, h4, h5, h6')
+      for (const heading of allHeadings) {
+        if (heading.id === targetId) {
+          targetElement = heading
+          break
+        }
+      }
+    }
+    
+    // 方法3: 尝试解码 URL 编码的 ID
+    if (!targetElement) {
+      try {
+        const decodedId = decodeURIComponent(targetId)
+        if (CSS && CSS.escape) {
+          targetElement = searchScope.querySelector(`#${CSS.escape(decodedId)}`) || document.getElementById(decodedId)
+        } else {
+          targetElement = document.getElementById(decodedId)
+        }
+      } catch (e) {
+        // 忽略错误
+      }
+    }
+    
+    // 方法4: 如果还是找不到，尝试通过标题文本进行模糊匹配
+    if (!targetElement) {
+      const allHeadings = searchScope.querySelectorAll('h1, h2, h3, h4, h5, h6')
+      for (const heading of allHeadings) {
+        if (!heading.id) continue
+        
+        // 获取标题文本，移除可能的 HTML 标签和高亮标记
+        let headingText = heading.textContent.trim()
+        // 移除高亮标记 ==文本== 中的 == 符号（虽然 textContent 通常不包含，但为了保险）
+        headingText = headingText.replace(/==([^=]+)==/g, '$1').trim()
+        
+        // 清理链接文本，移除高亮标记
+        let cleanLinkText = linkText.replace(/==([^=]+)==/g, '$1').trim()
+        
+        // 尝试多种匹配方式：
+        // 1. 精确匹配链接文本和标题文本
+        // 2. 标题文本包含链接文本
+        // 3. 链接文本包含标题文本
+        // 4. 忽略大小写的匹配
+        const linkTextLower = cleanLinkText.toLowerCase()
+        const headingTextLower = headingText.toLowerCase()
+        
+        if (headingText === cleanLinkText || 
+            headingTextLower === linkTextLower ||
+            headingText.includes(cleanLinkText) || 
+            cleanLinkText.includes(headingText) ||
+            headingTextLower.includes(linkTextLower) ||
+            linkTextLower.includes(headingTextLower)) {
+          targetElement = heading
+          break
+        }
+      }
+    }
+    
+    // 方法5: 如果还是找不到，尝试通过 ID 的部分匹配（处理大小写问题）
+    if (!targetElement) {
+      const allHeadings = searchScope.querySelectorAll('h1, h2, h3, h4, h5, h6')
+      const targetIdLower = targetId.toLowerCase()
+      for (const heading of allHeadings) {
+        if (!heading.id) continue
+        if (heading.id.toLowerCase() === targetIdLower) {
+          targetElement = heading
+          break
+        }
+      }
+    }
+    
+    if (targetElement) {
+      // 计算偏移量，考虑固定头部
+      const offset = 100
+      const elementPosition = targetElement.getBoundingClientRect().top + window.pageYOffset
+      const offsetPosition = Math.max(0, elementPosition - offset)
+      
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      })
+      
+      // 更新 URL hash（不触发滚动）
+      history.pushState(null, '', `#${targetElement.id}`)
+      return true
+    } else if (retries > 0) {
+      // 如果找不到，等待一下再重试（可能是 DOM 还没完全渲染）
+      setTimeout(() => findAndScroll(retries - 1), 100)
+      return true // 表示正在处理中
+    } else {
+      // 如果所有方法都失败，不进行任何操作，避免回到顶部
+      return false
+    }
+  }
+  
+  return findAndScroll()
+}
+
+// 统一的事件处理函数
+const handleMarkdownClick = async (event) => {
+  // 先处理 TOC 链接点击
+  const tocHandled = await handleTocLinkClick(event)
+  if (tocHandled) {
+    return // TOC 链接已处理，不再处理其他
+  }
+  
+  // 处理普通锚点链接点击
+  const anchorHandled = await handleAnchorLinkClick(event)
+  if (anchorHandled) {
+    return // 锚点链接已处理，不再处理其他
+  }
+  
+  // 最后处理复制按钮点击
+  handleCopyClick(event)
 }
 
 const renderedContent = computed(() => {
@@ -77,16 +228,14 @@ const renderedContent = computed(() => {
     }
   }
   
-  // 检查是否有标题元素
-  const headings = tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6')
-  // console.log('Found headings in rendered content:', Array.from(headings).map(h => ({ id: h.id, text: h.textContent })))
-  
-  // 同步 TOC 链接的 href 和实际标题的 ID
+
+  // 同步 TOC 链接的 href 和实际标题的 ID，并处理高亮显示
   if (tocContainer && headings.length > 0) {
     const tocLinks = tocContainer.querySelectorAll('.toc-link')
     const headingArray = Array.from(headings)
     
     tocLinks.forEach((link) => {
+      // 获取链接文本（移除HTML标签和高亮标记用于匹配）
       const linkText = link.textContent.trim()
       const currentHref = link.getAttribute('href')
       
@@ -94,6 +243,10 @@ const renderedContent = computed(() => {
       for (const heading of headingArray) {
         const headingText = heading.textContent.trim()
         const headingId = heading.id
+        const headingHTML = heading.innerHTML || ''
+        
+        // 检查标题是否包含高亮标记（通过检查HTML中是否有<mark>标签）
+        const hasHighlight = headingHTML.includes('<mark') || headingHTML.includes('markdown-highlight')
         
         // 如果文本匹配（允许一些容差），更新链接的 href
         if (headingId && (linkText === headingText || 
@@ -102,8 +255,39 @@ const renderedContent = computed(() => {
           const newHref = `#${headingId}`
           if (currentHref !== newHref) {
             link.setAttribute('href', newHref)
-            console.log(`同步 TOC 链接: "${linkText}" ${currentHref} -> ${newHref}`)
           }
+          
+          // 如果标题包含高亮标记，在目录链接中也添加高亮效果
+          if (hasHighlight) {
+            // 从标题HTML中提取高亮部分
+            // 如果标题HTML是 <mark class="markdown-highlight">数据类型差异</mark>
+            // 我们需要在目录链接中也显示高亮
+            const highlightMatch = headingHTML.match(/<mark[^>]*>([^<]+)<\/mark>/)
+            if (highlightMatch) {
+              const highlightedText = highlightMatch[1]
+              // 检查链接文本是否包含这个高亮文本
+              if (linkText.includes(highlightedText)) {
+                // 将链接文本中的高亮部分替换为高亮HTML
+                const highlightedHTML = linkText.replace(
+                  new RegExp(highlightedText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
+                  `<mark class="markdown-highlight">${highlightedText}</mark>`
+                )
+                link.innerHTML = highlightedHTML
+              } else {
+                // 如果链接文本不包含，直接使用标题的高亮HTML部分
+                link.innerHTML = `<mark class="markdown-highlight">${highlightedText}</mark>`
+              }
+            } else {
+              // 如果标题包含高亮但格式不同，尝试从原始文本中提取
+              // 检查标题的原始文本是否包含 ==文本== 格式
+              const originalHeadingText = heading.textContent || heading.innerText || ''
+              if (originalHeadingText && linkText === originalHeadingText) {
+                // 如果链接文本和标题文本完全匹配，使用标题的HTML
+                link.innerHTML = headingHTML
+              }
+            }
+          }
+          
           break // 找到匹配的标题后跳出循环
         }
       }
@@ -115,18 +299,14 @@ const renderedContent = computed(() => {
 
 // 处理 TOC 链接点击事件
 const handleTocLinkClick = async (event) => {
-  console.log('handleTocLinkClick 被调用', event.target)
   const tocLink = event.target.closest('.toc-link')
   if (!tocLink) {
-    console.log('TOC 链接点击：未找到 .toc-link 元素，当前元素:', event.target, '类名:', event.target.className)
     return false
   }
   
   const href = tocLink.getAttribute('href')
-  console.log('TOC 链接点击：href =', href)
   
   if (!href || !href.startsWith('#')) {
-    console.log('TOC 链接点击：href 格式不正确', href)
     return false
   }
   
@@ -134,7 +314,6 @@ const handleTocLinkClick = async (event) => {
   event.stopPropagation()
   
   const targetId = href.substring(1) // 移除 # 号
-  console.log('TOC 链接点击：目标 ID =', targetId)
   
   // 保存链接文本，用于降级匹配
   const linkText = tocLink.textContent.trim()
@@ -189,7 +368,6 @@ const handleTocLinkClick = async (event) => {
     }
     
     if (targetElement) {
-      console.log('TOC 链接点击：找到目标元素，开始滚动')
       // 计算偏移量，考虑固定头部
       const offset = 100
       const elementPosition = targetElement.getBoundingClientRect().top + window.pageYOffset
@@ -204,13 +382,10 @@ const handleTocLinkClick = async (event) => {
       history.pushState(null, '', href)
       return true // 表示已成功处理
     } else if (retries > 0) {
-      console.log(`TOC 链接点击：未找到目标元素，剩余重试次数: ${retries - 1}`)
       // 如果找不到，等待一下再重试（可能是 DOM 还没完全渲染）
       setTimeout(() => findAndScroll(retries - 1), 100)
     } else {
-      // 如果还是找不到，输出调试信息，但不进行跳转（避免回到顶部）
-      console.warn('找不到目标元素，ID:', targetId, 'Href:', href)
-      console.log('当前页面所有标题 ID:', Array.from(searchScope.querySelectorAll('h1, h2, h3, h4, h5, h6')).map(h => h.id))
+      // 如果还是找不到，尝试降级方案
       
       // 尝试使用原生方式，但先阻止默认行为
       // 不直接设置 window.location.hash，因为这可能导致页面跳转
@@ -231,7 +406,6 @@ const handleTocLinkClick = async (event) => {
         }
         
         if (foundHeading) {
-          console.log('通过文本匹配找到目标元素')
           const offset = 100
           const elementPosition = foundHeading.getBoundingClientRect().top + window.pageYOffset
           const offsetPosition = Math.max(0, elementPosition - offset)
@@ -243,11 +417,10 @@ const handleTocLinkClick = async (event) => {
           return true
         }
       } catch (e) {
-        console.error('降级方案也失败:', e)
+        // 降级方案失败，静默处理
       }
       
       // 如果所有方法都失败，不进行任何操作，避免回到顶部
-      console.warn('所有查找方法都失败，不进行跳转，避免回到顶部')
       return false
     }
   }
@@ -279,7 +452,6 @@ const handleCopyClick = async (event) => {
       copyBtn.style.opacity = '1'
     }, 2000)
   } catch (error) {
-    console.error('复制失败:', error)
     // 降级方案：使用 execCommand
     try {
       const textarea = document.createElement('textarea')
@@ -300,26 +472,122 @@ const handleCopyClick = async (event) => {
         copyBtn.style.opacity = '1'
       }, 2000)
     } catch (fallbackError) {
-      console.error('降级复制方案也失败:', fallbackError)
+      // 降级方案也失败，静默处理
     }
   }
+}
+
+// 处理高亮标题，确保它们出现在目录中
+const processHighlightedHeadings = () => {
+  if (!markdownContainerRef.value) return
+  
+  const container = markdownContainerRef.value
+  const tocContainer = container.querySelector('.toc')
+  const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6')
+  
+  if (!tocContainer || headings.length === 0) return
+  
+  const tocLinks = tocContainer.querySelectorAll('.toc-link')
+  const tocLinkTexts = Array.from(tocLinks).map(link => link.textContent.trim())
+  
+  // 找出所有包含高亮标记的标题
+  const highlightedHeadings = Array.from(headings).filter(heading => {
+    const html = heading.innerHTML || ''
+    return html.includes('<mark') || html.includes('markdown-highlight')
+  })
+  
+  // 检查每个高亮标题是否在目录中，如果不在则手动添加
+  highlightedHeadings.forEach(heading => {
+    const headingText = heading.textContent.trim()
+    const headingId = heading.id
+    const headingHTML = heading.innerHTML || ''
+    
+    // 检查是否已经在目录中
+    const isInToc = tocLinkTexts.some(linkText => {
+      const cleanLinkText = linkText.replace(/==([^=]+)==/g, '$1').trim()
+      return cleanLinkText === headingText || linkText === headingText
+    })
+    
+    if (!isInToc && headingId) {
+      const tocList = tocContainer.querySelector('.toc-list')
+      if (tocList) {
+        // 创建新的目录项
+        const tocItem = document.createElement('li')
+        tocItem.className = 'toc-item'
+        
+        // 确定级别
+        const level = parseInt(heading.tagName.substring(1))
+        tocItem.classList.add(`toc-level-${level}`)
+        
+        // 创建链接
+        const link = document.createElement('a')
+        link.className = 'toc-link'
+        link.href = `#${headingId}`
+        link.innerHTML = headingHTML
+        
+        tocItem.appendChild(link)
+        
+        // 找到合适的位置插入
+        const allHeadings = Array.from(headings)
+        const currentHeadingIndex = allHeadings.indexOf(heading)
+        
+        if (currentHeadingIndex >= 0) {
+          const nextHeading = currentHeadingIndex < allHeadings.length - 1 ? allHeadings[currentHeadingIndex + 1] : null
+          const existingTocItems = Array.from(tocList.querySelectorAll('.toc-item'))
+          let inserted = false
+          
+          // 尝试找到下一个标题的位置
+          if (nextHeading && nextHeading.id) {
+            for (const item of existingTocItems) {
+              const itemLink = item.querySelector('.toc-link')
+              if (itemLink) {
+                const itemHref = itemLink.getAttribute('href')
+                if (itemHref === `#${nextHeading.id}` || itemHref === nextHeading.id) {
+                  tocList.insertBefore(tocItem, item)
+                  inserted = true
+                  break
+                }
+              }
+            }
+          }
+          
+          // 如果没找到，添加到末尾
+          if (!inserted) {
+            tocList.appendChild(tocItem)
+          }
+        } else {
+          tocList.appendChild(tocItem)
+        }
+      }
+    }
+  })
 }
 
 onMounted(() => {
   // 使用 nextTick 确保 DOM 已经渲染完成
   nextTick(() => {
-    console.log('MarkdownRenderer mounted, markdownContainerRef.value:', markdownContainerRef.value)
     // 使用事件委托处理复制按钮和 TOC 链接点击，只在 markdown 容器内监听
     if (markdownContainerRef.value) {
       markdownContainerRef.value.addEventListener('click', handleMarkdownClick)
-      console.log('事件监听器已添加')
-    } else {
-      console.warn('markdownContainerRef.value 为 null，无法添加事件监听器')
     }
+    
+    // 处理高亮标题
+    setTimeout(() => {
+      processHighlightedHeadings()
+    }, 100)
   })
   
   // 也监听全局的 hashchange 事件，处理直接点击链接的情况
   window.addEventListener('hashchange', handleHashChange)
+})
+
+// 监听内容变化，重新处理高亮标题
+watch(() => props.content, () => {
+  nextTick(() => {
+    setTimeout(() => {
+      processHighlightedHeadings()
+    }, 100)
+  })
 })
 
 // 处理 hashchange 事件（当用户直接点击链接时）

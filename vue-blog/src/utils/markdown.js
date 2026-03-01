@@ -44,10 +44,16 @@ const usedIds = new Map()
 
 // 生成ID的函数，支持中文字符，并为重复的标题添加序号后缀
 const generateId = (text, isUnique = false) => {
-    if (!text) return ''
+    if (!text) {
+        return ''
+    }
 
     // 移除HTML标签
-    const cleanText = text.replace(/<[^>]*>/g, '')
+    let cleanText = text.replace(/<[^>]*>/g, '')
+    
+    // 移除高亮标记 ==文本== 中的 == 符号
+    // 匹配 ==文本== 格式，提取中间的文本
+    cleanText = cleanText.replace(/==([^=]+)==/g, '$1')
 
     // 转换为小写
     let id = cleanText.toLowerCase()
@@ -86,11 +92,102 @@ const resetUsedIds = () => {
 md.use(anchor, {
     permalink: false, // 不显示锚点链接，只添加ID
     level: [1, 2, 3, 4, 5, 6],
-    slugify: (text) => generateId(text, true), // 使用唯一ID生成函数，确保与 TOC 一致
+    slugify: (text) => {
+        // anchor 插件传入的 text 可能包含原始格式，需要处理
+        return generateId(text, true)
+    }, // 使用唯一ID生成函数，确保与 TOC 一致
     // 确保插件正确工作
     tabIndex: false,
     uniqueSlugStartIndex: 1 // 确保重复标题有唯一ID
 })
+
+// 保存原始的 heading_open 渲染规则
+const defaultHeadingOpen = md.renderer.rules.heading_open || function(tokens, idx, options, env, renderer) {
+    return renderer.renderToken(tokens, idx, options)
+}
+
+// 自定义 heading_open 渲染规则，确保所有标题都有ID
+md.renderer.rules.heading_open = function(tokens, idx, options, env, renderer) {
+    const token = tokens[idx]
+    
+    // 检查是否已有ID
+    if (!token.attrGet('id')) {
+        // 查找对应的 inline token（包含标题文本）
+        const inlineToken = tokens[idx + 1]
+        if (inlineToken && inlineToken.type === 'inline') {
+            // 提取纯文本（处理 highlight token）
+            let text = ''
+            if (inlineToken.children) {
+                inlineToken.children.forEach(child => {
+                    if (child.type === 'text') {
+                        text += child.content
+                    } else if (child.type === 'highlight') {
+                        text += child.content
+                    } else if (child.content) {
+                        text += child.content
+                    }
+                })
+            } else {
+                text = inlineToken.content || ''
+            }
+            
+            // 移除高亮标记
+            text = text.replace(/==([^=]+)==/g, '$1').trim()
+            
+            // 如果文本不为空，生成ID并添加
+            if (text) {
+                const id = generateId(text, true)
+                if (id) {
+                    token.attrSet('id', id)
+                }
+            }
+        }
+    }
+    
+    // 调用原始渲染规则
+    return defaultHeadingOpen(tokens, idx, options, env, renderer)
+}
+
+// 添加自定义 core ruler，确保包含高亮标记的标题能被正确提取
+// 这个 ruler 在渲染之前运行，确保所有标题（包括高亮标题）都被处理
+md.core.ruler.push('ensure-highlight-headings', function(state) {
+    const tokens = state.tokens
+    
+    // 遍历所有 tokens，查找包含高亮标记的标题
+    for (let i = 0; i < tokens.length; i++) {
+        const token = tokens[i]
+        
+        if (token.type === 'heading_open') {
+            // 查找对应的 inline token（包含标题文本）
+            const inlineToken = tokens[i + 1]
+            if (inlineToken && inlineToken.type === 'inline') {
+                // 检查 inline token 的子 tokens 中是否有 highlight token
+                let hasHighlight = false
+                if (inlineToken.children) {
+                    for (const child of inlineToken.children) {
+                        if (child.type === 'highlight') {
+                            hasHighlight = true
+                            break
+                        }
+                    }
+                }
+                
+                // 如果包含高亮标记，确保标题能被正确识别
+                // markdown-it-toc-done-right 应该能处理，但我们可以添加标记
+                if (hasHighlight) {
+                    // 在 token 上添加标记，表示这是一个高亮标题
+                    token.meta = token.meta || {}
+                    token.meta.hasHighlight = true
+                }
+            }
+        }
+    }
+    
+    return true
+})
+
+// 保存标题信息的映射，用于后续处理
+const headingInfoMap = new Map()
 
 // 添加目录插件
 md.use(toc, {
@@ -101,8 +198,13 @@ md.use(toc, {
     linkClass: 'toc-link',
     level: [1, 2, 3, 4, 5, 6],
     listType: 'ul',
-    slugify: (text) => generateId(text, true), // 使用与 anchor 相同的 slugify 函数，确保 ID 匹配
+    slugify: (text) => {
+        // 对于目录，也需要移除高亮标记来生成ID，但保留原始文本用于显示
+        const cleanText = text.replace(/==([^=]+)==/g, '$1').trim()
+        return generateId(cleanText, true)
+    }, // 使用与 anchor 相同的 slugify 函数，确保 ID 匹配
     format: function (heading, opts) {
+        // 保留原始标题文本（包括高亮标记），用于在目录中显示
         return heading
     }
 })
@@ -191,6 +293,22 @@ md.renderer.rules.link_open = function (tokens, idx, options, env, renderer) {
         // 外部链接在新标签页中打开
         token.attrSet('target', '_blank')
         token.attrSet('rel', 'noopener noreferrer')
+    } else if (href && href.startsWith('#')) {
+        // 处理锚点链接：如果链接目标格式是 ### 标题 或 ##### 标题，需要转换为正确的 ID
+        // 例如：### ssh 克隆 -> #ssh-克隆
+        let targetId = href.substring(1) // 移除开头的 #
+        
+        // 检查是否包含多个 # 符号（表示是标题格式）
+        if (targetId.startsWith('#')) {
+            // 提取标题文本（移除所有开头的 # 和空格）
+            const titleText = targetId.replace(/^#+\s*/, '').trim()
+            // 使用 generateId 函数生成正确的 ID
+            // 注意：使用 isUnique = false，因为链接转换不应该影响标题ID的唯一性检查
+            // 如果标题有重复，标题会自己处理唯一性；链接会通过文本匹配找到正确的标题
+            targetId = generateId(titleText, false)
+            // 更新 href 属性
+            token.attrSet('href', `#${targetId}`)
+        }
     }
 
     return renderer.renderToken(tokens, idx, options)

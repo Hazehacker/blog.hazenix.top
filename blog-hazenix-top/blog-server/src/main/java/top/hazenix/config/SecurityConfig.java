@@ -23,7 +23,7 @@ public class SecurityConfig {
     private final JsonAccessDeniedHandler jsonAccessDeniedHandler;
 
 
-    
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
