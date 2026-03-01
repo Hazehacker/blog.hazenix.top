@@ -8,7 +8,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref, nextTick } from 'vue'
+import { computed, onMounted, onUnmounted, ref, nextTick, watch } from 'vue'
 import md, { resetUsedIds } from '@/utils/markdown'
 
 const props = defineProps({
@@ -228,6 +228,8 @@ const renderedContent = computed(() => {
     }
   }
   
+  // 检查是否有标题元素（用于后续处理）
+  const headings = tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6')
 
   // 同步 TOC 链接的 href 和实际标题的 ID，并处理高亮显示
   if (tocContainer && headings.length > 0) {
@@ -497,70 +499,96 @@ const processHighlightedHeadings = () => {
   })
   
   // 检查每个高亮标题是否在目录中，如果不在则手动添加
-  highlightedHeadings.forEach(heading => {
+  // 使用 for...of 循环，避免在 forEach 中修改 DOM 导致的问题
+  for (const heading of highlightedHeadings) {
     const headingText = heading.textContent.trim()
     const headingId = heading.id
     const headingHTML = heading.innerHTML || ''
     
-    // 检查是否已经在目录中
-    const isInToc = tocLinkTexts.some(linkText => {
+    // 检查是否已经在目录中（重新查询，因为可能已经添加了）
+    const currentTocLinks = tocContainer.querySelectorAll('.toc-link')
+    const isInToc = Array.from(currentTocLinks).some(link => {
+      const linkText = link.textContent.trim()
       const cleanLinkText = linkText.replace(/==([^=]+)==/g, '$1').trim()
-      return cleanLinkText === headingText || linkText === headingText
+      const linkHref = link.getAttribute('href')
+      return (cleanLinkText === headingText || linkText === headingText) && 
+             (linkHref === `#${headingId}` || linkHref === headingId)
     })
     
     if (!isInToc && headingId) {
       const tocList = tocContainer.querySelector('.toc-list')
-      if (tocList) {
-        // 创建新的目录项
-        const tocItem = document.createElement('li')
-        tocItem.className = 'toc-item'
+      if (!tocList) continue
+      
+      // 创建新的目录项
+      const tocItem = document.createElement('li')
+      tocItem.className = 'toc-item'
+      
+      // 确定级别
+      const level = parseInt(heading.tagName.substring(1))
+      tocItem.classList.add(`toc-level-${level}`)
+      
+      // 创建链接
+      const link = document.createElement('a')
+      link.className = 'toc-link'
+      link.href = `#${headingId}`
+      link.innerHTML = headingHTML
+      
+      tocItem.appendChild(link)
+      
+      // 找到合适的位置插入
+      const allHeadings = Array.from(headings)
+      const currentHeadingIndex = allHeadings.indexOf(heading)
+      
+      if (currentHeadingIndex >= 0) {
+        const nextHeading = currentHeadingIndex < allHeadings.length - 1 ? allHeadings[currentHeadingIndex + 1] : null
+        let inserted = false
         
-        // 确定级别
-        const level = parseInt(heading.tagName.substring(1))
-        tocItem.classList.add(`toc-level-${level}`)
-        
-        // 创建链接
-        const link = document.createElement('a')
-        link.className = 'toc-link'
-        link.href = `#${headingId}`
-        link.innerHTML = headingHTML
-        
-        tocItem.appendChild(link)
-        
-        // 找到合适的位置插入
-        const allHeadings = Array.from(headings)
-        const currentHeadingIndex = allHeadings.indexOf(heading)
-        
-        if (currentHeadingIndex >= 0) {
-          const nextHeading = currentHeadingIndex < allHeadings.length - 1 ? allHeadings[currentHeadingIndex + 1] : null
-          const existingTocItems = Array.from(tocList.querySelectorAll('.toc-item'))
-          let inserted = false
+        // 尝试找到下一个标题的位置
+        if (nextHeading && nextHeading.id) {
+          // 只查找 tocList 的直接子节点（.toc-item）
+          // 重新查询，确保获取最新的 DOM 结构
+          const directChildren = Array.from(tocList.children).filter(child => 
+            child.classList && child.classList.contains('toc-item')
+          )
           
-          // 尝试找到下一个标题的位置
-          if (nextHeading && nextHeading.id) {
-            for (const item of existingTocItems) {
-              const itemLink = item.querySelector('.toc-link')
-              if (itemLink) {
-                const itemHref = itemLink.getAttribute('href')
-                if (itemHref === `#${nextHeading.id}` || itemHref === nextHeading.id) {
+          for (const item of directChildren) {
+            // 确保 item 是 tocList 的直接子节点
+            if (item.parentNode !== tocList) continue
+            
+            const itemLink = item.querySelector('.toc-link')
+            if (itemLink) {
+              const itemHref = itemLink.getAttribute('href')
+              if (itemHref === `#${nextHeading.id}` || itemHref === nextHeading.id) {
+                try {
                   tocList.insertBefore(tocItem, item)
                   inserted = true
                   break
+                } catch (e) {
+                  console.warn('插入目录项失败:', e, { item, tocList, tocItem })
+                  // 如果插入失败，继续尝试其他方法
                 }
               }
             }
           }
-          
-          // 如果没找到，添加到末尾
-          if (!inserted) {
+        }
+        
+        // 如果没找到，添加到末尾
+        if (!inserted) {
+          try {
             tocList.appendChild(tocItem)
+          } catch (e) {
+            console.error('添加目录项到末尾失败:', e)
           }
-        } else {
+        }
+      } else {
+        try {
           tocList.appendChild(tocItem)
+        } catch (e) {
+          console.error('添加目录项失败:', e)
         }
       }
     }
-  })
+  }
 }
 
 onMounted(() => {
