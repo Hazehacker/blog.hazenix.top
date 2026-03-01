@@ -1,8 +1,5 @@
 package top.hazenix.config;
 
-import lombok.RequiredArgsConstructor;
-import top.hazenix.interceptor.JwtTokenAdminInterceptor;
-import top.hazenix.interceptor.JwtTokenUserInterceptor;
 import top.hazenix.json.JacksonObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,41 +24,8 @@ import java.util.List;
  */
 @Configuration
 @Slf4j
-@RequiredArgsConstructor
 public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
-
-    private final JwtTokenAdminInterceptor jwtTokenAdminInterceptor;
-
-    private final JwtTokenUserInterceptor jwtTokenUserInterceptor;
-
-    /**
-     * 注册自定义拦截器
-     *
-     * @param registry
-     */
-    protected void addInterceptors(InterceptorRegistry registry) {
-        log.info("开始注册自定义拦截器...");
-        registry.addInterceptor(jwtTokenAdminInterceptor)
-                .addPathPatterns("/admin/**");
-        registry.addInterceptor(jwtTokenUserInterceptor)
-                .addPathPatterns("/user/user/logout")
-                .addPathPatterns("/user/user/userinfo")
-                .addPathPatterns("/user/user/stats")
-                .addPathPatterns("/user/user/profile")
-                .addPathPatterns("/user/user/password")
-                .addPathPatterns("/user/user/favorite")
-                .addPathPatterns("/user/comments")
-                .addPathPatterns("/user/tree/**")
-                .addPathPatterns("/user/articles/{id}/favorite")
-                .excludePathPatterns("/user/tree/list")
-                .excludePathPatterns("/user/categories/**")
-                .excludePathPatterns("/user/comments/list/**")
-                .excludePathPatterns("/user/links/**")
-                .excludePathPatterns("/user/tags/**");
-
-
-    }
 
     /**
      * 通过knife4j生成接口文档的相关配置

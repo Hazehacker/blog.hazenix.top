@@ -7,7 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 /**
  * 使用 BCrypt 生成密码摘要，便于本地调试或数据初始化时使用
  */
-public class GenerateMD5PasswordTest {
+public class GeneratePasswordTest {
     @Test
     public void passwordTest() {
         String password = "123456";
