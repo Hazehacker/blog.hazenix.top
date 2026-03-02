@@ -3,103 +3,10 @@
     <!-- 页面头部 -->
     <div class="page-header">
       <div class="header-content">
-        <h1 class="page-title">文章列表</h1>
-        <p class="page-description">探索我们的精彩文章，发现新的知识和见解</p>
+        <h1 class="page-title">Ideas &amp; Records &amp; Notes</h1>
       </div>
     </div>
 
-    <!-- 搜索和筛选区域 -->
-    <div class="search-section">
-      <div class="search-container">
-        <!-- 搜索框 -->
-        <div class="search-box">
-        <el-input
-            v-model="searchForm.keyword"
-            placeholder="搜索文章标题、内容或标签..."
-            size="large"
-            clearable
-          @keyup.enter="handleSearch"
-            @clear="handleSearch"
-        >
-            <template #prefix>
-              <el-icon><Search /></el-icon>
-            </template>
-          <template #append>
-              <el-button @click="handleSearch" type="primary">
-                <el-icon><Search /></el-icon>
-                搜索
-              </el-button>
-          </template>
-        </el-input>
-        </div>
-
-        <!-- 筛选条件 -->
-        <div class="filter-container">
-          <div class="filter-row">
-            <!-- 分类筛选 -->
-            <div class="filter-item">
-              <label class="filter-label">分类</label>
-              <el-select
-                v-model="searchForm.categoryId"
-                placeholder="选择分类"
-                clearable
-                @change="handleFilter"
-                class="filter-select"
-              >
-          <el-option
-            v-for="category in categories"
-            :key="category.id"
-            :label="category.name"
-            :value="category.id"
-          />
-        </el-select>
-            </div>
-
-            <!-- 标签筛选 -->
-            <div class="filter-item">
-              <label class="filter-label">标签</label>
-              <el-select
-                v-model="searchForm.tagId"
-                placeholder="选择标签"
-                clearable
-                @change="handleFilter"
-                class="filter-select"
-              >
-          <el-option
-            v-for="tag in tags"
-            :key="tag.id"
-            :label="tag.name"
-            :value="tag.id"
-          />
-        </el-select>
-            </div>
-
-
-            <!-- 时间范围 -->
-            <div class="filter-item">
-              <label class="filter-label">时间</label>
-              <el-select
-                v-model="searchForm.timeRange"
-                placeholder="时间范围"
-                @change="handleFilter"
-                class="filter-select"
-              >
-                <el-option label="全部时间" value="" />
-                <el-option label="最近一周" value="week" />
-                <el-option label="最近一月" value="month" />
-                <el-option label="最近一年" value="year" />
-              </el-select>
-            </div>
-
-            <!-- 重置按钮 -->
-            <div class="filter-actions">
-              <el-button @click="handleReset" :icon="Refresh">重置</el-button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
     <!-- 文章列表 -->
     <div class="articles-section">
       <div class="articles-container">
@@ -188,7 +95,7 @@
         <el-pagination
           v-model:current-page="pagination.page"
           v-model:page-size="pagination.pageSize"
-          :page-sizes="[10, 20, 50, 100]"
+          :page-sizes="[20, 50, 100]"
           :total="total"
           layout="total, sizes, prev, pager, next, jumper"
           @size-change="handleSizeChange"
@@ -233,7 +140,7 @@ const searchForm = reactive({
 // 分页
 const pagination = reactive({
   page: 1,
-  pageSize: 10
+  pageSize: 20
 })
 
 // 计算属性
@@ -482,6 +389,13 @@ const searchByTag = (tagName) => {
 const handleRouteQuery = () => {
   const query = route.query
   
+  // 每次根据路由查询参数重新初始化搜索条件，
+  // 确保从分类/标签筛选返回「文章」时能看到完整列表
+  searchForm.keyword = ''
+  searchForm.categoryId = ''
+  searchForm.tagId = ''
+  searchForm.timeRange = ''
+  
   // 处理标签ID参数（优先处理）
   if (query.tagId) {
     searchForm.tagId = query.tagId
@@ -577,7 +491,7 @@ watch(() => route.query, async (newQuery, oldQuery) => {
 }
 
 .page-header {
-  @apply bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700;
+  @apply bg-gray-50 dark:bg-gray-900;
 }
 
 .header-content {
@@ -585,7 +499,8 @@ watch(() => route.query, async (newQuery, oldQuery) => {
 }
 
 .page-title {
-  @apply text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2;
+  @apply text-4xl md:text-5xl font-semibold text-gray-900 dark:text-gray-100 mb-2 tracking-wide;
+  font-family: "Playfair Display", "Times New Roman", serif;
 }
 
 .page-description {
@@ -649,7 +564,7 @@ watch(() => route.query, async (newQuery, oldQuery) => {
 }
 
 .article-card {
-  @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-md hover:border-gray-300 dark:hover:border-gray-600;
+  @apply bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden cursor-pointer transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl;
 }
 
 .article-cover {

@@ -26,6 +26,15 @@
       <div class="lg:col-span-2">
         <h2 class="text-3xl font-bold mb-8">最新文章</h2>
         <ArticleList :articles="latestArticles" />
+        <div class="mt-6 flex justify-center">
+          <button
+            class="inline-flex items-center gap-1 px-5 py-2 rounded-full text-sm md:text-base text-primary border border-transparent hover:border-primary hover:bg-primary/5 transition-colors"
+            @click="goToArticleList"
+          >
+            更多文章
+            <span aria-hidden="true">→</span>
+          </button>
+        </div>
       </div>
       
       <!-- 侧边栏 -->
@@ -57,6 +66,10 @@ const userStore = useUserStore()
 const themeStore = useThemeStore()
 const latestArticles = ref([])
 const showThemeGuide = ref(false)
+
+const goToArticleList = () => {
+  router.push({ name: 'ArticleList' })
+}
 
 // 处理OAuth回调 - 统一处理，通过 source 参数或 sessionStorage 区分来源
 const handleOAuthCallback = async () => {
