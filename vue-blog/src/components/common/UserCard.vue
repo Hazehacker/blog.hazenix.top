@@ -11,15 +11,15 @@
         心有所向，何惧山海
       </p>
       
-      <div class="flex justify-center space-x-4 mb-4">
+      <div class="flex justify-center space-x-8 mb-4">
         <div class="text-center">
           <div class="text-2xl font-bold text-primary">{{ stats.articleCount }}</div>
           <div class="text-sm text-gray-500">文章</div>
         </div>
-        <!-- <div class="text-center">
+        <div class="text-center">
           <div class="text-2xl font-bold text-primary">{{ stats.totalViewCount }}</div>
           <div class="text-sm text-gray-500">浏览</div>
-        </div> -->
+        </div>
         <div class="text-center">
           <div class="text-2xl font-bold text-primary">{{ stats.totalLikeCount }}</div>
           <div class="text-sm text-gray-500">点赞</div>
@@ -80,10 +80,10 @@ const fetchSiteStats = async () => {
   try {
     // 获取所有文章列表
     const response = await articleApi.getArticleList()
-    
-    if (response && response.code === 200 && response.data) {
-      // 处理不同的响应格式
-      let articles = []
+
+    // 处理不同的响应格式（与 ArticleList 页面保持一致）
+    let articles = []
+    if (response && response.data) {
       if (Array.isArray(response.data)) {
         // 如果data直接是数组
         articles = response.data
@@ -93,21 +93,24 @@ const fetchSiteStats = async () => {
       } else if (Array.isArray(response.data.records)) {
         // 兼容分页格式
         articles = response.data.records
-      } else if (Array.isArray(response.data)) {
-        articles = response.data
       } else {
         articles = []
       }
-      
-      // 过滤掉 id=1 的文章（留言板专用）
-      articles = articles.filter(article => article.id !== 1 && article.id !== '1')
-      
-      // 计算统计数据
-      stats.value = {
-        articleCount: articles.length,
-        totalViewCount: articles.reduce((sum, article) => sum + (article.viewCount || 0), 0),
-        totalLikeCount: articles.reduce((sum, article) => sum + (article.likeCount || 0), 0)
-      }
+    } else if (Array.isArray(response)) {
+      // 如果响应直接是数组
+      articles = response
+    } else {
+      articles = []
+    }
+
+    // 过滤掉 id=1 的文章（留言板专用）
+    articles = articles.filter(article => article.id !== 1 && article.id !== '1')
+
+    // 计算统计数据
+    stats.value = {
+      articleCount: articles.length,
+      totalViewCount: articles.reduce((sum, article) => sum + (article.viewCount || article.views || 0), 0),
+      totalLikeCount: articles.reduce((sum, article) => sum + (article.likeCount || article.likes || 0), 0)
     }
   } catch (error) {
     // console.error('获取网站统计数据失败:', error)
