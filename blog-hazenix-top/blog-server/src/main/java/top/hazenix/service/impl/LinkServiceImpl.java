@@ -63,7 +63,7 @@ public class LinkServiceImpl implements LinkService {
         Link link = new Link();
         BeanUtils.copyProperties(linkDTO,link);
         link.setCreateTime(LocalDateTime.now());
-        link.setStatus(CommonStatusConstants.ENABLE);
+        link.setStatus(CommonStatusConstants.NORMAL);
         linkMapper.insert(link);
     }
 
@@ -107,7 +107,7 @@ public class LinkServiceImpl implements LinkService {
     @Override
     public void updateLinkStatus(Long id) {
         Integer status = (linkMapper.getLinkById(id).getStatus().equals(CommonStatusConstants.NORMAL)) 
-                ? CommonStatusConstants.ENABLE : CommonStatusConstants.NORMAL;
+                ? CommonStatusConstants.NORMAL : CommonStatusConstants.NORMAL;
         Link link = Link.builder()
                 .id( id)
                 .status(status)

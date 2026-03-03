@@ -53,7 +53,7 @@ public class TagsServiceImpl implements TagsService {
         Tags tags = new Tags();
         BeanUtils.copyProperties(tagsDTO,tags);
         if(tags.getStatus()==null){
-            tags.setStatus(CommonStatusConstants.ENABLE);//默认启用
+            tags.setStatus(CommonStatusConstants.NORMAL);//默认启用
         }
         tagsMapper.insert(tags);
     }
