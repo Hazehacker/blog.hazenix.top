@@ -34,4 +34,7 @@ public class LinkDTO {
     
     @ApiModelProperty(value = "排序", example = "1")
     private Integer sort;
+
+
+    private Integer status;
 }
