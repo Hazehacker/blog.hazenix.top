@@ -158,20 +158,52 @@ onMounted(async () => {
   
   // 检查是否从主页面跳转过来
   if (fromIndex) {
-    // 如果是从主页面跳转过来的，设置为黑色模式
+    // 首先确保进入时是夜间模式
     if (!themeStore.isDark) {
       themeStore.toggleTheme()
     }
-    // 清除查询参数，避免刷新页面时仍然保持黑色模式
+    
+    // 清除查询参数
     router.replace({ path: '/home', query: {} })
     
-    // 每次从主页面进入时都显示引导（延迟显示，给用户一些时间看到页面）
-    // 确保只在黑色模式下显示引导
-    setTimeout(() => {
-      if (themeStore.isDark) {
+    // 判断当前时间是否是白天（6:00-18:00）
+    const currentHour = new Date().getHours()
+    const isDaytime = currentHour >= 6 && currentHour < 18
+    
+    if (isDaytime) {
+      // 白天：先显示夜间模式的引导
+      setTimeout(() => {
         showThemeGuide.value = true
-      }
-    }, 1000)
+      }, 500)
+      
+      // 延迟1.5秒后渐变切换到日间模式
+      setTimeout(() => {
+        // 关闭引导
+        showThemeGuide.value = false
+        
+        // 使用带过渡效果的主题切换（2秒渐变）
+        setTimeout(() => {
+          themeStore.toggleThemeWithTransition(2200)
+          
+          // 在切换开始后立即显示提示消息
+          setTimeout(() => {
+            ElMessage({
+              message: '已自动为您切换为日间模式',
+              type: 'success',
+              duration: 2500,
+              showClose: true
+            })
+          }, 100)
+        }, 100)
+      }, 1500)
+    } else {
+      // 夜晚：保持黑色模式，显示主题切换引导
+      setTimeout(() => {
+        if (themeStore.isDark) {
+          showThemeGuide.value = true
+        }
+      }, 1000)
+    }
   }
   // 移除else分支 - 不再强制切换到亮色模式，保持用户当前的主题设置
   try {

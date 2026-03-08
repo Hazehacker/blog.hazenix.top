@@ -50,6 +50,10 @@
         </span>
         <template #dropdown>
           <el-dropdown-menu>
+            <el-dropdown-item command="monitor">
+                <el-icon class="mr-2"><DataAnalysis /></el-icon>
+                监控
+            </el-dropdown-item>
             <el-dropdown-item command="friend-links">
               <el-icon class="mr-2"><Link /></el-icon>
               友情链接
@@ -58,6 +62,7 @@
               <el-icon class="mr-2"><InfoFilled /></el-icon>
               关于我
             </el-dropdown-item>
+            
             <!-- 统计页面暂时不添加 -->
             <!-- <el-dropdown-item command="stats">
               <el-icon class="mr-2"><DataAnalysis /></el-icon>
@@ -109,7 +114,7 @@ import { ref, watch, onMounted, computed } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useRouter, useRoute } from 'vue-router'
 import ThemeToggle from '@/components/common/ThemeToggle.vue'
-import { Search, User, ArrowDown, Link, InfoFilled } from '@element-plus/icons-vue'
+import { Search, User, ArrowDown, Link, InfoFilled, DataAnalysis } from '@element-plus/icons-vue'
 import { getCategoryList } from '@/api/category'
 import { getArticleList } from '@/api/article'
 
@@ -191,6 +196,8 @@ const handleMoreCommand = (command) => {
     router.push('/friend-links')
   } else if (command === 'about') {
     router.push('/about')
+  } else if (command === 'monitor') {
+    window.open('https://monitor.hazenix.top/share/29p0MRPHJtAyTdpb', '_blank')
   }
 }
 
@@ -285,6 +292,12 @@ watch(
 </script>
 
 <style scoped>
+/* 导航链接样式 */
+nav a, nav .more-trigger, nav .article-link {
+  font-size: 17px;
+  font-weight: 500;
+}
+
 /* 移除更多下拉菜单的默认边框样式 */
 .more-dropdown :deep(.el-dropdown) {
   border: none !important;
@@ -298,9 +311,76 @@ watch(
   box-shadow: none !important;
 }
 
+/* 下拉菜单容器样式优化 */
+.more-dropdown :deep(.el-dropdown-menu),
+.article-dropdown :deep(.el-dropdown-menu) {
+  padding: 10px 0;
+  min-width: 200px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  border: 1px solid #e5e7eb;
+}
+
+.dark .more-dropdown :deep(.el-dropdown-menu),
+.dark .article-dropdown :deep(.el-dropdown-menu) {
+  background-color: #1f2937;
+  border-color: #374151;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* 下拉菜单项字体大小和间距优化 */
+.more-dropdown :deep(.el-dropdown-menu__item),
+.article-dropdown :deep(.el-dropdown-menu__item) {
+  font-size: 17px !important;
+  font-weight: 500 !important;
+  padding: 14px 24px !important;
+  min-height: 52px !important;
+  line-height: 1.6 !important;
+  display: flex !important;
+  align-items: center !important;
+  transition: all 0.2s ease;
+  margin: 3px 10px;
+  border-radius: 8px;
+}
+
+/* 下拉菜单项悬停效果 */
+.more-dropdown :deep(.el-dropdown-menu__item:hover),
+.article-dropdown :deep(.el-dropdown-menu__item:hover) {
+  background-color: #f3f4f6;
+  color: var(--el-color-primary);
+  transform: translateX(2px);
+}
+
+.dark .more-dropdown :deep(.el-dropdown-menu__item:hover),
+.dark .article-dropdown :deep(.el-dropdown-menu__item:hover) {
+  background-color: #374151;
+  color: var(--el-color-primary);
+}
+
+/* 下拉菜单图标大小和间距 */
+.more-dropdown :deep(.el-dropdown-menu__item .el-icon),
+.article-dropdown :deep(.el-dropdown-menu__item .el-icon) {
+  font-size: 20px !important;
+  margin-right: 12px !important;
+  transition: transform 0.2s ease;
+}
+
+.more-dropdown :deep(.el-dropdown-menu__item:hover .el-icon),
+.article-dropdown :deep(.el-dropdown-menu__item:hover .el-icon) {
+  transform: scale(1.1);
+}
+
+/* 下拉菜单项文字 */
+.more-dropdown :deep(.el-dropdown-menu__item span),
+.article-dropdown :deep(.el-dropdown-menu__item span) {
+  font-weight: 500 !important;
+  font-size: 17px !important;
+}
+
 .more-trigger {
-  font-size:16px; 
-  color:#4B5563;
+  font-size: 17px; 
+  font-weight: 500;
+  color: #4B5563;
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
@@ -327,7 +407,8 @@ watch(
 }
 
 .article-link {
-  font-size: 16px;
+  font-size: 17px;
+  font-weight: 500;
   color: #4B5563;
   text-decoration: none;
   border: none !important;
@@ -354,16 +435,23 @@ watch(
   display: flex;
   justify-content: space-between;
   align-items: center;
-  min-width: 150px;
+  min-width: 200px;
 }
 
 .category-name {
   flex: 1;
+  font-size: 17px !important;
+  font-weight: 500 !important;
 }
 
 .category-count {
   color: #909399;
-  font-size: 12px;
-  margin-left: 8px;
+  font-size: 15px !important;
+  margin-left: 12px;
+  font-weight: 400 !important;
+}
+
+.dark .category-count {
+  color: #9ca3af;
 }
 </style>

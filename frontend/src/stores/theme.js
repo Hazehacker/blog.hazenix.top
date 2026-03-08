@@ -18,5 +18,21 @@ export const useThemeStore = defineStore('theme', () => {
         isDark.value = !isDark.value
     }
 
-    return { isDark, toggleTheme }
+    // 带过渡效果的主题切换
+    function toggleThemeWithTransition(duration = 1000) {
+        // 添加过渡效果
+        document.documentElement.style.transition = `background-color ${duration}ms ease, color ${duration}ms ease`
+        
+        // 切换主题
+        setTimeout(() => {
+            isDark.value = !isDark.value
+            
+            // 移除过渡效果
+            setTimeout(() => {
+                document.documentElement.style.transition = ''
+            }, duration)
+        }, 50)
+    }
+
+    return { isDark, toggleTheme, toggleThemeWithTransition }
 })

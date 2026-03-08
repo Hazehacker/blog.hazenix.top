@@ -145,6 +145,15 @@ const updates = ref([
     type: 'bugfix',
     releaseDate: '2025-12-19',
     content: '修复与优化文章展示页面，提升了美观度；增加了微信联系方式'
+  },
+  {
+    id: '2025-3-8',
+    version: 'v1.0.2',
+    title: '优化文章展示',
+    isImportant: true,
+    type: 'bugfix',
+    releaseDate: '2025-12-19',
+    content: '优化前端细节；引入Spring Security框架；新增监控系统'
   }
 ])
 
