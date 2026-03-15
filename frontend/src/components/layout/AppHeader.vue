@@ -197,7 +197,7 @@ const handleMoreCommand = (command) => {
   } else if (command === 'about') {
     router.push('/about')
   } else if (command === 'monitor') {
-    window.open('https://monitor.hazenix.top/share/29p0MRPHJtAyTdpb', '_blank')
+    window.open('https://monitor.hazenix.top/share/UOi3M8l7j4ZSjDn3', '_blank')
   }
 }
 
