@@ -39,8 +39,8 @@
           class="w-12 h-12 rounded-full object-cover mr-4 flex-shrink-0 border border-gray-200 dark:border-gray-600"
           @error="handleImageError"
         />
-        <div class="flex-1 min-w-0">
-          <h4 class="font-medium text-gray-900 dark:text-gray-100 group-hover:text-primary truncate">
+        <div class="flex-1">
+          <h4 class="font-medium text-gray-900 dark:text-gray-100 group-hover:text-primary" style="word-break: break-all;">
             {{ link.name }}
           </h4>
           <p v-if="link.description" class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mt-1">

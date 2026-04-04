@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <!-- 页面头部 -->
     <div class="bg-white dark:bg-gray-800 shadow-sm">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="text-center">
           <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             <el-icon class="mr-3 text-primary"><Link /></el-icon>
@@ -16,7 +16,7 @@
     </div>
 
     <!-- 友链内容 -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- 友链列表 -->
         <div class="lg:col-span-2">

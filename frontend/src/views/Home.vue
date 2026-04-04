@@ -4,7 +4,7 @@
     <ThemeGuide v-model="showThemeGuide" />
     <div class="flex flex-col md:flex-row justify-between items-start gap-12">
       <div class="md:w-2/3">
-        <h1 class="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white">
+        <h1 class="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white" style="font-family: 'Playfair Display', 'Times New Roman', serif;">
           Hazenix's Blog
         </h1>
         <p class="mt-4 text-2xl md:text-3xl text-primary font-semibold">

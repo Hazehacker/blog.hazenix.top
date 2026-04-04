@@ -24,7 +24,7 @@
           <p>主攻后端开发，会使用以下技术：</p>
           <!-- <h3>后端与服务</h3> -->
           <ul>
-            <li>SpringMVC、SpringBoot、SpringCloud、SpringSecurity</li>
+            <li>SpringMVC、SpringBoot、SpringCloud、SpringSecurity、SpringAI</li>
             <li>MyBatis、MyBatis-Plus</li>
             <li>knife4j 、Nginx、Docker</li>
          
