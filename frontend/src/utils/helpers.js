@@ -520,6 +520,24 @@ export function supportsWebPSync() {
 }
 
 /**
+ * 检查API响应是否成功（兼容 number 200 和 string "200"）
+ * @param {any} res - API响应对象
+ * @returns {boolean} 是否成功
+ */
+export function isSuccess(res) {
+    return res && (res.code == 200 || res.code === '200')
+}
+
+/**
+ * 从上传响应中提取URL（兼容 string 和 {url: string} 两种格式）
+ * @param {string|object} data - 响应中的data字段
+ * @returns {string} URL字符串
+ */
+export function getUrlFromResponse(data) {
+    return typeof data === 'string' ? data : (data?.url || '')
+}
+
+/**
  * 获取头像URL
  * @param {string} avatar - 头像路径或URL
  * @param {string} defaultAvatar - 默认头像路径，默认为null

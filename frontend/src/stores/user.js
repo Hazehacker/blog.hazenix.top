@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { login as loginApi, register as registerApi, getUserInfo, googleAuthCallback, getGithubAuthUrl, githubAuthCallback, logout as logoutApi, loginWithGoogleIdToken, wechatAuthCallback } from '@/api/auth'
+import { isSuccess } from '@/utils/helpers'
 
 // 规范化用户数据，统一role和isAdmin字段
 function normalizeUserData(userData) {
@@ -42,7 +43,7 @@ export const useUserStore = defineStore('user', {
         async login(loginForm) {
             const res = await loginApi(loginForm)
             // 根据新的API响应格式处理
-            if (res.code == 200) {
+            if (isSuccess(res)) {
                 this.token = res.data.token
                 setToken(res.data.token)
                 // 处理登录响应：可能data包含user对象，也可能直接是user数据
@@ -59,7 +60,7 @@ export const useUserStore = defineStore('user', {
         async register(registerForm) {
             const res = await registerApi(registerForm)
             // 根据新的API响应格式处理
-            if (res.code == 200) {
+            if (isSuccess(res)) {
                 this.token = res.data.token
                 setToken(res.data.token)
                 const userData = res.data.user || res.data
@@ -72,7 +73,7 @@ export const useUserStore = defineStore('user', {
         async getUserInfo() {
             const res = await getUserInfo()
             // 根据新的API响应格式处理
-            if (res.code == 200) {
+            if (isSuccess(res)) {
                 // console.log('获取用户信息响应:', res.data)
                 this.userInfo = normalizeUserData(res.data)
                 // console.log('更新后的用户信息:', this.userInfo)
@@ -83,7 +84,7 @@ export const useUserStore = defineStore('user', {
 
         async googleLogin(code) {
             const res = await googleAuthCallback(code)
-            if (res.code == 200) {
+            if (isSuccess(res)) {
                 this.token = res.data.token
                 setToken(res.data.token)
                 const userData = res.data.user || res.data
@@ -95,7 +96,7 @@ export const useUserStore = defineStore('user', {
 
         async googleLoginByIdToken(idToken) {
             const res = await loginWithGoogleIdToken(idToken)
-            if (res.code == 200) {
+            if (isSuccess(res)) {
                 this.token = res.data.token
                 setToken(res.data.token)
                 const userData = res.data.user || res.data
@@ -107,7 +108,7 @@ export const useUserStore = defineStore('user', {
 
         async githubLogin(code) {
             const res = await githubAuthCallback(code)
-            if (res.code == 200) {
+            if (isSuccess(res)) {
                 // 根据接口文档，响应数据格式为：
                 // { code: 200, msg: "success", data: { id, userName, avatar, email, token } }
                 // token 和用户信息都在 data 对象中
@@ -123,7 +124,7 @@ export const useUserStore = defineStore('user', {
 
         async wechatLogin(code) {
             const res = await wechatAuthCallback(code)
-            if (res.code == 200) {
+            if (isSuccess(res)) {
                 this.token = res.data.token
                 setToken(res.data.token)
                 // 从 data 中提取用户信息（排除 token 字段）

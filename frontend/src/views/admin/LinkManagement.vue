@@ -211,7 +211,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Search, Refresh } from '@element-plus/icons-vue'
 import { adminApi } from '@/api/admin'
 import { getToken } from '@/utils/auth'
-import { getAvatarUrl } from '@/utils/helpers'
+import { getAvatarUrl, getUrlFromResponse, isSuccess } from '@/utils/helpers'
 import { buildApiURL } from '@/utils/apiConfig'
 import avatarFallback from '@/assets/img/avatar.jpg'
 
@@ -458,9 +458,8 @@ const submitForm = async () => {
 
 // 上传成功处理
 const handleUploadSuccess = (response) => {
-  if (response.code === 200) {
-    // data可能是字符串URL，也可能是对象 { url: "..." }
-    form.avatar = typeof response.data === 'string' ? response.data : response.data.url
+  if (isSuccess(response)) {
+    form.avatar = getUrlFromResponse(response.data)
     ElMessage.success('上传成功')
   } else {
     ElMessage.error(response.message || '上传失败')

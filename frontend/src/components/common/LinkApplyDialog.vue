@@ -115,6 +115,7 @@ import { Upload, Picture } from '@element-plus/icons-vue'
 import { frontendApi } from '@/api/frontend'
 import { useUserStore } from '@/stores/user'
 import { buildApiURL } from '@/utils/apiConfig'
+import { getUrlFromResponse, isSuccess } from '@/utils/helpers'
 
 // Props
 const props = defineProps({
@@ -214,9 +215,8 @@ const beforeUpload = (file) => {
 
 // 上传成功处理
 const handleUploadSuccess = (response) => {
-  if (response.code === 200) {
-    // data可能是字符串URL，也可能是对象 { url: "..." }
-    form.avatar = typeof response.data === 'string' ? response.data : response.data.url
+  if (isSuccess(response)) {
+    form.avatar = getUrlFromResponse(response.data)
     ElMessage.success('图片上传成功')
   } else {
     ElMessage.error(response.msg || '图片上传失败')
@@ -284,7 +284,7 @@ const handleSubmit = async () => {
     
     const response = await frontendApi.applyLink(requestData)
     
-    if (response.code == 200 || response.code === '200') {
+    if (isSuccess(response)) {
       ElMessage.success('已申请，等待审核')
       emit('success')
       handleClose()
