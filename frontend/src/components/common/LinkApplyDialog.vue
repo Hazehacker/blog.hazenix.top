@@ -172,11 +172,11 @@ const rules = {
         }
         // 如果有值，则验证URL格式
         const urlPattern = /^https?:\/\/.+/
-        const imagePattern = /\.(jpg|jpeg|png|gif|webp)$/i
+        const imagePattern = /\.(jpg|jpeg|png|gif|webp|ico)$/i
         if (!urlPattern.test(value)) {
           callback(new Error('请输入有效的URL地址，如：https://example.com/logo.png'))
         } else if (!imagePattern.test(value)) {
-          callback(new Error('请输入有效的图片URL地址（支持 jpg、jpeg、png、gif、webp 格式）'))
+          callback(new Error('请输入有效的图片URL地址（支持 jpg、jpeg、png、gif、webp、ico 格式）'))
         } else {
           callback()
         }
@@ -214,9 +214,9 @@ const beforeUpload = (file) => {
 
 // 上传成功处理
 const handleUploadSuccess = (response) => {
-  // console.log('上传成功响应:', response) // 调试日志
   if (response.code === 200) {
-    form.avatar = response.data.url
+    // data可能是字符串URL，也可能是对象 { url: "..." }
+    form.avatar = typeof response.data === 'string' ? response.data : response.data.url
     ElMessage.success('图片上传成功')
   } else {
     ElMessage.error(response.msg || '图片上传失败')
@@ -284,12 +284,12 @@ const handleSubmit = async () => {
     
     const response = await frontendApi.applyLink(requestData)
     
-    if (response.code === 200) {
-      ElMessage.success('友链申请提交成功，请等待审核')
+    if (response.code == 200 || response.code === '200') {
+      ElMessage.success('已申请，等待审核')
       emit('success')
       handleClose()
     } else {
-      ElMessage.error(response.msg || '申请提交失败')
+      ElMessage.error(response.msg || '申请失败')
     }
   } catch (error) {
     // console.error('提交申请失败:', error)

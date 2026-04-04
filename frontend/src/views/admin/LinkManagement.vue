@@ -459,7 +459,8 @@ const submitForm = async () => {
 // 上传成功处理
 const handleUploadSuccess = (response) => {
   if (response.code === 200) {
-    form.avatar = response.data.url
+    // data可能是字符串URL，也可能是对象 { url: "..." }
+    form.avatar = typeof response.data === 'string' ? response.data : response.data.url
     ElMessage.success('上传成功')
   } else {
     ElMessage.error(response.message || '上传失败')
