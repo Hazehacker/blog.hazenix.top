@@ -52,7 +52,10 @@ public class CommentsVO implements Serializable {
     
     @ApiModelProperty(value = "评论状态[0:正常 | 1:不展示]", example = "0")
     private Integer status;
-    
+
+    @ApiModelProperty(value = "是否匿名评论", example = "true")
+    private Boolean isAnonymous;
+
     @ApiModelProperty(value = "评论时间", example = "2020-01-01 00:00:00")
     private LocalDateTime createTime;
     

@@ -34,6 +34,10 @@ public class CommentsDTO {
     @Size(max = 30, message = "评论者名称长度不能超过30个字符")
     private String username;
     
+    @ApiModelProperty(value = "匿名评论者邮箱（可空）", example = "guest@example.com")
+    @Size(max = 100, message = "邮箱长度不能超过100个字符")
+    private String email;
+
     @ApiModelProperty(value = "被评论者ID", example = "1")
     private Long replyId;
 }

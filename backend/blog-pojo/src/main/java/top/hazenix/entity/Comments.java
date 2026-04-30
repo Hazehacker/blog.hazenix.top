@@ -38,6 +38,9 @@ public class Comments {
     @ApiModelProperty(value = "内容", example = "内容")
     private String content;
 
+    @ApiModelProperty(value = "匿名评论者邮箱（可空）", example = "guest@example.com")
+    private String email;
+
     @ApiModelProperty(value = "状态[0:正常 | 1:不展示]", example = "1")
     private Integer status;
 

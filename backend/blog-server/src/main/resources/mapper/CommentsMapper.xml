@@ -3,9 +3,9 @@
 <mapper namespace="top.hazenix.mapper.CommentsMapper">
     <insert id="insert">
         insert into comments
-        (article_id,parent_id,user_id,username,reply_id,reply_username,content,status,create_time)
+        (article_id,parent_id,user_id,username,reply_id,reply_username,content,email,status,create_time)
         values
-            (#{articleId},#{parentId},#{userId},#{username},#{replyId},#{replyUsername},#{content},#{status},#{createTime})
+            (#{articleId},#{parentId},#{userId},#{username},#{replyId},#{replyUsername},#{content},#{email},#{status},#{createTime})
     </insert>
     <update id="deleteBatch">
         update comments
