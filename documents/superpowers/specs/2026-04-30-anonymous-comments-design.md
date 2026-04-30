@@ -100,6 +100,11 @@ comments.setStatus(CommonStatusConstants.NORMAL); // 直接发布，不审核
 
 ### 6. 安全
 
+**关于「无 token 放行」的澄清**：`JwtAuthenticationFilter` 仅负责「认证」——有 token 就解析、无 token 就不设置 `SecurityContext`。**它本身不拒绝请求**。真正的访问控制由 `SecurityConfig.authorizeRequests()` 完成：`authenticated()` 规则会拦截未认证请求，`hasRole("ADMIN")` 会检查权限。所以本次改动只把 `/user/comments` 从 `authenticated()` 列表中移除，**其他需要登录的接口（如 `/user/user/userinfo`、`/user/user/favorite`、`/user/tree/**`、`/admin/**`）规则不变，安全性不受影响**。这是 Spring Security 的标准两层模型（认证 / 授权分离）。
+
+唯一需要关注的副作用：之前依赖「请求能进 Service 就一定登录了」这一隐式假设的代码，现在 `BaseContext.getCurrentId()` 可能返回 `null`。本设计仅修改 `addComments`，需要确认 `getCommentsList` 等其他评论接口不依赖该假设（应该不依赖，因为本来就是公开查询）。
+
+**其他风险**：
 - **XSS**：前端用 `{{ }}` 插值渲染 `username`、`content`，不使用 `v-html`。后端入库时复用现有清洗逻辑（如已有），否则用基本的 `<script>` 标签剥离。
 - **邮箱泄露**：`email` 字段不在前端任何位置展示，仅后台管理可见。
 - **昵称冒充**：已登录用户的 `username` 始终从 user 表覆盖 DTO 值，避免登录用户被冒名顶替；匿名昵称无法冒充已注册用户名（因为存的是 `username` 字段，不影响登录态识别）。
