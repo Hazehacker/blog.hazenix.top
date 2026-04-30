@@ -115,4 +115,10 @@ public interface ArticleMapper {
      * @return
      */
     List<Article> getPopularArticles(int i);
+
+    /**
+     * 获取所有正常状态(status=0)文章，仅含算分需要的字段
+     * @return 文章列表
+     */
+    List<Article> listAllForScoring();
 }

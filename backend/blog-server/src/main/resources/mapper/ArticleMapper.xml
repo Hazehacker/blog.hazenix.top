@@ -100,6 +100,11 @@
     <select id="getPopularArticles" resultType="top.hazenix.entity.Article">
         select * from article order by (like_count+view_count) desc limit #{i}
     </select>
+    <select id="listAllForScoring" resultType="top.hazenix.entity.Article">
+        select id, title, cover_image, like_count, favorite_count, view_count, create_time
+        from article
+        where status = 0
+    </select>
     <select id="getRelatedArticlesByTags" resultType="top.hazenix.vo.ArticleShortVO">
         SELECT a.id, a.title, a.create_time, a.like_count, a.favorite_count, a.view_count
         FROM article a
