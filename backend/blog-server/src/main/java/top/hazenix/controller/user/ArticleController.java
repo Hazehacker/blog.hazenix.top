@@ -10,6 +10,7 @@ import top.hazenix.constant.ArticleConstants;
 import top.hazenix.query.ArticleListQuery;
 import top.hazenix.result.Result;
 import top.hazenix.service.ArticleService;
+import top.hazenix.service.PopularArticleService;
 import top.hazenix.vo.ArticleDetailVO;
 import top.hazenix.vo.ArticleShortVO;
 
@@ -23,6 +24,7 @@ public class ArticleController {
 
 
     private final ArticleService articleService;
+    private final PopularArticleService popularArticleService;
 
     /**
      * 获取文章列表（用于用户端）
@@ -72,14 +74,13 @@ public class ArticleController {
         return Result.success(articleDetailVO);
     }
     /**
-     * 获取热门文章
+     * 获取热门文章（读 Redis，miss 降级到 DB）
      * @return
      */
     @GetMapping("/popular")
     public Result getPopularArticles(){
         log.info("获取最热文章");
-        //返回值用shortVO即可
-        List<ArticleShortVO> list = articleService.getPopularArticles(8);
+        List<ArticleShortVO> list = popularArticleService.getCachedOrFallback(8);
         return Result.success(list);
     }
     /**
