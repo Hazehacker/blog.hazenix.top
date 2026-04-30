@@ -28,7 +28,7 @@
 | 调度时间 | 单次 cron `0 m H * * ?` | `H:m` 来自 `notify_config.send_time` |
 | 统计口径 | 昨日 `[今日 00:00:00, 今日 00:00:00)` 之前 24h | 数据完整、口径清晰 |
 | 内容片段截取 | 80 字（超出加 …） | 评论/树洞内容字段 |
-| 友链审核链接 | 不附（前端无现成路由） | 邮件正文文字提示「请进入后台审核」 |
+| 友链审核链接 | 邮件内一键通过/拒绝 | 一次性 token，公开接口验签后落库；7 天有效，使用后失效 |
 | 明细带创建时间 | 是，格式 `HH:mm:ss` | 三类明细每行都带 |
 | SMTP 密码加密 | AES，密钥从 yml 读 | `blog.notify.encrypt-key` |
 | 配置存储 | `notify_config` 单行表 | id 固定为 1，UPSERT 语义 |
@@ -64,6 +64,20 @@ CREATE TABLE notify_log (
   recipient    VARCHAR(255),
   KEY idx_stat_date (stat_date)
 );
+
+-- 邮件内一次性操作 token（目前用于友链审核）
+CREATE TABLE notify_action_token (
+  id          BIGINT       AUTO_INCREMENT PRIMARY KEY,
+  token       VARCHAR(64)  NOT NULL UNIQUE COMMENT '随机 token (URL-safe)',
+  target_type VARCHAR(32)  NOT NULL COMMENT 'link 等',
+  target_id   BIGINT       NOT NULL,
+  action      VARCHAR(16)  NOT NULL COMMENT 'approve / reject',
+  expires_at  DATETIME     NOT NULL,
+  used_at     DATETIME,
+  create_time DATETIME     NOT NULL,
+  KEY idx_token (token),
+  KEY idx_expires (expires_at)
+);
 ```
 
 初始化：插入 id=1 行（占位，需在后台首次配置后才会实际发送，`enabled=0` 时跳过）。
@@ -76,17 +90,20 @@ CREATE TABLE notify_log (
 |---|---|---|
 | 启用调度 | `top.hazenix.BlogApplication` | 修改：加 `@EnableScheduling` |
 | Mail 依赖 | `backend/blog-server/pom.xml` | 修改：加 `spring-boot-starter-mail` |
-| 实体 | `top.hazenix.entity.NotifyConfig`、`NotifyLog` | 新增 |
-| Mapper | `top.hazenix.mapper.NotifyConfigMapper`、`NotifyLogMapper` (+ xml) | 新增 |
+| 实体 | `top.hazenix.entity.NotifyConfig`、`NotifyLog`、`NotifyActionToken` | 新增 |
+| Mapper | `top.hazenix.mapper.NotifyConfigMapper`、`NotifyLogMapper`、`NotifyActionTokenMapper` (+ xml) | 新增 |
 | 配置 Service | `top.hazenix.service.NotifyConfigService` (+ Impl) | 新增；负责 SMTP 密码加解密 |
 | 通知 Service | `top.hazenix.service.DailyNotifyService` (+ Impl) | 新增；收集数据 → 渲染 → 调 sender |
+| 一键审核 Service | `top.hazenix.service.NotifyActionService` (+ Impl) | 新增；生成 token、消费 token、执行 link 审核 |
 | 调度管理 | `top.hazenix.task.NotifyScheduleManager` | 新增；`@PostConstruct` 注册首次任务，配置变更时 reschedule |
 | 邮件发送器 | `top.hazenix.notify.MailSender` | 新增；封装 `JavaMailSenderImpl`，支持运行时切换 SMTP；执行失败重试 |
 | 加密工具 | `top.hazenix.utils.AesCryptoUtil` | 新增；密钥来自 `blog.notify.encrypt-key` |
 | 数据收集 SQL | `CommentsMapper#listByCreateTimeBetween` 等三处 | 新增 |
 | 后台 Controller | `top.hazenix.controller.admin.NotifyConfigController` | 新增 |
+| 一键审核 Controller | `top.hazenix.controller.web.NotifyActionController` | 新增；公开路径，token 验签 |
 | DTO/VO | `dto.NotifyConfigDTO`、`vo.NotifyConfigVO`（不含密码）、`vo.NotifyLogVO` | 新增 |
-| 配置项 | `application.yml` / `-dev.yml` | 加 `blog.notify.encrypt-key` |
+| 配置项 | `application.yml` / `-dev.yml` | 加 `blog.notify.encrypt-key`、`blog.notify.public-base-url` |
+| Security 放行 | `SecurityConfig` | 放行 `/api/notify/link-action`（公开） |
 
 ### 5.2 数据流
 
@@ -147,13 +164,33 @@ XML 用 `BETWEEN #{start} AND #{end}`（半开区间用 `>= AND <`）。
 
 [分块 3] 待审核友链申请（N3）
   - HH:mm:ss  站点名 / URL / description（截断 80 字…）
-  - 请登录后台审核（前端暂无独立审核页面，请在管理后台「友链管理」中处理）
+    [✅ 通过]  [❌ 拒绝]    ← 两个一次性链接，7 天有效，使用一次后失效
 
 [页脚] 自动发送，请勿回复
 ```
 
 - 评论的「文章标题」需 join `article` 表查；为最小化 SQL 改动，可在 `CommentsMapper#listByCreateTimeBetween` 内 LEFT JOIN article 取 title，返回新 VO `CommentNotifyVO { id, username, content, articleTitle, createTime }`
 - 截断逻辑放在渲染层，不污染 SQL/VO
+- 一键审核链接：`{public-base-url}/api/notify/link-action?token={token}`，每条申请生成两个 token（approve/reject），均在发送时插入 `notify_action_token`
+
+## 6.5 一键审核流程
+
+**生成（发邮件时）：**
+1. `DailyNotifyService` 在拼装友链分块前，对每条 pending 申请调用 `NotifyActionService.issue(linkId, action)` 两次，分别拿到 approve / reject 的 token
+2. token 由 `SecureRandom` 生成 32 字节再 URL-safe Base64，写 `notify_action_token` 表，`expires_at = now + 7d`
+3. 渲染时把按钮 href 拼为 `{public-base-url}/api/notify/link-action?token={token}`
+
+**消费（用户点链接）：**
+1. 公开接口 `GET /api/notify/link-action?token=xxx`
+2. `NotifyActionService.consume(token)`：
+   - 查 token 不存在 / 已使用 / 已过期 → 返回中性 HTML 提示「链接无效或已失效」
+   - 否则按 `target_type=link` + `action`（approve→更新 `link.status=1`、reject→更新 `link.status=2` 或软删除）调 `LinkService` 更新；置当前 token `used_at=now`
+3. 同一申请的另一 token（另一动作）一并标记 `used_at`，避免点完通过又能点拒绝
+4. 返回简单 HTML：`已通过友链：<站点名>` 或 `已拒绝友链：<站点名>`，无需登录态
+
+**安全：**
+- token 不绑定 IP/UA（邮件场景不可控），靠「随机 32 字节 + 一次性 + 7 天过期」保证
+- 公开接口只支持 `target_type=link`，写死白名单，防止被改造成任意写
 
 ## 7. 后台接口
 
@@ -178,6 +215,14 @@ GET  /admin/notify/log?page=&size=
      → 分页 NotifyLogVO 列表
 ```
 
+公开接口（无需登录，token 验签）：
+
+```
+GET  /api/notify/link-action?token=xxx
+     → 返回 HTML 页面：成功 / 链接无效或已失效
+     → SecurityConfig 中显式放行此路径
+```
+
 ## 8. 失败与重试
 
 - `MailSender.sendWithRetry(req)`：
@@ -195,6 +240,7 @@ GET  /admin/notify/log?page=&size=
 blog:
   notify:
     encrypt-key: ${blog.notify.encrypt-key}   # 16/24/32 字节
+    public-base-url: ${blog.notify.public-base-url}   # 邮件链接的对外可访问域名，如 https://hazenix.top
 ```
 
 `application-dev.yml` 新增：
@@ -203,6 +249,7 @@ blog:
 blog:
   notify:
     encrypt-key: hazenix-notify-dev-key16   # 16 字节示例
+    public-base-url: http://localhost:9090
 ```
 
 ## 10. 安全
@@ -217,7 +264,6 @@ blog:
 - 今日浏览量 / 今日访客数（无数据来源，待埋点完成后再加）
 - 多收件人 / 多通知渠道（短信、Bark、Webhook 等）
 - 邮件模板可视化编辑
-- 友链申请的「邮件内一键审核」链接（前端暂无对应路由）
 
 ## 12. 验证清单
 
@@ -229,3 +275,7 @@ blog:
 - [ ] `GET /admin/notify/config` 返回的 `smtpPassword` 是 `********`
 - [ ] `PUT` 时 `smtpPassword` 留空不会清空数据库密码
 - [ ] 手动触发指定日期能补发
+- [ ] 邮件内一键审核：通过 / 拒绝两个链接均能正确更新 `link.status`
+- [ ] 同一申请的两个 token 互斥（点完通过后再点拒绝提示已失效）
+- [ ] token 过期后点链接提示「链接无效或已失效」
+- [ ] 同一 token 重复点击只生效一次
