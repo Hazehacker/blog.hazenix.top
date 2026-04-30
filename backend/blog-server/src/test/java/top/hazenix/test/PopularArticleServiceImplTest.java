@@ -119,6 +119,53 @@ public class PopularArticleServiceImplTest {
         service.recompute(); // should not throw
     }
 
+    @org.junit.jupiter.api.Test
+    public void getCachedOrFallback_should_return_redis_when_hit() {
+        ArticleShortVO v = new ArticleShortVO();
+        v.setId(99L);
+        when(valueOperations.get("popular:articles")).thenReturn(Collections.singletonList(v));
+
+        List<ArticleShortVO> result = service.getCachedOrFallback(8);
+
+        assertEquals(1, result.size());
+        assertEquals(Long.valueOf(99L), result.get(0).getId());
+        verify(articleMapper, never()).getPopularArticles(org.mockito.ArgumentMatchers.anyInt());
+    }
+
+    @org.junit.jupiter.api.Test
+    public void getCachedOrFallback_should_query_db_when_miss() throws InterruptedException {
+        when(valueOperations.get("popular:articles")).thenReturn(null);
+        when(articleMapper.getPopularArticles(8)).thenReturn(Collections.singletonList(newArticle(7L, 1, 1, 1)));
+        when(articleMapper.listAllForScoring()).thenReturn(Collections.emptyList());
+
+        List<ArticleShortVO> result = service.getCachedOrFallback(8);
+
+        assertEquals(1, result.size());
+        assertEquals(Long.valueOf(7L), result.get(0).getId());
+        verify(articleMapper, org.mockito.Mockito.times(1)).getPopularArticles(8);
+    }
+
+    @org.junit.jupiter.api.Test
+    public void getCachedOrFallback_should_query_db_when_redis_throws() {
+        when(valueOperations.get("popular:articles")).thenThrow(new RuntimeException("redis down"));
+        when(articleMapper.getPopularArticles(8)).thenReturn(Collections.emptyList());
+
+        List<ArticleShortVO> result = service.getCachedOrFallback(8);
+
+        assertTrue(result.isEmpty());
+        verify(articleMapper, org.mockito.Mockito.times(1)).getPopularArticles(8);
+    }
+
+    @org.junit.jupiter.api.Test
+    public void getCachedOrFallback_should_return_empty_when_redis_hit_empty_list() {
+        when(valueOperations.get("popular:articles")).thenReturn(Collections.emptyList());
+
+        List<ArticleShortVO> result = service.getCachedOrFallback(8);
+
+        assertTrue(result.isEmpty());
+        verify(articleMapper, never()).getPopularArticles(org.mockito.ArgumentMatchers.anyInt());
+    }
+
     private Article newArticle(Long id, int view, int like, int fav) {
         Article a = new Article();
         a.setId(id);

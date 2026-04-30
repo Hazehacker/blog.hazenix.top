@@ -42,8 +42,41 @@ public class PopularArticleServiceImpl implements PopularArticleService {
 
     @Override
     public List<ArticleShortVO> getCachedOrFallback(int limit) {
-        // 下一 Task 实现
-        throw new UnsupportedOperationException("not implemented yet");
+        try {
+            Object cached = redisTemplate.opsForValue().get(DefaultConstants.POPULAR_ARTICLES_REDIS_KEY);
+            if (cached instanceof List) {
+                @SuppressWarnings("unchecked")
+                List<ArticleShortVO> list = (List<ArticleShortVO>) cached;
+                if (list.size() <= limit) {
+                    return list;
+                }
+                return list.subList(0, limit);
+            }
+        } catch (Exception e) {
+            log.error("热门文章读取 Redis 失败，降级查 DB", e);
+        }
+
+        List<ArticleShortVO> fallback = fallbackFromDb(limit);
+        triggerAsyncRecompute();
+        return fallback;
+    }
+
+    private List<ArticleShortVO> fallbackFromDb(int limit) {
+        List<Article> articles = articleMapper.getPopularArticles(limit);
+        if (articles == null || articles.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return articles.stream().map(a -> {
+            ArticleShortVO vo = new ArticleShortVO();
+            BeanUtils.copyProperties(a, vo);
+            return vo;
+        }).collect(Collectors.toList());
+    }
+
+    private void triggerAsyncRecompute() {
+        Thread t = new Thread(this::recompute, "popular-article-recompute");
+        t.setDaemon(true);
+        t.start();
     }
 
     /**
