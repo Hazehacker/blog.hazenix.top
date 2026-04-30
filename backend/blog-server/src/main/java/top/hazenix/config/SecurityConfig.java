@@ -52,7 +52,8 @@ public class SecurityConfig {
                         "/v2/api-docs",
                         "/swagger-resources/**",
                         "/swagger-ui.html",
-                        "user/tree/list"
+                        "user/tree/list",
+                        "/api/notify/link-action"
                 ).permitAll()
                 // 管理端接口：需要 ADMIN 角色
                 .antMatchers("/admin/**").hasRole("ADMIN")
