@@ -33,33 +33,43 @@
         <!-- 时间戳和回复链接 -->
         <div class="comment-meta">
           <span class="comment-time">{{ formatTime(comment.createTime) }}</span>
-          <span 
-            v-if="isLoggedIn"
-            class="reply-link" 
+          <span
+            class="reply-link"
             @click="handleReply"
           >
             回复
           </span>
         </div>
 
-        <!-- 行内回复表单（仅当正在回复该评论时显示） -->
-        <div 
-          v-if="isLoggedIn && activeReplyCommentId === comment.id"
+        <!-- 行内回复表单（当正在回复该评论时显示） -->
+        <div
+          v-if="activeReplyCommentId === comment.id"
           class="inline-reply-form"
         >
           <div class="form-header">
-            <div class="form-user-info">
-              <img 
-                :src="getUserAvatar(userInfo)" 
+            <div class="form-user-info" v-if="isLoggedIn">
+              <img
+                :src="getUserAvatar(userInfo)"
                 :alt="userInfo?.username || '用户'"
                 class="w-7 h-7 rounded-full object-cover border border-gray-200 dark:border-gray-600"
                 @error="handleAvatarError"
               />
               <span class="form-username">{{ userInfo?.username || '用户' }}</span>
             </div>
+            <div class="form-user-info" v-else>
+              <span class="form-username" style="color: var(--el-text-color-secondary)">匿名回复</span>
+            </div>
             <el-button type="text" size="small" @click="handleCancelReply">取消回复</el-button>
           </div>
           <el-form :model="commentForm" :rules="commentRules" :ref="(el) => setFormRef(el, comment.id)">
+            <div v-if="!isLoggedIn" class="anonymous-fields">
+              <el-form-item prop="username" style="margin-bottom: 8px">
+                <el-input v-model="commentForm.username" placeholder="昵称（必填）" maxlength="30" clearable size="small" />
+              </el-form-item>
+              <el-form-item prop="email" style="margin-bottom: 8px">
+                <el-input v-model="commentForm.email" placeholder="邮箱（选填，不会公开）" maxlength="100" clearable size="small" />
+              </el-form-item>
+            </div>
             <el-form-item prop="content">
               <el-input
                 :ref="(el) => setInputRef(el, comment.id)"
@@ -134,6 +144,7 @@
 import { nextTick, ref } from 'vue'
 import dayjs from 'dayjs'
 import { getAvatarUrl } from '@/utils/helpers'
+import { generateIdenticon } from '@/utils/identicon'
 import avatarFallback from '@/assets/img/avatar.jpg'
 
 // 递归组件需要名称
@@ -207,9 +218,10 @@ const inputRefs = ref({})
 
 // 获取评论头像 - 与友链和用户头像保持一致的处理方式
 const getCommentAvatar = (comment) => {
+  if (comment.isAnonymous) {
+    return generateIdenticon(comment.username || 'anonymous')
+  }
   const avatar = comment.avatar || comment.avatarUrl || comment.userAvatar || ''
-  // 使用getAvatarUrl处理头像URL，如果为空或无效，返回默认头像
-  // 与友链和用户头像的处理方式完全一致
   return getAvatarUrl(avatar, avatarFallback)
 }
 

@@ -7,40 +7,50 @@
       </h3>
     </div>
 
-    <!-- 未登录用户提示 -->
-    <div v-if="!isLoggedIn" class="login-prompt">
-      <div class="prompt-content">
-        <el-icon class="prompt-icon"><Warning /></el-icon>
-        <span class="prompt-text">登录后才能发表评论</span>
-        <el-button type="primary" size="small" @click="openLoginDialog">
-          立即登录
-        </el-button>
-      </div>
-    </div>
-
-    <!-- 顶部评论输入框（仅登录用户可见，且非回复状态时显示） -->
-    <div v-if="isLoggedIn && showCommentForm && !activeReplyCommentId" class="comment-form">
+    <!-- 顶部评论输入框（非回复状态时显示） -->
+    <div v-if="showCommentForm && !activeReplyCommentId" class="comment-form">
       <div class="form-header">
-        <div class="form-user-info">
-          <img 
-            :src="getUserAvatar(userInfo)" 
+        <div class="form-user-info" v-if="isLoggedIn">
+          <img
+            :src="getUserAvatar(userInfo)"
             :alt="userInfo?.username || '用户'"
             class="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-600"
             @error="handleAvatarError"
           />
           <span class="form-username">{{ userInfo?.username || '用户' }}</span>
         </div>
-        <el-button 
-          v-if="commentForm.parentId" 
-          type="text" 
+        <div class="form-user-info" v-else>
+          <span class="form-username" style="color: var(--el-text-color-secondary)">匿名评论</span>
+        </div>
+        <el-button
+          v-if="commentForm.parentId"
+          type="text"
           size="small"
           @click="cancelReply"
         >
           取消回复
         </el-button>
       </div>
-      
+
       <el-form :model="commentForm" :rules="commentRules" :ref="setCommentFormRef">
+        <div v-if="!isLoggedIn" class="anonymous-fields">
+          <el-form-item prop="username" style="margin-bottom: 12px">
+            <el-input
+              v-model="commentForm.username"
+              placeholder="昵称（必填）"
+              maxlength="30"
+              clearable
+            />
+          </el-form-item>
+          <el-form-item prop="email" style="margin-bottom: 12px">
+            <el-input
+              v-model="commentForm.email"
+              placeholder="邮箱（选填，不会公开）"
+              maxlength="100"
+              clearable
+            />
+          </el-form-item>
+        </div>
         <el-form-item prop="content">
           <el-input
             ref="setCommentInputRef"
@@ -83,8 +93,8 @@
       </el-form>
     </div>
 
-    <!-- 发表评论按钮（登录用户且未显示表单时） -->
-    <div v-if="isLoggedIn && !showCommentForm" class="comment-form-toggle">
+    <!-- 发表评论按钮（未显示表单时） -->
+    <div v-if="!showCommentForm" class="comment-form-toggle">
       <el-button type="primary" @click="showCommentForm = true">
         <el-icon class="mr-1"><Edit /></el-icon>
         发表评论
@@ -99,9 +109,8 @@
       
       <div v-else-if="comments.length === 0" class="empty-comments">
         <el-empty description="暂无评论，快来抢沙发吧！">
-          <el-button 
-            v-if="isLoggedIn" 
-            type="primary" 
+          <el-button
+            type="primary"
             @click="showCommentForm = true"
           >
             发表评论
@@ -151,7 +160,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted, watch, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
-import { ChatDotRound, Edit, Warning } from '@element-plus/icons-vue'
+import { ChatDotRound, Edit } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 import { getComments, createComment, likeComment as likeCommentApi } from '@/api/comment'
 import dayjs from 'dayjs'
@@ -190,9 +199,11 @@ const activeReplyCommentId = ref(null)
 // 评论表单
 const commentForm = reactive({
   content: '',
-  parentId: null, // 被回复的评论ID
-  replyUserId: null, // 被回复者的用户ID
-  replyTo: '' // 被回复者的用户名（用于显示）
+  parentId: null,
+  replyUserId: null,
+  replyTo: '',
+  username: '',
+  email: ''
 })
 
 // 常用表情（Unicode），无需后端改动
@@ -207,12 +218,32 @@ const emojis = [
 ]
 
 // 表单验证规则
-const commentRules = {
-  content: [
-    { required: true, message: '请输入评论内容', trigger: 'blur' },
-    { min: 1, max: 500, message: '评论长度在 1 到 500 个字符', trigger: 'blur' }
-  ]
-}
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+const commentRules = computed(() => {
+  const rules = {
+    content: [
+      { required: true, message: '请输入评论内容', trigger: 'blur' },
+      { min: 1, max: 500, message: '评论长度在 1 到 500 个字符', trigger: 'blur' }
+    ]
+  }
+  if (!isLoggedIn.value) {
+    rules.username = [
+      { required: true, message: '请输入昵称', trigger: 'blur' },
+      { min: 1, max: 30, message: '昵称长度在 1 到 30 个字符', trigger: 'blur' }
+    ]
+    rules.email = [
+      { validator: (rule, value, callback) => {
+          if (value && !emailRegex.test(value)) {
+            callback(new Error('邮箱格式不正确'))
+          } else {
+            callback()
+          }
+        }, trigger: 'blur' }
+    ]
+  }
+  return rules
+})
 
 // 打开登录对话框
 const openLoginDialog = () => {
@@ -310,51 +341,43 @@ const loadComments = async () => {
 
 // 提交评论
 const submitComment = async () => {
-  if (!isLoggedIn.value) {
-    ElMessage.warning('登录后才能发表评论')
-    return
-  }
-
-  // 检查评论内容是否为空
   if (!commentForm.content || commentForm.content.trim() === '') {
     ElMessage.warning('请输入评论内容')
     return
   }
 
-  // 如果有表单引用，先验证表单（主要用于顶部评论表单）
   if (commentFormRef.value) {
     try {
       await commentFormRef.value.validate()
     } catch (error) {
-      // 表单验证失败，不提交
-      if (error === false) {
-        // 这是Element Plus的验证失败标识
-        return
-      }
-      // 其他错误也返回
       return
     }
   }
-  
+
   try {
     submitting.value = true
     const payload = {
       articleId: props.articleId,
-      content: commentForm.content.trim(),
-      // 后端会优先展示传入的昵称
-      username: userInfo.value?.username || userInfo.value?.nickname
+      content: commentForm.content.trim()
     }
-    // 如果有parentId，说明是回复评论
+
+    if (isLoggedIn.value) {
+      payload.username = userInfo.value?.username || userInfo.value?.nickname
+    } else {
+      payload.username = commentForm.username.trim()
+      if (commentForm.email && commentForm.email.trim()) {
+        payload.email = commentForm.email.trim()
+      }
+    }
+
     if (commentForm.parentId) {
-      // 传递parentId：被回复的评论ID（必需）
       payload.parentId = commentForm.parentId
-      // 传递replyId：被回复者的用户ID（可选，但建议传递）
       if (commentForm.replyUserId) {
         payload.replyId = commentForm.replyUserId
       }
     }
     const response = await createComment(payload)
-    
+
     ElMessage.success('评论发表成功')
     resetCommentForm()
     showCommentForm.value = false
@@ -362,11 +385,7 @@ const submitComment = async () => {
     await loadComments()
     emit('comment-added', response.data)
   } catch (error) {
-    // console.error('发表评论失败:', error)
-    if (error.response?.status === 401) {
-      ElMessage.error('登录已过期，请重新登录')
-      openLoginDialog()
-    } else if (error.response?.data?.msg) {
+    if (error.response?.data?.msg) {
       ElMessage.error(error.response.data.msg)
     } else {
       ElMessage.error('发表评论失败')
@@ -398,7 +417,9 @@ const resetCommentForm = () => {
     content: '',
     parentId: null,
     replyUserId: null,
-    replyTo: ''
+    replyTo: '',
+    username: '',
+    email: ''
   })
   commentFormRef.value?.clearValidate()
 }
@@ -410,17 +431,8 @@ const setCommentFormRef = (el) => {
 
 // 回复评论
 const replyToComment = (comment) => {
-  if (!isLoggedIn.value) {
-    ElMessage.warning('登录后才能发表评论')
-    return
-  }
-
-  // 保存被回复的评论ID（parentId）
   commentForm.parentId = comment.id
-  // 保存被回复者的用户ID（replyId）
-  // 注意：userId 是评论者的用户ID，也就是被回复者的用户ID
   commentForm.replyUserId = comment.userId || comment.user_id || null
-  // 保存被回复者的用户名（用于显示）
   commentForm.replyTo = comment.username || comment.nickname || '用户'
   showCommentForm.value = true
   activeReplyCommentId.value = comment.id
