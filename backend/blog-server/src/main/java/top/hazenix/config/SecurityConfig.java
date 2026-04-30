@@ -45,13 +45,14 @@ public class SecurityConfig {
                         "/user/user/google/**",
                         "/user/user/github/**"
                 ).permitAll()
-                // Swagger / Knife4j 文档放行
+                // Swagger / Knife4j 文档放行(还有一个树洞查询接口)
                 .antMatchers(
                         "/doc.html",
                         "/webjars/**",
                         "/v2/api-docs",
                         "/swagger-resources/**",
-                        "/swagger-ui.html"
+                        "/swagger-ui.html",
+                        "user/tree/list"
                 ).permitAll()
                 // 管理端接口：需要 ADMIN 角色
                 .antMatchers("/admin/**").hasRole("ADMIN")
@@ -63,7 +64,6 @@ public class SecurityConfig {
                         "/user/user/profile",
                         "/user/user/password",
                         "/user/user/favorite",
-                        "/user/comments",
                         "/user/tree/**",
                         "/user/articles/*/favorite"
                 ).authenticated()
