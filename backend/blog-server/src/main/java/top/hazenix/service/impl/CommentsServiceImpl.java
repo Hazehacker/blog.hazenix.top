@@ -100,7 +100,6 @@ public class CommentsServiceImpl implements CommentsService {
     @Override
     public List<CommentsVO> getCommentsList(CommentsDTO commentsDTO) {commentsDTO.setStatus(CommonStatusConstants.NORMAL);
         List<Comments> list = commentsMapper.list(commentsDTO);
-        //如果没有评论，下面的步骤就不用进行了
         if(list.isEmpty()){
             return null;
         }
@@ -108,15 +107,11 @@ public class CommentsServiceImpl implements CommentsService {
         for(Comments comments:list){
             CommentsVO commentsVO = new CommentsVO();
             BeanUtils.copyProperties(comments,commentsVO);
+            commentsVO.setIsAnonymous(comments.getUserId() == null);
             if (comments.getUserId()!=null) {
-                //设置评论者头像
                 String avatar = userMapper.getById(comments.getUserId()).getAvatar();
                 commentsVO.setAvatar(avatar);
             }
-            //用户端返回值不需要文章标题
-//            if (comments.getArticleId()!=null) {
-//                commentsVO.setArticleTitle(articleMapper.getById(comments.getArticleId()).getTitle());
-//            }
             resList.add(commentsVO);
         }
 
@@ -151,7 +146,21 @@ public class CommentsServiceImpl implements CommentsService {
     public void addComments(CommentsDTO commentsDTO) {
         Comments comments  = new Comments();
         BeanUtils.copyProperties(commentsDTO,comments);
-        comments.setUserId(BaseContext.getCurrentId());
+
+        Long currentUserId = BaseContext.getCurrentId();
+        if (currentUserId != null) {
+            comments.setUserId(currentUserId);
+            comments.setUsername(userMapper.getById(currentUserId).getUsername());
+            comments.setEmail(null);
+        } else {
+            if (commentsDTO.getUsername() == null || commentsDTO.getUsername().trim().isEmpty()) {
+                throw new BussinessException(ErrorCode.A03002, MessageConstant.ANONYMOUS_USERNAME_REQUIRED);
+            }
+            comments.setUserId(null);
+            comments.setUsername(commentsDTO.getUsername().trim());
+            comments.setEmail(commentsDTO.getEmail());
+        }
+
         if(commentsDTO.getReplyId()!=null){
             if (userMapper.getById(commentsDTO.getReplyId())!=null) {
                 comments.setReplyUsername(userMapper.getById(commentsDTO.getReplyId()).getUsername());
@@ -160,7 +169,7 @@ public class CommentsServiceImpl implements CommentsService {
             }
         }
         comments.setStatus(CommonStatusConstants.NORMAL);
-        comments.setCreateTime(LocalDateTime.now());//comments表没有update_time字段，直接这边填充
+        comments.setCreateTime(LocalDateTime.now());
         commentsMapper.insert(comments);
     }
 
