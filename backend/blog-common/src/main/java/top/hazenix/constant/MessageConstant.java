@@ -49,4 +49,6 @@ public class MessageConstant {
     public static final String AUDIENCE_INVALID = "无效的audience";
     public static final String GOOGLE_LOGIN_ERROR = "google登录失败";
     public static final String ARTICLLE_TO_BE_DELETED_IS_NULL = "请选择要删除的文章";
+    public static final String ANONYMOUS_USERNAME_REQUIRED = "匿名评论必须填写昵称";
+    public static final String COMMENT_RATE_LIMIT_EXCEEDED = "评论太频繁，请稍后再试";
 }
