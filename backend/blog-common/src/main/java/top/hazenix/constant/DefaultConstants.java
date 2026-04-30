@@ -39,7 +39,32 @@ public class DefaultConstants {
      * 获取热门文章数量
      */
     public static final Integer POPULAR_ARTICLES_COUNT = 5;
-    
+
+    /**
+     * 热门文章 Redis 缓存 key
+     */
+    public static final String POPULAR_ARTICLES_REDIS_KEY = "popular:articles";
+
+    /**
+     * 热门文章 Top N（实际写入 Redis 的条数）
+     */
+    public static final int POPULAR_ARTICLES_TOP_N = 8;
+
+    /**
+     * 热度得分权重：浏览数
+     */
+    public static final int POPULAR_SCORE_WEIGHT_VIEW = 1;
+
+    /**
+     * 热度得分权重：点赞数
+     */
+    public static final int POPULAR_SCORE_WEIGHT_LIKE = 3;
+
+    /**
+     * 热度得分权重：收藏数
+     */
+    public static final int POPULAR_SCORE_WEIGHT_FAVORITE = 5;
+
     /**
      * 默认用户ID（系统用户）
      */
