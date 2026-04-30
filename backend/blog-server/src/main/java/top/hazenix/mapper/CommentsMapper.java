@@ -3,11 +3,14 @@ package top.hazenix.mapper;
 
 import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import top.hazenix.dto.CommentsDTO;
 import top.hazenix.entity.Category;
 import top.hazenix.entity.Comments;
+import top.hazenix.vo.CommentNotifyVO;
 import top.hazenix.vo.CommentShortVO;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper
@@ -65,4 +68,7 @@ public interface CommentsMapper {
      * @return
      */
     Integer getCommentCountByUserId(Long userId);
+
+    List<CommentNotifyVO> listByCreateTimeBetween(@Param("start") LocalDateTime start,
+                                                   @Param("end") LocalDateTime end);
 }

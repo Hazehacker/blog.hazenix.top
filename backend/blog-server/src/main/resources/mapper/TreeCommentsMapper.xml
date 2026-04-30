@@ -34,4 +34,11 @@
         </where>
         order by create_time desc
     </select>
+    <select id="listByCreateTimeBetween" resultType="top.hazenix.entity.TreeComments">
+        SELECT id, username, content, create_time
+        FROM tree_comments
+        WHERE create_time >= #{start} AND create_time &lt; #{end}
+          AND status = 0
+        ORDER BY create_time ASC
+    </select>
 </mapper>

@@ -75,4 +75,12 @@
     <select id="getCommentCountByUserId" resultType="java.lang.Integer">
         select count(*) from comments where user_id = #{userId} and status = 0
     </select>
+    <select id="listByCreateTimeBetween" resultType="top.hazenix.vo.CommentNotifyVO">
+        SELECT c.id, c.username, c.content, a.title AS article_title, c.create_time
+        FROM comments c
+        LEFT JOIN article a ON c.article_id = a.id
+        WHERE c.create_time >= #{start} AND c.create_time &lt; #{end}
+          AND c.status = 0
+        ORDER BY c.create_time ASC
+    </select>
 </mapper>

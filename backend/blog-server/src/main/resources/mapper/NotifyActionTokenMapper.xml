@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.hazenix.mapper.NotifyActionTokenMapper">
+    <insert id="insert">
+        INSERT INTO notify_action_token (token, target_type, target_id, action, expires_at, create_time)
+        VALUES (#{token}, #{targetType}, #{targetId}, #{action}, #{expiresAt}, #{createTime})
+    </insert>
+    <select id="getByToken" resultType="top.hazenix.entity.NotifyActionToken">
+        SELECT id, token, target_type, target_id, action, expires_at, used_at, create_time
+        FROM notify_action_token WHERE token = #{token}
+    </select>
+    <update id="markUsed">
+        UPDATE notify_action_token SET used_at = NOW() WHERE token = #{token} AND used_at IS NULL
+    </update>
+    <update id="markUsedByTargetId">
+        UPDATE notify_action_token SET used_at = NOW()
+        WHERE target_type = #{targetType} AND target_id = #{targetId} AND used_at IS NULL
+    </update>
+</mapper>

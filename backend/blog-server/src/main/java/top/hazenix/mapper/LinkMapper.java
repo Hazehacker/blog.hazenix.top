@@ -3,11 +3,13 @@ package top.hazenix.mapper;
 
 import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import top.hazenix.annotation.AutoFill;
 import top.hazenix.entity.Link;
 import top.hazenix.entity.User;
 import top.hazenix.enumeration.OperationType;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper
@@ -41,4 +43,7 @@ public interface LinkMapper {
     void deleteLinks(List<Long> ids);
 
     List<Link> list();
+
+    List<Link> listPendingByCreateTimeBetween(@Param("start") LocalDateTime start,
+                                               @Param("end") LocalDateTime end);
 }

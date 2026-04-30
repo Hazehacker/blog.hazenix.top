@@ -61,4 +61,11 @@
         from link
         order by sort desc
     </select>
+    <select id="listPendingByCreateTimeBetween" resultType="top.hazenix.entity.Link">
+        SELECT id, name, description, url, avatar, status, create_time
+        FROM link
+        WHERE create_time >= #{start} AND create_time &lt; #{end}
+          AND status = 1
+        ORDER BY create_time ASC
+    </select>
 </mapper>

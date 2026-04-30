@@ -3,10 +3,12 @@ package top.hazenix.mapper;
 
 import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import top.hazenix.entity.Link;
 import top.hazenix.entity.TreeComments;
 import top.hazenix.query.TreeCommentsQuery;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper
@@ -38,4 +40,7 @@ public interface TreeCommentsMapper {
      * @param ids
      */
     void deleteTreeComments(List<Long> ids);
+
+    List<TreeComments> listByCreateTimeBetween(@Param("start") LocalDateTime start,
+                                                @Param("end") LocalDateTime end);
 }
