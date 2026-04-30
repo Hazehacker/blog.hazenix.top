@@ -96,3 +96,7 @@ blog:
       application:
         name: ${blog.github.authorization.application.name}
       scope: ${blog.github.authorization.scope}
+
+  notify:
+    encrypt-key: ${blog.notify.encrypt-key}
+    public-base-url: ${blog.notify.public-base-url}
