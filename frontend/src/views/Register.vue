@@ -39,6 +39,7 @@
         <span class="text-primary cursor-pointer" @click="goToLogin">已有账号？立即登录</span>
       </div>
     </el-card>
+    <InterestTagSelector v-model="showInterestSelector" @done="onInterestDone" />
   </div>
 </template>
 
@@ -47,11 +48,13 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
+import InterestTagSelector from '@/components/common/InterestTagSelector.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
 const formRef = ref()
 const loading = ref(false)
+const showInterestSelector = ref(false)
 
 const registerForm = ref({
   username: '',
@@ -93,7 +96,7 @@ const handleRegister = async () => {
     }
     await userStore.register(registerData)
     ElMessage.success('注册成功')
-    router.push('/')
+    showInterestSelector.value = true
   } catch (error) {
     ElMessage.error(error.message || '注册失败')
   } finally {
@@ -102,6 +105,10 @@ const handleRegister = async () => {
 }
 
 const goToLogin = () => {
+  router.push('/')
+}
+
+const onInterestDone = () => {
   router.push('/')
 }
 

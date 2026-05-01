@@ -21,9 +21,9 @@ public class PopularityEngineTest {
     @Test
     public void score_should_use_view_like_favorite_weights() {
         Article article = new Article();
-        article.setViewCount(100L);
-        article.setLikeCount(10L);
-        article.setFavoriteCount(5L);
+        article.setViewCount(100);
+        article.setLikeCount(10);
+        article.setFavoriteCount(5);
         article.setCreateTime(LocalDateTime.now());
 
         double score = engine.score(article);
@@ -34,9 +34,9 @@ public class PopularityEngineTest {
     @Test
     public void score_should_apply_time_decay() {
         Article article = new Article();
-        article.setViewCount(1000L);
-        article.setLikeCount(0L);
-        article.setFavoriteCount(0L);
+        article.setViewCount(1000);
+        article.setLikeCount(0);
+        article.setFavoriteCount(0);
         article.setCreateTime(LocalDateTime.now().minusDays(7)); // 7 days ago
 
         double score = engine.score(article);
