@@ -19,7 +19,12 @@
         <UserCard />
       </div>
     </div>
-    
+
+    <!-- 推荐区域 -->
+    <div class="mt-16">
+      <RecommendSection />
+    </div>
+
     <!-- 内容区域 -->
     <div class="mt-24 grid grid-cols-1 lg:grid-cols-3 gap-8">
       <!-- 最新文章列表 -->
@@ -55,6 +60,7 @@ import { useUserStore } from '@/stores/user'
 import { useThemeStore } from '@/stores/theme'
 import { ElMessage } from 'element-plus'
 import { getArticleList } from '@/api/article'
+import RecommendSection from '@/components/article/RecommendSection.vue'
 import ArticleList from '@/components/article/ArticleList.vue'
 import UserCard from '@/components/common/UserCard.vue'
 import PopularArticles from '@/components/article/PopularArticles.vue'
