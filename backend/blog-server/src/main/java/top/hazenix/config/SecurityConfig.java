@@ -66,7 +66,8 @@ public class SecurityConfig {
                         "/user/user/password",
                         "/user/user/favorite",
                         "/user/tree/**",
-                        "/user/articles/*/favorite"
+                        "/user/articles/*/favorite",
+                        "/user/interests/**"
                 ).authenticated()
                 // 其他接口暂时放行（后续可以按需逐步收紧）
                 .anyRequest().permitAll();

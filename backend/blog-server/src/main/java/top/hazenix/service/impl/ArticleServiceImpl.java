@@ -24,6 +24,8 @@ import top.hazenix.mapper.*;
 import top.hazenix.query.ArticleListQuery;
 import top.hazenix.result.PageResult;
 import top.hazenix.service.ArticleService;
+import top.hazenix.service.RecommendService;
+import top.hazenix.service.UserBehaviorService;
 import top.hazenix.vo.ArticleDetailVO;
 import top.hazenix.vo.ArticleShortVO;
 
@@ -49,6 +51,10 @@ public class ArticleServiceImpl implements ArticleService {
     private final CommentsMapper commentsMapper;
 
     private final UserArticleMapper userArticleMapper;
+
+    private final UserBehaviorService userBehaviorService;
+
+    private final RecommendService recommendService;
     /**
      * 获取最新的文章列表
      * @param i
@@ -314,6 +320,9 @@ public class ArticleServiceImpl implements ArticleService {
                             .likeCount(articleMapper.getById(id).getLikeCount()+1)
                             .build();
                 articleMapper.update(article);
+                // 记录点赞行为并刷新推荐
+                userBehaviorService.recordLike(userId, id);
+                recommendService.refreshUserRecommendations(userId);
             }
         }
 
@@ -375,6 +384,9 @@ public class ArticleServiceImpl implements ArticleService {
                     .favoriteCount(articleMapper.getById(id).getFavoriteCount()+1)
                     .build();
             articleMapper.update(article);
+            // 记录收藏行为并刷新推荐
+            userBehaviorService.recordFavorite(userId, id);
+            recommendService.refreshUserRecommendations(userId);
         }
 
     }

@@ -198,11 +198,9 @@ public class RecommendServiceImpl implements RecommendService {
         log.info("开始重算内容相似度矩阵");
         List<Article> allArticles = articleMapper.listAllForScoring();
         Map<Long, Set<Integer>> articleTagsMap = new HashMap<>();
-        Map<Long, Long> articleCategoryMap = new HashMap<>();
 
         for (Article a : allArticles) {
             articleTagsMap.put(a.getId(), new HashSet<>(articleTagsMapper.getListByArticleId(a.getId())));
-            articleCategoryMap.put(a.getId(), a.getCategoryId());
         }
 
         for (Article a : allArticles) {
@@ -212,7 +210,8 @@ public class RecommendServiceImpl implements RecommendService {
                 double sim = contentEngine.articleSimilarity(
                         a.getId(), b.getId(),
                         articleTagsMap.get(a.getId()), articleTagsMap.get(b.getId()),
-                        articleCategoryMap.get(a.getId()), articleCategoryMap.get(b.getId()));
+                        a.getCategoryId() != null ? a.getCategoryId().longValue() : null,
+                        b.getCategoryId() != null ? b.getCategoryId().longValue() : null);
                 if (sim > 0) {
                     similarities.put(b.getId(), sim);
                 }

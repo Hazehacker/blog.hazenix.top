@@ -6,11 +6,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
+import top.hazenix.context.BaseContext;
 import top.hazenix.constant.ArticleConstants;
 import top.hazenix.query.ArticleListQuery;
 import top.hazenix.result.Result;
 import top.hazenix.service.ArticleService;
 import top.hazenix.service.PopularArticleService;
+import top.hazenix.service.RecommendService;
 import top.hazenix.vo.ArticleDetailVO;
 import top.hazenix.vo.ArticleShortVO;
 
@@ -25,6 +27,7 @@ public class ArticleController {
 
     private final ArticleService articleService;
     private final PopularArticleService popularArticleService;
+    private final RecommendService recommendService;
 
     /**
      * 获取文章列表（用于用户端）
@@ -88,12 +91,11 @@ public class ArticleController {
      * @return
      */
     @GetMapping("/recommended")
-    public Result getRecommendedArticles(){
+    public Result getRecommendedArticles(@RequestParam(defaultValue = "10") Integer size){
         log.info("获取推荐文章");
-        //TODO 后期做个性化推荐的时候再实现
-//        List<ArticleDetailVO> list = articleService.getRecommendedArticles(5);
-//        return Result.success(list);
-        return Result.success();
+        Long userId = BaseContext.getCurrentId();
+        List<ArticleShortVO> list = recommendService.getRecommendations(userId, size);
+        return Result.success(list);
     }
     //### 2.10 获取推荐文章
     //- **URL**: `GET /user/articles/recommended`
