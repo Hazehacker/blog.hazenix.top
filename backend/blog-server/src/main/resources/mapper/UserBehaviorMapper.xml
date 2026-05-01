@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.hazenix.mapper.UserBehaviorMapper">
+
+    <insert id="insert" parameterType="top.hazenix.entity.UserBehavior" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_behavior (user_id, article_id, behavior_type, duration, create_time)
+        VALUES (#{userId}, #{articleId}, #{behaviorType}, #{duration}, #{createTime})
+    </insert>
+
+    <select id="getByUserId" resultType="top.hazenix.entity.UserBehavior">
+        SELECT id, user_id, article_id, behavior_type, duration, create_time
+        FROM user_behavior WHERE user_id = #{userId}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="getByArticleId" resultType="top.hazenix.entity.UserBehavior">
+        SELECT id, user_id, article_id, behavior_type, duration, create_time
+        FROM user_behavior WHERE article_id = #{articleId}
+    </select>
+
+    <select id="countByUserId" resultType="int">
+        SELECT COUNT(*) FROM user_behavior WHERE user_id = #{userId}
+    </select>
+
+    <select id="getAllActiveUserIds" resultType="java.lang.Long">
+        SELECT DISTINCT user_id FROM user_behavior
+    </select>
+
+    <select id="getAllActiveArticleIds" resultType="java.lang.Long">
+        SELECT DISTINCT article_id FROM user_behavior
+    </select>
+
+    <select id="countByArticleId" resultType="int">
+        SELECT COUNT(*) FROM user_behavior WHERE article_id = #{articleId}
+    </select>
+
+    <select id="getByUserIdAndArticleId" resultType="top.hazenix.entity.UserBehavior">
+        SELECT id, user_id, article_id, behavior_type, duration, create_time
+        FROM user_behavior WHERE user_id = #{userId} AND article_id = #{articleId}
+    </select>
+
+    <select id="listAll" resultType="top.hazenix.entity.UserBehavior">
+        SELECT id, user_id, article_id, behavior_type, duration, create_time
+        FROM user_behavior
+        ORDER BY create_time DESC
+    </select>
+</mapper>
