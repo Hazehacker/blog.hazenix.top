@@ -111,31 +111,40 @@ import { Clock } from '@element-plus/icons-vue'
 // 更新记录数据（前端静态数据）
 const updates = ref([
   {
-    id: '2025-10-13',
-    version: 'v0.1',
-    title: '项目立项',
-    isImportant: false,
-    type: 'other',
-    releaseDate: '2025-10-13',
-    content: '受到学校大佬的启发，埋下打造个人博客的种子，确定方向与目标。'
-  },
-  {
-    id: '2025-11-05',
-    version: 'v1.0',
-    title: '首版上线',
+    id: '2026-05-01',
+    version: 'v2.0',
+    title: '个性化推荐系统',
     isImportant: true,
     type: 'feature',
-    releaseDate: '2025-11-05',
-    content: '完成核心功能与基础页面，部署上线，开启公开访问。'
+    releaseDate: '2026-05-01',
+    content: '实现完整的个性化推荐系统，包含三路混合推荐引擎（内容推荐 40% + 协同过滤 40% + 热度 20%）。匿名用户显示综合热度推荐，登录用户基于行为个性化推荐。注册时支持兴趣标签选择，冷启动用户先基于兴趣标签推荐。包含用户行为追踪（浏览、点赞、收藏）、文章相似度矩阵定时更新、Redis 缓存预计算。'
   },
   {
-    id: '2025-11-07',
-    version: 'v1.0.1',
-    title: '微调与正式发布',
+    id: '2026-05-01',
+    version: 'v1.x',
+    title: '每日邮件通知系统',
+    isImportant: false,
+    type: 'feature',
+    releaseDate: '2026-05-01',
+    content: '新增每日邮件通知功能，支持定时发送博客更新给订阅用户。包含邮件 HTML 渲染器、动态调度器、管理员配置面板、链接访问追踪（统计通知邮件中的链接点击）。'
+  },
+  {
+    id: '2026-04-30',
+    version: 'v1.x',
+    title: '游客评论与IP限流',
+    isImportant: false,
+    type: 'feature',
+    releaseDate: '2026-04-30',
+    content: '支持游客（匿名用户）发表评论，采用_identicon_生成唯一头像。增加基于 IP 的评论限流策略，防止刷屏。'
+  },
+  {
+    id: '2026-04-29',
+    version: 'v1.x',
+    title: '热门文章批量任务',
     isImportant: false,
     type: 'optimization',
-    releaseDate: '2025-11-07',
-    content: '根据反馈进行样式与交互微调，完成测试与材料编写，正式发布。'
+    releaseDate: '2026-04-29',
+    content: '新增热门文章定时任务（每日凌晨 1 点），基于加权热度评分（阅读×1 + 点赞×10 + 收藏×20）结合时间衰减计算。引入 Redis 缓存配合数据库兜底，支持异步重新计算。'
   },
   {
     id: '2025-12-19',
@@ -147,13 +156,31 @@ const updates = ref([
     content: '修复与优化文章展示页面，提升了美观度；增加了微信联系方式'
   },
   {
-    id: '2025-3-8',
-    version: 'v1.0.2',
-    title: '优化文章展示',
+    id: '2025-11-07',
+    version: 'v1.0.1',
+    title: '微调与正式发布',
+    isImportant: false,
+    type: 'optimization',
+    releaseDate: '2025-11-07',
+    content: '根据反馈进行样式与交互微调，完成测试与材料编写，正式发布。'
+  },
+  {
+    id: '2025-11-05',
+    version: 'v1.0',
+    title: '首版上线',
     isImportant: true,
-    type: 'bugfix',
-    releaseDate: '2025-12-19',
-    content: '优化前端细节；引入Spring Security框架；新增监控系统'
+    type: 'feature',
+    releaseDate: '2025-11-05',
+    content: '完成核心功能与基础页面，部署上线，开启公开访问。'
+  },
+  {
+    id: '2025-10-13',
+    version: 'v0.1',
+    title: '项目立项',
+    isImportant: false,
+    type: 'other',
+    releaseDate: '2025-10-13',
+    content: '受到学校大佬的启发，埋下打造个人博客的种子，确定方向与目标。'
   }
 ])
 
