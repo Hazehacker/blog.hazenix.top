@@ -23,6 +23,7 @@ import top.hazenix.entity.UserArticle;
 import top.hazenix.mapper.*;
 import top.hazenix.query.ArticleListQuery;
 import top.hazenix.result.PageResult;
+import top.hazenix.service.ArticleNotifyService;
 import top.hazenix.service.ArticleService;
 import top.hazenix.service.RecommendService;
 import top.hazenix.service.UserBehaviorService;
@@ -55,6 +56,8 @@ public class ArticleServiceImpl implements ArticleService {
     private final UserBehaviorService userBehaviorService;
 
     private final RecommendService recommendService;
+
+    private final ArticleNotifyService articleNotifyService;
     /**
      * 获取最新的文章列表
      * @param i
@@ -170,6 +173,11 @@ public class ArticleServiceImpl implements ArticleService {
         article.setStatus(articleDTO.getStatus());
         articleMapper.insert(article);
 
+        // notify subscribers on first publish
+        if (article.getStatus() != null && article.getStatus() == 0) {
+            articleNotifyService.notifySubscribers(article);
+        }
+
         Long id = article.getId();
         //插入article_tags表
         if (articleDTO.getTagIds()!=null && articleDTO.getTagIds().size()>0) {
@@ -203,6 +211,10 @@ public class ArticleServiceImpl implements ArticleService {
         article.setId(id);
         BeanUtils.copyProperties(articleDTO,article);
         articleMapper.update(article);
+        // notify subscribers on publish
+        if (article.getStatus() != null && article.getStatus() == 0) {
+            articleNotifyService.notifySubscribers(article);
+        }
         //更新这篇文章关联的标签（article_tags表）
         //先删除
         articleTagsMapper.deleteByArticleIds(Arrays.asList(id));
