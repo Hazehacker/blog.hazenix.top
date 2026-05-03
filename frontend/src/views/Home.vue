@@ -50,6 +50,9 @@
         </div>
       </div>
     </div>
+
+    <!-- 站点互动按钮 -->
+    <SiteActionButtons />
   </div>
 </template>
 
@@ -65,6 +68,7 @@ import ArticleList from '@/components/article/ArticleList.vue'
 import UserCard from '@/components/common/UserCard.vue'
 import PopularArticles from '@/components/article/PopularArticles.vue'
 import ThemeGuide from '@/components/common/ThemeGuide.vue'
+import SiteActionButtons from '@/components/common/SiteActionButtons.vue'
 
 const route = useRoute()
 const router = useRouter()

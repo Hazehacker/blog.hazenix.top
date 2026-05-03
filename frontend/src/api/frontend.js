@@ -17,5 +17,19 @@ export const frontendApi = {
     // 获取更新记录列表（公开，无需登录）
     getUpdates(params = {}) {
         return request.get('/user/updates', { params })
+    },
+
+    // ========== 订阅与互动相关 ==========
+    // 订阅文章
+    subscribeArticle(data) {
+        return request.post('/user/subscription/subscribe', data)
+    },
+    // 催更
+    urgeArticle() {
+        return request.post('/user/urge')
+    },
+    // 喜欢本站
+    likeSite() {
+        return request.post('/user/site-like')
     }
 }
