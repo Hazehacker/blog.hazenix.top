@@ -27,7 +27,7 @@ public class ArticleNotifyServiceImpl implements ArticleNotifyService {
     @Override
     @Async
     public void notifySubscribers(Article article) {
-        var subscribers = subscriptionMapper.listActive();
+        java.util.List<ArticleSubscription> subscribers = subscriptionMapper.listActive();
         if (subscribers.isEmpty()) {
             log.info("No active subscribers for article {}", article.getId());
             return;

@@ -37,8 +37,8 @@ public class SubscriptionAdminController {
 
     @GetMapping("/export")
     public Result<java.util.List<String>> export() {
-        var subs = mapper.listActive();
-        var emails = subs.stream().map(ArticleSubscription::getEmail).collect(Collectors.toList());
+        java.util.List<ArticleSubscription> subs = mapper.listActive();
+        java.util.List<String> emails = subs.stream().map(ArticleSubscription::getEmail).collect(Collectors.toList());
         return Result.success(emails);
     }
 }
