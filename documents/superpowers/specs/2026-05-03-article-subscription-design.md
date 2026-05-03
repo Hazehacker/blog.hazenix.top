@@ -18,7 +18,7 @@
 
 ### 首页三按钮
 
-- 喜欢本站：localStorage 标记，只可点一次，toast 感谢语
+- 喜欢本站：localStorage 标记，只可点一次，toast 感谢语（计算次数，次数会进行存储）
 - 订阅文章：弹窗输入邮箱 → 直接订阅（无需确认） + 显示 `/feed` 链接供复制
 - 催更：点击 → 后端记录次数 → toast "本月已有 X 人催更，快马加鞭更新中！"
 
@@ -72,7 +72,49 @@ CREATE TABLE article_urge (
 );
 ```
 
-初始化：插入当月记录。
+### site_like 表（喜欢本站）
+
+```sql
+CREATE TABLE site_like (
+  id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+  ip_hash     VARCHAR(64)  NOT NULL COMMENT 'IP 哈希值，防刷量',
+  created_at  DATETIME     NOT NULL,
+  UNIQUE KEY uk_ip (ip_hash)
+);
+```
+
+初始化：插入当月记录（urge）；site_like 无需初始化。
+
+---
+
+## 4.1 后台管理面板
+
+均挂在 `/admin/**`，走已有 admin JWT 拦截器。
+
+**订阅管理：**
+```
+GET  /admin/subscription/list?page=&size=
+     → 分页 { id, email, subscribeAt, status }
+     → 可删除（soft delete）或批量退订
+
+DELETE /admin/subscription/{id}
+     → 物理删除记录
+
+POST  /admin/subscription/export
+     → 导出邮箱列表 CSV
+```
+
+**催更统计：**
+```
+GET  /admin/urge/stats
+     → 返回各月催更次数列表（含当月）
+```
+
+**喜欢统计：**
+```
+GET  /admin/site-like/stats
+     → { totalCount, todayCount, ipList（含分页） }
+```
 
 ---
 
@@ -107,7 +149,7 @@ CREATE TABLE article_urge (
 **喜欢本站：**
 1. 检查 `localStorage.getItem('site_liked')`
 2. 若已有标记 → toast "你已喜欢过啦！" → 退出
-3. 若无 → `localStorage.setItem('site_liked', '1')` → 数字 +1（前端写死 +1，无后端） → toast "感谢你的支持！"
+3. 若无 → 获取 IP（前端无法直接获取，用请求后端接口代替） → `POST /user/site-like` 记录到数据库 → `localStorage.setItem('site_liked', '1')` → 后端返回总数 → 前端显示 → toast "感谢你的支持！"
 4. 按钮变为 disabled 状态 + 文字改为"已喜欢"
 
 **订阅文章：**
@@ -134,7 +176,18 @@ subscribeArticle(data) {
 },
 urgeArticle() {
   return request.post('/user/urge')
+},
+likeSite() {
+  return request.post('/user/site-like')
 }
+```
+
+### 5.5 后端喜欢接口
+
+```
+POST /user/site-like
+  → 200 → { totalCount: 42 }
+  → 409 → { message: "已喜欢过" }
 ```
 
 ---
@@ -198,17 +251,24 @@ POST /user/urge
 |---|---|---|
 | 三按钮组件 | `frontend/src/components/common/SiteActionButtons.vue` | 新增 |
 | 首页入口 | `frontend/src/views/Home.vue` | 修改：加 `<SiteActionButtons />` |
-| 前端 API | `frontend/src/api/frontend.js` | 修改：加 subscribeArticle, urgeArticle |
+| 前端 API | `frontend/src/api/frontend.js` | 修改：加 subscribeArticle, urgeArticle, likeSite |
 | 订阅实体 | `backend/blog-pojo/src/main/java/top/hazenix/entity/ArticleSubscription.java` | 新增 |
 | 催更实体 | `backend/blog-pojo/src/main/java/top/hazenix/entity/ArticleUrge.java` | 新增 |
+| 喜欢实体 | `backend/blog-pojo/src/main/java/top/hazenix/entity/SiteLike.java` | 新增 |
 | 发送日志实体 | `backend/blog-pojo/src/main/java/top/hazenix/entity/ArticleNotifyLog.java` | 新增 |
 | 订阅 Mapper | `backend/blog-server/.../mapper/ArticleSubscriptionMapper.java` (+ xml) | 新增 |
 | 催更 Mapper | `backend/blog-server/.../mapper/ArticleUrgeMapper.java` (+ xml) | 新增 |
+| 喜欢 Mapper | `backend/blog-server/.../mapper/SiteLikeMapper.java` (+ xml) | 新增 |
 | 订阅 Service | `backend/blog-server/.../service/ArticleSubscriptionService.java` (+ Impl) | 新增 |
 | 催更 Service | `backend/blog-server/.../service/ArticleUrgeService.java` (+ Impl) | 新增 |
+| 喜欢 Service | `backend/blog-server/.../service/SiteLikeService.java` (+ Impl) | 新增 |
 | 订阅 Controller | `backend/blog-server/.../controller/user/ArticleSubscriptionController.java` | 新增 |
 | 催更 Controller | `backend/blog-server/.../controller/user/ArticleUrgeController.java` | 新增 |
+| 喜欢 Controller | `backend/blog-server/.../controller/user/SiteLikeController.java` | 新增 |
 | 退订 Controller | `backend/blog-server/.../controller/web/UnsubscribeController.java` | 新增 |
+| 后台管理 Controller | `backend/blog-server/.../controller/admin/SubscriptionAdminController.java` | 新增 |
+| 后台管理 Controller | `backend/blog-server/.../controller/admin/UrgeAdminController.java` | 新增 |
+| 后台管理 Controller | `backend/blog-server/.../controller/admin/SiteLikeAdminController.java` | 新增 |
 | 公开退订接口 | `SecurityConfig` | 修改：放行 `/api/unsubscribe` |
 | 文章 Service | `ArticleServiceImpl.java` | 修改：发布时触发订阅邮件 |
 | SQL | `documents/sql/article_subscription.sql` | 新增 |
@@ -218,11 +278,14 @@ POST /user/urge
 ## 9. 验证清单
 
 - [ ] 三按钮渲染正常，hover 效果正确
-- [ ] "喜欢本站"点一次后 disabled，刷新页面保持 disabled
+- [ ] "喜欢本站"点一次后 disabled，刷新页面保持 disabled，后端记录 +1
 - [ ] "订阅文章"弹窗可输入邮箱并订阅成功
 - [ ] 订阅弹窗显示 /feed URL，复制按钮有效
-- [ ] "催更"toast 显示当月人数
+- [ ] "催更"toast 显示当月人数，后端累计 +1
 - [ ] 后端收到订阅请求写入数据库
 - [ ] 文章发布后订阅者收到邮件
 - [ ] 邮件底部退订链接可退订
 - [ ] 同一邮箱重复订阅返回 409
+- [ ] 后台：订阅列表可分页查看 / 删除 / 导出
+- [ ] 后台：催更统计可按月查看
+- [ ] 后台：喜欢统计可查看总数 / 今日数 / IP 列表
