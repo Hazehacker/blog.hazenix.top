@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.hazenix.mapper.ArticleSubscriptionMapper">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO article_subscription (email, unsubscribe_token, status, subscribe_at)
+        VALUES (#{email}, #{unsubscribeToken}, #{status}, #{subscribeAt})
+    </insert>
+    <select id="getByEmail" resultType="top.hazenix.entity.ArticleSubscription">
+        SELECT * FROM article_subscription WHERE email = #{email}
+    </select>
+    <select id="getByUnsubscribeToken" resultType="top.hazenix.entity.ArticleSubscription">
+        SELECT * FROM article_subscription WHERE unsubscribe_token = #{token}
+    </select>
+    <select id="listActive" resultType="top.hazenix.entity.ArticleSubscription">
+        SELECT * FROM article_subscription WHERE status = 1
+    </select>
+    <update id="updateStatus">
+        UPDATE article_subscription SET status = #{status} WHERE email = #{email}
+    </update>
+    <select id="pageQuery" resultType="top.hazenix.entity.ArticleSubscription">
+        SELECT id, email, status, subscribe_at FROM article_subscription ORDER BY subscribe_at DESC
+    </select>
+    <select id="getById" resultType="top.hazenix.entity.ArticleSubscription">
+        SELECT * FROM article_subscription WHERE id = #{id}
+    </select>
+</mapper>

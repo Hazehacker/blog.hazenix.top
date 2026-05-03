@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.hazenix.mapper.ArticleUrgeMapper">
+    <select id="getByMonth" resultType="top.hazenix.entity.ArticleUrge">
+        SELECT * FROM article_urge WHERE urge_month = #{month}
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO article_urge (urge_month, count) VALUES (#{urgeMonth}, #{count})
+    </insert>
+    <update id="incrementCount">
+        UPDATE article_urge SET count = count + 1 WHERE urge_month = #{month}
+    </update>
+    <select id="listAll" resultType="top.hazenix.entity.ArticleUrge">
+        SELECT * FROM article_urge ORDER BY urge_month DESC
+    </select>
+</mapper>
