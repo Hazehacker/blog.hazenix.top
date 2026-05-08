@@ -11,6 +11,7 @@ import top.hazenix.constant.ErrorCode;
 import top.hazenix.constant.MessageConstant;
 import top.hazenix.constant.ArticleConstants;
 import top.hazenix.constant.InteractionConstants;
+import top.hazenix.constant.RecommendConstants;
 import top.hazenix.constant.UserConstants;
 import top.hazenix.exception.BussinessException;
 import top.hazenix.context.BaseContext;
@@ -26,6 +27,7 @@ import top.hazenix.result.PageResult;
 import top.hazenix.service.ArticleNotifyService;
 import top.hazenix.service.ArticleService;
 import top.hazenix.service.RecommendService;
+import top.hazenix.service.impl.RecommendCacheService;
 import top.hazenix.service.UserBehaviorService;
 import top.hazenix.vo.ArticleDetailVO;
 import top.hazenix.vo.ArticleShortVO;
@@ -58,6 +60,8 @@ public class ArticleServiceImpl implements ArticleService {
     private final RecommendService recommendService;
 
     private final ArticleNotifyService articleNotifyService;
+
+    private final RecommendCacheService recommendCacheService;
     /**
      * 获取最新的文章列表
      * @param i
@@ -171,6 +175,10 @@ public class ArticleServiceImpl implements ArticleService {
         article.setViewCount(ArticleConstants.INITIAL_VIEW_COUNT);
         article.setIsTop(ArticleConstants.IS_TOP_NO);//默认不置顶
         article.setStatus(articleDTO.getStatus());
+        // 设置推荐度，默认为3
+        article.setRecommendLevel(articleDTO.getRecommendLevel() != null
+            ? articleDTO.getRecommendLevel()
+            : RecommendConstants.RECOMMEND_LEVEL_DEFAULT);
         articleMapper.insert(article);
 
         // notify subscribers on first publish
@@ -210,6 +218,14 @@ public class ArticleServiceImpl implements ArticleService {
         Article article = new Article();
         article.setId(id);
         BeanUtils.copyProperties(articleDTO,article);
+        // 检查推荐度是否变化，变化时清除缓存
+        Integer newLevel = articleDTO.getRecommendLevel();
+        if (newLevel != null) {
+            Article existing = articleMapper.getById(id);
+            if (existing == null || !newLevel.equals(existing.getRecommendLevel())) {
+                recommendCacheService.evictAllRecommendations();
+            }
+        }
         articleMapper.update(article);
         // notify subscribers on publish
         if (article.getStatus() != null && article.getStatus() == 0) {
@@ -248,6 +264,12 @@ public class ArticleServiceImpl implements ArticleService {
         article.setId(id);
         article.setStatus(status);
         articleMapper.update(article);
+    }
+
+    @Override
+    public void updateRecommendLevel(Long id, Integer level) {
+        articleMapper.updateRecommendLevel(id, level);
+        recommendCacheService.evictAllRecommendations();
     }
     /**
      * (用户浏览之后触发)更新文章浏览量

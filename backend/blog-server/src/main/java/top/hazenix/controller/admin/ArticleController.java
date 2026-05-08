@@ -11,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import top.hazenix.constant.ErrorCode;
 import top.hazenix.constant.MessageConstant;
 import top.hazenix.constant.DefaultConstants;
@@ -153,6 +155,21 @@ public class ArticleController {
     public Result updateArticleStatus(@PathVariable Long id,@PathVariable Integer status){
         log.info("更新文章状态：{}",id);
         articleService.updateArticleStatus(id,status);
+        return Result.success();
+    }
+
+    /**
+     * 更新文章推荐度
+     * @param id 文章ID
+     * @param level 推荐度 0-5
+     * @return
+     */
+    @PutMapping("/{id}/recommend-level")
+    public Result updateRecommendLevel(
+            @PathVariable Long id,
+            @RequestParam @Min(0) @Max(5) Integer level) {
+        log.info("管理员修改文章 {} 推荐度为 {}", id, level);
+        articleService.updateRecommendLevel(id, level);
         return Result.success();
     }
 

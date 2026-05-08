@@ -25,6 +25,8 @@ public interface ArticleService {
 
     void updateArticleStatus(Long id, Integer status);
 
+    void updateRecommendLevel(Long id, Integer level);
+
     List<ArticleDetailVO> getArticleList(ArticleListQuery articleListQuery);
 
     ArticleDetailVO getArticleDetailBySlug(String slug);
