@@ -27,7 +27,7 @@ import top.hazenix.result.PageResult;
 import top.hazenix.service.ArticleNotifyService;
 import top.hazenix.service.ArticleService;
 import top.hazenix.service.RecommendService;
-import top.hazenix.service.impl.RecommendCacheService;
+import top.hazenix.recommend.RecommendCacheService;
 import top.hazenix.service.UserBehaviorService;
 import top.hazenix.vo.ArticleDetailVO;
 import top.hazenix.vo.ArticleShortVO;
