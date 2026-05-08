@@ -49,6 +49,9 @@ public class Article {
     @ApiModelProperty(value = "是否置顶[0:不置顶 | 1:置顶]", example = "1")
     private Integer isTop;
 
+    @ApiModelProperty(value = "推荐度[0:不推荐 | 1-5:推荐等级，默认3]", example = "3")
+    private Integer recommendLevel;
+
     @ApiModelProperty(value = "状态[0:正常 | 1:待审核 | 2:草稿]", example = "1")
     private Integer status;
 

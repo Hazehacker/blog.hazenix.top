@@ -47,6 +47,9 @@ public class ArticleShortVO implements Serializable {
     @ApiModelProperty(value = "浏览数", example = "1000")
     private Integer viewCount;
 
+    @ApiModelProperty(value = "推荐度", example = "3")
+    private Integer recommendLevel;
+
 
 
 

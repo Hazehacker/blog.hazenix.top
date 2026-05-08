@@ -4,6 +4,8 @@ package top.hazenix.dto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -33,6 +35,11 @@ public class ArticleDTO {
     
     @ApiModelProperty(value = "标签ID列表", example = "[1, 2, 3]")
     private List<Integer> tagIds;
+
+    @ApiModelProperty(value = "推荐度[0-5，默认3]", example = "3")
+    @Min(value = 0, message = "推荐度最小值为0")
+    @Max(value = 5, message = "推荐度最大值为5")
+    private Integer recommendLevel;
     
     @ApiModelProperty(value = "封面图片", example = "cover_image_url")
     private String coverImage;
