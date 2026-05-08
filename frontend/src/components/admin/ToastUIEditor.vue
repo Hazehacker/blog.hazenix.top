@@ -234,6 +234,24 @@
             <div class="space-y-2">
               <el-checkbox v-model="form.isTop">置顶文章</el-checkbox>
             </div>
+
+            <!-- 推荐度 -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                推荐度
+              </label>
+              <el-select v-model="form.recommendLevel" class="w-full" size="small">
+                <el-option :value="0" label="0 · 不推荐（屏蔽）" />
+                <el-option :value="1" label="1 · 弱" />
+                <el-option :value="2" label="2 · 较弱" />
+                <el-option :value="3" label="3 · 默认" />
+                <el-option :value="4" label="4 · 推荐" />
+                <el-option :value="5" label="5 · 精华" />
+              </el-select>
+              <span class="text-xs text-gray-400 mt-1 block">
+                影响文章在推荐位的曝光权重
+              </span>
+            </div>
           </div>
         </div>
 
@@ -460,7 +478,8 @@ const form = reactive({
   isTop: false,  // checkbox使用boolean值
   slug: '',
   metaDescription: '',
-  keywords: ''
+  keywords: '',
+  recommendLevel: 3
 })
 
 // 新建分类表单数据
@@ -556,7 +575,8 @@ const initForm = () => {
       isTop: props.article.isTop === 1 || props.article.isTop === true,
       slug: props.article.slug || '',
       metaDescription: props.article.metaDescription || '',
-      keywords: props.article.keywords || ''
+      keywords: props.article.keywords || '',
+      recommendLevel: props.article.recommendLevel ?? 3
     })
     
     // 如果编辑器已初始化，更新编辑器内容
@@ -582,7 +602,8 @@ const initForm = () => {
       isTop: false,  // checkbox使用boolean值
       slug: '',
       metaDescription: '',
-      keywords: ''
+      keywords: '',
+      recommendLevel: 3
     })
     
     // 清空编辑器内容
