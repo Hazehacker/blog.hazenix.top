@@ -108,6 +108,30 @@
           </template>
         </el-table-column>
 
+        <el-table-column label="推荐度" width="140" align="center">
+          <template #default="{ row }">
+            <el-dropdown trigger="click" @command="(lv) => changeLevel(row, lv)">
+              <el-tag
+                :type="levelTagType(row.recommendLevel)"
+                class="cursor-pointer"
+              >
+                {{ levelLabel(row.recommendLevel) }}
+              </el-tag>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item
+                    v-for="lv in [0,1,2,3,4,5]"
+                    :key="lv"
+                    :command="lv"
+                    :disabled="lv === row.recommendLevel"
+                  >
+                    {{ levelLabel(lv) }}
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </template>
+        </el-table-column>
 
         <el-table-column prop="createTime" label="创建时间" width="180">
           <template #default="{ row }">
@@ -179,6 +203,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Search, Refresh } from '@element-plus/icons-vue'
 import { adminApi } from '@/api/admin'
+import { articleApi } from '@/api/article'
 import ToastUIEditor from '@/components/admin/ToastUIEditor.vue'
 
 
@@ -223,6 +248,29 @@ const formatDate = (dateString) => {
     hour: '2-digit',
     minute: '2-digit'
   })
+}
+
+const levelLabel = (lv) => {
+  const map = { 0: '屏蔽', 1: '弱', 2: '较弱', 3: '默认', 4: '推荐', 5: '精华' }
+  return map[lv ?? 3]
+}
+
+const levelTagType = (lv) => {
+  if (lv === 0) return 'info'
+  if (lv === 5) return 'danger'
+  if (lv === 4) return 'warning'
+  return ''
+}
+
+const changeLevel = async (row, lv) => {
+  try {
+    await articleApi.updateRecommendLevel(row.id, lv)
+    row.recommendLevel = lv
+    ElMessage.success('推荐度已更新')
+  } catch (error) {
+    console.error('更新推荐度失败:', error)
+    ElMessage.error('更新推荐度失败')
+  }
 }
 
 // 加载文章列表
