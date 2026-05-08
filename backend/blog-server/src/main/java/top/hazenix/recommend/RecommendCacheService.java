@@ -66,6 +66,24 @@ public class RecommendCacheService {
         redisTemplate.delete(RecommendConstants.KEY_REC_COLD + userId);
     }
 
+    public void evictAllRecommendations() {
+        try {
+            redisTemplate.delete(RecommendConstants.KEY_REC_ANONYMOUS);
+
+            Set<String> userKeys = redisTemplate.keys(RecommendConstants.KEY_REC_USER + "*");
+            Set<String> coldKeys = redisTemplate.keys(RecommendConstants.KEY_REC_COLD + "*");
+
+            if (userKeys != null && !userKeys.isEmpty()) redisTemplate.delete(userKeys);
+            if (coldKeys != null && !coldKeys.isEmpty()) redisTemplate.delete(coldKeys);
+
+            log.info("已清除所有推荐缓存: user={}, cold={}",
+                userKeys == null ? 0 : userKeys.size(),
+                coldKeys == null ? 0 : coldKeys.size());
+        } catch (Exception e) {
+            log.error("清除推荐缓存失败", e);
+        }
+    }
+
     private void cacheZSet(String key, Map<Long, Double> scores, long ttlSeconds) {
         try {
             redisTemplate.delete(key);
