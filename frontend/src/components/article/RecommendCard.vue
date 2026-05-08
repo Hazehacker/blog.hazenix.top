@@ -1,8 +1,18 @@
 <template>
   <div
-    class="flex-shrink-0 w-72 bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 cursor-pointer overflow-hidden"
+    class="relative flex-shrink-0 w-72 bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 cursor-pointer overflow-hidden"
     @click="$emit('click', article)"
   >
+    <!-- 推荐度徽章 -->
+    <div v-if="article.recommendLevel === 5"
+         class="absolute top-2 right-2 px-2 py-0.5 bg-primary text-white text-xs rounded shadow z-10">
+      精华
+    </div>
+    <div v-else-if="article.recommendLevel === 4"
+         class="absolute top-2 right-2 px-2 py-0.5 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 text-xs rounded shadow z-10">
+      推荐
+    </div>
+
     <div class="h-36 bg-gray-100 dark:bg-gray-700 overflow-hidden" v-if="article.coverImage">
       <img :src="article.coverImage" :alt="article.title" class="w-full h-full object-cover" />
     </div>
