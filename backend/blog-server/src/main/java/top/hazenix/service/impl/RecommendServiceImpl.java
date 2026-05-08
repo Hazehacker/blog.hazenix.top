@@ -115,8 +115,8 @@ public class RecommendServiceImpl implements RecommendService {
         Map<Long, Double> finalScores = new HashMap<>();
 
         for (Article article : allArticles) {
-            if (viewedArticleIds.contains(article.getId())) continue;
             if (isBlocked(article)) continue;
+            if (viewedArticleIds.contains(article.getId())) continue;
 
             // Content score
             Set<Integer> articleTags = new HashSet<>(articleTagsMapper.getListByArticleId(article.getId()));
