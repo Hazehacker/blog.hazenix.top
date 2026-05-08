@@ -41,6 +41,18 @@ public class RecommendServiceImpl implements RecommendService {
     private final ArticleTagsMapper articleTagsMapper;
     private final UserBehaviorMapper userBehaviorMapper;
 
+    private double recommendMultiplier(Article article) {
+        Integer level = article.getRecommendLevel();
+        if (level == null) return 1.0;
+        return 1.0 + (level - RecommendConstants.RECOMMEND_LEVEL_DEFAULT)
+                     * RecommendConstants.RECOMMEND_LEVEL_STEP;
+    }
+
+    private boolean isBlocked(Article article) {
+        Integer level = article.getRecommendLevel();
+        return level != null && level == RecommendConstants.RECOMMEND_LEVEL_BLOCKED;
+    }
+
     @Override
     public List<ArticleShortVO> getRecommendations(Long userId, int size) {
         if (userId == null) {
@@ -104,6 +116,7 @@ public class RecommendServiceImpl implements RecommendService {
 
         for (Article article : allArticles) {
             if (viewedArticleIds.contains(article.getId())) continue;
+            if (isBlocked(article)) continue;
 
             // Content score
             Set<Integer> articleTags = new HashSet<>(articleTagsMapper.getListByArticleId(article.getId()));
@@ -116,9 +129,9 @@ public class RecommendServiceImpl implements RecommendService {
             // Popularity score
             double popScore = popularityEngine.score(article);
 
-            finalScores.put(article.getId(), contentScore * RecommendConstants.WEIGHT_CONTENT
+            finalScores.put(article.getId(), (contentScore * RecommendConstants.WEIGHT_CONTENT
                     + cfScore * RecommendConstants.WEIGHT_CF
-                    + popScore * RecommendConstants.WEIGHT_POPULARITY);
+                    + popScore * RecommendConstants.WEIGHT_POPULARITY) * recommendMultiplier(article));
         }
 
         // Normalize and get top N
@@ -140,13 +153,14 @@ public class RecommendServiceImpl implements RecommendService {
 
         Map<Long, Double> finalScores = new HashMap<>();
         for (Article article : allArticles) {
+            if (isBlocked(article)) continue;
             Set<Integer> articleTags = new HashSet<>(articleTagsMapper.getListByArticleId(article.getId()));
             double contentScore = contentEngine.scoreForUser(interests, articleTags);
             double popScore = popularityEngine.score(article);
 
             finalScores.put(article.getId(),
-                    contentScore * RecommendConstants.COLD_WEIGHT_CONTENT
-                    + popScore * RecommendConstants.COLD_WEIGHT_POPULARITY);
+                    (contentScore * RecommendConstants.COLD_WEIGHT_CONTENT
+                    + popScore * RecommendConstants.COLD_WEIGHT_POPULARITY) * recommendMultiplier(article));
         }
 
         List<Long> result = normalizeAndTopN(finalScores, size);
@@ -174,15 +188,16 @@ public class RecommendServiceImpl implements RecommendService {
         Map<Long, Double> scores = new HashMap<>();
         for (Article article : allArticles) {
             if (excludeIds.contains(article.getId())) continue;
+            if (isBlocked(article)) continue;
             double popScore = popularityEngine.score(article);
             // Diversity: count distinct tags
             int tagCount = articleTagsMapper.getListByArticleId(article.getId()).size();
             double diversityScore = Math.min(1.0, tagCount / 5.0);
 
             scores.put(article.getId(),
-                    popScore * RecommendConstants.ANON_WEIGHT_POPULARITY
+                    (popScore * RecommendConstants.ANON_WEIGHT_POPULARITY
                     + popScore * RecommendConstants.ANON_WEIGHT_FRESHNESS // freshness already in popScore via decay
-                    + diversityScore * RecommendConstants.ANON_WEIGHT_DIVERSITY);
+                    + diversityScore * RecommendConstants.ANON_WEIGHT_DIVERSITY) * recommendMultiplier(article));
         }
 
         Map<Long, Double> topScores = new LinkedHashMap<>();
