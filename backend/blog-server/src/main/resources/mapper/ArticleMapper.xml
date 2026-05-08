@@ -2,8 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="top.hazenix.mapper.ArticleMapper">
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        insert into article (user_id,title,content,cover_image,category_id,like_count,favorite_count,view_count,slug,status,create_time,update_time)
-        values (#{userId},#{title},#{content},#{coverImage},#{categoryId},#{likeCount},#{favoriteCount},#{viewCount},#{slug},#{status},#{createTime},#{updateTime})
+        insert into article (user_id,title,content,cover_image,category_id,like_count,favorite_count,view_count,slug,status,create_time,update_time,recommend_level)
+        values (#{userId},#{title},#{content},#{coverImage},#{categoryId},#{likeCount},#{favoriteCount},#{viewCount},#{slug},#{status},#{createTime},#{updateTime},#{recommendLevel})
     </insert>
     <update id="update">
         update article
@@ -38,6 +38,9 @@
             <if test="status != null">
                 status = #{status},
             </if>
+            <if test="recommendLevel != null">
+                recommend_level = #{recommendLevel},
+            </if>
             <if test="createTime != null">
                 create_time = #{createTime},
             </if>
@@ -53,7 +56,9 @@
             #{id}
         </foreach>
     </delete>
-
+    <update id="updateRecommendLevel">
+        UPDATE article SET recommend_level = #{level} WHERE id = #{id}
+    </update>
 
     <select id="count" resultType="java.lang.Integer">
         select count(*) from article
@@ -101,9 +106,9 @@
         select * from article order by (like_count+view_count) desc limit #{i}
     </select>
     <select id="listAllForScoring" resultType="top.hazenix.entity.Article">
-        select id, title, cover_image, like_count, favorite_count, view_count, create_time
+        select id, title, cover_image, like_count, favorite_count, view_count, create_time, category_id, recommend_level
         from article
-        where status = 0
+        where status = 0 AND (recommend_level != 0 OR recommend_level IS NULL)
     </select>
     <select id="getRelatedArticlesByTags" resultType="top.hazenix.vo.ArticleShortVO">
         SELECT a.id, a.title, a.create_time, a.like_count, a.favorite_count, a.view_count

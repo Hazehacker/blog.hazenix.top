@@ -3,6 +3,7 @@ package top.hazenix.mapper;
 
 import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import springfox.documentation.oas.mappers.LicenseMapper;
 import top.hazenix.annotation.AutoFill;
 import top.hazenix.entity.Article;
@@ -94,6 +95,13 @@ public interface ArticleMapper {
      * @param ids
      */
     void deleteByIds(List<Long> ids);
+
+    /**
+     * 更新文章推荐等级
+     * @param id 文章ID
+     * @param level 推荐等级
+     */
+    void updateRecommendLevel(@Param("id") Long id, @Param("level") Integer level);
 
     /**
      * 获取文章列表（用于用户端）
