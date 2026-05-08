@@ -67,5 +67,11 @@ public class RecommendConstants {
     // 同步计算超时 (ms)
     public static final long SYNC_COMPUTE_TIMEOUT = 500;
 
+    // 推荐度 (article.recommend_level)
+    public static final int RECOMMEND_LEVEL_BLOCKED = 0;
+    public static final int RECOMMEND_LEVEL_DEFAULT = 3;
+    public static final int RECOMMEND_LEVEL_MAX = 5;
+    public static final double RECOMMEND_LEVEL_STEP = 0.15;
+
     private RecommendConstants() {}
 }
