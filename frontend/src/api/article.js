@@ -99,6 +99,15 @@ export const articleApi = {
         })
     },
 
+    // 更新文章推荐度
+    updateRecommendLevel(id, level) {
+        return request({
+            url: `/admin/articles/${id}/recommend-level`,
+            method: 'put',
+            params: { level }
+        })
+    },
+
     // 点赞文章
     likeArticle(id) {
         return request({
@@ -230,4 +239,8 @@ export function getPopularArticles(params = {}) {
 
 export function incrementViewCount(id) {
     return articleApi.incrementViewCount(id)
+}
+
+export function updateRecommendLevel(id, level) {
+    return articleApi.updateRecommendLevel(id, level)
 }
