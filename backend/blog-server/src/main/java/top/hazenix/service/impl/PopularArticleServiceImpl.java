@@ -87,6 +87,7 @@ public class PopularArticleServiceImpl implements PopularArticleService {
             return Collections.emptyList();
         }
         return articles.stream()
+                .filter(a -> a.getRecommendLevel() == null || a.getRecommendLevel() != 0)
                 .sorted(Comparator.comparingLong(this::heatScore).reversed())
                 .limit(topN)
                 .map(a -> {
