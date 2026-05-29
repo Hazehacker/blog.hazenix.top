@@ -44,7 +44,7 @@ public class LinkController {
     @PostMapping("/apply")
     public Result applyLink(@Valid @RequestBody LinkDTO linkDTO){
         log.info("申请友链");
-        LinkService.addLink(linkDTO);
+        LinkService.applyLink(linkDTO);
         return Result.success();
     }
 }

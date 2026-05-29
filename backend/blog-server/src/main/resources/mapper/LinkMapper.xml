@@ -10,10 +10,10 @@
     <update id="updateLink">
         update link
         <set>
-            <if test="name != null and name != null">
+            <if test="name != null and name != ''">
                 name = #{name},
             </if>
-            <if test="description != null and description != ''">
+            <if test="description != null">
                 description = #{description},
             </if>
             <if test="url != null and url != ''">
@@ -43,7 +43,7 @@
         from link
         <where>
             <if test="name != null and name != ''">
-                and name like '%${name}%'
+                and name like concat('%', #{name}, '%')
             </if>
             <if test="status != null">
                 and status = #{status}
@@ -59,6 +59,12 @@
     <select id="list" resultType="top.hazenix.entity.Link">
         select id,name,description,url,avatar,sort,status,create_time
         from link
+        order by sort desc
+    </select>
+    <select id="listByStatus" resultType="top.hazenix.entity.Link">
+        select id,name,description,url,avatar,sort,status,create_time
+        from link
+        where status = #{status}
         order by sort desc
     </select>
     <select id="listPendingByCreateTimeBetween" resultType="top.hazenix.entity.Link">

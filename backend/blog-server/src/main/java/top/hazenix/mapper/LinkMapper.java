@@ -44,6 +44,12 @@ public interface LinkMapper {
 
     List<Link> list();
 
+    /**
+     * 按状态查询友链
+     * @param status 状态
+     */
+    List<Link> listByStatus(@Param("status") Integer status);
+
     List<Link> listPendingByCreateTimeBetween(@Param("start") LocalDateTime start,
                                                @Param("end") LocalDateTime end);
 }

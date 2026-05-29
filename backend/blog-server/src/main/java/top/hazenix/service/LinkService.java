@@ -15,6 +15,8 @@ public interface LinkService {
 
     void addLink(LinkDTO linkDTO);
 
+    void applyLink(LinkDTO linkDTO);
+
     void updateLink(Long id, LinkDTO linkDTO);
 
     void deleteLink(Long id);

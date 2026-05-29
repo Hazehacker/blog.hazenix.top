@@ -63,7 +63,23 @@ public class LinkServiceImpl implements LinkService {
         Link link = new Link();
         BeanUtils.copyProperties(linkDTO,link);
         link.setCreateTime(LocalDateTime.now());
-        link.setStatus(CommonStatusConstants.NORMAL);
+        // 管理端新增：默认正常状态，若 DTO 指定了状态则以其为准
+        if (link.getStatus() == null) {
+            link.setStatus(CommonStatusConstants.NORMAL);
+        }
+        linkMapper.insert(link);
+    }
+
+    /**
+     * 用户申请友链：强制为待审核状态，需管理员审核
+     * @param linkDTO
+     */
+    @Override
+    public void applyLink(LinkDTO linkDTO) {
+        Link link = new Link();
+        BeanUtils.copyProperties(linkDTO,link);
+        link.setCreateTime(LocalDateTime.now());
+        link.setStatus(CommonStatusConstants.PENDING);
         linkMapper.insert(link);
     }
 
@@ -106,8 +122,8 @@ public class LinkServiceImpl implements LinkService {
      */
     @Override
     public void updateLinkStatus(Long id) {
-        Integer status = (linkMapper.getLinkById(id).getStatus().equals(CommonStatusConstants.NORMAL)) 
-                ? CommonStatusConstants.NORMAL : CommonStatusConstants.NORMAL;
+        Integer status = (linkMapper.getLinkById(id).getStatus().equals(CommonStatusConstants.NORMAL))
+                ? CommonStatusConstants.ABNORMAL : CommonStatusConstants.NORMAL;
         Link link = Link.builder()
                 .id( id)
                 .status(status)
@@ -117,7 +133,8 @@ public class LinkServiceImpl implements LinkService {
 
     @Override
     public List<Link> listLinksUserSide() {
-        List<Link> list = linkMapper.list();
+        // 用户端只展示审核通过（正常）的友链
+        List<Link> list = linkMapper.listByStatus(CommonStatusConstants.NORMAL);
         return list;
     }
 }

@@ -120,7 +120,7 @@
       <div class="flex justify-center p-4">
         <el-pagination
           v-model:current-page="pagination.page"
-          v-model:page-size="pagination.size"
+          v-model:page-size="pagination.pageSize"
           :total="pagination.total"
           :page-sizes="[10, 20, 50, 100]"
           layout="total, sizes, prev, pager, next, jumper"
@@ -231,7 +231,7 @@ const searchForm = reactive({
 // 分页数据
 const pagination = reactive({
   page: 1,
-  size: 20,
+  pageSize: 20,
   total: 0
 })
 
@@ -290,10 +290,10 @@ const loadLinks = async () => {
   try {
     const params = {
       page: pagination.page,
-      size: pagination.size,
+      pageSize: pagination.pageSize,
       ...searchForm
     }
-    
+
     const response = await adminApi.getLinks(params)
     links.value = response.data.records || response.data
     pagination.total = response.data.total || 0
@@ -326,7 +326,7 @@ const handlePageChange = (page) => {
 }
 
 const handleSizeChange = (size) => {
-  pagination.size = size
+  pagination.pageSize = size
   pagination.page = 1
   loadLinks()
 }
