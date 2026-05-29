@@ -80,6 +80,7 @@
                 and status = #{status}
             </if>
         </where>
+        order by is_top desc, create_time desc
     </select>
     <select id="getById" resultType="top.hazenix.entity.Article">
         select * from article where id = #{id}
