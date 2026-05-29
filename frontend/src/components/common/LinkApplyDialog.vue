@@ -92,7 +92,7 @@
         </div>
         
         <div class="text-xs text-gray-500 mt-1" style="margin-bottom: 42px;">
-          支持 JPG、PNG、GIF 格式，建议尺寸 64x64 像素
+          支持上传或填写任意图片地址，建议尺寸 64x64 像素
         </div>
       </el-form-item>
     </el-form>
@@ -164,25 +164,23 @@ const rules = {
     }
   ],
   avatar: [
-    { 
+    {
       validator: (rule, value, callback) => {
         // avatar字段是可选的，如果为空则通过验证
         if (!value || value.trim() === '') {
           callback()
           return
         }
-        // 如果有值，则验证URL格式
-        const urlPattern = /^https?:\/\/.+/
-        const imagePattern = /\.(jpg|jpeg|png|gif|webp|ico)$/i
-        if (!urlPattern.test(value)) {
-          callback(new Error('请输入有效的URL地址，如：https://example.com/logo.png'))
-        } else if (!imagePattern.test(value)) {
-          callback(new Error('请输入有效的图片URL地址（支持 jpg、jpeg、png、gif、webp、ico 格式）'))
+        // 仅校验是否为合法的 http(s) URL，不限制图片扩展名
+        // 兼容无扩展名的 CDN / favicon 服务 / 带查询参数的图片地址
+        const urlPattern = /^https?:\/\/.+/i
+        if (!urlPattern.test(value.trim())) {
+          callback(new Error('请输入有效的图片地址，需以 http:// 或 https:// 开头'))
         } else {
           callback()
         }
       },
-      trigger: 'blur' 
+      trigger: 'blur'
     }
   ]
 }
