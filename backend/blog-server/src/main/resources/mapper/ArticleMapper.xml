@@ -67,7 +67,7 @@
         select id,title,status,create_time from article order by update_time desc limit #{i}
     </select>
     <select id="pageQuery" resultType="top.hazenix.vo.ArticleShortVO">
-        select id,title,status,create_time,is_top,like_count,favorite_count,view_count
+        select id,title,status,create_time,is_top,like_count,favorite_count,view_count,recommend_level
         from article
         <where>
             <if test="keyword != null and keyword != ''">
