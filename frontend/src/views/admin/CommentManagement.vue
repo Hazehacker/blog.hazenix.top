@@ -67,7 +67,7 @@
       >
         <el-table-column type="selection" width="55" />
         
-        <el-table-column prop="username" label="评论者" width="120">
+        <el-table-column prop="username" label="评论者" width="150">
           <template #default="{ row }">
             <div class="flex items-center">
               <img
@@ -75,8 +75,17 @@
                 alt="头像"
                 class="w-8 h-8 rounded-full mr-2"
               />
-              <span class="font-medium text-gray-900 dark:text-gray-100">{{ row.username }}</span>
+              <div>
+                <span class="font-medium text-gray-900 dark:text-gray-100">{{ row.username }}</span>
+                <el-tag v-if="!row.userId" size="small" type="info" class="ml-1">匿名</el-tag>
+              </div>
             </div>
+          </template>
+        </el-table-column>
+
+        <el-table-column prop="email" label="邮箱" width="180">
+          <template #default="{ row }">
+            <span class="text-sm text-gray-500 dark:text-gray-400">{{ row.email || '-' }}</span>
           </template>
         </el-table-column>
 
@@ -188,7 +197,13 @@
             class="w-12 h-12 rounded-full"
           />
           <div>
-            <h3 class="font-medium text-gray-900 dark:text-gray-100">{{ currentComment.username }}</h3>
+            <h3 class="font-medium text-gray-900 dark:text-gray-100">
+              {{ currentComment.username }}
+              <el-tag v-if="!currentComment.userId" size="small" type="info" class="ml-1">匿名</el-tag>
+            </h3>
+            <p v-if="currentComment.email" class="text-sm text-gray-500 dark:text-gray-400">
+              {{ currentComment.email }}
+            </p>
             <p class="text-sm text-gray-500 dark:text-gray-400">
               {{ formatDate(currentComment.createTime) }}
             </p>
@@ -310,8 +325,8 @@ const formatDate = (dateString) => {
 // 获取状态类型
 const getStatusType = (status) => {
   const statusMap = {
-    0: '正常',
-    1: '已删除',
+    0: 'success',
+    1: 'danger',
   }
   return statusMap[status] || 'info'
 }

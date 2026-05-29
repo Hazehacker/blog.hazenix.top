@@ -50,6 +50,9 @@ public class CommentsVO implements Serializable {
     @ApiModelProperty(value = "被回复者名称", example = "replyUsername")
     private String replyUsername;
     
+    @ApiModelProperty(value = "匿名评论者邮箱（仅管理端可见）", example = "guest@example.com")
+    private String email;
+
     @ApiModelProperty(value = "评论状态[0:正常 | 1:不展示]", example = "0")
     private Integer status;
 
