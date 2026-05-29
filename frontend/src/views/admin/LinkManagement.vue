@@ -168,16 +168,25 @@
               class="w-16 h-16 rounded-full object-cover border border-gray-200 dark:border-gray-600"
               @error="handleImageError"
             />
-            <el-upload
-              :action="uploadAction"
-              :headers="uploadHeaders"
-              :show-file-list="false"
-              :on-success="handleUploadSuccess"
-              :on-error="handleUploadError"
-              accept="image/*"
-            >
-              <el-button type="primary" plain>上传头像</el-button>
-            </el-upload>
+            <div class="flex-1">
+              <el-upload
+                :action="uploadAction"
+                :headers="uploadHeaders"
+                :show-file-list="false"
+                :on-success="handleUploadSuccess"
+                :on-error="handleUploadError"
+                accept="image/*"
+              >
+                <el-button type="primary" plain>上传头像</el-button>
+              </el-upload>
+              <el-input
+                v-model="form.avatar"
+                class="mt-2"
+                size="small"
+                placeholder="或直接输入图片URL地址"
+                clearable
+              />
+            </div>
           </div>
         </el-form-item>
 
@@ -263,6 +272,23 @@ const rules = {
   ],
   sort: [
     { type: 'number', message: '排序必须为数字', trigger: 'blur' }
+  ],
+  avatar: [
+    {
+      validator: (rule, value, callback) => {
+        // 头像可选；为空通过。有值时仅校验 http(s) URL 基本格式，不限制扩展名
+        if (!value || value.trim() === '') {
+          callback()
+          return
+        }
+        if (!/^https?:\/\/.+/i.test(value.trim())) {
+          callback(new Error('请输入有效的图片地址，需以 http:// 或 https:// 开头'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'blur'
+    }
   ]
 }
 
