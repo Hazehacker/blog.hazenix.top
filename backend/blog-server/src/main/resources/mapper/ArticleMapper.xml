@@ -103,7 +103,9 @@
         select * from article where slug = #{slug}
     </select>
     <select id="getPopularArticles" resultType="top.hazenix.entity.Article">
-        select * from article order by (like_count+view_count) desc limit #{i}
+        select * from article
+        where status = 0 AND (recommend_level != 0 OR recommend_level IS NULL)
+        order by (like_count+view_count) desc limit #{i}
     </select>
     <select id="listAllForScoring" resultType="top.hazenix.entity.Article">
         select id, title, cover_image, like_count, favorite_count, view_count, create_time, category_id, recommend_level
