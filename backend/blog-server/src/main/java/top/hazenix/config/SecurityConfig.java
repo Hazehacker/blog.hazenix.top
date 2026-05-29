@@ -3,6 +3,7 @@ package top.hazenix.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -29,6 +30,8 @@ public class SecurityConfig {
         http
                 // 前后端分离 + JWT，采用无状态会话
                 .csrf().disable()
+                // 启用 CORS，使其在 Security 链中生效（自动采用 CorsConfig 中的 CorsFilter 配置）
+                .cors().and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 // 统一未登录 / 权限不足返回
@@ -38,6 +41,8 @@ public class SecurityConfig {
                 .and()
                 // 配置访问控制规则
                 .authorizeRequests()
+                // 放行所有 CORS 预检请求（OPTIONS 不携带 token，必须先行放行）
+                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // 登录、注册 & 第三方登录相关接口放行
                 .antMatchers(
                         "/user/user/login",
