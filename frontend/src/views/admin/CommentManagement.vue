@@ -71,7 +71,7 @@
           <template #default="{ row }">
             <div class="flex items-center">
               <img
-                :src="row.avatar || defaultAvatar"
+                :src="getCommentAvatar(row)"
                 alt="头像"
                 class="w-8 h-8 rounded-full mr-2"
               />
@@ -192,7 +192,7 @@
         <!-- 评论者信息 -->
         <div class="flex items-center space-x-3 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
           <img
-            :src="currentComment.avatar || defaultAvatar"
+            :src="getCommentAvatar(currentComment)"
             alt="头像"
             class="w-12 h-12 rounded-full"
           />
@@ -283,6 +283,8 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh } from '@element-plus/icons-vue'
 import { adminApi } from '@/api/admin'
+import { generateIdenticon } from '@/utils/identicon'
+import { getAvatarUrl } from '@/utils/helpers'
 import avatarFallback from '@/assets/img/avatar.jpg'
 
 // 响应式数据
@@ -292,6 +294,14 @@ const articles = ref([])
 const selectedComments = ref([])
 const total = ref(0)
 const defaultAvatar = avatarFallback
+
+const getCommentAvatar = (comment) => {
+  if (!comment) return defaultAvatar
+  if (!comment.userId) {
+    return generateIdenticon(comment.username || 'anonymous')
+  }
+  return getAvatarUrl(comment.avatar, defaultAvatar) || defaultAvatar
+}
 
 // 搜索表单
 const searchForm = reactive({

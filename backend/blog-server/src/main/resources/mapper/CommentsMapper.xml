@@ -46,6 +46,7 @@
                 and status = #{status}
             </if>
         </where>
+        order by create_time desc
     </select>
     <select id="list" resultType="top.hazenix.entity.Comments">
         select * from comments
