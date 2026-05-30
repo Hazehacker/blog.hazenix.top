@@ -68,6 +68,7 @@ public class CommentsServiceImpl implements CommentsService {
         for(Comments comments:list){
             CommentsVO commentsVO = new CommentsVO();
             BeanUtils.copyProperties(comments,commentsVO);
+            commentsVO.setIsAnonymous(comments.getUserId() == null);
             if (comments.getUserId()!=null) {
                 //设置评论者头像
                 String avatar = userMapper.getById(comments.getUserId()).getAvatar();

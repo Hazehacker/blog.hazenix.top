@@ -350,7 +350,7 @@ const loadComments = async () => {
       ...searchForm
     }
     const response = await adminApi.getComments(params)
-    comments.value = response.data.list
+    comments.value = response.data.records
     total.value = response.data.total
   } catch (error) {
     console.error('加载评论列表失败:', error)
