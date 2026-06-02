@@ -176,7 +176,7 @@ const openGithub = () => {
 }
 //点击按钮之后，打开csdn
 const openCSDN = () => {
-  window.open('https://github.com/HazeHacker', '_blank')
+  window.open('https://blog.csdn.net/Hazehacker', '_blank')
 }
 
 const handleCommand = async (command) => {
