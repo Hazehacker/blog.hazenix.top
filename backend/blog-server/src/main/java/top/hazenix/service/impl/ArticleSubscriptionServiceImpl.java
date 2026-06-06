@@ -20,8 +20,16 @@ public class ArticleSubscriptionServiceImpl implements ArticleSubscriptionServic
     @Override
     public void subscribe(String email) {
         ArticleSubscription existing = mapper.getByEmail(email);
-        if (existing != null && existing.getStatus() == 1) {
-            throw new RuntimeException("该邮箱已订阅");
+        if (existing != null) {
+            if (existing.getStatus() == 1) {
+                throw new RuntimeException("该邮箱已订阅");
+            }
+            // Previously unsubscribed — reactivate with a fresh token
+            byte[] bytes = new byte[32];
+            RANDOM.nextBytes(bytes);
+            String newToken = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+            mapper.resubscribe(email, newToken, LocalDateTime.now());
+            return;
         }
         byte[] bytes = new byte[32];
         RANDOM.nextBytes(bytes);

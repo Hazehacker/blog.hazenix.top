@@ -1,7 +1,67 @@
 # 文章订阅 + 首页三按钮 — 设计文档
 
-- 日期：2026-05-03
+- 日期：2026-05-03（更新：2026-06-06）
 - 范围：首页底部三按钮（喜欢/订阅/催更）+ 文章订阅邮件系统（无确认流程 + /feed 方式）
+
+---
+
+## 0. 变更日志（2026-06-06 深度审查与修复）
+
+### 新增功能
+
+**RSS Feed 实现**（`FeedController.java`）
+- 新增 `GET /feed` 端点，返回 `application/rss+xml`，无需鉴权
+- 查询最新 20 篇已发布文章（`status=0`，按 `create_time desc`）
+- Item link 优先使用 `slug`，无 slug 则用 `id`
+- Description 字段：剥离 HTML 标签后取前 300 字
+- 日期格式：RFC 822（符合 RSS 2.0 规范），时区 `Asia/Shanghai`
+- `atom:link` self-referencing 指向生产域名
+
+**前端订阅弹窗恢复 RSS 入口**（`SiteActionButtons.vue`）
+- 恢复"或使用 RSS 阅读器"分隔线
+- 新增 feedUrl 输入框（只读）+ 复制按钮 + 打开按钮
+- `feedUrl` = `${VITE_API_BASE_URL}/feed`（开发/生产均适配）
+
+### Bug 修复
+
+| # | 文件 | 根本原因 | 修复方案 |
+|---|---|---|---|
+| 1 | `BlogMailSender.java` | `getRawConfig()` 可能返回 null，之后直接访问 `.getSmtpHost()` 导致 NPE；异常在上层被 catch 吃掉，邮件静默失败 | `send()` 开头加 null 检查，抛出明确 RuntimeException |
+| 2 | `ArticleSubscriptionServiceImpl.java` | 用户退订后再次订阅：`existing.status==2` 不进入已订阅 throw，但 `mapper.insert()` 触发 UNIQUE email 约束异常，前端收到 400 "订阅失败" | 检测到 status==2 时改为 `mapper.resubscribe()`（UPDATE），同时刷新 token 和 subscribe_at |
+| 3 | `ArticleSubscriptionMapper.java` + XML | 缺少 resubscribe 方法 | 新增 `resubscribe(@Param email, token, subscribeAt)` 及对应 XML UPDATE |
+| 4 | `ArticleServiceImpl.java` | `updateArticle()` 在每次保存 `status=0` 时都触发邮件通知，包括对已发布文章的修改，导致订阅者被重复轰炸 | 读取旧 status，仅在 `旧status!=0 && 新status==0` 时通知（真正的首次发布） |
+| 5 | `ArticleNotifyServiceImpl.java` | `article.getContent()` 是 WangEditor 输出的原始 HTML，传入 `ArticleMailRenderer.render()` 后 `escapeHtml()` 将 `<p>` 转为 `&lt;p&gt;`，邮件预览显示乱码 | 发送前 `replaceAll("<[^>]+>", "")` 剥离 HTML 标签，再传入 renderer |
+| 6 | `ArticleSubscriptionController.java` | 无邮箱格式校验，空值或非法邮箱直接存入数据库 | 正则 `^[^@\s]+@[^@\s]+\.[^@\s]+$` 前置校验，失败返回 `400 邮箱格式错误` |
+
+### 架构说明
+
+**邮件发送依赖链**（调用顺序）：
+```
+ArticleServiceImpl.updateArticle()
+  → ArticleNotifyServiceImpl.notifySubscribers() [Async]
+      → ArticleSubscriptionMapper.listActive()
+      → ArticleMailRenderer.render(title, plainSummary, id, token)
+      → BlogMailSender.send(to, subject, html)
+          → NotifyConfigService.getRawConfig()  ← 需 notify_config 表有记录
+          → AesCryptoUtil.decrypt(password)    ← 需 blog.notify.encrypt-key 配置
+          → JavaMailSenderImpl.send()          ← 需 SMTP 可达
+```
+
+**邮件系统前置条件**（任一不满足则静默失败，日志可见）：
+1. `notify_config` 表有 id=1 的行（`enabled` 字段当前不影响文章订阅，仅影响日报）
+2. SMTP 账号密码正确，服务器可达
+3. `application-test.yml` / `application-prod.yml` 中 `blog.notify.encrypt-key` 已配置
+
+**再订阅流程**（修复后）：
+```
+POST /user/subscription/subscribe { email }
+  ├── email 格式校验（新增）
+  ├── 查 article_subscription WHERE email = ?
+  │   ├── null    → INSERT（新用户首次订阅）
+  │   ├── status=1 → 抛 "该邮箱已订阅" → 409
+  │   └── status=2 → UPDATE 刷新 token + subscribe_at → 200（修复退订再订）
+  └── return 200
+```
 
 ---
 

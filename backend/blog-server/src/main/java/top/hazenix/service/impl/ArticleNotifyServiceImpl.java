@@ -34,12 +34,16 @@ public class ArticleNotifyServiceImpl implements ArticleNotifyService {
         }
 
         String subject = "【Hazenix Blog】新文章：" + article.getTitle();
+        // Strip HTML tags so the email preview shows plain text
+        String plainSummary = article.getContent() != null
+                ? article.getContent().replaceAll("<[^>]+>", "").trim()
+                : "";
         int success = 0, fail = 0;
         for (ArticleSubscription sub : subscribers) {
             try {
                 String html = ArticleMailRenderer.render(
                         article.getTitle(),
-                        article.getContent(),
+                        plainSummary,
                         article.getId(),
                         sub.getUnsubscribeToken()
                 );

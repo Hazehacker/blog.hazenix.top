@@ -20,6 +20,9 @@ public class BlogMailSender {
 
     public void send(String to, String subject, String htmlBody) {
         NotifyConfig config = notifyConfigService.getRawConfig();
+        if (config == null) {
+            throw new RuntimeException("邮件发送配置未初始化，请先在后台配置 SMTP");
+        }
         JavaMailSenderImpl sender = buildSender(config);
         try {
             MimeMessage message = sender.createMimeMessage();

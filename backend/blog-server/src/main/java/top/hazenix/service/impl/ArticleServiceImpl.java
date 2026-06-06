@@ -218,17 +218,17 @@ public class ArticleServiceImpl implements ArticleService {
         Article article = new Article();
         article.setId(id);
         BeanUtils.copyProperties(articleDTO,article);
+        Article existing = articleMapper.getById(id);
         // 检查推荐度是否变化，变化时清除缓存
         Integer newLevel = articleDTO.getRecommendLevel();
-        if (newLevel != null) {
-            Article existing = articleMapper.getById(id);
-            if (existing == null || !newLevel.equals(existing.getRecommendLevel())) {
-                recommendCacheService.evictAllRecommendations();
-            }
+        if (newLevel != null && (existing == null || !newLevel.equals(existing.getRecommendLevel()))) {
+            recommendCacheService.evictAllRecommendations();
         }
         articleMapper.update(article);
-        // notify subscribers on publish
-        if (article.getStatus() != null && article.getStatus() == 0) {
+        // notify subscribers only when transitioning from non-published to published
+        boolean isNowPublished = article.getStatus() != null && article.getStatus() == 0;
+        boolean wasPreviouslyPublished = existing != null && Integer.valueOf(0).equals(existing.getStatus());
+        if (isNowPublished && !wasPreviouslyPublished) {
             articleNotifyService.notifySubscribers(article);
         }
         //更新这篇文章关联的标签（article_tags表）

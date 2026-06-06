@@ -72,6 +72,18 @@
         <el-button type="primary" class="w-full" @click="handleSubscribe" :loading="subscribing">
           订阅
         </el-button>
+
+        <div class="flex items-center gap-3">
+          <span class="flex-1 h-px bg-gray-200 dark:bg-gray-600"></span>
+          <span class="text-xs text-gray-400 dark:text-gray-500">或使用 RSS 阅读器</span>
+          <span class="flex-1 h-px bg-gray-200 dark:bg-gray-600"></span>
+        </div>
+
+        <div class="flex gap-2">
+          <el-input :value="feedUrl" readonly class="flex-1 font-mono text-xs" />
+          <el-button @click="copyFeed">复制</el-button>
+          <el-button tag="a" :href="feedUrl" target="_blank">打开</el-button>
+        </div>
       </div>
     </el-dialog>
   </div>
@@ -88,10 +100,20 @@ const urgeCount = ref(0)
 const showSubscribeDialog = ref(false)
 const subscribeEmail = ref('')
 const subscribing = ref(false)
-onMounted(() => {
-  // 初始化数字显示（可从后端拉取，这里暂时写0）
-  likeCount.value = 0
-  urgeCount.value = 0
+const feedUrl = `${import.meta.env.VITE_API_BASE_URL}/feed`
+
+const copyFeed = () => {
+  navigator.clipboard.writeText(feedUrl)
+    .then(() => ElMessage.success('RSS 链接已复制'))
+    .catch(() => ElMessage.error('复制失败，请手动复制'))
+}
+onMounted(async () => {
+  const [likeRes, urgeRes] = await Promise.allSettled([
+    frontendApi.getSitelikeCount(),
+    frontendApi.getUrgeCount()
+  ])
+  likeCount.value = likeRes.status === 'fulfilled' ? (likeRes.value?.data?.totalCount ?? 0) : 0
+  urgeCount.value = urgeRes.status === 'fulfilled' ? (urgeRes.value?.data?.currentCount ?? 0) : 0
 })
 
 const handleLike = async () => {
@@ -138,10 +160,18 @@ const handleSubscribe = async () => {
   }
 }
 
+const currentMonth = () => new Date().toISOString().slice(0, 7) // YYYY-MM
+const urgeStorageKey = () => `urge_${currentMonth()}`
+
 const handleUrge = async () => {
+  if (localStorage.getItem(urgeStorageKey()) === '1') {
+    ElMessage.info(`本月已催更过啦，共 ${urgeCount.value} 人催更！`)
+    return
+  }
   try {
     const res = await frontendApi.urgeArticle()
     urgeCount.value = res.data?.currentCount || urgeCount.value + 1
+    localStorage.setItem(urgeStorageKey(), '1')
     ElMessage({
       message: `本月已有 ${urgeCount.value} 人催更，快马加鞭更新中！`,
       duration: 3000

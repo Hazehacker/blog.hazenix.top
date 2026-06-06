@@ -11,6 +11,8 @@ public interface ArticleSubscriptionMapper {
     ArticleSubscription getByUnsubscribeToken(@Param("token") String token);
     List<ArticleSubscription> listActive();
     void updateStatus(@Param("email") String email, @Param("status") Integer status);
+    void resubscribe(@Param("email") String email, @Param("token") String token,
+                     @Param("subscribeAt") java.time.LocalDateTime subscribeAt);
     com.github.pagehelper.Page<ArticleSubscription> pageQuery();
     ArticleSubscription getById(@Param("id") Long id);
 }

@@ -14,9 +14,16 @@ public class ArticleSubscriptionController {
 
     private final ArticleSubscriptionService subscriptionService;
 
+    private static final java.util.regex.Pattern EMAIL_PATTERN =
+            java.util.regex.Pattern.compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
+
     @PostMapping("/subscribe")
     public Result<Void> subscribe(@RequestBody Map<String, String> body) {
         String email = body.get("email");
+        if (email == null || email.isBlank() || !EMAIL_PATTERN.matcher(email.trim()).matches()) {
+            return Result.error("400", "邮箱格式错误");
+        }
+        email = email.trim();
         try {
             subscriptionService.subscribe(email);
             return Result.success();

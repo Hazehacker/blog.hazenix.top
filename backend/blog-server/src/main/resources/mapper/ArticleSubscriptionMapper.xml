@@ -17,6 +17,11 @@
     <update id="updateStatus">
         UPDATE article_subscription SET status = #{status} WHERE email = #{email}
     </update>
+    <update id="resubscribe">
+        UPDATE article_subscription
+        SET status = 1, unsubscribe_token = #{token}, subscribe_at = #{subscribeAt}
+        WHERE email = #{email}
+    </update>
     <select id="pageQuery" resultType="top.hazenix.entity.ArticleSubscription">
         SELECT id, email, status, subscribe_at FROM article_subscription ORDER BY subscribe_at DESC
     </select>
