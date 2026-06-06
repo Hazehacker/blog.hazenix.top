@@ -13,8 +13,9 @@
       推荐
     </div>
 
-    <div class="h-36 bg-gray-100 dark:bg-gray-700 overflow-hidden" v-if="article.coverImage">
-      <img :src="article.coverImage" :alt="article.title" class="w-full h-full object-cover" />
+    <div class="h-36 bg-gray-100 dark:bg-gray-700 overflow-hidden" v-if="article.coverImage && !coverError">
+      <img :src="article.coverImage" :alt="article.title" class="w-full h-full object-cover"
+           @error="coverError = true" />
     </div>
     <div class="h-36 bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 flex items-center justify-center" v-else>
       <span class="text-4xl text-primary/30">📄</span>
@@ -32,8 +33,12 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
+
 defineProps({
   article: { type: Object, required: true }
 })
 defineEmits(['click'])
+
+const coverError = ref(false)
 </script>

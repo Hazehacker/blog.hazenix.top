@@ -49,17 +49,14 @@ public class AliOssUtil {
             // 创建PutObject请求。
             ossClient.putObject(bucketName, objectName, new ByteArrayInputStream(bytes));
         } catch (OSSException oe) {
-            log.info("Caught an OSSException, which means your request made it to OSS, "
-                    + "but was rejected with an error response for some reason.");
-            log.info("Error Message:{}" ,oe.getErrorMessage());
-            log.info("Error Code:{}" ,oe.getErrorCode());
-            log.info("Request ID:" + oe.getRequestId());
-            log.info("Host ID:" + oe.getHostId());
+            log.error("OSS上传失败，ErrorCode:{}, ErrorMessage:{}, RequestId:{}",
+                    oe.getErrorCode(), oe.getErrorMessage(), oe.getRequestId());
+            throw new FailUploadException(top.hazenix.constant.ErrorCode.B00004,
+                    "OSS上传失败: " + oe.getErrorMessage());
         } catch (ClientException ce) {
-            log.info("Caught an ClientException, which means the client encountered "
-                    + "a serious internal problem while trying to communicate with OSS, "
-                    + "such as not being able to access the network.");
-            log.info("Error Message:" + ce.getMessage());
+            log.error("OSS客户端连接失败，ErrorMessage:{}", ce.getMessage());
+            throw new FailUploadException(top.hazenix.constant.ErrorCode.B00004,
+                    "OSS连接失败: " + ce.getMessage());
         } finally {
             if (ossClient != null) {
                 ossClient.shutdown();

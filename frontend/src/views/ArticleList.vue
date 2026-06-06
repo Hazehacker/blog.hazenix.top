@@ -31,11 +31,12 @@
             @click="goToArticle(article)"
           >
             <!-- 文章封面 -->
-            <div v-if="article.coverImage || article.cover" class="article-cover">
+            <div v-if="(article.coverImage || article.cover) && !imageErrors[article.id]" class="article-cover">
               <img
                 :src="article.coverImage || article.cover"
                 :alt="article.title"
                 class="cover-image"
+                @error="imageErrors[article.id] = true"
               />
             </div>
 
@@ -128,6 +129,7 @@ const categories = ref([])
 const tags = ref([])
 const loading = ref(false)
 const total = ref(0)
+const imageErrors = reactive({})
 
 // 搜索表单
 const searchForm = reactive({
