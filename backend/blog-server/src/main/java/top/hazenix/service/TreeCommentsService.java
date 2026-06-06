@@ -15,9 +15,13 @@ public interface TreeCommentsService {
 
     List<TreeComments> listBulletScreens();
 
-    void addTreeComments(TreeCommentsDTO treeCommentsDTO);
+    void addTreeComments(TreeCommentsDTO treeCommentsDTO, String clientIp);
 
     PageResult pageQuery(TreeCommentsQuery treeCommentsQuery);
 
     void deleteTreeComments(List<Long> ids);
+
+    void approve(Long id);
+
+    void reject(Long id);
 }

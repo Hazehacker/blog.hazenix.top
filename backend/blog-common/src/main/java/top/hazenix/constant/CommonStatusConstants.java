@@ -30,7 +30,12 @@ public class CommonStatusConstants {
      * 不展示状态（用于评论）
      */
     public static final Integer HIDDEN = 1;
-    
+
+    /**
+     * 已驳回状态（用于树洞/评论审核）
+     */
+    public static final Integer REJECTED = 2;
+
     private CommonStatusConstants() {
         // 工具类，禁止实例化
     }

@@ -3,8 +3,8 @@
 <mapper namespace="top.hazenix.mapper.TreeCommentsMapper">
     <insert id="insert">
         insert into
-            tree_comments(user_id,username,content,status,create_time)
-        values(#{userId},#{username},#{content},#{status},#{createTime})
+            tree_comments(user_id,username,content,status,create_time,email,is_anonymous,ip)
+        values(#{userId},#{username},#{content},#{status},#{createTime},#{email},#{isAnonymous},#{ip})
     </insert>
     <delete id="deleteTreeComments">
         delete from tree_comments
@@ -41,4 +41,8 @@
           AND status = 0
         ORDER BY create_time ASC
     </select>
+
+    <update id="updateStatus">
+        UPDATE tree_comments SET status = #{status} WHERE id = #{id}
+    </update>
 </mapper>

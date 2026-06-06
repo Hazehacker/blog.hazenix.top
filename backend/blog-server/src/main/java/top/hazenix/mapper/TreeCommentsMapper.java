@@ -43,4 +43,6 @@ public interface TreeCommentsMapper {
 
     List<TreeComments> listByCreateTimeBetween(@Param("start") LocalDateTime start,
                                                 @Param("end") LocalDateTime end);
+
+    void updateStatus(@Param("id") Long id, @Param("status") Integer status);
 }

@@ -27,11 +27,19 @@ public class TreeComments implements Serializable {
     @ApiModelProperty(value = "内容", example = "内容")
     private String content;
 
-    @ApiModelProperty(value = "状态[0:正常 | 1:待审核 | 2:草稿]", example = "1")
+    @ApiModelProperty(value = "状态[0:正常 | 1:待审核 | 2:已驳回]", example = "1")
     private Integer status;
 
     @ApiModelProperty(value = "创建时间", example = "2020-01-01 00:00:00")
     private LocalDateTime createTime;
 
+    @ApiModelProperty(value = "匿名用户邮箱")
+    private String email;
+
+    @ApiModelProperty(value = "是否匿名[0:否 | 1:是]", example = "0")
+    private Boolean isAnonymous;
+
+    @ApiModelProperty(value = "客户端IP")
+    private String ip;
 
 }

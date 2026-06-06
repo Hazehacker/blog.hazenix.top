@@ -58,6 +58,7 @@ public class SecurityConfig {
                         "/swagger-resources/**",
                         "/swagger-ui.html",
                         "/user/tree/list",
+                        "/user/tree",
                         "/api/notify/link-action",
                         "/api/unsubscribe"
                 ).permitAll()

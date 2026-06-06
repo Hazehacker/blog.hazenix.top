@@ -64,4 +64,26 @@ public class TreeCommentsController {
         return Result.success();
     }
 
+    /**
+     * 审核通过树洞弹幕
+     */
+    @PutMapping("/{id}/approve")
+    @CacheEvict(cacheNames = "treeCache", allEntries = true)
+    public Result approve(@PathVariable Long id) {
+        log.info("审核通过树洞弹幕：{}", id);
+        treeCommentsService.approve(id);
+        return Result.success();
+    }
+
+    /**
+     * 驳回树洞弹幕
+     */
+    @PutMapping("/{id}/reject")
+    @CacheEvict(cacheNames = "treeCache", allEntries = true)
+    public Result reject(@PathVariable Long id) {
+        log.info("驳回树洞弹幕：{}", id);
+        treeCommentsService.reject(id);
+        return Result.success();
+    }
+
 }
