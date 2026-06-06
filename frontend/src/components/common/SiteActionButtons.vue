@@ -72,18 +72,6 @@
         <el-button type="primary" class="w-full" @click="handleSubscribe" :loading="subscribing">
           订阅
         </el-button>
-        <div class="flex items-center gap-2 text-sm text-gray-400 py-2">
-          <div class="flex-1 border-t border-gray-200 dark:border-gray-600"></div>
-          <span>或</span>
-          <div class="flex-1 border-t border-gray-200 dark:border-gray-600"></div>
-        </div>
-        <div class="flex items-center gap-2">
-          <el-input :modelValue="feedUrl" readonly size="small" />
-          <el-button size="small" @click="copyFeed">复制</el-button>
-        </div>
-        <p class="text-xs text-gray-400">
-          <a :href="feedUrl" target="_blank" class="text-blue-500 hover:underline">打开 /feed</a>
-        </p>
       </div>
     </el-dialog>
   </div>
@@ -100,8 +88,6 @@ const urgeCount = ref(0)
 const showSubscribeDialog = ref(false)
 const subscribeEmail = ref('')
 const subscribing = ref(false)
-const feedUrl = ref('https://blog.hazenix.top/feed')
-
 onMounted(() => {
   // 初始化数字显示（可从后端拉取，这里暂时写0）
   likeCount.value = 0
@@ -165,11 +151,6 @@ const handleUrge = async () => {
   }
 }
 
-const copyFeed = () => {
-  navigator.clipboard.writeText(feedUrl.value).then(() => {
-    ElMessage.success('已复制')
-  })
-}
 </script>
 
 <style scoped>
