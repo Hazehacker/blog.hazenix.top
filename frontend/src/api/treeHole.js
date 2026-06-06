@@ -11,12 +11,12 @@ export const treeHoleApi = {
         })
     },
 
-    // 发送弹幕（需要认证）
+    // 发送弹幕（支持匿名，匿名需 isAnonymous=true + email 可选）
     addTreeHole(data) {
         return request({
             url: '/user/tree',
             method: 'post',
-            data  // { userId, username, content }
+            data  // { username, content, isAnonymous, email }
         })
     }
 }

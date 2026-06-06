@@ -39,18 +39,18 @@
     <div class="content_container" style="margin-top: 45px;">
       <div class="title">树洞</div>
       <div class="input_wrapper">
-        <input 
-          v-model="content" 
-          @focus="isShowSubmit = true" 
+        <input
+          v-model="content"
+          @focus="isShowSubmit = true"
           @blur="handleInputBlur"
-          type="text" 
+          type="text"
           placeholder="在这里留下自己的足迹吧..."
           maxlength="50"
           :disabled="loading"
           @keyup.enter="addTreeHoleBtn"
         >
-        <button 
-          v-show="isShowSubmit" 
+        <button
+          v-show="isShowSubmit"
           @click="addTreeHoleBtn"
           :disabled="loading"
         >
@@ -60,6 +60,35 @@
       <!-- 字符计数提示 -->
       <div class="char-count" v-if="content.length > 0">
         {{ content.length }}/50
+      </div>
+
+      <!-- 匿名表单：未登录时展示 -->
+      <div v-if="isShowSubmit && !isLoggedIn" class="anonymous-form">
+        <div class="anonymous-header">
+          <img
+            :src="anonymousAvatar"
+            class="identicon"
+            alt="头像"
+          />
+          <span class="anonymous-label">匿名发送（需后台审核）</span>
+        </div>
+        <div class="anonymous-inputs">
+          <input
+            v-model="anonymousName"
+            type="text"
+            placeholder="昵称（必填）"
+            maxlength="30"
+            @input="onAnonymousNameChange"
+            class="anonymous-field"
+          />
+          <input
+            v-model="anonymousEmail"
+            type="text"
+            placeholder="邮箱（选填，不会公开）"
+            maxlength="100"
+            class="anonymous-field"
+          />
+        </div>
       </div>
     </div>
 
@@ -96,13 +125,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Loading } from '@element-plus/icons-vue'
 import { getTreeHoleList, addTreeHole } from '@/api/treeHole.js'
 import { getToken } from '@/utils/auth.js'
 import { useUserStore } from '@/stores/user.js'
 import { useThemeStore } from '@/stores/theme.js'
+import { generateIdenticon } from '@/utils/identicon.js'
 import Galaxy from '@/Backgrounds/Galaxy/Galaxy.vue'
 
 // 响应式数据
@@ -119,11 +149,23 @@ const lastRefillTime = ref(0)         // 上次重新填充的时间戳
 const isIntervalRunning = ref(false)  // 定时器是否正在运行，防止重复启动
 const danmakuKey = ref(0)             // 弹幕组件的key，用于强制重新渲染
 
+// 匿名发送相关
+const anonymousName = ref('')
+const anonymousEmail = ref('')
+const anonymousAvatar = ref(generateIdenticon('匿名'))
+
 // 获取用户信息和主题信息
 const userStore = useUserStore()
 const themeStore = useThemeStore()
+const isLoggedIn = computed(() => !!userStore.token)
 const videoRef = ref(null)  // 视频引用
 const danmakuRef = ref(null)  // 弹幕组件引用
+
+function onAnonymousNameChange() {
+  anonymousAvatar.value = generateIdenticon(
+    anonymousName.value || '匿名'
+  )
+}
 
 /**
  * 获取默认头像
@@ -451,73 +493,64 @@ async function addTreeHoleBtn() {
     return
   }
 
-  // 检查是否登录
   const token = getToken()
-  if (!token) {
-    ElMessage.warning('请先登录后再发表弹幕')
-    return
-  }
+  let payload = { content: content.value.trim() }
 
-  // 获取用户信息
-  let userId = null
-  let username = ''
-
-  // 从 userStore 获取用户信息
-  if (userStore.userInfo) {
-    userId = userStore.userInfo.id || userStore.userInfo.userId
-    username = userStore.userInfo.username || userStore.userInfo.nickname || ''
-  } else {
-    // 如果 userStore 中没有用户信息，尝试获取
-    try {
-      await userStore.getUserInfo()
-      if (userStore.userInfo) {
-        userId = userStore.userInfo.id || userStore.userInfo.userId
-        username = userStore.userInfo.username || userStore.userInfo.nickname || ''
+  if (token) {
+    // 已登录用户：获取用户信息
+    let username = ''
+    if (userStore.userInfo) {
+      username = userStore.userInfo.username || userStore.userInfo.nickname || ''
+    } else {
+      try {
+        await userStore.getUserInfo()
+        if (userStore.userInfo) {
+          username = userStore.userInfo.username || userStore.userInfo.nickname || ''
+        }
+      } catch (error) {
+        console.error('获取用户信息失败:', error)
       }
-    } catch (error) {
-      console.error('获取用户信息失败:', error)
     }
-  }
-
-  if (!userId) {
-    ElMessage.error('无法获取用户信息，请重新登录')
-    return
-  }
-
-  if (!username) {
-    username = '匿名用户'
+    payload.username = username || '匿名用户'
+  } else {
+    // 匿名用户：校验昵称
+    if (!anonymousName.value || anonymousName.value.trim() === '') {
+      ElMessage.warning('匿名发送需要填写昵称')
+      return
+    }
+    payload.username = anonymousName.value.trim()
+    payload.isAnonymous = true
+    if (anonymousEmail.value && anonymousEmail.value.trim()) {
+      payload.email = anonymousEmail.value.trim()
+    }
   }
 
   try {
     loading.value = true
-    const res = await addTreeHole({
-      userId: userId,
-      username: username,
-      content: content.value.trim()
-    })
+    const res = await addTreeHole(payload)
 
     if (res.code === 200) {
-      ElMessage.success(res.msg || '发表成功')
-      content.value = ''           // 清空输入
-      isShowSubmit.value = false   // 隐藏提交按钮
-      
-      // 刷新列表
-      await getTreeHole()
-      
-      // 如果当前弹幕列表为空，立即填充新弹幕
-      if (treeHoleList.value.length === 0 && originalTreeHoleList.value.length > 0) {
-        treeHoleList.value = [...originalTreeHoleList.value]
-      } else if (treeHoleList.value.length > 0) {
-        // 如果当前有弹幕在播放，将新弹幕添加到原始列表即可
-        // 新弹幕会在当前弹幕播放完毕后自动加入（通过 play-end 事件）
+      if (!token) {
+        ElMessage.success('匿名弹幕已提交，审核通过后显示')
+      } else {
+        ElMessage.success(res.msg || '发表成功')
+      }
+      content.value = ''
+      anonymousName.value = ''
+      anonymousEmail.value = ''
+      isShowSubmit.value = false
+
+      if (token) {
+        await getTreeHole()
+        if (treeHoleList.value.length === 0 && originalTreeHoleList.value.length > 0) {
+          treeHoleList.value = [...originalTreeHoleList.value]
+        }
       }
     } else {
       ElMessage.error(res.msg || '发表失败')
     }
   } catch (error) {
     console.error('发表弹幕失败:', error)
-    
-    // 处理特定错误
     if (error.response) {
       const status = error.response.status
       if (status === 401) {
@@ -822,6 +855,96 @@ onUnmounted(() => {
 .loading_mask .el-icon {
   font-size: 2rem;
   color: white;
+}
+
+/* 匿名表单 */
+.anonymous-form {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  text-align: left;
+  transition: background 0.3s ease;
+}
+
+.container.dark-mode .anonymous-form {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.container.light-mode .anonymous-form {
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.anonymous-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.anonymous-header .identicon {
+  width: 28px;
+  height: 20px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.anonymous-label {
+  font-size: 0.8rem;
+  transition: color 0.3s ease;
+}
+
+.container.dark-mode .anonymous-label {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.container.light-mode .anonymous-label {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.anonymous-inputs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.anonymous-field {
+  flex: 1;
+  height: 2rem;
+  border-radius: 0.4rem;
+  outline: none;
+  padding: 0 0.6rem;
+  font-size: 0.85rem;
+  border: 1px solid;
+  transition: all 0.3s ease;
+}
+
+.container.dark-mode .anonymous-field {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.container.dark-mode .anonymous-field:focus {
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.container.dark-mode .anonymous-field::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.container.light-mode .anonymous-field {
+  background: rgba(255, 255, 255, 0.8);
+  color: #1f2937;
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+.container.light-mode .anonymous-field:focus {
+  border-color: #3b82f6;
+}
+
+.container.light-mode .anonymous-field::placeholder {
+  color: rgba(0, 0, 0, 0.4);
 }
 </style>
 

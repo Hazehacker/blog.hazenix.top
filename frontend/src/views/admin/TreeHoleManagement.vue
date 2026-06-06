@@ -38,7 +38,8 @@
         <el-select v-model="searchForm.status" placeholder="選擇狀態" clearable>
           <el-option label="全部" :value="undefined" />
           <el-option label="正常" :value="0" />
-          <el-option label="已刪除" :value="1" />
+          <el-option label="待審核" :value="1" />
+          <el-option label="已駁回" :value="2" />
         </el-select>
 
         <div class="flex space-x-2">
@@ -66,11 +67,24 @@
         
         <el-table-column prop="id" label="ID" width="80" />
 
-        <el-table-column prop="userId" label="用戶ID" width="100" />
+        <el-table-column prop="userId" label="用戶ID" width="100">
+          <template #default="{ row }">
+            <div class="flex items-center gap-1">
+              <span>{{ row.userId || '-' }}</span>
+              <el-tag v-if="row.isAnonymous" size="small" type="info">匿名</el-tag>
+            </div>
+          </template>
+        </el-table-column>
 
         <el-table-column prop="username" label="用戶名" width="120">
           <template #default="{ row }">
             <span class="font-medium text-gray-900 dark:text-gray-100">{{ row.username || '-' }}</span>
+          </template>
+        </el-table-column>
+
+        <el-table-column prop="email" label="郵箱" width="160">
+          <template #default="{ row }">
+            <span class="text-gray-500 dark:text-gray-400">{{ row.email || '-' }}</span>
           </template>
         </el-table-column>
 
@@ -99,9 +113,15 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="操作" width="150" fixed="right">
+        <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
-            <div class="flex space-x-2">
+            <div class="flex space-x-1">
+              <el-button v-if="row.status === 1" @click="handleApprove(row)" size="small" type="success" plain>
+                審批
+              </el-button>
+              <el-button v-if="row.status === 1" @click="handleReject(row)" size="small" type="warning" plain>
+                駁回
+              </el-button>
               <el-button @click="handleView(row)" size="small" type="primary" plain>
                 查看
               </el-button>
@@ -238,7 +258,8 @@ const formatDate = (dateString) => {
 const getStatusType = (status) => {
   const statusMap = {
     0: 'success',
-    1: 'danger'
+    1: 'warning',
+    2: 'danger'
   }
   return statusMap[status] || 'info'
 }
@@ -247,7 +268,8 @@ const getStatusType = (status) => {
 const getStatusText = (status) => {
   const statusMap = {
     0: '正常',
-    1: '已刪除'
+    1: '待審核',
+    2: '已駁回'
   }
   return statusMap[status] || '未知'
 }
@@ -379,6 +401,41 @@ const handleBatchDelete = async () => {
     if (error !== 'cancel') {
       console.error('批量刪除失敗:', error)
       ElMessage.error('批量刪除失敗')
+    }
+  }
+}
+
+// 審批通過
+const handleApprove = async (treeHole) => {
+  try {
+    await adminApi.approveTreeHole(treeHole.id)
+    ElMessage.success('審批通過')
+    loadTreeHoles()
+  } catch (error) {
+    console.error('審批失敗:', error)
+    ElMessage.error('審批失敗')
+  }
+}
+
+// 駁回
+const handleReject = async (treeHole) => {
+  try {
+    await ElMessageBox.confirm(
+      '確定要駁回這條樹洞嗎？',
+      '確認駁回',
+      {
+        confirmButtonText: '確定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+    await adminApi.rejectTreeHole(treeHole.id)
+    ElMessage.success('已駁回')
+    loadTreeHoles()
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('駁回失敗:', error)
+      ElMessage.error('駁回失敗')
     }
   }
 }

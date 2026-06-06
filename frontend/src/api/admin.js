@@ -236,6 +236,16 @@ export const adminApi = {
     return request.delete(`${ADMIN_BASE_URL}/tree/batch`, { data: { ids } })
   },
 
+  // 审核通过树洞
+  approveTreeHole(id) {
+    return request.put(`${ADMIN_BASE_URL}/tree/${id}/approve`)
+  },
+
+  // 驳回树洞
+  rejectTreeHole(id) {
+    return request.put(`${ADMIN_BASE_URL}/tree/${id}/reject`)
+  },
+
   // ========== 文件上传 ==========
   // 上传图片
   uploadImage(file) {
