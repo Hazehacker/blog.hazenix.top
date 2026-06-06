@@ -5,8 +5,6 @@ import { ElMessage } from 'element-plus'
 
 const routes = [
   // 首页路由
-  { path: '', name: 'Index', component: () => import('@/views/index.vue'), meta: { title: '首页' } },
-
   { path: '/', name: 'Index', component: () => import('@/views/index.vue'), meta: { title: '首页' } },
 
   {
@@ -48,13 +46,6 @@ const routes = [
     name: 'Register',
     component: () => import('@/views/Register.vue'),
     meta: { title: '注册', requiresGuest: true }
-  },
-
-  {
-    path: '/search',
-    name: 'Search',
-    component: () => import('@/views/Search.vue'),
-    meta: { title: '搜索' }
   },
 
   // 管理端路由

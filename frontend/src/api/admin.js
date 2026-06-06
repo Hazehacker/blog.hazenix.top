@@ -251,21 +251,13 @@ export const adminApi = {
   uploadImage(file, fileName) {
     const formData = new FormData()
     formData.append('file', file, fileName)
-    return request.post('/common/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    })
+    return request.post('/common/upload', formData)
   },
 
   // 上传文件
   uploadFile(file, fileName) {
     const formData = new FormData()
     formData.append('file', file, fileName)
-    return request.post('/common/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    })
+    return request.post('/common/upload', formData)
   }
 }

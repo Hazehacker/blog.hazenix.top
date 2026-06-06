@@ -242,13 +242,13 @@ const copyFeed = () => {
 
 /* ===== Like Card ===== */
 .like-card::after {
-  background: radial-gradient(ellipse at 30% 50%, rgba(244, 63, 94, 0.08) 0%, transparent 60%);
+  background: radial-gradient(ellipse at 30% 50%, rgba(196, 110, 128, 0.05) 0%, transparent 60%);
 }
 .like-card:hover {
   box-shadow:
-    0 8px 28px rgba(244, 63, 94, 0.12),
-    0 2px 8px rgba(0, 0, 0, 0.04);
-  background: #fef2f3;
+    0 6px 20px rgba(196, 110, 128, 0.08),
+    0 2px 6px rgba(0, 0, 0, 0.03);
+  background: #fdf8f9;
 }
 .like-card:hover::after {
   opacity: 1;
@@ -267,13 +267,13 @@ const copyFeed = () => {
 
 /* ===== Subscribe Card ===== */
 .subscribe-card::after {
-  background: radial-gradient(ellipse at 30% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 60%);
+  background: radial-gradient(ellipse at 30% 50%, rgba(110, 110, 200, 0.05) 0%, transparent 60%);
 }
 .subscribe-card:hover {
   box-shadow:
-    0 8px 28px rgba(99, 102, 241, 0.12),
-    0 2px 8px rgba(0, 0, 0, 0.04);
-  background: #f5f4ff;
+    0 6px 20px rgba(110, 110, 200, 0.08),
+    0 2px 6px rgba(0, 0, 0, 0.03);
+  background: #f9f9fe;
 }
 .subscribe-card:hover::after {
   opacity: 1;
@@ -281,13 +281,13 @@ const copyFeed = () => {
 
 /* ===== Urge Card ===== */
 .urge-card::after {
-  background: radial-gradient(ellipse at 30% 50%, rgba(245, 158, 11, 0.08) 0%, transparent 60%);
+  background: radial-gradient(ellipse at 30% 50%, rgba(190, 150, 70, 0.05) 0%, transparent 60%);
 }
 .urge-card:hover {
   box-shadow:
-    0 8px 28px rgba(245, 158, 11, 0.12),
-    0 2px 8px rgba(0, 0, 0, 0.04);
-  background: #fffdf5;
+    0 6px 20px rgba(190, 150, 70, 0.08),
+    0 2px 6px rgba(0, 0, 0, 0.03);
+  background: #fdfcf8;
 }
 .urge-card:hover::after {
   opacity: 1;
@@ -308,16 +308,16 @@ const copyFeed = () => {
 }
 
 .like-card .card-icon-bg {
-  background: rgba(244, 63, 94, 0.1);
-  color: #e11d48;
+  background: rgba(196, 110, 128, 0.08);
+  color: #b07a8a;
 }
 .subscribe-card .card-icon-bg {
-  background: rgba(99, 102, 241, 0.1);
-  color: #4f46e5;
+  background: rgba(110, 110, 200, 0.08);
+  color: #8080b8;
 }
 .urge-card .card-icon-bg {
-  background: rgba(245, 158, 11, 0.1);
-  color: #d97706;
+  background: rgba(190, 150, 70, 0.08);
+  color: #a08050;
 }
 
 .like-card.is-active .card-icon-bg {
@@ -399,9 +399,9 @@ const copyFeed = () => {
 
 :global(.dark) .like-card:hover {
   box-shadow:
-    0 8px 32px rgba(244, 63, 94, 0.18),
-    0 2px 8px rgba(0, 0, 0, 0.2);
-  background: rgba(244, 63, 94, 0.08);
+    0 6px 24px rgba(196, 110, 128, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.18);
+  background: rgba(196, 110, 128, 0.06);
 }
 :global(.dark) .like-card.is-active:hover {
   box-shadow: none;
@@ -410,16 +410,16 @@ const copyFeed = () => {
 
 :global(.dark) .subscribe-card:hover {
   box-shadow:
-    0 8px 32px rgba(99, 102, 241, 0.18),
-    0 2px 8px rgba(0, 0, 0, 0.2);
-  background: rgba(99, 102, 241, 0.08);
+    0 6px 24px rgba(110, 110, 200, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.18);
+  background: rgba(110, 110, 200, 0.06);
 }
 
 :global(.dark) .urge-card:hover {
   box-shadow:
-    0 8px 32px rgba(245, 158, 11, 0.18),
-    0 2px 8px rgba(0, 0, 0, 0.2);
-  background: rgba(245, 158, 11, 0.08);
+    0 6px 24px rgba(190, 150, 70, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.18);
+  background: rgba(190, 150, 70, 0.06);
 }
 
 :global(.dark) .like-card.is-active .card-icon-bg {
