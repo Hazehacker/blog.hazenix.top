@@ -117,7 +117,7 @@ import { getGithubAuthUrl } from '@/api/auth'
 const handleGithubLogin = async () => {
   try {
     const res = await getGithubAuthUrl()
-    if (res.code === 200) {
+    if (res.code === '200') {
       window.location.href = res.data
     } else {
       ElMessage.error(res.msg || '获取GitHub授权URL失败')

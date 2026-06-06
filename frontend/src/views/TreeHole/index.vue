@@ -187,7 +187,7 @@ async function getTreeHole() {
     loading.value = true
     const res = await getTreeHoleList()
     
-    if (res.code === 200) {
+    if (res.code === '200') {
       // 转换数据格式并保存到原始列表
       const formattedList = (res.data || []).map(item => {
         const username = item.username || '匿名用户'
@@ -529,7 +529,7 @@ async function addTreeHoleBtn() {
     loading.value = true
     const res = await addTreeHole(payload)
 
-    if (res.code === 200) {
+    if (res.code === '200') {
       if (!token) {
         ElMessage.success('匿名弹幕已提交，审核通过后显示')
       } else {

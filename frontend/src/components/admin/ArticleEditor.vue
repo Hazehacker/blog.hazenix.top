@@ -287,7 +287,7 @@ const editorConfig = {
 editorConfig.MENU_CONF['uploadImage'] = {
   server: `${import.meta.env.VITE_API_BASE_URL}/common/upload`,
   headers: {
-    Authorization: `Bearer ${getToken()}`
+    authentication: getToken()
   },
   fieldName: 'file',
   maxFileSize: 2 * 1024 * 1024, // 2MB
@@ -329,7 +329,7 @@ const form = reactive({
 // 上传配置
 const uploadUrl = computed(() => `${import.meta.env.VITE_API_BASE_URL}/common/upload`)
 const uploadHeaders = computed(() => ({
-  'Authorization': `Bearer ${getToken()}`
+  'authentication': getToken()
 }))
 
 // 初始化表单
@@ -385,7 +385,7 @@ const beforeImageUpload = (file) => {
 
 // 图片上传成功
 const handleImageUpload = (response) => {
-  if (response.code === 200) {
+  if (response.code === '200') {
     form.coverImage = response.data
     ElMessage.success('图片上传成功')
   } else {

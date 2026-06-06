@@ -295,7 +295,7 @@ const rules = {
 // 上传配置
 const uploadAction = computed(() => buildApiURL('/common/upload'))
 const uploadHeaders = {
-  Authorization: `Bearer ${getToken()}`
+  authentication: getToken()
 }
 
 // 格式化日期

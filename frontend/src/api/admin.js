@@ -248,9 +248,9 @@ export const adminApi = {
 
   // ========== 文件上传 ==========
   // 上传图片
-  uploadImage(file) {
+  uploadImage(file, fileName) {
     const formData = new FormData()
-    formData.append('file', file)
+    formData.append('file', file, fileName)
     return request.post('/common/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
@@ -259,9 +259,9 @@ export const adminApi = {
   },
 
   // 上传文件
-  uploadFile(file) {
+  uploadFile(file, fileName) {
     const formData = new FormData()
-    formData.append('file', file)
+    formData.append('file', file, fileName)
     return request.post('/common/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'

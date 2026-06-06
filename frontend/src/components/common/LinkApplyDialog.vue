@@ -192,7 +192,7 @@ const userStore = useUserStore()
 const uploadUrl = computed(() => buildApiURL('/common/upload'))
 const uploadHeaders = computed(() => {
   const token = userStore.token
-  return token ? { Authorization: `Bearer ${token}` } : {}
+  return token ? { authentication: token } : {}
 })
 
 // 图片上传前验证

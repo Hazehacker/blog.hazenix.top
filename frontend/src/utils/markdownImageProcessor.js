@@ -119,14 +119,10 @@ async function uploadImageToServer(blob, originalUrl) {
         const extension = getImageExtension(blob.type) || 'png'
         const fileName = `imported_${timestamp}.${extension}`
 
-        // 创建FormData
-        const formData = new FormData()
-        formData.append('file', blob, fileName)
-
         // 上传到服务器
-        const response = await adminApi.uploadImage(formData)
+        const response = await adminApi.uploadImage(blob, fileName)
 
-        if (response.code === 200) {
+        if (response.code === '200') {
             return response.data
         } else {
             throw new Error(response.message || '上传失败')

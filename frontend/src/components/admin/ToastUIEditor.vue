@@ -517,7 +517,7 @@ const createTagRules = {
 // 上传配置
 const uploadUrl = computed(() => `${import.meta.env.VITE_API_BASE_URL}/common/upload`)
 const uploadHeaders = computed(() => ({
-  'Authorization': `Bearer ${getToken()}`
+  'authentication': getToken()
 }))
 
 // 计算属性
@@ -691,7 +691,7 @@ const beforeImageUpload = (file) => {
 
 // 图片上传成功
 const handleImageUpload = (response) => {
-  if (response.code === 200) {
+  if (response.code === '200') {
     form.coverImage = response.data
     ElMessage.success('图片上传成功')
   } else {
@@ -719,7 +719,7 @@ const handleEditorImageUpload = async (blob, callback) => {
     
     const result = await response.json()
     
-    if (result.code === 200) {
+    if (result.code === '200') {
       // 上传成功，返回图片URL给编辑器
       // Toast UI Editor的callback格式: callback(imageUrl, altText)
       // 使用文件名作为alt文本，这样markdown会显示 ![文件名](URL)

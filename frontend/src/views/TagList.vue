@@ -37,7 +37,7 @@ const recalculateTagCounts = async (tagList) => {
     // 获取所有文章列表
     const response = await articleApi.getArticleList()
     
-    if (response && response.code === 200 && response.data) {
+    if (response && response.code === '200' && response.data) {
       // 处理不同的响应格式
       let articles = []
       if (Array.isArray(response.data)) {

@@ -256,7 +256,7 @@ const handleFileChange = async (event) => {
   uploading.value = true
   try {
     const response = await uploadImage(file)
-    if (response.code === 200) {
+    if (response.code === '200') {
       form.avatar = response.data
       ElMessage.success('头像上传成功')
     } else {
