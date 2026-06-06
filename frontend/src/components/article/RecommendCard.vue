@@ -24,9 +24,6 @@
       <h3 class="text-sm font-semibold text-gray-900 dark:text-white line-clamp-2 leading-snug">
         {{ article.title }}
       </h3>
-      <div class="mt-2 flex items-center gap-3 text-xs text-gray-400">
-        <span>{{ article.likeCount || 0 }} 点赞</span>
-      </div>
     </div>
   </div>
 </template>
