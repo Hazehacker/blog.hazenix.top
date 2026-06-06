@@ -321,7 +321,7 @@
           </el-button>
           <el-button @click="handlePublish" type="primary" :loading="saving" :size="isFullscreen ? 'default' : 'large'">
             <i class="fas fa-paper-plane mr-2"></i>
-            发布文章
+            {{ isPublished ? '更新文章' : '发布文章' }}
           </el-button>
         </div>
       </div>
@@ -522,6 +522,7 @@ const uploadHeaders = computed(() => ({
 
 // 计算属性
 const isEdit = computed(() => !!props.article)
+const isPublished = computed(() => props.article && (props.article.status === 0 || props.article.status === '0'))
 
 // 加载分类列表
 const loadCategories = async () => {

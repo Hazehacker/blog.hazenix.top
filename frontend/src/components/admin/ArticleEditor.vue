@@ -232,7 +232,7 @@
           </el-button>
           <el-button @click="handlePublish" type="primary" :loading="saving" size="large">
             <i class="fas fa-paper-plane mr-2"></i>
-            发布文章
+            {{ isPublished ? '更新文章' : '发布文章' }}
           </el-button>
         </div>
       </div>
@@ -273,6 +273,8 @@ const emit = defineEmits(['save', 'cancel'])
 const editorRef = ref()
 const mode = 'default'
 const saving = ref(false)
+
+const isPublished = computed(() => props.article && (props.article.status === 0 || props.article.status === '0'))
 
 // 工具栏配置
 const toolbarConfig = {}

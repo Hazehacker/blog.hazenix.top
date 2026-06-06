@@ -25,7 +25,6 @@
         {{ article.title }}
       </h3>
       <div class="mt-2 flex items-center gap-3 text-xs text-gray-400">
-        <span>{{ article.viewCount || 0 }} 阅读</span>
         <span>{{ article.likeCount || 0 }} 点赞</span>
       </div>
     </div>
