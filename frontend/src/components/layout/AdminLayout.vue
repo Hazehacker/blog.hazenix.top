@@ -118,8 +118,9 @@ const menuItems = [
   { name: 'tags', path: '/admin/tags', label: '标签管理', icon: 'PriceTag' },
   { name: 'comments', path: '/admin/comments', label: '评论管理', icon: 'ChatDotRound' },
   { name: 'tree-holes', path: '/admin/tree-holes', label: '树洞管理', icon: 'ChatLineRound' },
-  { name: 'updates', path: '/admin/updates', label: '更新记录', icon: 'Clock' },
   { name: 'links', path: '/admin/links', label: '友链管理', icon: 'Link' },
+  { name: 'subscriptions', path: '/admin/subscriptions', label: '订阅管理', icon: 'Message' },
+  { name: 'notify', path: '/admin/notify', label: '通知配置', icon: 'Bell' },
 ]
 
 // 当前页面标题
@@ -142,7 +143,7 @@ const goToHome = () => {
 const handleUserCommand = async (command) => {
   if (command === 'logout') {
     await userStore.logout()
-    router.push('/login')
+    router.push('/')
   } else if (command === 'profile') {
     // 跳转到个人设置页面
     // console.log('跳转到个人设置')

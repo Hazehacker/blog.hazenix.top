@@ -23,7 +23,6 @@ const routes = [
       { path: '/category/:id', name: 'CategoryDetail', component: () => import('@/views/CategoryDetail.vue'), meta: { title: '分类详情' }, props: true },
       { path: '/tags', name: 'TagList', component: () => import('@/views/TagList.vue'), meta: { title: '标签列表' } },
       { path: '/tag/:id', name: 'TagDetail', component: () => import('@/views/TagDetail.vue'), meta: { title: '标签详情' }, props: true },
-      { path: '/album', name: "Album", component: () => import("@/views/Album.vue"), meta: { title: '相册' }, props: true },
       { path: '/friend-links', name: 'FriendLinks', component: () => import('@/views/FriendLinks.vue'), meta: { title: '友情链接' } },
       { path: '/tree-hole', name: 'TreeHole', component: () => import('@/views/TreeHole/index.vue'), meta: { title: '心灵树洞' } },
       { path: '/favorites', name: 'UserFavorites', component: () => import('@/views/UserFavorites.vue'), meta: { title: '我的收藏', requiresAuth: true } },
@@ -125,6 +124,18 @@ const routes = [
         name: 'AdminTreeHoles',
         component: () => import('@/views/admin/TreeHoleManagement.vue'),
         meta: { title: '树洞管理' }
+      },
+      {
+        path: 'subscriptions',
+        name: 'AdminSubscriptions',
+        component: () => import('@/views/admin/SubscriptionManagement.vue'),
+        meta: { title: '订阅管理' }
+      },
+      {
+        path: 'notify',
+        name: 'AdminNotify',
+        component: () => import('@/views/admin/NotifyManagement.vue'),
+        meta: { title: '通知配置' }
       },
       {
         path: 'settings',

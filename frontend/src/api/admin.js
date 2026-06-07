@@ -246,6 +246,31 @@ export const adminApi = {
     return request.put(`${ADMIN_BASE_URL}/tree/${id}/reject`)
   },
 
+  // ========== 订阅管理 ==========
+  getSubscriptions(params = {}) {
+    return request.get(`${ADMIN_BASE_URL}/subscription/list`, { params })
+  },
+  deleteSubscription(id) {
+    return request.delete(`${ADMIN_BASE_URL}/subscription/${id}`)
+  },
+  exportSubscriptions() {
+    return request.get(`${ADMIN_BASE_URL}/subscription/export`)
+  },
+
+  // ========== 通知配置 ==========
+  getNotifyConfig() {
+    return request.get(`${ADMIN_BASE_URL}/notify/config`)
+  },
+  updateNotifyConfig(data) {
+    return request.put(`${ADMIN_BASE_URL}/notify/config`, data)
+  },
+  testNotify() {
+    return request.post(`${ADMIN_BASE_URL}/notify/test`)
+  },
+  getNotifyLogs(params = {}) {
+    return request.get(`${ADMIN_BASE_URL}/notify/log`, { params })
+  },
+
   // ========== 文件上传 ==========
   // 上传图片
   uploadImage(file, fileName) {
