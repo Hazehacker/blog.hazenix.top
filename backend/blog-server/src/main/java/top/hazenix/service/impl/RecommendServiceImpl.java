@@ -274,6 +274,14 @@ public class RecommendServiceImpl implements RecommendService {
     }
 
     @Override
+    public List<ArticleShortVO> refreshAndGetRecommendations(Long userId, int size) {
+        if (userId != null) {
+            cacheService.evictUserRecommendations(userId);
+        }
+        return getRecommendations(userId, size);
+    }
+
+    @Override
     @Async
     public void refreshUserRecommendations(Long userId) {
         log.info("异步刷新用户 {} 的推荐缓存", userId);

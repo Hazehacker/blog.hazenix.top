@@ -16,6 +16,13 @@ public class SiteLikeController {
 
     private final SiteLikeService siteLikeService;
 
+    @GetMapping("/site-like/count")
+    public Result<Map<String, Long>> getCount() {
+        Map<String, Long> result = new HashMap<>();
+        result.put("totalCount", siteLikeService.getTotalCount());
+        return Result.success(result);
+    }
+
     @PostMapping("/site-like")
     public Result<Map<String, Long>> like(HttpServletRequest request) {
         String ipHash = getClientIpHash(request);

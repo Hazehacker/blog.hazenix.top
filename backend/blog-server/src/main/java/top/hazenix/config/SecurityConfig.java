@@ -74,6 +74,7 @@ public class SecurityConfig {
                         "/user/user/favorite",
                         "/user/tree/**",
                         "/user/articles/*/favorite",
+                        "/user/articles/recommended/refresh",
                         "/user/interests/**"
                 ).authenticated()
                 // 其他接口暂时放行（后续可以按需逐步收紧）

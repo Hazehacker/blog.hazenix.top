@@ -5,6 +5,7 @@ import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.OSSException;
 import lombok.RequiredArgsConstructor;
+import top.hazenix.exception.FailUploadException;
 import top.hazenix.properties.AliOssProperties;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;

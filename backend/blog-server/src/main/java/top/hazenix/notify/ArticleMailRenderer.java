@@ -22,6 +22,20 @@ public class ArticleMailRenderer {
                 + "</p></body></html>";
     }
 
+    public static String renderSubscribeConfirm(String email, String unsubscribeToken) {
+        String unsubscribeUrl = "https://blog.hazenix.top/api/unsubscribe?token=" + unsubscribeToken;
+        return "<!DOCTYPE html><html><body style='font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px'>"
+                + "<h2 style='color:#333'>订阅成功</h2>"
+                + "<p style='color:#555;font-size:15px'>你好！</p>"
+                + "<p style='color:#555;font-size:15px'>你的邮箱 <strong>" + escapeHtml(email) + "</strong> 已成功订阅 Hazenix Blog 文章更新通知。</p>"
+                + "<p style='color:#555;font-size:15px'>新文章发布后，你将收到邮件推送，第一时间阅读。</p>"
+                + "<hr style='margin:24px 0;border:none;border-top:1px solid #eee'>"
+                + "<p style='font-size:12px;color:#999'>"
+                + "<a href='https://blog.hazenix.top/feed' style='color:#4A90D9'>RSS 订阅</a> | "
+                + "<a href='" + unsubscribeUrl + "' style='color:#999'>退订通知</a>"
+                + "</p></body></html>";
+    }
+
     private static String escapeHtml(String text) {
         if (text == null) return "";
         return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");

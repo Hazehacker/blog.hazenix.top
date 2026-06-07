@@ -97,6 +97,17 @@ public class ArticleController {
         List<ArticleShortVO> list = recommendService.getRecommendations(userId, size);
         return Result.success(list);
     }
+
+    /**
+     * 换一批推荐文章（清除缓存重新计算）
+     */
+    @PostMapping("/recommended/refresh")
+    public Result refreshRecommendedArticles(@RequestParam(defaultValue = "10") Integer size){
+        log.info("刷新推荐文章");
+        Long userId = BaseContext.getCurrentId();
+        List<ArticleShortVO> list = recommendService.refreshAndGetRecommendations(userId, size);
+        return Result.success(list);
+    }
     //### 2.10 获取推荐文章
     //- **URL**: `GET /user/articles/recommended`
     //- **描述**: 获取推荐文章列表

@@ -5,5 +5,6 @@ import java.util.List;
 
 public interface ArticleUrgeService {
     int urgeAndGetCount();
+    int getCurrentMonthCount();
     List<ArticleUrge> getStats();
 }

@@ -30,6 +30,13 @@ public class ArticleUrgeServiceImpl implements ArticleUrgeService {
     }
 
     @Override
+    public int getCurrentMonthCount() {
+        String month = LocalDate.now().format(MONTH_FMT);
+        ArticleUrge record = mapper.getByMonth(month);
+        return record == null ? 0 : record.getCount();
+    }
+
+    @Override
     public List<ArticleUrge> getStats() {
         return mapper.listAll();
     }

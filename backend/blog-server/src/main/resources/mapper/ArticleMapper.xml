@@ -64,10 +64,10 @@
         select count(*) from article
     </select>
     <select id="getRecentArticles" resultType="top.hazenix.vo.ArticleShortVO">
-        select id,title,status,create_time from article order by update_time desc limit #{i}
+        select id,title,status,create_time,cover_image from article order by update_time desc limit #{i}
     </select>
     <select id="pageQuery" resultType="top.hazenix.vo.ArticleShortVO">
-        select id,title,status,create_time,is_top,like_count,favorite_count,view_count,recommend_level
+        select id,title,status,create_time,is_top,like_count,favorite_count,view_count,recommend_level,cover_image
         from article
         <where>
             <if test="keyword != null and keyword != ''">
@@ -114,7 +114,7 @@
         where status = 0 AND (recommend_level != 0 OR recommend_level IS NULL)
     </select>
     <select id="getRelatedArticlesByTags" resultType="top.hazenix.vo.ArticleShortVO">
-        SELECT a.id, a.title, a.create_time, a.like_count, a.favorite_count, a.view_count
+        SELECT a.id, a.title, a.create_time, a.like_count, a.favorite_count, a.view_count, a.cover_image
         FROM article a
         JOIN (
         SELECT at.article_id, COUNT(*) as common_tag_count
@@ -132,7 +132,7 @@
         ORDER BY ranked.common_tag_count DESC
     </select>
     <select id="getRelatedArticlesByCategory" resultType="top.hazenix.vo.ArticleShortVO">
-        SELECT id, title, create_time, like_count, favorite_count, view_count
+        SELECT id, title, create_time, like_count, favorite_count, view_count, cover_image
         FROM article
         WHERE id != #{articleId}
           AND category_id = #{categoryId}

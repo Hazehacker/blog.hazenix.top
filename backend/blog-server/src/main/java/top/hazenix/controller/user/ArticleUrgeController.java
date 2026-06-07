@@ -15,6 +15,13 @@ public class ArticleUrgeController {
 
     private final ArticleUrgeService urgeService;
 
+    @GetMapping("/urge/count")
+    public Result<Map<String, Integer>> getCount() {
+        Map<String, Integer> result = new HashMap<>();
+        result.put("currentCount", urgeService.getCurrentMonthCount());
+        return Result.success(result);
+    }
+
     @PostMapping("/urge")
     public Result<Map<String, Integer>> urge() {
         int count = urgeService.urgeAndGetCount();

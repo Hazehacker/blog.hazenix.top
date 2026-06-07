@@ -9,4 +9,6 @@ public interface RecommendService {
     void recomputeContentSimilarityMatrix();
     void recomputeCFSimilarityMatrix();
     void refreshUserRecommendations(Long userId);
+
+    List<ArticleShortVO> refreshAndGetRecommendations(Long userId, int size);
 }

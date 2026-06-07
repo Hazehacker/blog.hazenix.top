@@ -20,7 +20,7 @@ public class ArticleSubscriptionController {
     @PostMapping("/subscribe")
     public Result<Void> subscribe(@RequestBody Map<String, String> body) {
         String email = body.get("email");
-        if (email == null || email.isBlank() || !EMAIL_PATTERN.matcher(email.trim()).matches()) {
+        if (email == null || email.isEmpty() || !EMAIL_PATTERN.matcher(email.trim()).matches()) {
             return Result.error("400", "邮箱格式错误");
         }
         email = email.trim();

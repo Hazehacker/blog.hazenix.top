@@ -50,6 +50,9 @@ public class ArticleShortVO implements Serializable {
     @ApiModelProperty(value = "推荐度", example = "3")
     private Integer recommendLevel;
 
+    @ApiModelProperty(value = "封面图片URL")
+    private String coverImage;
+
 
 
 

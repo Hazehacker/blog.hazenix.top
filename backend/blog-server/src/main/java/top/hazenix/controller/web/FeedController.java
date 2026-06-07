@@ -52,7 +52,7 @@ public class FeedController {
            .append(" rel=\"self\" type=\"application/rss+xml\"/>\n");
 
         for (Article article : articles) {
-            String articleId = article.getSlug() != null && !article.getSlug().isBlank()
+            String articleId = article.getSlug() != null && !article.getSlug().isEmpty()
                     ? article.getSlug()
                     : String.valueOf(article.getId());
             String link = SITE_URL + "/article/" + articleId;
