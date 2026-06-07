@@ -77,7 +77,7 @@
                 <h4 class="font-medium text-gray-900 dark:text-gray-100">{{ article.title }}</h4>
                 <p class="text-sm text-gray-500 dark:text-gray-400">{{ formatDate(article.createTime) }}</p>
               </div>
-              <el-tag :type="article.status === 'published' ? 'success' : 'warning'" size="small">
+              <el-tag :type="article.status === 0 ? 'success' : 'warning'" size="small">
                 {{ article.status === 0 ? '已发布' : '草稿' }}
               </el-tag>
             </div>
@@ -153,6 +153,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
 import { Document, Collection, PriceTag, ChatDotRound, Link } from '@element-plus/icons-vue'
 import { adminApi } from '@/api/admin'
 

@@ -301,8 +301,8 @@ const loadCategoriesAndTags = async () => {
       adminApi.getCategories(),
       adminApi.getTags()
     ])
-    categories.value = categoriesRes.data
-    tags.value = tagsRes.data
+    categories.value = categoriesRes.data.records
+    tags.value = tagsRes.data.records
   } catch (error) {
     console.error('加载分类和标签失败:', error)
   }

@@ -4,12 +4,6 @@
     <div class="flex justify-between items-center">
       <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">评论管理</h1>
       <div class="flex space-x-3">
-        <el-button @click="handleBatchApprove" type="success" :disabled="selectedComments.length === 0">
-          批量通过
-        </el-button>
-        <el-button @click="handleBatchReject" type="warning" :disabled="selectedComments.length === 0">
-          批量拒绝
-        </el-button>
         <el-button @click="handleBatchDelete" type="danger" :disabled="selectedComments.length === 0">
           批量删除
         </el-button>
@@ -375,7 +369,7 @@ const loadComments = async () => {
 const loadArticles = async () => {
   try {
     const response = await adminApi.getArticles({ pageSize: 100 })
-    articles.value = response.data.list
+    articles.value = response.data.records
   } catch (error) {
     console.error('加载文章列表失败:', error)
   }
@@ -474,56 +468,6 @@ const handleDelete = async (comment) => {
     if (error !== 'cancel') {
       console.error('删除评论失败:', error)
       ElMessage.error('删除失败')
-    }
-  }
-}
-
-// 批量通过
-const handleBatchApprove = async () => {
-  try {
-    await ElMessageBox.confirm(
-      `确定要通过选中的 ${selectedComments.value.length} 条评论吗？`,
-      '确认批量通过',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
-    
-    const ids = selectedComments.value.map(item => item.id)
-    await adminApi.batchApproveComments(ids)
-    ElMessage.success('批量通过成功')
-    loadComments()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('批量通过失败:', error)
-      ElMessage.error('批量通过失败')
-    }
-  }
-}
-
-// 批量拒绝
-const handleBatchReject = async () => {
-  try {
-    await ElMessageBox.confirm(
-      `确定要拒绝选中的 ${selectedComments.value.length} 条评论吗？`,
-      '确认批量拒绝',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
-    
-    const ids = selectedComments.value.map(item => item.id)
-    await adminApi.batchRejectComments(ids)
-    ElMessage.success('批量拒绝成功')
-    loadComments()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('批量拒绝失败:', error)
-      ElMessage.error('批量拒绝失败')
     }
   }
 }
