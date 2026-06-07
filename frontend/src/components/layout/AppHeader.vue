@@ -39,9 +39,9 @@
       </el-dropdown>
       
       <router-link to="/tags" class="hover:text-primary">标签</router-link>
-      <router-link to="/album" class="hover:text-primary">相册</router-link>
       <router-link to="/tree-hole" class="hover:text-primary">树洞</router-link>
-      
+      <router-link to="/friend-links" class="hover:text-primary">友链</router-link>
+
       <!-- 更多下拉菜单 -->
       <el-dropdown @command="handleMoreCommand" trigger="hover" class="more-dropdown">
         <span class="hover:text-primary cursor-pointer flex items-center more-trigger ">
@@ -54,9 +54,9 @@
                 <el-icon class="mr-2"><DataAnalysis /></el-icon>
                 监控
             </el-dropdown-item>
-            <el-dropdown-item command="friend-links">
-              <el-icon class="mr-2"><Link /></el-icon>
-              友情链接
+<el-dropdown-item command="portfolio">
+              <el-icon class="mr-2"><Collection /></el-icon>
+              作品集
             </el-dropdown-item>
             <el-dropdown-item command="about">
               <el-icon class="mr-2"><InfoFilled /></el-icon>
@@ -114,7 +114,7 @@ import { ref, watch, onMounted, computed } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useRouter, useRoute } from 'vue-router'
 import ThemeToggle from '@/components/common/ThemeToggle.vue'
-import { Search, User, ArrowDown, Link, InfoFilled, DataAnalysis } from '@element-plus/icons-vue'
+import { Search, User, ArrowDown, InfoFilled, DataAnalysis, Collection } from '@element-plus/icons-vue'
 import { getCategoryList } from '@/api/category'
 import { getArticleList } from '@/api/article'
 
@@ -192,12 +192,12 @@ const handleCommand = async (command) => {
 }
 
 const handleMoreCommand = (command) => {
-  if (command === 'friend-links') {
-    router.push('/friend-links')
-  } else if (command === 'about') {
+  if (command === 'about') {
     router.push('/about')
   } else if (command === 'monitor') {
     window.open('https://monitor.hazenix.top/share/UOi3M8l7j4ZSjDn3', '_blank')
+  } else if (command === 'portfolio') {
+    window.open('https://www.hazenix.top', '_blank')
   }
 }
 

@@ -84,20 +84,9 @@ const loadPopularArticles = async () => {
       articleList = []
     }
     
-    // 过滤文章：
-    // 1. 过滤掉 id=1 的文章（留言板专用）
-    // 2. 只显示已发布的文章（status=0）
-    articles.value = articleList.filter(article => {
-      // 排除留言板文章
-      if (article.id === 1 || article.id === '1') {
-        return false
-      }
-      // 只显示已发布的文章（status=0）
-      if (article.status !== 0 && article.status !== '0') {
-        return false
-      }
-      return true
-    })
+    // 过滤掉 id=1 的文章（留言板专用）
+    // 热门文章接口后端已保证只返回已发布文章，ArticleShortVO 不回传 status 字段，无需前端再做 status 过滤
+    articles.value = articleList.filter(article => article.id !== 1 && article.id !== '1')
   } catch (error) {
     // console.error('加载热门文章失败:', error)
     ElMessage.error('加载热门文章失败')

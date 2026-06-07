@@ -24,9 +24,17 @@ export const frontendApi = {
     subscribeArticle(data) {
         return request.post('/user/subscription/subscribe', data)
     },
+    // 获取本月催更数
+    getUrgeCount() {
+        return request.get('/user/urge/count')
+    },
     // 催更
     urgeArticle() {
         return request.post('/user/urge')
+    },
+    // 获取本站喜欢总数
+    getSitelikeCount() {
+        return request.get('/user/site-like/count')
     },
     // 喜欢本站
     likeSite() {

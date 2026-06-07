@@ -144,7 +144,7 @@ const handleSubscribe = async () => {
   subscribing.value = true
   try {
     await frontendApi.subscribeArticle({ email: subscribeEmail.value })
-    ElMessage.success('订阅成功！')
+    ElMessage.success('订阅成功！确认邮件已发送至您的邮箱')
     showSubscribeDialog.value = false
     subscribeEmail.value = ''
   } catch (e) {

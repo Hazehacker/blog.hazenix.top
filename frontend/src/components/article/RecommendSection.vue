@@ -1,22 +1,21 @@
 <template>
   <div class="w-full" v-if="articles.length > 0">
-    <div class="flex items-center justify-between mb-4">
-      <div class="flex items-center gap-3">
+    <div class="mb-4">
+      <div class="flex items-center justify-between">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-          {{ isLoggedIn ? '为你推荐' : '热门推荐' }}
+          为你推荐
         </h2>
-        <span v-if="!isLoggedIn" class="text-sm text-gray-400 dark:text-gray-500">
-          登录获取个性化推荐
-        </span>
+        <button
+          @click="refresh"
+          class="text-sm text-primary hover:text-primary/80 transition-colors"
+          :disabled="loading"
+        >
+          换一批
+        </button>
       </div>
-      <button
-        v-if="isLoggedIn"
-        @click="refresh"
-        class="text-sm text-primary hover:text-primary/80 transition-colors"
-        :disabled="loading"
-      >
-        换一批
-      </button>
+      <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
+        综合浏览历史、兴趣标签与热度综合推荐，登录后根据你的偏好个性化更新
+      </p>
     </div>
 
     <div class="relative group">
@@ -59,7 +58,7 @@
 import { ref, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { getRecommendedArticles } from '@/api/recommend'
+import { getRecommendedArticles, refreshRecommendedArticles } from '@/api/recommend'
 import RecommendCard from './RecommendCard.vue'
 
 const router = useRouter()
@@ -88,8 +87,27 @@ const fetchRecommendations = async () => {
   }
 }
 
-const refresh = () => {
-  fetchRecommendations()
+const refresh = async () => {
+  if (!isLoggedIn.value) {
+    // 未登录：前端随机洗牌，不请求接口（匿名缓存全局共享，重请求拿到相同结果）
+    articles.value = [...articles.value].sort(() => Math.random() - 0.5)
+    await nextTick()
+    updateScrollState()
+    return
+  }
+  loading.value = true
+  try {
+    const res = await refreshRecommendedArticles({ size: 10 })
+    if (res && res.data) {
+      articles.value = Array.isArray(res.data) ? res.data : []
+    }
+  } catch (error) {
+    articles.value = []
+  } finally {
+    loading.value = false
+    await nextTick()
+    updateScrollState()
+  }
 }
 
 const goToArticle = (article) => {

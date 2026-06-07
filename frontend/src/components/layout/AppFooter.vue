@@ -38,6 +38,11 @@
                 友链
               </router-link>
             </li>
+            <li>
+              <a href="https://www.hazenix.top" target="_blank" class="hover:text-primary transition-colors">
+                作品集
+              </a>
+            </li>
             <!-- <li>
               <a href="/rss.xml" class="hover:text-primary transition-colors" target="_blank">
                 RSS

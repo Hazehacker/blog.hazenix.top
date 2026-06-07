@@ -9,6 +9,14 @@ export function getRecommendedArticles(params = {}) {
     })
 }
 
+export function refreshRecommendedArticles(params = {}) {
+    return request({
+        url: '/user/articles/recommended/refresh',
+        method: 'post',
+        params
+    })
+}
+
 export function getUserInterests() {
     return request({
         url: '/user/interests',

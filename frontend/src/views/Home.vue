@@ -20,11 +20,6 @@
       </div>
     </div>
 
-    <!-- 推荐区域 -->
-    <div class="mt-16">
-      <RecommendSection />
-    </div>
-
     <!-- 内容区域 -->
     <div class="mt-24 grid grid-cols-1 lg:grid-cols-3 gap-8">
       <!-- 最新文章列表 -->
@@ -49,6 +44,11 @@
           <PopularArticles />
         </div>
       </div>
+    </div>
+
+    <!-- 推荐区域 -->
+    <div class="mt-16">
+      <RecommendSection />
     </div>
 
     <!-- 站点互动按钮 -->
