@@ -252,6 +252,11 @@ md.renderer.rules.fence = function (tokens, idx, options, env, renderer) {
     const info = token.info ? md.utils.unescapeAll(token.info).trim() : ''
     const langName = info ? info.split(/\s+/g)[0] : ''
 
+    if (langName === 'mermaid') {
+        const encoded = btoa(unescape(encodeURIComponent(token.content)))
+        return `<div class="mermaid-wrapper"><pre class="mermaid" data-diagram="${encoded}">${md.utils.escapeHtml(token.content)}</pre></div>`
+    }
+
     let highlighted
     if (langName && hljs.getLanguage(langName)) {
         try {
@@ -267,10 +272,8 @@ md.renderer.rules.fence = function (tokens, idx, options, env, renderer) {
         }
     }
 
-    // 使用 base64 编码存储代码内容，避免特殊字符问题
-    // 先使用 encodeURIComponent 处理 Unicode 字符，再 base64 编码
     const encodedContent = btoa(unescape(encodeURIComponent(token.content)))
-    
+
     return `<div class="code-block-wrapper">
     <div class="code-block-header">
       <span class="code-block-lang">${langName || 'text'}</span>

@@ -10,6 +10,13 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref, nextTick, watch } from 'vue'
 import md, { resetUsedIds } from '@/utils/markdown'
+import mermaid from 'mermaid'
+import { useThemeStore } from '@/stores/theme'
+
+const themeStore = useThemeStore()
+// 图表卡片背景：深色模式略带暖调的白，浅色模式纯白，清晰可读
+const mermaidWrapperBg = computed(() => '#ffffff')
+const mermaidWrapperBorder = computed(() => themeStore.isDark ? '#c8d0dc' : '#e2e8f0')
 
 const props = defineProps({
   content: {
@@ -591,6 +598,52 @@ const processHighlightedHeadings = () => {
   }
 }
 
+
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'default',
+  sequence: { useMaxWidth: true },
+  flowchart: { useMaxWidth: true },
+  gantt: { useMaxWidth: true },
+})
+
+const renderMermaid = async () => {
+  await nextTick()
+  if (!markdownContainerRef.value) return
+
+  // 还原被 mermaid 替换过内容的节点，并清除 data-processed 让 mermaid 重新渲染
+  const wrappers = markdownContainerRef.value.querySelectorAll('.mermaid-wrapper')
+  wrappers.forEach(wrapper => {
+    const node = wrapper.querySelector('[data-diagram]')
+    if (node && node.dataset.diagram) {
+      const source = decodeURIComponent(escape(atob(node.dataset.diagram)))
+      node.textContent = source
+      node.className = 'mermaid'
+      node.removeAttribute('data-processed')
+    }
+  })
+
+  const elements = markdownContainerRef.value.querySelectorAll('pre.mermaid')
+  if (elements.length === 0) return
+  try {
+    await mermaid.run({ nodes: elements })
+    markdownContainerRef.value.querySelectorAll('.mermaid-wrapper svg').forEach(svg => {
+      const w = svg.getAttribute('width')
+      const h = svg.getAttribute('height')
+      if (w && h && !svg.getAttribute('viewBox')) {
+        svg.setAttribute('viewBox', `0 0 ${parseFloat(w)} ${parseFloat(h)}`)
+      }
+      svg.removeAttribute('width')
+      svg.removeAttribute('height')
+      svg.style.width = '100%'
+      svg.style.maxWidth = '100%'
+      svg.style.height = 'auto'
+    })
+  } catch (e) {
+    // 图表语法错误时静默处理
+  }
+}
+
 onMounted(() => {
   // 使用 nextTick 确保 DOM 已经渲染完成
   nextTick(() => {
@@ -598,23 +651,26 @@ onMounted(() => {
     if (markdownContainerRef.value) {
       markdownContainerRef.value.addEventListener('click', handleMarkdownClick)
     }
-    
+
     // 处理高亮标题
     setTimeout(() => {
       processHighlightedHeadings()
     }, 100)
+
+    renderMermaid()
   })
   
   // 也监听全局的 hashchange 事件，处理直接点击链接的情况
   window.addEventListener('hashchange', handleHashChange)
 })
 
-// 监听内容变化，重新处理高亮标题
+// 监听内容变化，重新处理高亮标题和 mermaid 图表
 watch(() => props.content, () => {
   nextTick(() => {
     setTimeout(() => {
       processHighlightedHeadings()
     }, 100)
+    renderMermaid()
   })
 })
 
@@ -649,6 +705,32 @@ onUnmounted(() => {
 <style scoped>
 .markdown-content {
   @apply w-full;
+}
+
+/* Mermaid 图表样式 */
+:deep(.mermaid-wrapper) {
+  @apply my-6 overflow-x-auto rounded-xl;
+  width: 100%;
+  background: v-bind(mermaidWrapperBg);
+  border: 1px solid v-bind(mermaidWrapperBorder);
+  padding: 20px 16px;
+}
+
+/* prose-invert 会给 pre 加深色背景，强制重置 */
+:deep(.mermaid-wrapper pre.mermaid) {
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  color: inherit !important;
+}
+
+:deep(.mermaid-wrapper svg) {
+  display: block;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  background: transparent !important;
 }
 
 /* 代码块样式 */
