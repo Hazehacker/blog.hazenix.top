@@ -1,6 +1,6 @@
 <template>
-  <header class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center py-6 bg-white dark:bg-gray-900/90 backdrop-blur-sm shadow-md" style="height: 70px;">
-    <div class="flex items-center space-x-2" style="margin-left: 30px;">
+  <header class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center bg-white dark:bg-gray-900/90 backdrop-blur-sm shadow-md" style="height: 56px;">
+    <div class="flex items-center space-x-2" style="margin-left: 16px;">
       <!-- Desktop avatar -->
       <img :src="avatarUrl" alt="User avatar"
            class="w-10 h-10 rounded-full hidden md:block"
@@ -9,9 +9,9 @@
       <!-- Mobile: avatar as hamburger menu trigger -->
       <div class="flex items-center space-x-2 md:hidden cursor-pointer" @click="openMobileMenu">
         <img :src="avatarUrl" alt="Menu"
-             class="w-10 h-10 rounded-full"
+             class="w-8 h-8 rounded-full"
              @error="onAvatarError" />
-        <span class="text-base font-semibold text-gray-800 dark:text-gray-200">Hazenix的后端札记</span>
+        <span class="text-sm font-semibold text-gray-800 dark:text-gray-200">Hazenix的后端札记</span>
       </div>
     </div>
     
@@ -81,17 +81,17 @@
       </el-dropdown>
     </nav>
     
-    <div class="flex items-center space-x-4" style="margin-right: 20px;">
-      <el-button link @click="openSearch">
+    <div class="flex items-center space-x-3 md:space-x-4" style="margin-right: 20px;">
+      <el-button link @click="openSearch" class="hidden md:inline-flex">
         <el-icon><Search /></el-icon>
       </el-button>
       <el-button link @click="openGithub">
           <img :src="github" alt="GitHub" class="w-5 h-5 rounded-full" />
         </el-button>
-      <el-button link @click="openCSDN">
+      <el-button link @click="openCSDN" class="hidden md:inline-flex">
           <img :src="csdn" alt="CSDN" class="w-5 h-5 rounded-full" />
         </el-button>
-      <el-dropdown v-if="userStore.token && userStore.userInfo" @command="handleCommand">
+      <el-dropdown v-if="userStore.token && userStore.userInfo" @command="handleCommand" class="hidden md:block">
         <el-button link>
           <img :src="avatarUrl" 
                alt="User avatar" 
@@ -106,8 +106,8 @@
           </el-dropdown-menu>
         </template>
       </el-dropdown>
-      
-      <el-button v-else link @click="openLogin">
+
+      <el-button v-else link @click="openLogin" class="hidden md:inline-flex">
         <el-icon><User/></el-icon>
       </el-button>
       
