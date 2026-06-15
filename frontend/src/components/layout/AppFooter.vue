@@ -1,95 +1,51 @@
 <template>
-  <footer class="relative bg-gray-100 dark:bg-gray-900/50 text-gray-600 dark:text-gray-400" style="background-color:rgb(242, 248, 255);">
+  <footer class="relative text-gray-600 dark:text-gray-400" style="background-color:rgb(242, 248, 255);">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <!-- 主要内容区域 -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-6">
         <!-- 想要了解我 -->
-        <div>
-          <h3 class="font-bold text-base text-gray-900 dark:text-white mb-4">
-            想要了解我&gt;
-          </h3>
-          <ul class="space-y-2 text-sm">
-            <li>
-              <router-link to="/about" class="hover:text-primary transition-colors">
-                关于我
-              </router-link>
-            </li>
-            <li>
-              <a href="#" class="hover:text-primary transition-colors" @click.prevent="handleSiteHistory">
-                本站历史
-              </a>
-            </li>
-            <li>
-              <router-link to="/about-project" class="hover:text-primary transition-colors">
-                关于此项目
-              </router-link>
-            </li>
-          </ul>
+        <div class="footer-card">
+          <h3 class="footer-card-title">👤 想要了解我</h3>
+          <div class="footer-card-links">
+            <router-link to="/about" class="footer-link">关于我</router-link>
+            <a class="footer-link" @click.prevent="handleSiteHistory">本站历史</a>
+            <router-link to="/about-project" class="footer-link">关于此项目</router-link>
+          </div>
         </div>
 
         <!-- 你也许在找 -->
-        <div>
-          <h3 class="font-bold text-base text-gray-900 dark:text-white mb-4">
-            你也许在找&gt;
-          </h3>
-          <ul class="space-y-2 text-sm">
-            <li>
-              <router-link to="/friend-links" class="hover:text-primary transition-colors">
-                友链
-              </router-link>
-            </li>
-            <li>
-              <a href="https://www.hazenix.top" target="_blank" class="hover:text-primary transition-colors">
-                作品集
-              </a>
-            </li>
-            <!-- <li>
-              <a href="/rss.xml" class="hover:text-primary transition-colors" target="_blank">
-                RSS
-              </a>
-            </li> -->
-          </ul>
+        <div class="footer-card">
+          <h3 class="footer-card-title">🔍 你也许在找</h3>
+          <div class="footer-card-links">
+            <router-link to="/friend-links" class="footer-link">友链</router-link>
+            <a href="https://www.hazenix.top" target="_blank" class="footer-link">作品集</a>
+          </div>
         </div>
 
         <!-- 联系我 -->
-        <div>
-          <h3 class="font-bold text-base text-gray-900 dark:text-white mb-4">
-            联系我叭&gt;
-          </h3>
-          <ul class="space-y-2 text-sm">
-            <li>
-              <a href="#" class="hover:text-primary transition-colors" @click.prevent="handleLeaveMessage">
-                写留言
-              </a>
-            </li>
-            <li>
-              <a :href="`mailto:${email}`" class="hover:text-primary transition-colors">
-                发邮件
-              </a>
-            </li>
-            <li>
-              <a :href="githubUrl" target="_blank" rel="noopener noreferrer" class="hover:text-primary transition-colors">
-                GitHub
-              </a>
-            </li>
-          </ul>
+        <div class="footer-card">
+          <h3 class="footer-card-title">📬 联系我</h3>
+          <div class="footer-card-links">
+            <a class="footer-link" @click.prevent="handleLeaveMessage">写留言</a>
+            <a :href="`mailto:${email}`" class="footer-link">发邮件</a>
+            <a :href="githubUrl" target="_blank" rel="noopener noreferrer" class="footer-link">GitHub</a>
+          </div>
         </div>
       </div>
 
       <!-- 底部信息 -->
       <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
-        <div class="flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-          <!-- 左侧：备案号和版权 -->
-          <div class="flex flex-col md:flex-row items-center gap-2 md:gap-4">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+          <!-- Left: ICP and copyright - left aligned on mobile -->
+          <div class="flex flex-col gap-1">
             <p>湘ICP备2025144995号</p>
-            <p class="hidden md:inline">|</p>
             <p>Copyright © 2025-2026 Hazenix. 保留所有权利。</p>
           </div>
 
-          <!-- 右侧：技术支持信息 -->
-          <div class="flex items-center gap-2">
+          <!-- Right: Powered by -->
+          <div class="flex items-center gap-1">
             <p>Powered by</p>
-            <a href="https://github.com/HazeHacker" target="_blank" rel="noopener noreferrer" 
+            <a href="https://github.com/HazeHacker" target="_blank" rel="noopener noreferrer"
                class="text-primary hover:underline">
               Hazenix Blog
             </a>
@@ -173,6 +129,45 @@ footer {
 @media (max-width: 768px) {
   footer {
     min-height: auto;
+    padding: 24px 0 16px;
+  }
+
+  .footer-card {
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 14px;
+  }
+
+  .dark .footer-card {
+    background: rgba(30, 41, 59, 0.6);
+  }
+
+  .footer-card-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 10px;
+  }
+
+  .dark .footer-card-title {
+    color: #e5e7eb;
+  }
+
+  .footer-card-links {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .footer-link {
+    font-size: 13px;
+    color: var(--el-color-primary);
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .footer-link:hover {
+    text-decoration: underline;
   }
 }
 

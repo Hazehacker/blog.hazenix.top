@@ -1,61 +1,71 @@
 <template>
-  <div class="toc-container" style="margin-top: 50px;">
-    <!-- 滚动进度 -->
-    <div v-if="!isMobile" class="scroll-progress" @click="scrollToTop">
-      <div class="progress-text">
-        {{ scrollProgress }}% ↑ 返回顶部
+  <div class="toc-container mt-[50px]" :class="{ 'toc-mobile': isMobile }">
+    <!-- Mobile collapsible header -->
+    <button v-if="isMobile" class="toc-collapse-header" @click="toggleMobileToc" :aria-expanded="mobileTocExpanded" aria-controls="toc-content">
+      <div class="flex items-center gap-2">
+        <el-icon><Document /></el-icon>
+        <span class="font-semibold text-sm">目录</span>
       </div>
-    </div>
+      <el-icon :class="{ 'rotate-180': mobileTocExpanded }">
+        <ArrowDown />
+      </el-icon>
+    </button>
 
-    <!-- 目录标题 -->
-    <div class="toc-header">
-      <h3 class="toc-title">
-        <el-icon class="mr-2"><Document /></el-icon>
-        目录
-      </h3>
-    </div>
+    <!-- TOC content (collapsible on mobile) -->
+    <div id="toc-content" v-show="!isMobile || mobileTocExpanded">
+      <!-- Desktop scroll progress -->
+      <div v-if="!isMobile" class="scroll-progress" @click="scrollToTop">
+        <div class="progress-text">
+          {{ scrollProgress }}% ↑ 返回顶部
+        </div>
+      </div>
 
-    <!-- 目录内容 -->
-    <div v-if="tocItems.length > 0" class="toc-content">
-      <nav class="toc-nav">
-        <ul class="toc-list">
-          <li
-            v-for="item in tocItems"
-            :key="item.id"
-            :class="[
-              'toc-item',
-              `toc-level-${item.level}`,
-              { 'toc-active': item.id === activeId }
-            ]"
-          >
-            <a
-              :href="`#${item.id}`"
-              class="toc-link"
-              @click.prevent="handleTocClick(item.id)"
+      <!-- Desktop TOC title -->
+      <div v-if="!isMobile" class="toc-header">
+        <h3 class="toc-title">
+          <el-icon class="mr-2"><Document /></el-icon>
+          目录
+        </h3>
+      </div>
+
+      <!-- TOC items -->
+      <div v-if="tocItems.length > 0" class="toc-content">
+        <nav class="toc-nav">
+          <ul class="toc-list">
+            <li
+              v-for="item in tocItems"
+              :key="item.id"
+              :class="[
+                'toc-item',
+                `toc-level-${item.level}`,
+                { 'toc-active': item.id === activeId }
+              ]"
             >
-              {{ item.text }}
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </div>
+              <a
+                :href="`#${item.id}`"
+                class="toc-link"
+                @click.prevent="handleTocClick(item.id)"
+              >
+                {{ item.text }}
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
 
-    <!-- 空状态 -->
-    <div v-else class="toc-empty">
-      <p class="text-sm text-gray-500 dark:text-gray-400">
-        暂无目录
-      </p>
-    </div>
+      <!-- Empty state -->
+      <div v-else class="toc-empty">
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+          暂无目录
+        </p>
+      </div>
 
-    <!-- 文章统计信息 -->
-    <div v-if="!isMobile && article" class="article-stats" style="display: flex;padding-left: 40px;">
-      <!-- <div class="stats-item" style="display: flex;width: 50%;">
-        <el-icon class="stats-icon"><View /></el-icon>
-        <span class="stats-text">  {{ article.viewCount || article.views || 0 }}</span>
-      </div> -->
-      <div class="stats-item" style="display: flex;width: 50%;margin-bottom: 8px;">
-        <el-icon class="stats-icon"><ChatDotRound /></el-icon>
-        <span class="stats-text"> {{ article.commentCount || article.comments || 0 }}</span>
+      <!-- Desktop article stats -->
+      <div v-if="!isMobile && article" class="article-stats flex pl-10">
+        <div class="stats-item flex w-1/2 mb-2">
+          <el-icon class="stats-icon"><ChatDotRound /></el-icon>
+          <span class="stats-text"> {{ article.commentCount || article.comments || 0 }}</span>
+        </div>
       </div>
     </div>
   </div>
@@ -63,7 +73,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
-import { Document, Star, Collection, Share, View, ChatDotRound } from '@element-plus/icons-vue'
+import { Document, Star, Collection, Share, View, ChatDotRound, ArrowDown } from '@element-plus/icons-vue'
 import MarkdownIt from 'markdown-it'
 
 const props = defineProps({
@@ -86,6 +96,11 @@ const emit = defineEmits(['toc-click', 'like', 'collect', 'share'])
 const tocItems = ref([])
 const activeId = ref('')
 const scrollProgress = ref(0)
+const mobileTocExpanded = ref(false)
+
+const toggleMobileToc = () => {
+  mobileTocExpanded.value = !mobileTocExpanded.value
+}
 
 // 注意：TableOfContents 现在直接从 DOM 读取 ID，不再自己生成
 // 保留 usedIds 用于回退方案
@@ -742,41 +757,60 @@ watch(() => props.content, () => {
   @apply font-medium;
 }
 
-.toc-actions {
-  @apply p-4 border-t border-gray-200 dark:border-gray-700 flex justify-between;
-  gap: 0.5rem;
-}
-
-.action-item {
-  @apply flex flex-col items-center cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700;
-  flex: 1;
-}
-
-.action-item.liked {
-  @apply text-yellow-500 hover:text-yellow-600;
-}
-
-.action-item.collected {
-  @apply text-green-500 hover:text-green-600;
-}
-
-.action-icon {
-  @apply text-lg mb-0.5;
-}
-
-.action-text {
-  @apply text-xs font-medium;
-}
-
 /* 移动端适配 */
 @media (max-width: 768px) {
   .toc-container {
-    @apply rounded-none border-x-0;
+    margin-top: 0 !important;
   }
-  
+
+  .toc-mobile {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  .toc-collapse-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 12px 16px;
+    background: #f0f7ff;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+    margin-bottom: 8px;
+    font: inherit;
+    color: inherit;
+  }
+
+  .dark .toc-collapse-header {
+    background: rgba(59, 130, 246, 0.1);
+  }
+
+  .toc-collapse-header:active {
+    background: #e0efff;
+  }
+
+  .dark .toc-collapse-header:active {
+    background: rgba(59, 130, 246, 0.2);
+  }
+
+  .toc-content {
+    padding: 8px 0;
+  }
+
+  .rotate-180 {
+    transform: rotate(180deg);
+    transition: transform 0.2s;
+  }
+
   .article-stats,
   .toc-actions {
-    @apply hidden;
+    display: none;
   }
 }
 </style>

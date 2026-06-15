@@ -1,10 +1,18 @@
 <template>
   <header class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center py-6 bg-white dark:bg-gray-900/90 backdrop-blur-sm shadow-md" style="height: 70px;">
     <div class="flex items-center space-x-2" style="margin-left: 30px;">
-      <img :src="avatarUrl" 
-           alt="User avatar" 
-           class="w-10 h-10 rounded-full"
+      <!-- Desktop avatar -->
+      <img :src="avatarUrl" alt="User avatar"
+           class="w-10 h-10 rounded-full hidden md:block"
            @error="onAvatarError" />
+
+      <!-- Mobile: avatar as hamburger menu trigger -->
+      <div class="flex items-center space-x-2 md:hidden cursor-pointer" @click="openMobileMenu">
+        <img :src="avatarUrl" alt="Menu"
+             class="w-10 h-10 rounded-full"
+             @error="onAvatarError" />
+        <span class="text-base font-semibold text-gray-800 dark:text-gray-200">Hazenix的后端札记</span>
+      </div>
     </div>
     
     <nav class="hidden md:flex items-center space-x-8 text-gray-600 dark:text-gray-400">
@@ -107,6 +115,52 @@
     </div>
     
   </header>
+
+  <teleport to="body">
+    <transition name="mobile-menu-fade">
+      <div v-if="mobileMenuVisible" class="mobile-menu-overlay" @click.self="closeMobileMenu">
+        <div class="mobile-menu-panel">
+          <div class="flex justify-between items-center p-4">
+            <span class="text-lg font-semibold text-gray-800 dark:text-gray-200">导航</span>
+            <el-button link @click="closeMobileMenu" class="text-2xl">
+              <el-icon><Close /></el-icon>
+            </el-button>
+          </div>
+
+          <div class="mobile-menu-items">
+            <router-link to="/home" class="mobile-menu-item" @click="closeMobileMenu">🏠 首页</router-link>
+
+            <div class="mobile-menu-item" @click="toggleMobileCategories">
+              📝 文章
+              <el-icon class="ml-auto transition-transform" :class="{ 'rotate-180': mobileCategoriesExpanded }"><ArrowDown /></el-icon>
+            </div>
+            <div v-show="mobileCategoriesExpanded" class="mobile-sub-items">
+              <router-link v-for="cat in categories" :key="cat.id"
+                :to="`/articles?categoryId=${cat.id}`"
+                class="mobile-sub-item" @click="closeMobileMenu">
+                {{ cat.name }} <span class="text-gray-400">({{ cat.articleCount }})</span>
+              </router-link>
+            </div>
+
+            <router-link to="/tags" class="mobile-menu-item" @click="closeMobileMenu">🏷️ 标签</router-link>
+            <router-link to="/tree-hole" class="mobile-menu-item" @click="closeMobileMenu">🌳 树洞</router-link>
+            <router-link to="/friend-links" class="mobile-menu-item" @click="closeMobileMenu">🔗 友链</router-link>
+            <router-link to="/about" class="mobile-menu-item" @click="closeMobileMenu">👤 关于我</router-link>
+            <a href="https://monitor.hazenix.top/share/UOi3M8l7j4ZSjDn3" target="_blank" rel="noopener noreferrer" class="mobile-menu-item" @click="closeMobileMenu">📊 监控</a>
+            <a href="https://www.hazenix.top" target="_blank" rel="noopener noreferrer" class="mobile-menu-item" @click="closeMobileMenu">💼 作品集</a>
+          </div>
+
+          <div class="mobile-menu-footer">
+            <div v-if="userStore.token && userStore.userInfo" class="mobile-menu-item" @click="goToProfile">
+              <img :src="avatarUrl" class="w-6 h-6 rounded-full" @error="onAvatarError" />
+              <span>个人中心</span>
+            </div>
+            <div v-else class="mobile-menu-item" @click="openLoginFromMobile">👤 登录</div>
+          </div>
+        </div>
+      </div>
+    </transition>
+  </teleport>
 </template>
 
 <script setup>
@@ -114,7 +168,7 @@ import { ref, watch, onMounted, computed } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useRouter, useRoute } from 'vue-router'
 import ThemeToggle from '@/components/common/ThemeToggle.vue'
-import { Search, User, ArrowDown, InfoFilled, DataAnalysis, Collection } from '@element-plus/icons-vue'
+import { Search, User, ArrowDown, InfoFilled, DataAnalysis, Collection, Close } from '@element-plus/icons-vue'
 import { getCategoryList } from '@/api/category'
 import { getArticleList } from '@/api/article'
 
@@ -289,6 +343,35 @@ watch(
     maybeOpenLoginFromQuery()
   }
 )
+
+// Mobile menu state
+const mobileMenuVisible = ref(false)
+const mobileCategoriesExpanded = ref(false)
+
+const openMobileMenu = () => {
+  mobileMenuVisible.value = true
+  document.body.style.overflow = 'hidden'
+}
+
+const closeMobileMenu = () => {
+  mobileMenuVisible.value = false
+  mobileCategoriesExpanded.value = false
+  document.body.style.overflow = ''
+}
+
+const toggleMobileCategories = () => {
+  mobileCategoriesExpanded.value = !mobileCategoriesExpanded.value
+}
+
+const openLoginFromMobile = () => {
+  closeMobileMenu()
+  window.dispatchEvent(new CustomEvent('open-login-dialog'))
+}
+
+const goToProfile = () => {
+  closeMobileMenu()
+  router.push('/profile')
+}
 </script>
 
 <style scoped>
@@ -453,5 +536,101 @@ nav a, nav .more-trigger, nav .article-link {
 
 .dark .category-count {
   color: #9ca3af;
+}
+
+/* Mobile fullscreen overlay menu */
+.mobile-menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(255, 255, 255, 0.98);
+}
+
+.dark .mobile-menu-overlay {
+  background: rgba(17, 24, 39, 0.98);
+}
+
+.mobile-menu-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+}
+
+.mobile-menu-items {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 24px;
+}
+
+.mobile-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  text-decoration: none;
+  border-bottom: 1px solid #f3f4f6;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.dark .mobile-menu-item {
+  color: #e5e7eb;
+  border-bottom-color: #1f2937;
+}
+
+.mobile-menu-item:active {
+  color: var(--el-color-primary);
+}
+
+.dark .mobile-menu-item:active {
+  color: var(--el-color-primary-light-3);
+}
+
+.mobile-sub-items {
+  padding-left: 40px;
+  padding-bottom: 8px;
+}
+
+.mobile-sub-item {
+  display: block;
+  padding: 10px 0;
+  font-size: 15px;
+  color: #6b7280;
+  text-decoration: none;
+  border-bottom: 1px solid #f9fafb;
+}
+
+.dark .mobile-sub-item {
+  color: #9ca3af;
+  border-bottom-color: #1f2937;
+}
+
+.mobile-menu-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.dark .mobile-menu-footer {
+  border-top-color: #374151;
+}
+
+.rotate-180 {
+  transform: rotate(180deg);
+}
+
+/* Transition */
+.mobile-menu-fade-enter-active {
+  transition: opacity 0.25s ease;
+}
+.mobile-menu-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.mobile-menu-fade-enter-from,
+.mobile-menu-fade-leave-to {
+  opacity: 0;
 }
 </style>

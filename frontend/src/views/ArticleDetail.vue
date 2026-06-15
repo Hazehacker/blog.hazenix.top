@@ -56,6 +56,55 @@
             <MarkdownRenderer :content="article.content" />
           </div>
 
+          <!-- Mobile: Tags, actions, and related articles at article bottom -->
+          <div v-if="isMobile && article" class="mobile-article-footer md:hidden">
+            <!-- Tags -->
+            <div v-if="article.tags && article.tags.length > 0" class="mobile-tags">
+              <span class="mobile-section-label">标签</span>
+              <div class="flex flex-wrap gap-2">
+                <el-tag
+                  v-for="tag in article.tags"
+                  :key="tag.id || tag"
+                  size="small"
+                  class="tag-item"
+                  @click="searchByTag(getTagName(tag))"
+                >
+                  {{ getTagName(tag) }}
+                </el-tag>
+              </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="mobile-actions">
+              <div class="mobile-action-btn" @click="likeArticle" :class="{ 'liked': article?.isLiked }">
+                <el-icon :size="20" :class="{ 'text-red-500': article?.isLiked }"><Pointer /></el-icon>
+                <span>{{ article?.likeCount || article?.likes || 0 }}</span>
+              </div>
+              <div class="mobile-action-btn" @click="collectArticle" :class="{ 'collected': article?.isCollected }">
+                <el-icon :size="20" :class="{ 'text-green-500': article?.isCollected }"><Collection /></el-icon>
+                <span>{{ article?.isCollected ? '已收藏' : '收藏' }}</span>
+              </div>
+              <div class="mobile-action-btn" @click="shareArticle">
+                <el-icon :size="20"><Share /></el-icon>
+                <span>分享</span>
+              </div>
+            </div>
+
+            <!-- Related articles -->
+            <div v-if="relatedArticles.length > 0" class="mobile-related">
+              <span class="mobile-section-label">相关文章</span>
+              <div
+                v-for="related in relatedArticles"
+                :key="related.id"
+                class="mobile-related-item"
+                @click="goToArticle(related)"
+              >
+                <h4>{{ related.title }}</h4>
+                <p>{{ formatDate(related.createTime) }}</p>
+              </div>
+            </div>
+          </div>
+
         </article>
 
         <!-- 加载状态 -->
@@ -86,7 +135,7 @@
         <!-- 相关文章 -->
         <div v-if="relatedArticles.length > 0" class="sidebar-section">
           <div class="section-header">
-            <h3 class="section-title">相关文章</h3>
+            <h3 class="sidebar-section-title">相关文章</h3>
           </div>
           <div class="related-articles">
             <div
@@ -106,7 +155,7 @@
         <!-- 标签云 -->
         <div v-if="article?.tags && article.tags.length > 0" class="sidebar-section">
           <div class="section-header">
-            <h3 class="section-title">标签</h3>
+            <h3 class="sidebar-section-title">标签</h3>
           </div>
           <div class="tag-cloud">
             <el-tag
@@ -689,6 +738,10 @@ onUnmounted(() => {
   @apply absolute left-0 top-0 bottom-0 w-1 bg-gray-300 dark:bg-gray-600 rounded;
 }
 
+.sidebar-section-title {
+  @apply text-lg font-semibold text-gray-900 dark:text-gray-100 m-0;
+}
+
 .problem-list {
   @apply space-y-4;
 }
@@ -731,10 +784,6 @@ onUnmounted(() => {
   @apply p-4 border-b border-gray-200 dark:border-gray-700;
 }
 
-.section-title {
-  @apply text-lg font-semibold text-gray-900 dark:text-gray-100 m-0;
-}
-
 .related-articles {
   @apply p-4 space-y-4;
 }
@@ -775,7 +824,7 @@ onUnmounted(() => {
   gap: 0.3rem;
   background: white;
   border-radius: 12px;
-  padding: 0.rem;
+  padding: 0.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border: 0.5px solid rgba(229, 231, 235, 1);
 }
@@ -871,6 +920,105 @@ onUnmounted(() => {
   .fixed-actions {
     display: none;
   }
+}
+
+/* Mobile article footer */
+.mobile-article-footer {
+  padding: 16px 16px 8px;
+  margin-top: 16px;
+}
+
+.mobile-section-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #9ca3af;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.mobile-tags {
+  margin-bottom: 24px;
+}
+
+.mobile-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding: 20px 0;
+  margin-bottom: 24px;
+}
+
+.mobile-action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 24px;
+  border-radius: 12px;
+  background: #f3f4f6;
+  cursor: pointer;
+  font-size: 14px;
+  color: #6b7280;
+  transition: all 0.2s;
+  min-width: 70px;
+  user-select: none;
+}
+
+.dark .mobile-action-btn {
+  background: #1f2937;
+  color: #9ca3af;
+}
+
+.mobile-action-btn:active {
+  transform: scale(0.95);
+}
+
+.mobile-action-btn.liked {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+.mobile-action-btn.collected {
+  background: #f0fdf4;
+  color: #10b981;
+}
+
+.mobile-related {
+  padding-top: 16px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.dark .mobile-related {
+  border-top-color: #1f2937;
+}
+
+.mobile-related-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #f3f4f6;
+  cursor: pointer;
+}
+
+.dark .mobile-related-item {
+  border-bottom-color: #1f2937;
+}
+
+.mobile-related-item h4 {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2937;
+  margin: 0 0 4px;
+}
+
+.dark .mobile-related-item h4 {
+  color: #e5e7eb;
+}
+
+.mobile-related-item p {
+  font-size: 12px;
+  color: #9ca3af;
+  margin: 0;
 }
 
 /* 打印样式 */

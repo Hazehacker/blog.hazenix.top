@@ -1,8 +1,26 @@
 <template>
-  <div class="py-16 md:py-24">
+  <div class="py-8 md:py-24">
     <!-- 主题切换引导 -->
     <ThemeGuide v-model="showThemeGuide" />
-    <div class="flex flex-col md:flex-row justify-between items-start gap-12">
+
+    <!-- Mobile Hero: vertical centered stack -->
+    <div class="flex flex-col items-center text-center md:hidden mb-10">
+      <img :src="avatarImg"
+           alt="Hazenix"
+           class="w-20 h-20 rounded-full mb-5 shadow-lg" />
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-3" style="font-family: 'Playfair Display', 'Times New Roman', serif;">
+        Hazenix's Blog
+      </h1>
+      <p class="text-base text-primary font-semibold mb-2 px-4">
+        Only those who keep walking light up the long road of time
+      </p>
+      <p class="text-sm text-gray-500 dark:text-gray-400">
+        我会一直走，走到灯火通明
+      </p>
+    </div>
+
+    <!-- Desktop Hero: keep existing horizontal layout unchanged -->
+    <div class="hidden md:flex flex-col md:flex-row justify-between items-start gap-12">
       <div class="md:w-2/3">
         <h1 class="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white" style="font-family: 'Playfair Display', 'Times New Roman', serif;">
           Hazenix's Blog
@@ -14,7 +32,7 @@
          我会一直走，走到灯火通明
         </p>
       </div>
-      
+
       <div class="w-full md:w-1/3 mt-12 md:mt-0">
         <UserCard />
       </div>
@@ -24,7 +42,7 @@
     <div class="mt-24 grid grid-cols-1 lg:grid-cols-3 gap-8">
       <!-- 最新文章列表 -->
       <div class="lg:col-span-2">
-        <h2 class="text-3xl font-bold mb-8">最新文章</h2>
+        <h2 class="text-xl md:text-3xl font-bold mb-8">最新文章</h2>
         <ArticleList :articles="latestArticles" />
         <div class="mt-6 flex justify-center">
           <button
@@ -65,6 +83,7 @@ import { ElMessage } from 'element-plus'
 import { getArticleList } from '@/api/article'
 import RecommendSection from '@/components/article/RecommendSection.vue'
 import ArticleList from '@/components/article/ArticleList.vue'
+import avatarImg from '@/assets/img/avatar.jpg'
 import UserCard from '@/components/common/UserCard.vue'
 import PopularArticles from '@/components/article/PopularArticles.vue'
 import ThemeGuide from '@/components/common/ThemeGuide.vue'
