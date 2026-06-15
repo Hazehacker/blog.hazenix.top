@@ -691,25 +691,28 @@ watch(() => props.content, () => {
 
 .toc-float {
   position: fixed;
-  right: 8px;
+  left: 50%;
+  transform: translateX(-50%);
   top: 72px;
   z-index: 151;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: center;
 }
 
 .toc-float-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 10px 14px;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 24px;
+  width: 200px;
   background: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 20px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   cursor: pointer;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: #374151;
   white-space: nowrap;
@@ -734,9 +737,10 @@ watch(() => props.content, () => {
 
 .toc-float-panel {
   position: absolute;
-  right: 0;
-  bottom: calc(100% + 8px);
-  width: 260px;
+  left: 50%;
+  transform: translateX(-50%);
+  top: calc(100% + 8px);
+  width: 280px;
   max-height: 50vh;
   overflow-y: auto;
   background: #fff;
