@@ -706,11 +706,11 @@ watch(() => props.content, () => {
   justify-content: center;
   gap: 8px;
   padding: 8px 24px;
-  width: 240px;
+  width: 352px;
   background: rgba(243, 244, 246, 0.85);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(209, 213, 219, 0.6);
-  border-radius: 20px;
+  border-radius: 7px;
   box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
   cursor: pointer;
   font-size: 13px;
