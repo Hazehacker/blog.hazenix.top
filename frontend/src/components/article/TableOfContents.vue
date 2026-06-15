@@ -1,79 +1,112 @@
 <template>
-  <div class="toc-container mt-[50px]" :class="{ 'toc-mobile': isMobile }">
-    <!-- Mobile collapsible header -->
-    <button v-if="isMobile" class="toc-collapse-header" @click="toggleMobileToc" :aria-expanded="mobileTocExpanded" aria-controls="toc-content">
-      <div class="flex items-center gap-2">
-        <el-icon><Document /></el-icon>
-        <span class="font-semibold text-sm">目录</span>
-      </div>
-      <el-icon :class="{ 'rotate-180': mobileTocExpanded }">
-        <ArrowDown />
-      </el-icon>
-    </button>
-
-    <!-- TOC content (collapsible on mobile) -->
-    <div id="toc-content" v-show="!isMobile || mobileTocExpanded">
-      <!-- Desktop scroll progress -->
-      <div v-if="!isMobile" class="scroll-progress" @click="scrollToTop">
-        <div class="progress-text">
-          {{ scrollProgress }}% ↑ 返回顶部
-        </div>
-      </div>
-
-      <!-- Desktop TOC title -->
-      <div v-if="!isMobile" class="toc-header">
-        <h3 class="toc-title">
-          <el-icon class="mr-2"><Document /></el-icon>
-          目录
-        </h3>
-      </div>
-
-      <!-- TOC items -->
-      <div v-if="tocItems.length > 0" class="toc-content">
-        <nav class="toc-nav">
-          <ul class="toc-list">
-            <li
-              v-for="item in tocItems"
-              :key="item.id"
-              :class="[
-                'toc-item',
-                `toc-level-${item.level}`,
-                { 'toc-active': item.id === activeId }
-              ]"
-            >
-              <a
-                :href="`#${item.id}`"
-                class="toc-link"
-                @click.prevent="handleTocClick(item.id)"
-              >
-                {{ item.text }}
-              </a>
-            </li>
-          </ul>
-        </nav>
-      </div>
-
-      <!-- Empty state -->
-      <div v-else class="toc-empty">
-        <p class="text-sm text-gray-500 dark:text-gray-400">
-          暂无目录
-        </p>
-      </div>
-
-      <!-- Desktop article stats -->
-      <div v-if="!isMobile && article" class="article-stats flex pl-10">
-        <div class="stats-item flex w-1/2 mb-2">
-          <el-icon class="stats-icon"><ChatDotRound /></el-icon>
-          <span class="stats-text"> {{ article.commentCount || article.comments || 0 }}</span>
-        </div>
+  <!-- 桌面端：保持不变 -->
+  <div v-if="!isMobile" class="toc-container mt-[50px]">
+    <div class="scroll-progress" @click="scrollToTop">
+      <div class="progress-text">
+        {{ scrollProgress }}% ↑ 返回顶部
       </div>
     </div>
+
+    <div class="toc-header">
+      <h3 class="toc-title">
+        <el-icon class="mr-2"><Document /></el-icon>
+        目录
+      </h3>
+    </div>
+
+    <div v-if="tocItems.length > 0" class="toc-content">
+      <nav class="toc-nav">
+        <ul class="toc-list">
+          <li
+            v-for="item in tocItems"
+            :key="item.id"
+            :class="[
+              'toc-item',
+              `toc-level-${item.level}`,
+              { 'toc-active': item.id === activeId }
+            ]"
+          >
+            <a
+              :href="`#${item.id}`"
+              class="toc-link"
+              @click.prevent="handleTocClick(item.id)"
+            >
+              {{ item.text }}
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <div v-else class="toc-empty">
+      <p class="text-sm text-gray-500 dark:text-gray-400">暂无目录</p>
+    </div>
+
+    <div v-if="article" class="article-stats flex pl-10">
+      <div class="stats-item flex w-1/2 mb-2">
+        <el-icon class="stats-icon"><ChatDotRound /></el-icon>
+        <span class="stats-text"> {{ article.commentCount || article.comments || 0 }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 移动端：悬浮目录按钮 -->
+  <div v-else class="toc-float-wrapper">
+    <teleport to="body">
+      <transition name="toc-backdrop-fade">
+        <div v-show="mobileTocExpanded" class="toc-backdrop" @click="closeMobileToc"></div>
+      </transition>
+      <div class="toc-float" :class="{ 'toc-float--open': mobileTocExpanded }">
+        <button
+          class="toc-float-btn"
+          @click="toggleMobileToc"
+          :aria-expanded="mobileTocExpanded"
+          aria-controls="toc-float-panel"
+        >
+          <el-icon :size="18"><Document /></el-icon>
+          <span>目录</span>
+          <el-icon :size="16" class="toc-float-arrow">
+            <ArrowLeft v-if="!mobileTocExpanded" />
+            <ArrowDown v-else />
+          </el-icon>
+        </button>
+
+        <div id="toc-float-panel" v-show="mobileTocExpanded" class="toc-float-panel">
+          <div v-if="tocItems.length > 0" class="toc-float-content">
+            <nav>
+              <ul class="toc-list">
+                <li
+                  v-for="item in tocItems"
+                  :key="item.id"
+                  :class="[
+                    'toc-item',
+                    `toc-level-${item.level}`,
+                    { 'toc-active': item.id === activeId }
+                  ]"
+                >
+                  <a
+                    :href="`#${item.id}`"
+                    class="toc-link"
+                    @click.prevent="handleTocClick(item.id); closeMobileToc()"
+                  >
+                    {{ item.text }}
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+          <div v-else class="toc-empty">
+            <p class="text-sm text-gray-500 dark:text-gray-400">暂无目录</p>
+          </div>
+        </div>
+      </div>
+    </teleport>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
-import { Document, Star, Collection, Share, View, ChatDotRound, ArrowDown } from '@element-plus/icons-vue'
+import { Document, Star, Collection, Share, View, ChatDotRound, ArrowDown, ArrowLeft } from '@element-plus/icons-vue'
 import MarkdownIt from 'markdown-it'
 
 const props = defineProps({
@@ -102,62 +135,48 @@ const toggleMobileToc = () => {
   mobileTocExpanded.value = !mobileTocExpanded.value
 }
 
-// 注意：TableOfContents 现在直接从 DOM 读取 ID，不再自己生成
-// 保留 usedIds 用于回退方案
+const closeMobileToc = () => {
+  mobileTocExpanded.value = false
+}
+
 const usedIds = new Map()
 
-// 使用 markdown-it 解析内容，只提取非代码块中的标题
-// markdown-it 的 fence token 是自包含的，所以任何 heading_open token 都不可能在代码块中
 const parseToc = (content) => {
   if (!content) return []
-  
-  // 重置已使用的ID
+
   usedIds.clear()
-  
+
   const headings = []
-  
-  // 创建 markdown-it 实例（只用于解析，不渲染）
+
   const md = new MarkdownIt()
-  
+
   try {
-    // 解析 markdown 内容为 tokens
     const tokens = md.parse(content, {})
-    
-    // 遍历 tokens，提取标题
-    // markdown-it 会将代码块内容作为单独的 fence token，不会混在其他 token 中
-    // 所以如果遇到 heading_open token，它肯定不在代码块中
+
     tokens.forEach((token, index) => {
       if (token.type === 'heading_open') {
-        // 获取标题内容（下一个 token 应该是 inline 类型，包含标题文本）
         const nextToken = tokens[index + 1]
         if (nextToken && nextToken.type === 'inline') {
-          // 从 inline token 中提取纯文本
-          // 需要遍历 inline token 的子 tokens，提取文本内容
           let text = ''
           if (nextToken.children) {
-            // 遍历子 tokens，提取文本内容
             nextToken.children.forEach(child => {
               if (child.type === 'text') {
                 text += child.content
               } else if (child.type === 'highlight') {
-                // 高亮标记的内容
                 text += child.content
               } else if (child.content) {
-                // 其他类型的 token，如果有 content 也添加
                 text += child.content
               }
             })
           } else {
-            // 如果没有子 tokens，直接使用 content
             text = nextToken.content || ''
           }
-          
-          // 移除高亮标记 ==文本== 中的 == 符号（如果还有残留）
+
           text = text.replace(/==([^=]+)==/g, '$1').trim()
-          
-          const level = parseInt(token.tag.substring(1)) // h1 -> 1, h2 -> 2, etc.
-          const id = generateId(text, true) // 使用唯一ID生成函数
-          
+
+          const level = parseInt(token.tag.substring(1))
+          const id = generateId(text, true)
+
           headings.push({
             id,
             level,
@@ -168,37 +187,31 @@ const parseToc = (content) => {
       }
     })
   } catch (error) {
-    // console.error('Error parsing TOC with markdown-it:', error)
-    // 如果解析失败，回退到简单的行解析（但不解析代码块中的内容）
     return parseTocFallback(content)
   }
-  
-  // console.log('Generated TOC items:', headings)
+
   return headings
 }
 
-// 回退方案：简单的行解析，但排除代码块
 const parseTocFallback = (content) => {
   if (!content) return []
-  
-  // 重置已使用的ID
+
   usedIds.clear()
-  
+
   const headings = []
   const lines = content.split('\n')
   let inCodeBlock = false
   let codeBlockFence = ''
-  
+
   lines.forEach((line, index) => {
     const trimmedLine = line.trim()
-    
-    // 检查是否是代码块标记
+
     const codeFenceMatch = trimmedLine.match(/^(```+|~~~+)/)
-    
+
     if (codeFenceMatch) {
       const fence = codeFenceMatch[1]
       const fenceType = fence.substring(0, 3)
-      
+
       if (!inCodeBlock) {
         inCodeBlock = true
         codeBlockFence = fenceType
@@ -210,23 +223,20 @@ const parseTocFallback = (content) => {
       }
       return
     }
-    
-    // 如果在代码块中，跳过
+
     if (inCodeBlock) {
       return
     }
-    
-    // 检查是否是标题
+
     const match = line.match(/^(#{1,6})\s+(.+)$/)
     if (match) {
       const level = match[1].length
       let text = match[2].trim()
-      
-      // 移除高亮标记 ==文本== 中的 == 符号
+
       text = text.replace(/==([^=]+)==/g, '$1').trim()
-      
-      const id = generateId(text, true) // 使用唯一ID生成函数
-      
+
+      const id = generateId(text, true)
+
       headings.push({
         id,
         level,
@@ -235,36 +245,28 @@ const parseTocFallback = (content) => {
       })
     }
   })
-  
+
   return headings
 }
 
-// 生成ID的函数，支持中文字符，并为重复的标题添加序号后缀（与 markdown.js 中的逻辑一致）
 const generateId = (text, isUnique = false) => {
   if (!text) return ''
-  
-  // 移除HTML标签
+
   let cleanText = text.replace(/<[^>]*>/g, '')
-  
-  // 移除高亮标记 ==文本== 中的 == 符号
-  // 匹配 ==文本== 格式，提取中间的文本
+
   cleanText = cleanText.replace(/==([^=]+)==/g, '$1')
-  
-  // 转换为小写
+
   let id = cleanText.toLowerCase()
-  
-  // 替换空格和特殊字符为连字符，但保留中文字符
-  id = id.replace(/[\s\u3000\u00a0]+/g, '-') // 替换各种空格
-         .replace(/[^\w\u4e00-\u9fa5-]/g, '') // 保留字母、数字、中文、连字符
-         .replace(/-+/g, '-') // 合并多个连字符
-         .replace(/^-|-$/g, '') // 移除首尾连字符
-  
-  // 如果ID为空，使用索引作为fallback
+
+  id = id.replace(/[\s　 ]+/g, '-')
+         .replace(/[^\w一-龥-]/g, '')
+         .replace(/-+/g, '-')
+         .replace(/^-|-$/g, '')
+
   if (!id) {
     id = `heading-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
   }
-  
-  // 如果需要唯一ID，检查是否已存在，如果存在则添加序号后缀
+
   if (isUnique) {
     const baseId = id
     let counter = 1
@@ -274,59 +276,49 @@ const generateId = (text, isUnique = false) => {
     }
     usedIds.set(id, true)
   }
-  
+
   return id
 }
 
-// 更新目录
 const updateToc = () => {
   tocItems.value = parseToc(props.content)
-  
-  // 等待 DOM 更新后，从实际渲染的标题中同步 ID
+
   setTimeout(() => {
     syncTocIdsFromDOM()
   }, 300)
 }
 
-// 从 DOM 中同步标题 ID，确保目录 ID 与实际渲染的标题 ID 一致
 const syncTocIdsFromDOM = () => {
-  // 在文章内容区域查找标题（避免找到其他地方的标题）
   const articleContent = document.querySelector('.markdown-content, .article-body, .prose')
   const searchContainer = articleContent || document
-  
+
   const domHeadings = Array.from(searchContainer.querySelectorAll('h1, h2, h3, h4, h5, h6'))
-    .filter(h => h.id) // 只获取有 ID 的标题
-  
+    .filter(h => h.id)
+
   if (domHeadings.length === 0) {
-    // 如果 DOM 中还没有标题，稍后重试
     setTimeout(() => syncTocIdsFromDOM(), 200)
     return
   }
-  
-  // 按顺序匹配目录项和 DOM 标题
+
   const updatedItems = []
   let domIndex = 0
-  
+
   for (let i = 0; i < tocItems.value.length; i++) {
     const tocItem = tocItems.value[i]
     let matched = false
-    
-    // 从当前位置开始查找匹配的标题
+
     for (let j = domIndex; j < domHeadings.length; j++) {
       const heading = domHeadings[j]
       let headingText = heading.textContent.trim()
-      // 移除高亮标记 ==文本== 中的 == 符号
       headingText = headingText.replace(/==([^=]+)==/g, '$1').trim()
-      
-      // 清理目录项文本，移除高亮标记
+
       let cleanTocText = tocItem.text.replace(/==([^=]+)==/g, '$1').trim()
-      
-      // 如果文本匹配（允许一些容差）
-      if (headingText === cleanTocText || 
+
+      if (headingText === cleanTocText ||
           headingText === tocItem.text ||
-          headingText.includes(cleanTocText) || 
+          headingText.includes(cleanTocText) ||
           cleanTocText.includes(headingText) ||
-          headingText.includes(tocItem.text) || 
+          headingText.includes(tocItem.text) ||
           tocItem.text.includes(headingText)) {
         updatedItems.push({
           ...tocItem,
@@ -337,45 +329,34 @@ const syncTocIdsFromDOM = () => {
         break
       }
     }
-    
-    // 如果没有找到匹配，保持原来的 ID
+
     if (!matched) {
       updatedItems.push(tocItem)
     }
   }
-  
+
   tocItems.value = updatedItems
-  
-  // 同步完成后，更新活动标题
+
   nextTick(() => {
     updateActiveHeading()
   })
 }
 
-// 处理目录点击
 const handleTocClick = (id) => {
-  // 找到对应的目录项，获取文本用于匹配
   const tocItem = tocItems.value.find(item => item.id === id)
-  // 保存原始文本（可能包含==）
   const originalTocText = tocItem ? tocItem.text : ''
-  // 清理目录文本，移除高亮标记
   let cleanTocText = originalTocText.replace(/==([^=]+)==/g, '$1').trim()
-  // 准备带高亮标记的版本（用于匹配）
   let highlightedTocText = `==${cleanTocText}==`
-  
+
   activeId.value = id
   emit('toc-click', id)
-  
-  // 滚动到对应位置，添加重试机制
+
   const scrollToElement = (retries = 5) => {
-    // 在文章内容区域查找标题（避免找到其他地方的标题）
     const articleContent = document.querySelector('.markdown-content, .article-body, .prose')
     const searchContainer = articleContent || document
-    
-    // 使用多种方式查找元素
+
     let element = null
-    
-    // 方法1: 直接通过 ID 查找
+
     try {
       if (CSS && CSS.escape) {
         element = searchContainer.querySelector(`#${CSS.escape(id)}`) || document.getElementById(id)
@@ -385,8 +366,7 @@ const handleTocClick = (id) => {
     } catch (e) {
       element = document.getElementById(id)
     }
-    
-    // 方法2: 如果找不到，尝试在所有标题中查找匹配的 ID
+
     if (!element) {
       const allHeadings = searchContainer.querySelectorAll('h1, h2, h3, h4, h5, h6')
       for (const heading of allHeadings) {
@@ -396,8 +376,7 @@ const handleTocClick = (id) => {
         }
       }
     }
-    
-    // 方法3: 尝试解码 URL 编码的 ID
+
     if (!element) {
       try {
         const decodedId = decodeURIComponent(id)
@@ -406,12 +385,9 @@ const handleTocClick = (id) => {
         } else {
           element = document.getElementById(decodedId)
         }
-      } catch (e) {
-        // 忽略错误
-      }
+      } catch (e) {}
     }
-    
-    // 方法4: 如果还是找不到，尝试通过 ID 的大小写不敏感匹配
+
     if (!element) {
       const allHeadings = searchContainer.querySelectorAll('h1, h2, h3, h4, h5, h6')
       const idLower = id.toLowerCase()
@@ -423,84 +399,63 @@ const handleTocClick = (id) => {
         }
       }
     }
-    
-    // 方法4.5: 如果ID匹配失败，立即尝试文本匹配（提前到ID匹配之后）
+
     if (!element && cleanTocText) {
       const allHeadings = searchContainer.querySelectorAll('h1, h2, h3, h4, h5, h6')
       for (const heading of allHeadings) {
         if (!heading.id) continue
-        
-        // 获取标题文本
+
         let headingText = heading.textContent.trim()
         headingText = headingText.replace(/==([^=]+)==/g, '$1').trim()
-        
-        // 获取标题HTML（用于检查是否包含高亮标记）
+
         const headingHTML = heading.innerHTML || ''
         const hasHighlight = headingHTML.includes('<mark') || headingHTML.includes('markdown-highlight')
-        
-        // 尝试匹配清理后的文本
+
         const tocTextLower = cleanTocText.toLowerCase()
         const headingTextLower = headingText.toLowerCase()
-        
-        const match1 = headingText === cleanTocText
-        const match2 = headingTextLower === tocTextLower
-        const match3 = headingText.includes(cleanTocText)
-        const match4 = cleanTocText.includes(headingText)
-        const match5 = headingTextLower.includes(tocTextLower)
-        const match6 = tocTextLower.includes(headingTextLower)
-        
-        if (match1 || match2 || match3 || match4 || match5 || match6) {
+
+        if (headingText === cleanTocText ||
+            headingTextLower === tocTextLower ||
+            headingText.includes(cleanTocText) ||
+            cleanTocText.includes(headingText) ||
+            headingTextLower.includes(tocTextLower) ||
+            tocTextLower.includes(headingTextLower)) {
           element = heading
           break
         }
-        
-        // 如果标题HTML中包含高亮标记，也尝试匹配带==的版本
+
         if (hasHighlight) {
-          const htmlMatch1 = headingHTML.includes(cleanTocText)
-          const htmlMatch2 = headingHTML.toLowerCase().includes(tocTextLower)
-          const htmlMatch3 = headingText === cleanTocText
-          
-          if (htmlMatch1 || htmlMatch2 || htmlMatch3) {
+          if (headingHTML.includes(cleanTocText) ||
+              headingHTML.toLowerCase().includes(tocTextLower)) {
             element = heading
             break
           }
         }
       }
     }
-    
-    // 方法5: 如果还是找不到，尝试通过标题文本进行更深入的模糊匹配
+
     if (!element && cleanTocText) {
       const allHeadings = searchContainer.querySelectorAll('h1, h2, h3, h4, h5, h6')
-      
+
       for (const heading of allHeadings) {
         if (!heading.id) continue
-        
-        // 获取标题文本，textContent 会自动移除 HTML 标签，包括 <mark> 标签
+
         let headingText = heading.textContent.trim()
-        // 再次移除可能残留的高亮标记（虽然 textContent 应该已经处理了）
         headingText = headingText.replace(/==([^=]+)==/g, '$1').trim()
-        
-        // 获取标题HTML（用于检查是否包含高亮标记）
+
         const headingHTML = heading.innerHTML || ''
-        
-        // 尝试多种匹配方式：
-        // 1. 精确匹配（忽略大小写）- 使用清理后的文本
-        // 2. 标题文本包含目录文本
-        // 3. 目录文本包含标题文本
-        // 4. 尝试匹配HTML中的内容（如果包含高亮标记）
+
         const tocTextLower = cleanTocText.toLowerCase()
         const headingTextLower = headingText.toLowerCase()
-        
-        // 检查原始标题HTML是否包含高亮标记
+
         const hasHighlightInHTML = headingHTML.includes('<mark') || headingHTML.includes('markdown-highlight')
-        
-        if (headingText === cleanTocText || 
+
+        if (headingText === cleanTocText ||
             headingTextLower === tocTextLower ||
-            headingText.includes(cleanTocText) || 
+            headingText.includes(cleanTocText) ||
             cleanTocText.includes(headingText) ||
             headingTextLower.includes(tocTextLower) ||
             tocTextLower.includes(headingTextLower) ||
-            // 如果标题HTML中包含高亮标记，也尝试匹配HTML内容
             (hasHighlightInHTML && (
               headingHTML.includes(cleanTocText) ||
               headingHTML.toLowerCase().includes(tocTextLower)
@@ -510,11 +465,10 @@ const handleTocClick = (id) => {
         }
       }
     }
-    
-    // 方法6: 如果还是找不到，尝试通过 ID 的部分匹配（处理可能的序号后缀）
+
     if (!element) {
       const allHeadings = searchContainer.querySelectorAll('h1, h2, h3, h4, h5, h6')
-      const idBase = id.replace(/-\d+$/, '') // 移除可能的序号后缀
+      const idBase = id.replace(/-\d+$/, '')
       for (const heading of allHeadings) {
         if (!heading.id) continue
         const headingIdBase = heading.id.replace(/-\d+$/, '')
@@ -524,44 +478,38 @@ const handleTocClick = (id) => {
         }
       }
     }
-    
+
     if (element) {
-      // 计算偏移量，考虑固定头部
       const offset = 100
       const elementPosition = element.getBoundingClientRect().top + window.pageYOffset
       const offsetPosition = Math.max(0, elementPosition - offset)
-      
+
       window.scrollTo({
         top: offsetPosition,
         behavior: 'smooth'
       })
-      
-      // 更新 URL hash（使用实际找到的元素 ID，不触发滚动）
+
       history.pushState(null, '', `#${element.id}`)
-      
-      // 更新活动 ID 为实际找到的元素 ID
+
       activeId.value = element.id
-      
-      // 滚动完成后更新活动标题
+
       setTimeout(() => {
         updateActiveHeading()
       }, 500)
       return true
     } else if (retries > 0) {
-      // 如果元素还没渲染，等待一下再重试
       setTimeout(() => {
         scrollToElement(retries - 1)
       }, 100)
-      return true // 表示正在处理中
+      return true
     }
-    
+
     return false
   }
-  
+
   scrollToElement()
 }
 
-// 更新滚动进度
 const updateScrollProgress = () => {
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop
   const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight
@@ -569,37 +517,32 @@ const updateScrollProgress = () => {
   scrollProgress.value = Math.min(100, Math.max(0, progress))
 }
 
-// 更新活动标题
 const updateActiveHeading = () => {
   const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6')
   if (headings.length === 0) return
-  
+
   let current = ''
   let currentTop = Infinity
-  
-  // 找到当前最接近顶部但仍在视口上方的标题
+
   headings.forEach(heading => {
-    if (!heading.id) return // 跳过没有ID的标题
-    
+    if (!heading.id) return
+
     const rect = heading.getBoundingClientRect()
     const top = rect.top
-    
-    // 如果标题在视口上方或刚刚进入视口（距离顶部150px以内）
+
     if (top <= 150) {
-      // 选择最接近顶部但仍在视口上方的标题
       if (top > currentTop || currentTop === Infinity) {
         current = heading.id
         currentTop = top
       }
     }
   })
-  
-  // 如果没有找到在视口上方的标题，选择第一个在视口内的标题
+
   if (!current) {
     for (let i = 0; i < headings.length; i++) {
       const heading = headings[i]
       if (!heading.id) continue
-      
+
       const rect = heading.getBoundingClientRect()
       if (rect.top >= 0 && rect.top <= 300) {
         current = heading.id
@@ -607,45 +550,26 @@ const updateActiveHeading = () => {
       }
     }
   }
-  
-  // 如果还是没有找到，选择第一个标题
+
   if (!current && headings.length > 0 && headings[0].id) {
     current = headings[0].id
   }
-  
+
   activeId.value = current
 }
 
-// 滚动事件处理
 const handleScroll = () => {
   updateScrollProgress()
   updateActiveHeading()
 }
 
-// 返回顶部
 const scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: 'smooth' })
-}
-
-// 处理点赞
-const handleLike = () => {
-  emit('like')
-}
-
-// 处理收藏
-const handleCollect = () => {
-  emit('collect')
-}
-
-// 处理分享
-const handleShare = () => {
-  emit('share')
 }
 
 onMounted(() => {
   updateToc()
   window.addEventListener('scroll', handleScroll)
-  // 等待 DOM 渲染完成后初始化活动标题
   setTimeout(() => {
     updateActiveHeading()
   }, 200)
@@ -655,10 +579,8 @@ onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
 })
 
-// 监听内容变化
 watch(() => props.content, () => {
   updateToc()
-  // 内容更新后，等待 DOM 更新再初始化活动标题
   setTimeout(() => {
     updateActiveHeading()
   }, 100)
@@ -666,6 +588,7 @@ watch(() => props.content, () => {
 </script>
 
 <style scoped>
+/* 桌面端样式 */
 .toc-container {
   @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700;
   position: relative;
@@ -704,29 +627,12 @@ watch(() => props.content, () => {
   @apply relative;
 }
 
-.toc-level-1 {
-  @apply pl-0;
-}
-
-.toc-level-2 {
-  @apply pl-4;
-}
-
-.toc-level-3 {
-  @apply pl-8;
-}
-
-.toc-level-4 {
-  @apply pl-12;
-}
-
-.toc-level-5 {
-  @apply pl-16;
-}
-
-.toc-level-6 {
-  @apply pl-20;
-}
+.toc-level-1 { @apply pl-0; }
+.toc-level-2 { @apply pl-4; }
+.toc-level-3 { @apply pl-8; }
+.toc-level-4 { @apply pl-12; }
+.toc-level-5 { @apply pl-16; }
+.toc-level-6 { @apply pl-20; }
 
 .toc-link {
   @apply block py-2 px-3 text-sm text-gray-700 dark:text-gray-300 rounded-md transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400;
@@ -757,60 +663,102 @@ watch(() => props.content, () => {
   @apply font-medium;
 }
 
-/* 移动端适配 */
-@media (max-width: 768px) {
-  .toc-container {
-    margin-top: 0 !important;
-  }
+/* ========== 移动端悬浮目录 ========== */
 
-  .toc-mobile {
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    border-radius: 0;
-  }
+.toc-float-wrapper {
+  display: contents;
+}
 
-  .toc-collapse-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 12px 16px;
-    background: #f0f7ff;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    user-select: none;
-    transition: background 0.2s;
-    margin-bottom: 8px;
-    font: inherit;
-    color: inherit;
-  }
+.toc-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  background: rgba(0, 0, 0, 0.3);
+}
 
-  .dark .toc-collapse-header {
-    background: rgba(59, 130, 246, 0.1);
-  }
+.dark .toc-backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
 
-  .toc-collapse-header:active {
-    background: #e0efff;
-  }
+.toc-backdrop-fade-enter-active,
+.toc-backdrop-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.toc-backdrop-fade-enter-from,
+.toc-backdrop-fade-leave-to {
+  opacity: 0;
+}
 
-  .dark .toc-collapse-header:active {
-    background: rgba(59, 130, 246, 0.2);
-  }
+.toc-float {
+  position: fixed;
+  right: 12px;
+  bottom: 120px;
+  z-index: 151;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
 
-  .toc-content {
-    padding: 8px 0;
-  }
+.toc-float-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
 
-  .rotate-180 {
-    transform: rotate(180deg);
-    transition: transform 0.2s;
-  }
+.dark .toc-float-btn {
+  background: #1f2937;
+  border-color: #374151;
+  color: #e5e7eb;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+}
 
-  .article-stats,
-  .toc-actions {
-    display: none;
-  }
+.toc-float-btn:active {
+  transform: scale(0.95);
+}
+
+.toc-float-arrow {
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.toc-float-panel {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  width: 260px;
+  max-height: 50vh;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  padding: 8px 0;
+}
+
+.dark .toc-float-panel {
+  background: #1f2937;
+  border-color: #374151;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.toc-float-content {
+  padding: 4px 8px;
+}
+
+.toc-float-content .toc-link {
+  font-size: 13px;
+  padding: 8px 12px;
+  border-radius: 8px;
 }
 </style>
