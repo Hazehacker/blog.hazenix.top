@@ -691,8 +691,9 @@ watch(() => props.content, () => {
 
 .toc-float {
   position: fixed;
-  right: 12px;
-  bottom: 120px;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 151;
   display: flex;
   flex-direction: column;
