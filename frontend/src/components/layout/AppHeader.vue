@@ -11,7 +11,7 @@
         <img :src="avatarUrl" alt="Menu"
              class="w-8 h-8 rounded-full"
              @error="onAvatarError" />
-        <span class="text-sm font-semibold text-gray-800 dark:text-gray-200">Hazenix的后端札记</span>
+        <span class="text-sm font-semibold text-gray-800 dark:text-gray-200">Hazenix 的后端札记</span>
       </div>
     </div>
     
@@ -107,7 +107,7 @@
         </template>
       </el-dropdown>
 
-      <el-button v-else link @click="openLogin" class="hidden md:inline-flex">
+      <el-button v-else link @click="openLogin">
         <el-icon><User/></el-icon>
       </el-button>
       
