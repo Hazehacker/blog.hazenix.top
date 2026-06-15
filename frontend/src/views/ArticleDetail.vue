@@ -350,6 +350,9 @@ const loadArticle = async () => {
     
     if (articleData && (articleData.id || articleData.title)) {
       article.value = articleData
+      if (articleData.title) {
+        document.title = `${articleData.title} | Hazenix的后端札记`
+      }
       
       // 如果文章有slug且当前URL使用的是ID，更新URL为slug
       // 标记正在更新URL，避免触发watch重新加载

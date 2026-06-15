@@ -15,7 +15,7 @@ const routes = [
     //   title: '主页'
     // },
     children: [
-      { path: '/home', name: 'Home', component: () => import('@/views/Home.vue'), meta: { title: '主页' } },
+      { path: '/home', name: 'Home', component: () => import('@/views/Home.vue'), meta: { title: '大二成长实录 & 学习笔记 | 心有所向，何惧山海 | Hazenix的后端札记', rawTitle: true } },
       { path: '/articles', name: 'ArticleList', component: () => import('@/views/ArticleList.vue'), meta: { title: '文章列表' } },
       // 支持slug和ID两种方式访问文章
       { path: '/article/:id', name: 'ArticleDetail', component: () => import('@/views/ArticleDetail.vue'), meta: { title: '文章详情' }, props: true },
@@ -204,7 +204,7 @@ router.beforeEach(async (to, from, next) => {
 
   // 设置页面标题
   if (to.meta.title) {
-    document.title = `${to.meta.title} - Vue Blog`
+    document.title = to.meta.rawTitle ? to.meta.title : `${to.meta.title} | Hazenix的后端札记`
   }
 
 
