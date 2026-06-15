@@ -27,7 +27,10 @@ const routes = [
       { path: '/tree-hole', name: 'TreeHole', component: () => import('@/views/TreeHole/index.vue'), meta: { title: '心灵树洞' } },
       { path: '/favorites', name: 'UserFavorites', component: () => import('@/views/UserFavorites.vue'), meta: { title: '我的收藏', requiresAuth: true } },
       { path: '/history', name: 'History', component: () => import('@/views/History.vue'), meta: { title: '本站历史' } },
-      { path: '/messageboard', name: 'MessageBoard', component: () => import('@/views/MessageBoard.vue'), meta: { title: '留言板' } }
+      { path: '/messageboard', name: 'MessageBoard', component: () => import('@/views/MessageBoard.vue'), meta: { title: '留言板' } },
+      { path: '/about', name: 'About', component: () => import('@/views/About.vue'), meta: { title: '关于我' } },
+      { path: '/about-project', name: 'AboutProject', component: () => import('@/views/AboutProject.vue'), meta: { title: '关于此项目' } },
+      { path: '/search', name: 'Search', component: () => import('@/views/Search.vue'), meta: { title: '搜索结果' } }
 
 
 
@@ -165,30 +168,6 @@ const routes = [
       requiresAuth: true,
       title: '编辑资料'
     }
-  },
-
-  // 搜索页面
-  {
-    path: '/search',
-    name: 'Search',
-    component: () => import('@/views/Search.vue'),
-    meta: { title: '搜索结果' }
-  },
-
-  // 关于页面
-  {
-    path: '/about',
-    name: 'About',
-    component: () => import('@/views/About.vue'),
-    meta: { title: '关于我' }
-  },
-
-  // 关于此项目页面
-  {
-    path: '/about-project',
-    name: 'AboutProject',
-    component: () => import('@/views/AboutProject.vue'),
-    meta: { title: '关于此项目' }
   },
 
   // 404页面

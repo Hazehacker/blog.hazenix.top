@@ -161,8 +161,24 @@ onMounted(() => {
 }
 
 @media (max-width: 768px) {
+  .popular-articles {
+    @apply p-4;
+  }
+
+  .article-item {
+    @apply space-x-2 p-2;
+  }
+
+  .article-rank {
+    @apply w-6 h-6 text-xs;
+  }
+
   .article-meta {
-    @apply flex-col space-x-0 space-y-1;
+    @apply space-x-2 text-xs;
+  }
+
+  .meta-item {
+    @apply space-x-0.5;
   }
 }
 </style>
