@@ -705,8 +705,8 @@ watch(() => props.content, () => {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px 24px;
-  width: 200px;
+  padding: 8px 24px;
+  width: 240px;
   background: rgba(243, 244, 246, 0.85);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(209, 213, 219, 0.6);
@@ -742,7 +742,7 @@ watch(() => props.content, () => {
   left: 50%;
   transform: translateX(-50%);
   top: calc(100% + 8px);
-  width: 280px;
+  width: 300px;
   max-height: 50vh;
   overflow-y: auto;
   background: #fff;
