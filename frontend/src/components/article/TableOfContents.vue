@@ -693,7 +693,7 @@ watch(() => props.content, () => {
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  top: 72px;
+  top: 64px;
   z-index: 151;
   display: flex;
   flex-direction: column;
@@ -707,23 +707,25 @@ watch(() => props.content, () => {
   gap: 8px;
   padding: 10px 24px;
   width: 200px;
-  background: #fff;
-  border: 1px solid #e5e7eb;
+  background: rgba(243, 244, 246, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(209, 213, 219, 0.6);
   border-radius: 20px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  color: #374151;
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;
   white-space: nowrap;
   transition: all 0.2s;
 }
 
 .dark .toc-float-btn {
-  background: #1f2937;
-  border-color: #374151;
-  color: #e5e7eb;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+  background: rgba(31, 41, 55, 0.85);
+  backdrop-filter: blur(8px);
+  border-color: rgba(55, 65, 81, 0.6);
+  color: #9ca3af;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
 }
 
 .toc-float-btn:active {
