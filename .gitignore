@@ -106,6 +106,9 @@ target/
 /.nb-gradle/
 build/
 
+### Superpowers
+.superpowers/
+
 ### VS Code ###
 .vscode/
 /src/test/java/com/louyy/zxxk/temp/
