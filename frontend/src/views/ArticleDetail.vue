@@ -132,8 +132,8 @@
           />
         </div>
 
-        <!-- 相关文章 -->
-        <div v-if="relatedArticles.length > 0" class="sidebar-section">
+        <!-- 相关文章（桌面端侧边栏，移动端显示在文章底部） -->
+        <div v-if="!isMobile && relatedArticles.length > 0" class="sidebar-section">
           <div class="section-header">
             <h3 class="sidebar-section-title">相关文章</h3>
           </div>
@@ -152,8 +152,8 @@
           </div>
         </div>
 
-        <!-- 标签云 -->
-        <div v-if="article?.tags && article.tags.length > 0" class="sidebar-section">
+        <!-- 标签云（桌面端侧边栏，移动端显示在文章底部） -->
+        <div v-if="!isMobile && article?.tags && article.tags.length > 0" class="sidebar-section">
           <div class="section-header">
             <h3 class="sidebar-section-title">标签</h3>
           </div>
