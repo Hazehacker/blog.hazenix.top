@@ -165,7 +165,7 @@ const urgeStorageKey = () => `urge_${currentMonth()}`
 
 const handleUrge = async () => {
   if (localStorage.getItem(urgeStorageKey()) === '1') {
-    ElMessage.info(`本月已催更过啦，共 ${urgeCount.value} 人催更！`)
+    ElMessage.info('本月已催更过啦，快马加鞭更新中！')
     return
   }
   try {
