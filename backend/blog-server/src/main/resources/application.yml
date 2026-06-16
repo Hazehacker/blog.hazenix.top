@@ -9,7 +9,7 @@ spring:
   datasource:
     druid:
       driver-class-name: ${blog.datasource.driver-class-name}
-      url: jdbc:mysql://${blog.datasource.host}:${blog.datasource.port}/${blog.datasource.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true&autoReconnect=true&rewriteBatchedStatements=true
+      url: jdbc:postgresql://${blog.datasource.host}:${blog.datasource.port}/${blog.datasource.database}
       username: ${blog.datasource.username}
       password: ${blog.datasource.password}
   redis:
