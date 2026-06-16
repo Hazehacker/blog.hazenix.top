@@ -10,6 +10,7 @@ import top.hazenix.entity.Article;
 import top.hazenix.enumeration.OperationType;
 import top.hazenix.query.ArticleListQuery;
 import top.hazenix.vo.ArticleShortVO;
+import top.hazenix.vo.ArticleSlugVO;
 
 import java.util.List;
 
@@ -129,4 +130,10 @@ public interface ArticleMapper {
      * @return 文章列表
      */
     List<Article> listAllForScoring();
+
+    /**
+     * 获取所有已发布文章的slug列表（用于SEO Sitemap）
+     * @return 文章slug列表
+     */
+    List<ArticleSlugVO> getPublishedSlugs();
 }

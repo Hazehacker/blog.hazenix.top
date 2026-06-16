@@ -72,6 +72,7 @@ import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getTagArticles } from '@/api/tag'
+import { setSEO } from '@/utils/seo'
 import ArticleCard from '@/components/article/ArticleCard.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 
@@ -140,6 +141,15 @@ const fetchTagArticles = async () => {
     }
     
     // console.log('成功获取标签文章，数量:', articles.value.length)
+    // 设置标签页面SEO
+    if (tag.value) {
+      setSEO({
+        title: tag.value.name,
+        description: `浏览「${tag.value.name}」标签下的所有文章`,
+        type: 'website',
+        siteName: 'Hazenix的后端札记',
+      })
+    }
   } catch (error) {
     // console.error('获取标签文章失败:', error)
     ElMessage.error('获取标签文章失败，请稍后重试')

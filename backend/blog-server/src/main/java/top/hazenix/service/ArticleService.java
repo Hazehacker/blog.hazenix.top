@@ -5,6 +5,7 @@ import top.hazenix.query.ArticleListQuery;
 import top.hazenix.result.PageResult;
 import top.hazenix.vo.ArticleDetailVO;
 import top.hazenix.vo.ArticleShortVO;
+import top.hazenix.vo.ArticleSlugVO;
 
 import java.util.List;
 
@@ -42,4 +43,9 @@ public interface ArticleService {
     List<ArticleShortVO> getRelatedArticles(Long id,Integer limit);
 
     void addArticleViewByMe(Long id, Integer count);
+
+    /**
+     * 获取所有已发布文章的slug列表（用于SEO Sitemap）
+     */
+    List<ArticleSlugVO> getPublishedArticleSlugs();
 }

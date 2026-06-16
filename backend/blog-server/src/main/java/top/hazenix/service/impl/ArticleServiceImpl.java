@@ -31,6 +31,7 @@ import top.hazenix.recommend.RecommendCacheService;
 import top.hazenix.service.UserBehaviorService;
 import top.hazenix.vo.ArticleDetailVO;
 import top.hazenix.vo.ArticleShortVO;
+import top.hazenix.vo.ArticleSlugVO;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -597,7 +598,10 @@ public class ArticleServiceImpl implements ArticleService {
         return list;
     }
 
-
+    @Override
+    public List<ArticleSlugVO> getPublishedArticleSlugs() {
+        return articleMapper.getPublishedSlugs();
+    }
 
     /**
      * 删除单个文章

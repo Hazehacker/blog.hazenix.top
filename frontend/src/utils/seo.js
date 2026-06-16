@@ -7,7 +7,7 @@
  * @param {string} title - 页面标题
  * @param {string} siteName - 网站名称
  */
-export function setPageTitle(title, siteName = 'Vue Blog') {
+export function setPageTitle(title, siteName = "Hazenix的后端札记") {
     if (title) {
         document.title = `${title} - ${siteName}`
     } else {
@@ -162,7 +162,7 @@ export function generateArticleStructuredData(article) {
         },
         publisher: {
             '@type': 'Organization',
-            name: 'Vue Blog',
+            name: 'Hazenix的后端札记',
             logo: {
                 '@type': 'ImageObject',
                 url: '/logo.png'
@@ -190,7 +190,7 @@ export function generateWebsiteStructuredData(siteData) {
     return {
         '@context': 'https://schema.org',
         '@type': 'WebSite',
-        name: siteData.name || 'Vue Blog',
+        name: siteData.name || 'Hazenix的后端札记',
         description: siteData.description || '一个基于Vue3的现代化博客系统',
         url: siteData.url || window.location.origin,
         potentialAction: {
@@ -255,7 +255,7 @@ export function setSEO(seoData) {
         image,
         url,
         type = 'website',
-        siteName = 'Vue Blog',
+        siteName = 'Hazenix的后端札记',
         robots = 'index, follow',
         canonical,
         structuredData

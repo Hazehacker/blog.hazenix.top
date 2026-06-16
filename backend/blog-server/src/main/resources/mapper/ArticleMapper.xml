@@ -113,6 +113,9 @@
         from article
         where status = 0 AND (recommend_level != 0 OR recommend_level IS NULL)
     </select>
+    <select id="getPublishedSlugs" resultType="top.hazenix.vo.ArticleSlugVO">
+        select id, slug, update_time from article where status = 0 order by update_time desc
+    </select>
     <select id="getRelatedArticlesByTags" resultType="top.hazenix.vo.ArticleShortVO">
         SELECT a.id, a.title, a.create_time, a.like_count, a.favorite_count, a.view_count, a.cover_image
         FROM article a

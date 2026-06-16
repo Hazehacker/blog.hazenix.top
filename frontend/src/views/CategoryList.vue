@@ -29,6 +29,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getCategoryList } from '@/api/category'
 import { articleApi } from '@/api/article'
+import { setSEO } from '@/utils/seo'
 
 const router = useRouter()
 const categories = ref([])
@@ -112,6 +113,12 @@ const goToCategory = (category) => {
 }
 
 onMounted(() => {
+  setSEO({
+    title: '分类列表',
+    description: '浏览所有文章分类，按分类发现感兴趣的内容',
+    type: 'website',
+    siteName: 'Hazenix的后端札记',
+  })
   loadCategories()
 })
 </script>

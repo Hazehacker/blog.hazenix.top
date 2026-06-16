@@ -84,6 +84,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { getCategoryArticles } from '@/api/category'
+import { setSEO } from '@/utils/seo'
 import ArticleCard from '@/components/article/ArticleCard.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 
@@ -132,6 +133,15 @@ const fetchCategoryArticles = async () => {
         name: '分类',
         id: route.params.id
       }
+    }
+    // 设置分类页面SEO
+    if (category.value) {
+      setSEO({
+        title: category.value.name,
+        description: `浏览「${category.value.name}」分类下的所有文章`,
+        type: 'website',
+        siteName: 'Hazenix的后端札记',
+      })
     }
   } catch (error) {
     console.error('获取分类文章失败:', error)

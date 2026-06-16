@@ -52,6 +52,7 @@
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { getTagList } from '@/api/tag'
+import { setSEO } from '@/utils/seo'
 import { articleApi } from '@/api/article'
 
 const router   = useRouter()
@@ -208,6 +209,12 @@ const bubbleInlineStyle = (tag, i) => {
 const goToTag = (tag) => router.push(`/tag/${tag.id}`)
 
 onMounted(() => {
+  setSEO({
+    title: '标签列表',
+    description: '浏览所有文章标签，按标签发现感兴趣的内容',
+    type: 'website',
+    siteName: 'Hazenix的后端札记',
+  })
   loadTags()
   window.addEventListener('resize', computeAnchors)
 })

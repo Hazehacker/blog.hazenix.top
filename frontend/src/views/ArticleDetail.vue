@@ -216,6 +216,7 @@ import CommentList from '@/components/article/CommentList.vue'
 import ArticleMetadata from '@/components/article/ArticleMetadata.vue'
 import TableOfContents from '@/components/article/TableOfContents.vue'
 import dayjs from 'dayjs'
+import { setSEO, generateArticleStructuredData, generateBreadcrumbStructuredData } from '@/utils/seo'
 
 const route = useRoute()
 const router = useRouter()
@@ -351,7 +352,44 @@ const loadArticle = async () => {
     if (articleData && (articleData.id || articleData.title)) {
       article.value = articleData
       if (articleData.title) {
-        document.title = `${articleData.title} | Hazenix的后端札记`
+        const currentUrl = window.location.href
+        const origin = window.location.origin
+        const categoryName = getCategoryName(articleData)
+        const tags = (articleData.tags || []).map(t => typeof t === 'object' ? t.name : t).filter(Boolean)
+
+        setSEO({
+          title: articleData.title,
+          description: articleData.summary || articleData.content?.replace(/<[^>]*>/g, '').substring(0, 160) || '',
+          keywords: tags,
+          author: articleData.authorName || articleData.author || 'Hazenix',
+          image: articleData.coverImage || articleData.cover || '',
+          url: currentUrl,
+          type: 'article',
+          siteName: 'Hazenix的后端札记',
+          canonical: currentUrl,
+          structuredData: {
+            '@context': 'https://schema.org',
+            '@graph': [
+              generateArticleStructuredData({
+                title: articleData.title,
+                summary: articleData.summary,
+                content: articleData.content,
+                coverImage: articleData.coverImage || articleData.cover,
+                authorName: articleData.authorName || articleData.author || 'Hazenix',
+                createTime: articleData.createTime || articleData.createdAt,
+                updateTime: articleData.updateTime || articleData.updatedAt,
+                categoryName,
+                tags: articleData.tags,
+              }),
+              generateBreadcrumbStructuredData([
+                { name: '首页', url: `${origin}/` },
+                { name: '文章', url: `${origin}/articles` },
+                ...(categoryName ? [{ name: categoryName, url: `${origin}/articles?category=${encodeURIComponent(categoryName)}` }] : []),
+                { name: articleData.title, url: currentUrl },
+              ]),
+            ],
+          },
+        })
       }
       
       // 如果文章有slug且当前URL使用的是ID，更新URL为slug

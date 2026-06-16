@@ -81,6 +81,7 @@ import { useUserStore } from '@/stores/user'
 import { useThemeStore } from '@/stores/theme'
 import { ElMessage } from 'element-plus'
 import { getArticleList } from '@/api/article'
+import { setSEO, generateWebsiteStructuredData } from '@/utils/seo'
 import RecommendSection from '@/components/article/RecommendSection.vue'
 import ArticleList from '@/components/article/ArticleList.vue'
 import avatarImg from '@/assets/img/avatar.jpg'
@@ -179,6 +180,19 @@ const handleOAuthCallback = async () => {
 }
 
 onMounted(async () => {
+  // 设置首页SEO
+  setSEO({
+    title: '首页',
+    description: 'Hazenix的后端札记 - 大二成长实录 & 学习笔记，专注后端开发、系统设计与技术分享。',
+    type: 'website',
+    siteName: 'Hazenix的后端札记',
+    structuredData: generateWebsiteStructuredData({
+      name: 'Hazenix的后端札记',
+      description: '大二成长实录 & 学习笔记，专注后端开发、系统设计与技术分享。',
+      url: window.location.origin,
+    }),
+  })
+
   // 先处理 OAuth 回调（如果有）
   await handleOAuthCallback()
   

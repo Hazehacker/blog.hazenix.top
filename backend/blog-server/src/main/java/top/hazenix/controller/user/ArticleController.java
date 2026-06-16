@@ -15,6 +15,7 @@ import top.hazenix.service.PopularArticleService;
 import top.hazenix.service.RecommendService;
 import top.hazenix.vo.ArticleDetailVO;
 import top.hazenix.vo.ArticleShortVO;
+import top.hazenix.vo.ArticleSlugVO;
 
 import java.util.List;
 
@@ -126,10 +127,24 @@ public class ArticleController {
      * @return
      */
     @GetMapping("/slugs")
-    public Result getArticlesSlugList(){
+    public Result<List<ArticleSlugVO>> getArticlesSlugList() {
         log.info("获取文章slug列表");
-        //TODO 后期做
-        return Result.success();
+        List<ArticleSlugVO> slugs = articleService.getPublishedArticleSlugs();
+        return Result.success(slugs);
+    }
+
+    /**
+     * robots.txt（用于SEO，告诉爬虫可访问的路径和sitemap位置）
+     */
+    @GetMapping(value = "/robots.txt", produces = "text/plain")
+    public String getRobotsTxt() {
+        return "User-agent: *\n" +
+               "Allow: /\n" +
+               "Disallow: /admin/\n" +
+               "Disallow: /api/\n" +
+               "Disallow: /profile\n" +
+               "Disallow: /register\n" +
+               "Sitemap: https://blog.hazenix.top/sitemap.xml\n";
     }
     //### 2.13 获取所有已发布文章的slug
     //- **URL**: `GET /user/articles/slugs`
