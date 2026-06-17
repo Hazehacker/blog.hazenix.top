@@ -521,22 +521,37 @@ const likeArticle = async () => {
 // 分享文章
 const shareArticle = async () => {
   if (!article.value) return
-  
-  try {
-    if (navigator.share) {
-      await navigator.share({
-        title: article.value.title,
-        text: article.value.summary || '',
-        url: window.location.href
-      })
-    } else {
-      // 复制链接到剪贴板
-      await navigator.clipboard.writeText(window.location.href)
-      ElMessage.success('链接已复制到剪贴板')
+
+  const shareData = {
+    title: article.value.title,
+    text: article.value.summary || '',
+    url: window.location.href,
+  }
+
+  // 优先使用 Web Share API（移动端 & Safari 桌面版支持）
+  if (navigator.share) {
+    try {
+      await navigator.share(shareData)
+    } catch (error) {
+      // AbortError: 用户取消了分享面板，不是错误，不提示
+      if (error.name !== 'AbortError') {
+        ElMessage.error('分享失败')
+      }
     }
-  } catch (error) {
-    // console.error('Share article failed:', error)
-    ElMessage.error('分享失败')
+    return
+  }
+
+  // 桌面端回退：复制链接到剪贴板
+  try {
+    await navigator.clipboard.writeText(shareData.url)
+    ElMessage.success('链接已复制到剪贴板，快去分享吧')
+  } catch {
+    // clipboard API 也失败时，降级为让用户手动复制
+    ElMessage({
+      message: '复制失败，请手动复制链接分享',
+      type: 'warning',
+      duration: 5000,
+    })
   }
 }
 

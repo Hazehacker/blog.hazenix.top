@@ -244,6 +244,17 @@ router.beforeEach(async (to, from, next) => {
   next()
 })
 
+// SPA 页面浏览追踪：每次路由切换向 GA4 发送 page_view 事件
+router.afterEach((to) => {
+  if (window.gtag) {
+    gtag('event', 'page_view', {
+      page_title: to.meta.title || document.title,
+      page_location: window.location.href,
+      page_path: to.fullPath,
+    })
+  }
+})
+
 // 路由错误处理
 router.onError((error) => {
   // console.error('路由错误:', error)

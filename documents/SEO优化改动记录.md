@@ -40,7 +40,7 @@ public class ArticleSlugVO {
 SELECT id, slug, update_time FROM article WHERE status = 0 ORDER BY update_time DESC
 ```
 
-只查已发布文章（status=0），按更新时间倒序，用于动态生成 sitemap。
+**只查已发布文章（status=0），按更新时间倒序，用于动态生成 sitemap。**
 
 ### 1.3 Service 层新增方法
 
