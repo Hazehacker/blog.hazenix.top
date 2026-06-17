@@ -134,6 +134,58 @@ public class ArticleController {
     }
 
     /**
+     * 生成 XML Sitemap（用于搜索引擎提交）
+     * 包含首页、分类页、标签页等固定页面 + 所有已发布文章
+     */
+    @GetMapping(value = "/sitemap.xml", produces = "application/xml")
+    public String getSitemapXml() {
+        List<ArticleSlugVO> slugs = articleService.getPublishedArticleSlugs();
+        StringBuilder sb = new StringBuilder();
+        sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+        sb.append("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
+
+        String baseUrl = "https://blog.hazenix.top";
+
+        // 固定页面
+        sb.append(urlEntry(baseUrl + "/", "daily", "1.0"));
+        sb.append(urlEntry(baseUrl + "/home", "daily", "0.9"));
+        sb.append(urlEntry(baseUrl + "/articles", "daily", "0.9"));
+        sb.append(urlEntry(baseUrl + "/categories", "weekly", "0.7"));
+        sb.append(urlEntry(baseUrl + "/tags", "weekly", "0.7"));
+        sb.append(urlEntry(baseUrl + "/friend-links", "monthly", "0.5"));
+        sb.append(urlEntry(baseUrl + "/tree-hole", "weekly", "0.5"));
+        sb.append(urlEntry(baseUrl + "/messageboard", "monthly", "0.5"));
+        sb.append(urlEntry(baseUrl + "/about", "monthly", "0.6"));
+
+        // 文章页面
+        for (ArticleSlugVO slug : slugs) {
+            String loc = baseUrl + "/article/" + (slug.getSlug() != null ? slug.getSlug() : slug.getId());
+            String lastmod = slug.getUpdateTime() != null ? slug.getUpdateTime().toString() : "";
+            sb.append(urlEntry(loc, "weekly", "0.8", lastmod));
+        }
+
+        sb.append("</urlset>");
+        return sb.toString();
+    }
+
+    private String urlEntry(String loc, String changefreq, String priority) {
+        return urlEntry(loc, changefreq, priority, "");
+    }
+
+    private String urlEntry(String loc, String changefreq, String priority, String lastmod) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("  <url>\n");
+        sb.append("    <loc>").append(loc).append("</loc>\n");
+        if (lastmod != null && !lastmod.isEmpty()) {
+            sb.append("    <lastmod>").append(lastmod).append("</lastmod>\n");
+        }
+        sb.append("    <changefreq>").append(changefreq).append("</changefreq>\n");
+        sb.append("    <priority>").append(priority).append("</priority>\n");
+        sb.append("  </url>\n");
+        return sb.toString();
+    }
+
+    /**
      * robots.txt（用于SEO，告诉爬虫可访问的路径和sitemap位置）
      */
     @GetMapping(value = "/robots.txt", produces = "text/plain")
@@ -144,7 +196,7 @@ public class ArticleController {
                "Disallow: /api/\n" +
                "Disallow: /profile\n" +
                "Disallow: /register\n" +
-               "Sitemap: https://blog.hazenix.top/sitemap.xml\n";
+               "Sitemap: https://blog.hazenix.top/api/user/articles/sitemap.xml\n";
     }
     //### 2.13 获取所有已发布文章的slug
     //- **URL**: `GET /user/articles/slugs`

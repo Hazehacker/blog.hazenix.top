@@ -4,4 +4,4 @@ Disallow: /admin/
 Disallow: /api/
 Disallow: /profile
 Disallow: /register
-Sitemap: https://blog.hazenix.top/sitemap.xml
+Sitemap: https://blog.hazenix.top/api/user/articles/sitemap.xml
