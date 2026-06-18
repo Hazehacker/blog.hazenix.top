@@ -51,4 +51,6 @@ public class MessageConstant {
     public static final String ARTICLLE_TO_BE_DELETED_IS_NULL = "请选择要删除的文章";
     public static final String ANONYMOUS_USERNAME_REQUIRED = "匿名评论必须填写昵称";
     public static final String COMMENT_RATE_LIMIT_EXCEEDED = "评论太频繁，请稍后再试";
+    public static final String ALREADY_LIKED = "您已经点赞过了";
+    public static final String NOT_FOUND = "资源不存在";
 }
