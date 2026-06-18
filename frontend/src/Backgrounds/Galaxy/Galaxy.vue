@@ -350,7 +350,12 @@ const setup = () => {
 
 onMounted(() => {
   cleanup?.();
-  setup();
+  const start = () => setup();
+  if ("requestIdleCallback" in window) {
+    (window as any).requestIdleCallback(start, { timeout: 500 });
+  } else {
+    setTimeout(start, 100);
+  }
 });
 
 onUnmounted(() => {
