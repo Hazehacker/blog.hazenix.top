@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.hazenix.mapper.MomentLikeMapper">
+
+    <insert id="insert">
+        INSERT INTO moment_like (moment_id, ip, create_time)
+        VALUES (#{momentId}, #{ip}, #{createTime})
+    </insert>
+
+    <select id="getByMomentIdAndIp" resultType="top.hazenix.entity.MomentLike">
+        SELECT * FROM moment_like WHERE moment_id = #{momentId} AND ip = #{ip}
+    </select>
+
+</mapper>

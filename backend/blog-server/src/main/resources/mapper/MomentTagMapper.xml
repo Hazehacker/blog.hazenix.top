@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.hazenix.mapper.MomentTagMapper">
+
+    <insert id="insertBatch">
+        INSERT INTO moment_tag (moment_id, tag_name) VALUES
+        <foreach collection="tags" item="tag" separator=",">
+            (#{tag.momentId}, #{tag.tagName})
+        </foreach>
+    </insert>
+
+    <delete id="deleteByMomentId">
+        DELETE FROM moment_tag WHERE moment_id = #{momentId}
+    </delete>
+
+    <delete id="deleteByMomentIds">
+        DELETE FROM moment_tag WHERE moment_id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="getTagNamesByMomentId" resultType="java.lang.String">
+        SELECT tag_name FROM moment_tag WHERE moment_id = #{momentId} ORDER BY tag_name
+    </select>
+
+    <select id="getAllTagNames" resultType="java.lang.String">
+        SELECT DISTINCT tag_name FROM moment_tag ORDER BY tag_name
+    </select>
+
+</mapper>

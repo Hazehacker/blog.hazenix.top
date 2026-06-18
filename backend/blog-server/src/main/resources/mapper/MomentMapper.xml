@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.hazenix.mapper.MomentMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO moment (title, content, images, like_count, view_count, status, create_time, update_time)
+        VALUES (#{title}, #{content}, #{images}, 0, 0, #{status}, #{createTime}, #{updateTime})
+    </insert>
+
+    <update id="update">
+        UPDATE moment
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="images != null">images = #{images},</if>
+            <if test="status != null">status = #{status},</if>
+            update_time = #{updateTime}
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteBatch">
+        DELETE FROM moment WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="getById" resultType="top.hazenix.entity.Moment">
+        SELECT * FROM moment WHERE id = #{id}
+    </select>
+
+    <select id="pageQuery" resultType="top.hazenix.vo.MomentVO">
+        SELECT m.id, m.title, m.content, m.images AS images_json, m.like_count, m.view_count,
+               m.status, m.create_time, m.update_time
+        FROM moment m
+        <if test="tagName != null and tagName != ''">
+            INNER JOIN moment_tag mt ON m.id = mt.moment_id AND mt.tag_name = #{tagName}
+        </if>
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND m.title LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="status != null">
+                AND m.status = #{status}
+            </if>
+        </where>
+        ORDER BY m.create_time DESC
+    </select>
+
+    <update id="incrementViewCount">
+        UPDATE moment SET view_count = view_count + 1 WHERE id = #{id}
+    </update>
+
+    <update id="incrementLikeCount">
+        UPDATE moment SET like_count = like_count + 1 WHERE id = #{id}
+    </update>
+
+</mapper>
