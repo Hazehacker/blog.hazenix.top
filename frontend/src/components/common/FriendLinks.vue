@@ -58,7 +58,7 @@ import { Link, Loading } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 import { frontendApi } from '@/api/frontend'
 import { getAvatarUrl } from '@/utils/helpers'
-import avatarFallback from '@/assets/img/avatar.jpg'
+import avatarFallback from '@/assets/img/avatar.webp'
 
 // 响应式数据
 const loading = ref(false)

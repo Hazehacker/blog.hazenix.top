@@ -145,7 +145,7 @@ import { nextTick, ref } from 'vue'
 import dayjs from 'dayjs'
 import { getAvatarUrl } from '@/utils/helpers'
 import { generateIdenticon } from '@/utils/identicon'
-import avatarFallback from '@/assets/img/avatar.jpg'
+import avatarFallback from '@/assets/img/avatar.webp'
 
 // 递归组件需要名称
 defineOptions({

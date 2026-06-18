@@ -16,7 +16,7 @@
         <!-- 标题 -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-            <i class="fas fa-heading mr-2"></i>
+            <el-icon class="mr-2"><EditPen /></el-icon>
             文章标题 *
           </label>
           <el-input
@@ -32,7 +32,7 @@
         <!-- 摘要 -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-            <i class="fas fa-align-left mr-2"></i>
+            <el-icon class="mr-2"><Operation /></el-icon>
             文章摘要
           </label>
           <el-input
@@ -48,7 +48,7 @@
         <!-- 内容编辑器 -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-            <i class="fas fa-edit mr-2"></i>
+            <el-icon class="mr-2"><Edit /></el-icon>
             文章内容 *
           </label>
           <div class="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
@@ -76,7 +76,7 @@
         <!-- 发布设置 -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
           <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4 flex items-center">
-            <i class="fas fa-cog mr-2"></i>
+            <el-icon class="mr-2"><Setting /></el-icon>
             发布设置
           </h3>
           
@@ -169,7 +169,7 @@
         <!-- SEO设置 -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
           <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4 flex items-center">
-            <i class="fas fa-search mr-2"></i>
+            <el-icon class="mr-2"><Search /></el-icon>
             SEO设置
           </h3>
           
@@ -218,20 +218,20 @@
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mt-8">
       <div class="flex justify-between items-center">
         <div class="text-sm text-gray-500 dark:text-gray-400">
-          <i class="fas fa-info-circle mr-1"></i>
+          <el-icon class="mr-1"><InfoFilled /></el-icon>
           保存草稿会自动保存您的编辑内容
         </div>
         <div class="flex space-x-3">
           <el-button @click="$emit('cancel')" size="large">
-            <i class="fas fa-times mr-2"></i>
+            <el-icon class="mr-2"><Close /></el-icon>
             取消
           </el-button>
           <el-button @click="handleSaveDraft" :loading="saving" size="large">
-            <i class="fas fa-save mr-2"></i>
+            <el-icon class="mr-2"><FolderOpened /></el-icon>
             保存草稿
           </el-button>
           <el-button @click="handlePublish" type="primary" :loading="saving" size="large">
-            <i class="fas fa-paper-plane mr-2"></i>
+            <el-icon class="mr-2"><Promotion /></el-icon>
             {{ isPublished ? '更新文章' : '发布文章' }}
           </el-button>
         </div>
@@ -243,7 +243,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Upload } from '@element-plus/icons-vue'
+import { Upload, EditPen, Operation, Edit, Setting, Search, InfoFilled, Close, FolderOpened, Promotion } from '@element-plus/icons-vue'
 import { adminApi } from '@/api/admin'
 import { getToken } from '@/utils/auth'
 import MarkdownRenderer from '@/components/article/MarkdownRenderer.vue'

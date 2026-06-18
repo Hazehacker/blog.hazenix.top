@@ -172,7 +172,8 @@ import { Link, Plus, DataAnalysis, Guide, House, Document, InfoFilled } from '@e
 import FriendLinks from '@/components/common/FriendLinks.vue'
 import LinkApplyDialog from '@/components/common/LinkApplyDialog.vue'
 import { frontendApi } from '@/api/frontend'
-import weChatQRCodeImage from '@/assets/img/Hazenix.png'
+import weChatQRCodeImage from '@/assets/img/Hazenix.webp'
+import { setSEO } from '@/utils/seo'
 
 // 响应式数据
 const totalLinks = ref(0)
@@ -215,6 +216,11 @@ const handleApplySuccess = () => {
 
 // 初始化
 onMounted(() => {
+  setSEO({
+    title: '友情链接',
+    description: '与优秀的博客和技术站点交换友链，共同成长。',
+    type: 'website',
+  })
   loadStats()
 })
 </script>

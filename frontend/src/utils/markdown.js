@@ -358,6 +358,21 @@ md.inline.ruler.before('emphasis', 'highlight', function(state, silent) {
     return true
 })
 
+// 自定义图片渲染：添加 lazy loading + async decoding + 确保 alt 属性
+md.renderer.rules.image = function (tokens, idx, options, env, renderer) {
+    const token = tokens[idx]
+    if (token.attrIndex('loading') < 0) {
+        token.attrSet('loading', 'lazy')
+    }
+    if (token.attrIndex('decoding') < 0) {
+        token.attrSet('decoding', 'async')
+    }
+    if (token.attrIndex('alt') < 0) {
+        token.attrSet('alt', '')
+    }
+    return renderer.renderToken(tokens, idx, options)
+}
+
 // 添加高亮渲染规则
 md.renderer.rules.highlight = function(tokens, idx, options, env, renderer) {
     const token = tokens[idx]

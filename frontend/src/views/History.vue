@@ -105,8 +105,17 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { Clock } from '@element-plus/icons-vue'
+import { setSEO } from '@/utils/seo'
+
+onMounted(() => {
+  setSEO({
+    title: '本站历史',
+    description: '从立项到迭代，记录 Hazenix Blog 每个版本的功能更新与里程碑。',
+    type: 'website',
+  })
+})
 
 // 更新记录数据（前端静态数据）
 const updates = ref([

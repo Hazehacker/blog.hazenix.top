@@ -222,7 +222,7 @@ import { adminApi } from '@/api/admin'
 import { getToken } from '@/utils/auth'
 import { getAvatarUrl, getUrlFromResponse, isSuccess } from '@/utils/helpers'
 import { buildApiURL } from '@/utils/apiConfig'
-import avatarFallback from '@/assets/img/avatar.jpg'
+import avatarFallback from '@/assets/img/avatar.webp'
 
 // 响应式数据
 const loading = ref(false)

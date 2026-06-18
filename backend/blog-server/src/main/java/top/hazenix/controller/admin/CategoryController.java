@@ -13,6 +13,7 @@ import top.hazenix.dto.DeleteCategoryRequestDTO;
 import top.hazenix.result.PageResult;
 import top.hazenix.result.Result;
 import top.hazenix.service.CategoryService;
+import top.hazenix.service.PrerenderNotifyService;
 
 import javax.websocket.server.PathParam;
 
@@ -24,6 +25,7 @@ public class CategoryController {
 
 
     private final CategoryService categoryService;
+    private final PrerenderNotifyService prerenderNotifyService;
 
     /**
      * 分页查询，获取分类列表
@@ -55,6 +57,7 @@ public class CategoryController {
     public Result addCategory(@Valid @RequestBody CategoryDTO categoryDTO){
         log.info("创建分类：{}",categoryDTO);
         categoryService.addCategory(categoryDTO);
+        prerenderNotifyService.notifyContentChanged("category", null);
         return Result.success();
     }
 
@@ -69,6 +72,7 @@ public class CategoryController {
     public Result updateCategory(@PathVariable Integer id, @Valid @RequestBody CategoryDTO categoryDTO){
         log.info("更新分类：{}",categoryDTO);
         categoryService.updateCategory(id,categoryDTO);
+        prerenderNotifyService.notifyContentChanged("category", id.longValue());
         return Result.success();
     }
 
@@ -82,6 +86,7 @@ public class CategoryController {
     public Result deleteCategory(@PathVariable Integer id){
         log.info("删除分类：{}",id);
         categoryService.deleteCategory(id);
+        prerenderNotifyService.notifyContentChanged("category", id.longValue());
         return Result.success();
     }
 

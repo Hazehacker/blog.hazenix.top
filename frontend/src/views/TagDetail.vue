@@ -6,7 +6,7 @@
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <div class="flex items-center mb-4">
             <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 mr-4">
-              <i class="fas fa-tag mr-1"></i>
+              <el-icon class="mr-1"><CollectionTag /></el-icon>
               标签
             </span>
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
@@ -18,11 +18,11 @@
           </p>
           <div class="flex items-center mt-4 text-sm text-gray-500 dark:text-gray-400">
             <span class="mr-4">
-              <i class="fas fa-file-alt mr-1"></i>
+              <el-icon class="mr-1"><Document /></el-icon>
               {{ totalArticles }} 篇文章
             </span>
             <span class="mr-4">
-              <i class="fas fa-calendar mr-1"></i>
+              <el-icon class="mr-1"><Calendar /></el-icon>
               创建于 {{ formatDate(tag?.createdAt) }}
             </span>
           </div>
@@ -53,7 +53,7 @@
         <!-- 空状态 -->
         <div v-else class="text-center py-12">
           <div class="text-gray-400 dark:text-gray-500 mb-4">
-            <i class="fas fa-inbox text-6xl"></i>
+            <el-icon :size="48"><Message /></el-icon>
           </div>
           <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-2">
             暂无文章
@@ -71,6 +71,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { CollectionTag, Document, Calendar, Message } from '@element-plus/icons-vue'
 import { getTagArticles } from '@/api/tag'
 import { setSEO } from '@/utils/seo'
 import ArticleCard from '@/components/article/ArticleCard.vue'

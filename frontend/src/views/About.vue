@@ -99,9 +99,18 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { InfoFilled } from '@element-plus/icons-vue'
-import weChatQRCodeImage from '@/assets/img/Hazenix.png'
+import weChatQRCodeImage from '@/assets/img/Hazenix.webp'
+import { setSEO } from '@/utils/seo'
+
+onMounted(() => {
+  setSEO({
+    title: '关于我',
+    description: '我是 Hazenix，一名热爱后端开发的大二学生，专注于 Java、Spring Boot、数据库与系统设计。这里记录了我的技术成长之路。',
+    type: 'website',
+  })
+})
 
 // 响应式数据
 const showWeChatQR = ref(false)

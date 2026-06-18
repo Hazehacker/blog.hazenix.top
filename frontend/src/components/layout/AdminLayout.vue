@@ -101,7 +101,7 @@ import {
   ArrowDown,
   ChatLineRound
 } from '@element-plus/icons-vue'
-import avatarFallback from '@/assets/img/avatar.jpg'
+import avatarFallback from '@/assets/img/avatar.webp'
 
 const router = useRouter()
 const route = useRoute()

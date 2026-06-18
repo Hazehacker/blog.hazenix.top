@@ -279,7 +279,7 @@ import { Search, Refresh } from '@element-plus/icons-vue'
 import { adminApi } from '@/api/admin'
 import { generateIdenticon } from '@/utils/identicon'
 import { getAvatarUrl } from '@/utils/helpers'
-import avatarFallback from '@/assets/img/avatar.jpg'
+import avatarFallback from '@/assets/img/avatar.webp'
 
 // 响应式数据
 const loading = ref(false)

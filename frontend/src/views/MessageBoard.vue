@@ -117,6 +117,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Star, Share, Collection } from '@element-plus/icons-vue'
+import { setSEO } from '@/utils/seo'
 import { getArticleDetail, likeArticle as likeArticleApi, collectArticle as favoriteArticleApi, incrementViewCount } from '@/api/article'
 import MarkdownRenderer from '@/components/article/MarkdownRenderer.vue'
 import CommentList from '@/components/article/CommentList.vue'
@@ -288,6 +289,11 @@ const searchByTag = (tagName) => {
 }
 
 onMounted(() => {
+  setSEO({
+    title: '留言板',
+    description: '欢迎留言交流，留下你的想法和建议。',
+    type: 'website',
+  })
   checkMobile()
   window.addEventListener('resize', checkMobile)
   loadArticle()

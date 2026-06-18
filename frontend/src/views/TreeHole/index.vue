@@ -21,17 +21,19 @@
       />
     </div>
     
-    <!-- 视频背景（仅在亮色模式下显示） -->
-    <div v-if="!themeStore.isDark" class="background-wrapper">
+    <!-- 视频背景（仅在亮色模式下显示，懒加载：进入视口才下载） -->
+    <div v-if="!themeStore.isDark" ref="videoContainerRef" class="background-wrapper">
       <video
+        v-if="videoShouldLoad"
         ref="videoRef"
         class="video-background"
         autoplay
         loop
         muted
         playsinline
+        preload="none"
       >
-        <source src="@/assets/video/sunrise.mp4" type="video/mp4">
+        <source src="https://blog-hazenix-top.oss-cn-heyuan.aliyuncs.com/video/sunrise.mp4" type="video/mp4">
       </video>
     </div>
     
@@ -159,6 +161,8 @@ const userStore = useUserStore()
 const themeStore = useThemeStore()
 const isLoggedIn = computed(() => !!userStore.token)
 const videoRef = ref(null)  // 视频引用
+const videoContainerRef = ref(null)
+const videoShouldLoad = ref(false)  // 进入视口后才加载视频
 const danmakuRef = ref(null)  // 弹幕组件引用
 
 function onAnonymousNameChange() {
@@ -571,6 +575,16 @@ async function addTreeHoleBtn() {
 // 组件挂载时获取数据
 onMounted(() => {
   getTreeHole()
+  // 视频懒加载：Observer 进入视口后才开始下载（34MB，不进视口不下载）
+  if (videoContainerRef.value) {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        videoShouldLoad.value = true
+        observer.disconnect()
+      }
+    }, { rootMargin: '200px' })
+    observer.observe(videoContainerRef.value)
+  }
 })
 
 // 组件卸载时清理定时器

@@ -165,7 +165,7 @@ import { useUserStore } from '@/stores/user'
 import { getComments, createComment, likeComment as likeCommentApi } from '@/api/comment'
 import dayjs from 'dayjs'
 import { getAvatarUrl } from '@/utils/helpers'
-import avatarFallback from '@/assets/img/avatar.jpg'
+import avatarFallback from '@/assets/img/avatar.webp'
 import CommentItem from './CommentItem.vue'
 
 const props = defineProps({

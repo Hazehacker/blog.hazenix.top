@@ -21,6 +21,7 @@ import top.hazenix.dto.DeleteArticleRequestDTO;
 import top.hazenix.result.PageResult;
 import top.hazenix.result.Result;
 import top.hazenix.service.ArticleService;
+import top.hazenix.service.PrerenderNotifyService;
 import top.hazenix.service.impl.ArticleServiceImpl;
 import top.hazenix.vo.ArticleDetailVO;
 import top.hazenix.vo.ArticleShortVO;
@@ -38,6 +39,7 @@ public class ArticleController {
 
 
     private final ArticleService articleService;
+    private final PrerenderNotifyService prerenderNotifyService;
 
 
     /**
@@ -97,6 +99,7 @@ public class ArticleController {
     public Result addArticle(@Valid @RequestBody ArticleDTO articleDTO){
         log.info("新增文章：{}",articleDTO);
         articleService.addArticle(articleDTO);
+        prerenderNotifyService.notifyContentChanged("article", null);
         return Result.success();
     }
 
@@ -111,6 +114,7 @@ public class ArticleController {
     public Result updateArticle(@PathVariable Long id, @Valid @RequestBody ArticleDTO articleDTO){
         log.info("更新文章：{}",id);
         articleService.updateArticle(id,articleDTO);
+        prerenderNotifyService.notifyContentChanged("article", id);
         return Result.success();
     }
 
@@ -124,6 +128,7 @@ public class ArticleController {
     public Result deleteArticle(@PathVariable Long id){
         log.info("删除文章：{}",id);
         articleService.deleteArticle(id);
+        prerenderNotifyService.notifyContentChanged("article", id);
         return Result.success();
     }
 
@@ -155,6 +160,7 @@ public class ArticleController {
     public Result updateArticleStatus(@PathVariable Long id,@PathVariable Integer status){
         log.info("更新文章状态：{}",id);
         articleService.updateArticleStatus(id,status);
+        prerenderNotifyService.notifyContentChanged("article", id);
         return Result.success();
     }
 

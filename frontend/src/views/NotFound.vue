@@ -10,7 +10,17 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { setSEO } from '@/utils/seo'
+
+onMounted(() => {
+  setSEO({
+    title: '页面不存在',
+    description: '抱歉，您访问的页面不存在',
+    robots: 'noindex, follow',
+  })
+})
 
 const router = useRouter()
 

@@ -114,7 +114,17 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue'
 import { Document } from '@element-plus/icons-vue'
+import { setSEO } from '@/utils/seo'
+
+onMounted(() => {
+  setSEO({
+    title: '关于此项目',
+    description: 'Hazenix Blog 是一个专注于内容创作与知识沉淀的个人博客平台，提供文章创作、阅读、检索与互动的完整体验，兼顾性能、可维护性与美观的阅读界面。',
+    type: 'website',
+  })
+})
 </script>
 
 <style scoped>

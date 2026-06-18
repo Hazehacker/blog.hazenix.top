@@ -14,6 +14,7 @@ import top.hazenix.dto.DeleteTagsRequestDTO;
 import top.hazenix.dto.TagsDTO;
 import top.hazenix.result.PageResult;
 import top.hazenix.result.Result;
+import top.hazenix.service.PrerenderNotifyService;
 import top.hazenix.service.TagsService;
 
 @RestController("AdminTagsController")
@@ -24,6 +25,7 @@ public class TagsController {
 
 
     private final TagsService tagsService;
+    private final PrerenderNotifyService prerenderNotifyService;
 
 
     /**
@@ -55,6 +57,7 @@ public class TagsController {
     public Result addTag(@Valid @RequestBody TagsDTO tagsDTO){
         log.info("新增标签");
         tagsService.addTag(tagsDTO);
+        prerenderNotifyService.notifyContentChanged("tag", null);
         return Result.success();
     }
 
@@ -68,6 +71,7 @@ public class TagsController {
     public Result updateTag(@PathVariable Long id, @Valid @RequestBody TagsDTO tagsDTO){
         log.info("更新制定标签");
         tagsService.updateTag(id,tagsDTO);
+        prerenderNotifyService.notifyContentChanged("tag", id);
         return Result.success();
     }
 
@@ -81,6 +85,7 @@ public class TagsController {
     public Result deleteTag(@PathVariable Long id){
         log.info("删除标签");
         tagsService.deleteTag(id);
+        prerenderNotifyService.notifyContentChanged("tag", id);
         return Result.success();
     }
 

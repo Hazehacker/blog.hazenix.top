@@ -175,7 +175,7 @@ import { getArticleList } from '@/api/article'
 const userStore = useUserStore()
 const router = useRouter()
 const route = useRoute()
-import avatarFallback from '@/assets/img/avatar.jpg'
+import avatarFallback from '@/assets/img/avatar.webp'
 import githubImg from '@/assets/img/githubLogo.png'
 import csdnImg from '@/assets/img/csdnLogo.png'
 const defaultAvatar = avatarFallback

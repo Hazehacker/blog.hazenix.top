@@ -64,7 +64,7 @@
               <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
                 <div class="flex items-center">
                   <div class="p-2 bg-blue-100 dark:bg-blue-800 rounded-lg">
-                    <i class="fas fa-file-alt text-blue-600 dark:text-blue-400"></i>
+                    <el-icon class="text-blue-600 dark:text-blue-400"><Document /></el-icon>
                   </div>
                   <div class="ml-4">
                     <p class="text-sm font-medium text-blue-600 dark:text-blue-400">我的收藏</p>
@@ -78,7 +78,7 @@
               <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
                 <div class="flex items-center">
                   <div class="p-2 bg-green-100 dark:bg-green-800 rounded-lg">
-                    <i class="fas fa-comments text-green-600 dark:text-green-400"></i>
+                    <el-icon class="text-green-600 dark:text-green-400"><ChatDotRound /></el-icon>
                   </div>
                   <div class="ml-4">
                     <p class="text-sm font-medium text-green-600 dark:text-green-400">我的评论</p>
@@ -92,7 +92,7 @@
               <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
                 <div class="flex items-center">
                   <div class="p-2 bg-purple-100 dark:bg-purple-800 rounded-lg">
-                    <i class="fas fa-thumbs-up text-purple-600 dark:text-purple-400"></i>
+                    <el-icon class="text-purple-600 dark:text-purple-400"><Pointer /></el-icon>
                   </div>
                   <div class="ml-4">
                     <p class="text-sm font-medium text-purple-600 dark:text-purple-400">获赞数</p>
@@ -123,6 +123,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
+import { Document, ChatDotRound, Pointer } from '@element-plus/icons-vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import { getUserStats } from '@/api/user'
 

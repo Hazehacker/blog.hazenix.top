@@ -39,7 +39,7 @@
         <!-- 分类选择 -->
         <div v-show="!isFullscreen" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-            <i class="fas fa-folder mr-2"></i>
+            <el-icon class="mr-2"><Folder /></el-icon>
             *选择分类:
           </label>
           <div class="flex items-center space-x-3">
@@ -65,7 +65,7 @@
         <!-- 标题输入 -->
         <div v-show="!isFullscreen" class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-            <i class="fas fa-heading mr-2"></i>
+            <el-icon class="mr-2"><EditPen /></el-icon>
             *标题:
           </label>
           <el-input
@@ -82,7 +82,7 @@
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm" :class="isFullscreen ? 'p-2 rounded-none shadow-none' : 'p-6'">
             <div class="flex justify-between items-center mb-3" :class="isFullscreen ? 'px-2' : ''">
                 <label v-show="!isFullscreen" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                <i class="fas fa-edit mr-2"></i>
+                <el-icon class="mr-2"><Edit /></el-icon>
                 *内容:
                 </label>
                 <div class="flex items-center space-x-2" :class="{ 'ml-auto': isFullscreen }">
@@ -116,7 +116,7 @@
                     @click="toggleFullscreen"
                     class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                   >
-                    <i :class="isFullscreen ? 'fas fa-compress' : 'fas fa-expand'" class="mr-1"></i>
+                    <el-icon class="mr-1"><FullScreen /></el-icon>
                     {{ isFullscreen ? '退出全屏' : '全屏编辑' }}
                   </el-button>
                 </div>
@@ -138,7 +138,7 @@
               点击上传
             </el-button>
             <div class="mt-1 text-xs text-gray-500 dark:text-gray-500">
-              <i class="fas fa-info-circle mr-1"></i>
+              <el-icon class="mr-1"><InfoFilled /></el-icon>
               导入时会自动检测并上传文档中的图片到服务器
             </div>
             <!-- 隐藏的文件输入 -->
@@ -158,7 +158,7 @@
         <!-- 发布设置 -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
           <h3 class="text-base font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center">
-            <i class="fas fa-cog mr-2"></i>
+            <el-icon class="mr-2"><Setting /></el-icon>
             发布设置
           </h3>
           
@@ -258,7 +258,7 @@
         <!-- SEO设置 -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
           <h3 class="text-base font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center">
-            <i class="fas fa-search mr-2"></i>
+            <el-icon class="mr-2"><Search /></el-icon>
             SEO设置
           </h3>
           
@@ -307,20 +307,20 @@
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm mt-8" :class="isFullscreen ? 'p-3 rounded-none shadow-none mx-0' : 'p-6'">
       <div class="flex justify-between items-center">
         <div v-show="!isFullscreen" class="text-sm text-gray-500 dark:text-gray-400">
-          <i class="fas fa-info-circle mr-1"></i>
+          <el-icon class="mr-1"><InfoFilled /></el-icon>
           保存草稿会自动保存您的编辑内容
         </div>
         <div class="flex space-x-3" :class="{ 'ml-auto': isFullscreen }">
           <el-button @click="$emit('cancel')" :size="isFullscreen ? 'default' : 'large'">
-            <i class="fas fa-times mr-2"></i>
+            <el-icon class="mr-2"><Close /></el-icon>
             取消
           </el-button>
           <el-button @click="handleSaveDraft" :loading="saving" :size="isFullscreen ? 'default' : 'large'">
-            <i class="fas fa-save mr-2"></i>
+            <el-icon class="mr-2"><FolderOpened /></el-icon>
             保存草稿
           </el-button>
           <el-button @click="handlePublish" type="primary" :loading="saving" :size="isFullscreen ? 'default' : 'large'">
-            <i class="fas fa-paper-plane mr-2"></i>
+            <el-icon class="mr-2"><Promotion /></el-icon>
             {{ isPublished ? '更新文章' : '发布文章' }}
           </el-button>
         </div>
@@ -428,7 +428,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Upload } from '@element-plus/icons-vue'
+import { Upload, Folder, EditPen, Edit, FullScreen, InfoFilled, Setting, Search, Close, FolderOpened, Promotion } from '@element-plus/icons-vue'
 import { getToken } from '@/utils/auth'
 import { adminApi } from '@/api/admin'
 import Editor from '@toast-ui/editor'

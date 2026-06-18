@@ -12,11 +12,11 @@
           </p>
           <div class="flex items-center mt-4 text-sm text-gray-500 dark:text-gray-400">
             <span class="mr-4">
-              <i class="fas fa-file-alt mr-1"></i>
+              <el-icon class="mr-1"><Document /></el-icon>
               {{ totalArticles }} 篇文章
             </span>
             <span class="mr-4">
-              <i class="fas fa-calendar mr-1"></i>
+              <el-icon class="mr-1"><Calendar /></el-icon>
               创建于 {{ formatDate(category?.createdAt) }}
             </span>
           </div>
@@ -47,7 +47,7 @@
         <!-- 空状态 -->
         <div v-else class="text-center py-12">
           <div class="text-gray-400 dark:text-gray-500 mb-4">
-            <i class="fas fa-inbox text-6xl"></i>
+            <el-icon :size="48"><Message /></el-icon>
           </div>
           <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-2">
             暂无文章
@@ -83,6 +83,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { Document, Calendar, Message } from '@element-plus/icons-vue'
 import { getCategoryArticles } from '@/api/category'
 import { setSEO } from '@/utils/seo'
 import ArticleCard from '@/components/article/ArticleCard.vue'

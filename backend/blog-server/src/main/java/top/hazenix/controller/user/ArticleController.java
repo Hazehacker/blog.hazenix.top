@@ -58,7 +58,7 @@ public class ArticleController {
      * @param id
      * @return
      */
-    @GetMapping("/{id}")
+    @GetMapping("/{id:\\d+}")
     @Cacheable(cacheNames = "articlesCache", key = "#id")
     public Result getArticleDetail(@PathVariable Long id){
         log.info("获取文章详情");
@@ -160,7 +160,9 @@ public class ArticleController {
         // 文章页面
         for (ArticleSlugVO slug : slugs) {
             String loc = baseUrl + "/article/" + (slug.getSlug() != null ? slug.getSlug() : slug.getId());
-            String lastmod = slug.getUpdateTime() != null ? slug.getUpdateTime().toString() : "";
+            String lastmod = slug.getUpdateTime() != null
+                ? slug.getUpdateTime().toLocalDate().toString()
+                : "";
             sb.append(urlEntry(loc, "weekly", "0.8", lastmod));
         }
 
