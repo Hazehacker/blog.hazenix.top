@@ -284,5 +284,22 @@ export const adminApi = {
     const formData = new FormData()
     formData.append('file', file, fileName)
     return request.post('/common/upload', formData)
+  },
+
+  // ========== 手记管理 ==========
+  getMoments(params = {}) {
+    return request.get('/admin/moment/page', { params })
+  },
+
+  createMoment(data) {
+    return request.post('/admin/moment', data)
+  },
+
+  updateMoment(id, data) {
+    return request.put(`/admin/moment/${id}`, data)
+  },
+
+  deleteMoments(ids) {
+    return request.delete('/admin/moment/batch', { data: { ids } })
   }
 }
