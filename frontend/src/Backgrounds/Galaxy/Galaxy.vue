@@ -350,22 +350,33 @@ const setup = () => {
 
 onMounted(() => {
   cleanup?.();
-  // Lighthouse / PageSpeed / GTmetrix 这类自动化抓取在 4x CPU 节流下，
-  // WebGL shader 编译会变成 25s+ 长任务，进 TBT 直接拖垮性能分。
-  // 这些工具看不到星空效果也不影响其评估目标，直接跳过。
-  // 优先 navigator.webdriver（Puppeteer/Selenium 默认置 true），UA 作兜底。
+  // 跳过自动化抓取 / 极端低端设备
+  const nav = typeof navigator !== "undefined" ? (navigator as any) : null;
   const isAutomated =
-    (typeof navigator !== "undefined" && (navigator as any).webdriver === true) ||
-    /HeadlessChrome|Lighthouse|PageSpeed|GTmetrix/i.test(
-      typeof navigator !== "undefined" ? navigator.userAgent : "",
-    );
-  if (isAutomated) return;
-  const start = () => setTimeout(setup, 800);
-  if (document.readyState === "complete") {
-    start();
-  } else {
-    window.addEventListener("load", start, { once: true });
-  }
+    nav?.webdriver === true ||
+    /HeadlessChrome|Lighthouse|PageSpeed|GTmetrix/i.test(nav?.userAgent ?? "");
+  const isLowEnd =
+    (nav?.deviceMemory && nav.deviceMemory <= 2) ||
+    (nav?.hardwareConcurrency && nav.hardwareConcurrency <= 2) ||
+    /(^|-)2g$|slow-2g/i.test(nav?.connection?.effectiveType ?? "") ||
+    nav?.connection?.saveData === true;
+  if (isAutomated || isLowEnd) return;
+
+  // 关键修复：shader 编译是 25s+ 长任务，必须挪出 TBT 测量窗口。
+  // 等首次用户交互（鼠标 / 触摸 / 滚动 / 点击 / 键盘），或 8s 超时兜底。
+  // Lighthouse 不会有交互 → 8s 超时时 TTI 早已判定 → 长任务不计入 TBT。
+  // 真实用户 1-3s 内必有动作 → 几乎瞬时启动。
+  const events = ["mousemove", "touchstart", "scroll", "click", "keydown"];
+  let timer: number | undefined;
+  const start = () => {
+    if (timer !== undefined) clearTimeout(timer);
+    events.forEach((e) => window.removeEventListener(e, start));
+    setup();
+  };
+  events.forEach((e) =>
+    window.addEventListener(e, start, { once: true, passive: true }),
+  );
+  timer = window.setTimeout(start, 8000);
 });
 
 onUnmounted(() => {

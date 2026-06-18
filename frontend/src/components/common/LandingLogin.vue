@@ -64,7 +64,30 @@
             返回
           </button>
 
-          <form class="login-form" @submit.prevent="handleLogin" novalidate>
+          <div class="auth-tabs">
+            <button type="button" class="auth-tab" :class="{ active: authMode === 'login' }" @click="switchMode('login')">登录</button>
+            <button type="button" class="auth-tab" :class="{ active: authMode === 'register' }" @click="switchMode('register')">注册</button>
+          </div>
+
+          <form class="login-form" @submit.prevent="handleSubmit" novalidate>
+            <div v-if="authMode === 'register'" class="el-form-item">
+              <label class="form-label">用户名</label>
+              <div class="form-input">
+                <div class="el-input__wrapper" :class="{ 'is-focus': focusKey === 'username' }">
+                  <input
+                    v-model="loginForm.username"
+                    type="text"
+                    placeholder="你的昵称"
+                    class="el-input__inner"
+                    autocomplete="username"
+                    @focus="focusKey = 'username'"
+                    @blur="focusKey = ''"
+                  />
+                </div>
+              </div>
+              <div v-if="errors.username" class="form-error">{{ errors.username }}</div>
+            </div>
+
             <div class="el-form-item">
               <label class="form-label">邮箱</label>
               <div class="form-input">
@@ -74,6 +97,7 @@
                     type="email"
                     placeholder="your@email.com"
                     class="el-input__inner"
+                    autocomplete="email"
                     @focus="focusKey = 'email'"
                     @blur="focusKey = ''"
                   />
@@ -91,12 +115,31 @@
                     type="password"
                     placeholder="........"
                     class="el-input__inner"
+                    :autocomplete="authMode === 'register' ? 'new-password' : 'current-password'"
                     @focus="focusKey = 'password'"
                     @blur="focusKey = ''"
                   />
                 </div>
               </div>
               <div v-if="errors.password" class="form-error">{{ errors.password }}</div>
+            </div>
+
+            <div v-if="authMode === 'register'" class="el-form-item">
+              <label class="form-label">确认密码</label>
+              <div class="form-input">
+                <div class="el-input__wrapper" :class="{ 'is-focus': focusKey === 'confirmPassword' }">
+                  <input
+                    v-model="loginForm.confirmPassword"
+                    type="password"
+                    placeholder="再输一次密码"
+                    class="el-input__inner"
+                    autocomplete="new-password"
+                    @focus="focusKey = 'confirmPassword'"
+                    @blur="focusKey = ''"
+                  />
+                </div>
+              </div>
+              <div v-if="errors.confirmPassword" class="form-error">{{ errors.confirmPassword }}</div>
             </div>
 
             <div class="el-form-item">
@@ -120,20 +163,14 @@
               <div v-if="errors.captcha" class="form-error">{{ errors.captcha }}</div>
             </div>
 
-            <div class="forgot-password">
+            <div v-if="authMode === 'login'" class="forgot-password">
               <a href="#" class="forgot-link" @click.prevent>忘记密码? <span class="underline">点击这里重置</span></a>
             </div>
 
             <div class="el-form-item">
               <button type="submit" class="login-btn" :disabled="loading">
                 <span v-if="loading" class="btn-spinner"></span>
-                <span>登录</span>
-              </button>
-            </div>
-
-            <div class="el-form-item">
-              <button type="button" class="register-btn" @click="goToRegister">
-                没有账号? 注册
+                <span>{{ authMode === 'login' ? '登录' : '注册' }}</span>
               </button>
             </div>
           </form>
@@ -155,6 +192,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api'
 
 const visible = ref(false)
 const showEmailForm = ref(false)
+const authMode = ref('login')          // 'login' | 'register'
 const loading = ref(false)
 const googleLoading = ref(false)
 const githubLoading = ref(false)
@@ -163,18 +201,40 @@ const captchaCode = ref('')
 const focusKey = ref('')
 
 const loginForm = reactive({
+  username: '',
   email: '',
   password: '',
+  confirmPassword: '',
   captcha: '',
 })
 
 const errors = reactive({
+  username: '',
   email: '',
   password: '',
+  confirmPassword: '',
   captcha: '',
 })
 
 const toast = reactive({ visible: false, message: '', type: 'info', timer: null })
+
+// 业务码可能是数字也可能是字符串，统一判断：200 / 0 视为成功
+function isSuccess(data) {
+  if (data == null) return false
+  if (data.code === undefined || data.code === null) return true
+  const code = String(data.code)
+  return code === '200' || code === '0'
+}
+
+// 主应用用 cookie 名 'blog_token'（见 utils/auth.js，通过 js-cookie 设置）
+// 着陆页不引入 js-cookie，自己写一份与之兼容的设置逻辑
+function persistToken(token) {
+  if (!token) return
+  const days = 7
+  const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString()
+  const secure = location.protocol === 'https:' ? '; Secure' : ''
+  document.cookie = `blog_token=${token}; expires=${expires}; path=/; SameSite=Lax${secure}`
+}
 
 function showToast(message, type = 'info', duration = 2500) {
   if (toast.timer) clearTimeout(toast.timer)
@@ -203,17 +263,32 @@ function backToMethodSelection() {
 }
 
 function resetForm() {
+  loginForm.username = ''
   loginForm.email = ''
   loginForm.password = ''
+  loginForm.confirmPassword = ''
   loginForm.captcha = ''
+  errors.username = ''
   errors.email = ''
   errors.password = ''
+  errors.confirmPassword = ''
   errors.captcha = ''
+}
+
+function switchMode(mode) {
+  authMode.value = mode
+  errors.username = ''
+  errors.email = ''
+  errors.password = ''
+  errors.confirmPassword = ''
+  errors.captcha = ''
+  refreshCaptcha()
 }
 
 function openDialog() {
   visible.value = true
   showEmailForm.value = false
+  authMode.value = 'login'
   document.body.style.overflow = 'hidden'
 }
 
@@ -225,15 +300,31 @@ function closeDialog() {
 }
 
 function validate() {
+  errors.username = ''
   errors.email = ''
   errors.password = ''
+  errors.confirmPassword = ''
   errors.captcha = ''
   let ok = true
+  if (authMode.value === 'register') {
+    if (!loginForm.username) { errors.username = '请输入用户名'; ok = false }
+    else if (loginForm.username.length < 2) { errors.username = '用户名至少 2 个字符'; ok = false }
+  }
   if (!loginForm.email) { errors.email = '请输入邮箱'; ok = false }
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginForm.email)) { errors.email = '请输入正确的邮箱格式'; ok = false }
   if (!loginForm.password) { errors.password = '请输入密码'; ok = false }
+  else if (authMode.value === 'register' && loginForm.password.length < 6) { errors.password = '密码至少 6 位'; ok = false }
+  if (authMode.value === 'register') {
+    if (!loginForm.confirmPassword) { errors.confirmPassword = '请再输一次密码'; ok = false }
+    else if (loginForm.confirmPassword !== loginForm.password) { errors.confirmPassword = '两次输入的密码不一致'; ok = false }
+  }
   if (!loginForm.captcha) { errors.captcha = '请输入验证码'; ok = false }
   return ok
+}
+
+function handleSubmit() {
+  if (authMode.value === 'login') return handleLogin()
+  return handleRegister()
 }
 
 async function handleLogin() {
@@ -251,17 +342,64 @@ async function handleLogin() {
       body: JSON.stringify({ email: loginForm.email, password: loginForm.password }),
     })
     const data = await res.json()
-    if (!res.ok || (data.code !== undefined && data.code !== 200 && data.code !== 0)) {
+    if (!res.ok || !isSuccess(data)) {
       throw new Error(data.msg || data.message || '登录失败')
     }
     const token = data.data?.token || data.token
-    if (token) localStorage.setItem('token', token)
+    if (token) persistToken(token)
     showToast('登录成功', 'success', 1200)
     const params = new URLSearchParams(window.location.search)
     const redirect = params.get('redirect') || '/home'
     setTimeout(() => { window.location.href = redirect }, 600)
   } catch (err) {
     showToast(err.message || '登录失败', 'error')
+    refreshCaptcha()
+  } finally {
+    loading.value = false
+  }
+}
+
+async function handleRegister() {
+  if (!validate()) return
+  if (loginForm.captcha.toLowerCase() !== captchaCode.value.toLowerCase()) {
+    showToast('验证码错误', 'error')
+    refreshCaptcha()
+    return
+  }
+  loading.value = true
+  try {
+    const res = await fetch(`${API_BASE}/user/user/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: loginForm.username,
+        email: loginForm.email,
+        password: loginForm.password,
+      }),
+    })
+    const data = await res.json()
+    if (!res.ok || !isSuccess(data)) {
+      throw new Error(data.msg || data.message || '注册失败')
+    }
+    // 后端注册接口可能直接返回 token；如果没返回就用注册凭据再调一次登录
+    let token = data.data?.token || data.token
+    if (!token) {
+      const loginRes = await fetch(`${API_BASE}/user/user/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: loginForm.email, password: loginForm.password }),
+      })
+      const loginData = await loginRes.json()
+      if (!loginRes.ok || !isSuccess(loginData)) {
+        throw new Error(loginData.msg || loginData.message || '注册成功但自动登录失败，请手动登录')
+      }
+      token = loginData.data?.token || loginData.token
+    }
+    if (token) persistToken(token)
+    showToast('注册成功', 'success', 1200)
+    setTimeout(() => { window.location.href = '/home' }, 600)
+  } catch (err) {
+    showToast(err.message || '注册失败', 'error')
     refreshCaptcha()
   } finally {
     loading.value = false
@@ -338,11 +476,11 @@ async function handleGoogleLogin() {
       body: JSON.stringify({ idToken }),
     })
     const data = await res.json()
-    if (!res.ok || (data.code !== undefined && data.code !== 200 && data.code !== 0)) {
+    if (!res.ok || !isSuccess(data)) {
       throw new Error(data.msg || data.message || 'Google 登录失败')
     }
     const token = data.data?.token || data.token
-    if (token) localStorage.setItem('token', token)
+    if (token) persistToken(token)
     showToast('登录成功', 'success', 1200)
     setTimeout(() => { window.location.href = '/home' }, 600)
   } catch (err) {
@@ -354,11 +492,6 @@ async function handleGoogleLogin() {
 
 function handleWechatLogin() {
   showToast('该功能暂未开放', 'info')
-}
-
-function goToRegister() {
-  closeDialog()
-  window.location.href = '/register'
 }
 
 onMounted(() => {
@@ -555,6 +688,38 @@ defineExpose({ open: openDialog, close: closeDialog })
 
 .email-login-form {
   position: relative;
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 4px;
+  background: #f5f5f5;
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 20px;
+}
+
+.auth-tab {
+  flex: 1;
+  height: 36px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.auth-tab:hover {
+  color: #333;
+}
+
+.auth-tab.active {
+  background: #fff;
+  color: #409eff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .back-btn {
@@ -990,6 +1155,23 @@ defineExpose({ open: openDialog, close: closeDialog })
 
   .back-btn:hover {
     color: #fff;
+  }
+
+  .auth-tabs {
+    background: #2a2a2a;
+  }
+
+  .auth-tab {
+    color: #ccc;
+  }
+
+  .auth-tab:hover {
+    color: #fff;
+  }
+
+  .auth-tab.active {
+    background: #3a3a3a;
+    color: #409eff;
   }
 }
 </style>
