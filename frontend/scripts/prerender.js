@@ -199,7 +199,47 @@ async function main() {
   await browser.close()
 
   console.log(`\n\n预渲染完成: ${done} 成功, ${failed} 失败`)
+
+  // 关键修复：BASE_URL 指向生产站点时，抓回的 HTML 引用的是 *旧* 构建的资源 hash。
+  // 部署后旧 hash 文件已被 --delete 清除 → 全站 JS/CSS 404 → 无法 hydration。
+  // 用本地 dist/index.html 的标签覆盖所有 prerender HTML 里的资源引用。
+  await rewriteAssetRefs()
+
   if (failed > 0) process.exitCode = 1
+}
+
+async function rewriteAssetRefs() {
+  const { readFile } = await import('node:fs/promises')
+  const { readdirSync, statSync } = await import('node:fs')
+  const indexPath = join(DIST_DIR, 'index.html')
+  const realHtml = await readFile(indexPath, 'utf8')
+  const scriptTag = (realHtml.match(/<script[^>]+src="\/assets\/[^"]+\.js"[^>]*><\/script>/) || [])[0]
+  const cssTag = (realHtml.match(/<link[^>]+rel="stylesheet"[^>]+href="\/assets\/[^"]+\.css"[^>]*>/) || [])[0]
+  if (!scriptTag || !cssTag) {
+    console.warn('  [rewrite] 未能从 dist/index.html 提取 script/css 标签，跳过')
+    return
+  }
+  const files = []
+  ;(function walk(d) {
+    for (const name of readdirSync(d)) {
+      const p = join(d, name)
+      if (statSync(p).isDirectory()) walk(p)
+      else if (name.endsWith('.html')) files.push(p)
+    }
+  })(PRERENDER_DIR)
+  let patched = 0
+  for (const f of files) {
+    let html = await readFile(f, 'utf8')
+    const before = html
+    html = html
+      .replace(/<script[^>]+src="\/assets\/[^"]+\.js"[^>]*><\/script>/g, scriptTag)
+      .replace(/<link[^>]+rel="stylesheet"[^>]+href="\/assets\/[^"]+\.css"[^>]*>/g, cssTag)
+    if (html !== before) {
+      await writeFile(f, html)
+      patched++
+    }
+  }
+  console.log(`  [rewrite] 已用本地 dist 资源引用重写 ${patched}/${files.length} 个预渲染页面`)
 }
 
 main()
