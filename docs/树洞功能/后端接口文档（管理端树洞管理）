@@ -1,0 +1,99 @@
+ ## 树洞相关接口
+
+ ### 1. 分页查询弹幕列表
+
+ **接口地址**: `GET /admin/tree`
+
+ **请求参数**:
+
+| 参数名     | 类型    | 必填 | 描述 |
+| ---------- | ------- | ---- | ---- |
+| `page`     | Integer | 否   |      |
+| `pageSize` | Integer | 否   |      |
+| `keyword`  | String  | 否   |      |
+| `status`   | Integer | 否   |      |
+| `username` | String  | 否   |      |
+
+ **响应结果 (JSON)**:
+
+ ```json
+{
+  "code": 200,
+  "message": "操作成功",
+  "data": {
+    "records": [
+      {
+        "id": 1,
+        "content": "这是一条树洞留言",
+        "createTime": "2023-04-01T12:00:00",
+        "userId": 1001
+      }
+    ],
+    "total": 1
+  }
+}
+ ```
+
+
+---
+
+ ### 2. 删除单个弹幕
+
+ **接口地址**: `DELETE /admin/tree/{id}`
+
+ **请求参数**:
+
+| 参数名                                                       | 类型   | 必填 | 描述       |
+| ------------------------------------------------------------ | ------ | ---- | ---------- |
+| [id](file://D:\ProjectOfBZH\HazenixBlogProject\blog-hazenix-top\blog-pojo\src\main\java\top\hazenix\vo\TagsVO.java#L12-L12) | `Long` | 是   | 树洞评论ID |
+
+ **响应结果 (JSON)**:
+
+ ```json
+{
+  "code": 200,
+  "message": "操作成功",
+  "data": null
+}
+ ```
+
+
+---
+
+ ### 3. 批量删除
+
+ **接口地址**: `DELETE /admin/tree/batch`
+
+ **请求体 (JSON)**:
+
+ ```json
+{
+  "ids": [1, 2, 3]
+}
+ ```
+
+
+ **响应结果 (JSON)**:
+
+ ```json
+{
+  "code": 200,
+  "message": "操作成功",
+  "data": null
+}
+ ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
