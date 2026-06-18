@@ -599,13 +599,18 @@ const processHighlightedHeadings = () => {
 }
 
 
-mermaid.initialize({
-  startOnLoad: false,
-  theme: 'default',
-  sequence: { useMaxWidth: true },
-  flowchart: { useMaxWidth: true },
-  gantt: { useMaxWidth: true },
-})
+let mermaidReady = false
+const ensureMermaid = () => {
+  if (mermaidReady) return
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'default',
+    sequence: { useMaxWidth: true },
+    flowchart: { useMaxWidth: true },
+    gantt: { useMaxWidth: true },
+  })
+  mermaidReady = true
+}
 
 const renderMermaid = async () => {
   await nextTick()
@@ -625,6 +630,7 @@ const renderMermaid = async () => {
 
   const elements = markdownContainerRef.value.querySelectorAll('pre.mermaid')
   if (elements.length === 0) return
+  ensureMermaid()
   try {
     await mermaid.run({ nodes: elements })
     markdownContainerRef.value.querySelectorAll('.mermaid-wrapper svg').forEach(svg => {

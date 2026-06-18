@@ -205,17 +205,19 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, defineAsyncComponent } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Pointer, Share, Collection, ArrowDown } from '@element-plus/icons-vue'
 import { getArticleDetail, getArticleBySlug, getRelatedArticles, likeArticle as likeArticleApi, collectArticle as favoriteArticleApi, incrementViewCount } from '@/api/article'
 import { getApiBaseURL } from '@/utils/apiConfig'
-import MarkdownRenderer from '@/components/article/MarkdownRenderer.vue'
-import CommentList from '@/components/article/CommentList.vue'
 import ArticleMetadata from '@/components/article/ArticleMetadata.vue'
-import TableOfContents from '@/components/article/TableOfContents.vue'
 import dayjs from 'dayjs'
+
+// 重型组件异步加载，拆分大 chunk（markdown-it + mermaid + highlight.js 只在文章页加载）
+const MarkdownRenderer = defineAsyncComponent(() => import('@/components/article/MarkdownRenderer.vue'))
+const CommentList = defineAsyncComponent(() => import('@/components/article/CommentList.vue'))
+const TableOfContents = defineAsyncComponent(() => import('@/components/article/TableOfContents.vue'))
 import { setSEO, generateArticleStructuredData, generateBreadcrumbStructuredData } from '@/utils/seo'
 
 const route = useRoute()

@@ -118,10 +118,10 @@ async function collectPages() {
 
 function cleanHTML(html) {
   return html
-    // 移除所有 <script> 标签（Vue 引导、GA4、Umami 等），爬虫不需要
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    // 移除 <script type="importmap"> 等
-    .replace(/<script\b[^>]*\/>/gi, '')
+    // 只移除非 module 脚本（GA4、Umami 等），保留 Vue 主模块脚本用于 hydration
+    // 正则：匹配 <script> 标签，但排除 type="module" 的（Vue 入口）
+    .replace(/<script\b(?!\s[^>]*type="module")[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<script\b(?!\s[^>]*type="module")[^>]*\/>/gi, '')
     // 移除 Vite 的 modulepreload 链接
     .replace(/<link\s+rel="modulepreload"[^>]*>/gi, '')
     // 移除空的 <style> 动画定义（骨架屏 keyframes，如果存在）

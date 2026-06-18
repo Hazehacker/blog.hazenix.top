@@ -47,10 +47,8 @@ export default defineConfig({
     // 代码分割：把大型依赖单独拆 chunk，避免首屏加载一个巨大的 JS
     rollupOptions: {
       output: {
-        manualChunks: {
-          'element-plus': ['element-plus'],
-          'vue-vendor': ['vue', 'vue-router', 'pinia'],
-        },
+        // 不做手动分包：重型依赖已通过 defineAsyncComponent 拆分（MarkdownRenderer, CommentList, TableOfContents）
+        // manualChunks 容易导致循环依赖和不可预期的合并（如 mermaid 被打进首页 chunk）
       },
     },
   },

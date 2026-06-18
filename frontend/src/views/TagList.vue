@@ -209,6 +209,12 @@ const bubbleInlineStyle = (tag, i) => {
 const goToTag = (tag) => router.push(`/tag/${tag.id}`)
 
 onMounted(() => {
+  // Non-blocking font loading
+  const fontLink = document.createElement('link')
+  fontLink.rel = 'stylesheet'
+  fontLink.href = 'https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap'
+  document.head.appendChild(fontLink)
+
   setSEO({
     title: '标签列表',
     description: '浏览所有文章标签，按标签发现感兴趣的内容',
@@ -222,8 +228,6 @@ onUnmounted(() => window.removeEventListener('resize', computeAnchors))
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap');
-
 .bs-page {
   position: relative;
   min-height: 80vh;

@@ -41,7 +41,7 @@
     <!-- 内容区域 -->
     <div class="mt-24 grid grid-cols-1 lg:grid-cols-3 gap-8">
       <!-- 最新文章列表 -->
-      <div class="lg:col-span-2">
+      <div class="lg:col-span-2" style="min-height:400px;contain:layout style;">
         <h2 class="text-xl md:text-3xl font-bold mb-8">最新文章</h2>
         <ArticleList :articles="latestArticles" />
         <div class="mt-6 flex justify-center">
@@ -54,9 +54,9 @@
           </button>
         </div>
       </div>
-      
+
       <!-- 侧边栏 -->
-      <div class="lg:col-span-1">
+      <div class="lg:col-span-1" style="min-height:300px;contain:layout style;">
         <div class="space-y-8">
           <!-- 热门文章 -->
           <PopularArticles />
@@ -65,7 +65,7 @@
     </div>
 
     <!-- 推荐区域 -->
-    <div class="mt-16">
+    <div class="mt-16" style="min-height:250px;contain:layout style;">
       <RecommendSection />
     </div>
 
@@ -84,7 +84,7 @@ import { getArticleList } from '@/api/article'
 import { setSEO, generateWebsiteStructuredData } from '@/utils/seo'
 import RecommendSection from '@/components/article/RecommendSection.vue'
 import ArticleList from '@/components/article/ArticleList.vue'
-import avatarImg from '@/assets/img/avatar.webp'
+const avatarImg = '/avatar.webp'
 import UserCard from '@/components/common/UserCard.vue'
 import PopularArticles from '@/components/article/PopularArticles.vue'
 import ThemeGuide from '@/components/common/ThemeGuide.vue'

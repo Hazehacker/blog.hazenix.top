@@ -33,9 +33,10 @@
             <!-- 文章封面 -->
             <div v-if="(article.coverImage || article.cover) && !imageErrors[article.id]" class="article-cover">
               <img
-                :src="article.coverImage || article.cover"
+                :src="getCoverUrl(article)"
                 :alt="article.title"
                 class="cover-image"
+                loading="lazy" decoding="async"
                 @error="imageErrors[article.id] = true"
               />
             </div>
@@ -117,6 +118,7 @@ import { getCategoryList } from '@/api/category'
 import { getTagList } from '@/api/tag'
 
 import { formatDate, formatNumber, generateSummary } from '@/utils/helpers'
+import { getThumbnailUrl } from '@/utils/apiConfig'
 import { setSEO } from '@/utils/seo'
 
 const router = useRouter()
@@ -130,6 +132,7 @@ const tags = ref([])
 const loading = ref(false)
 const total = ref(0)
 const imageErrors = reactive({})
+const getCoverUrl = (article) => getThumbnailUrl(article.coverImage || article.cover, 400)
 
 // 搜索表单
 const searchForm = reactive({

@@ -101,6 +101,22 @@ export function getFileURL(path) {
     return `${baseURL}/${path}`
 }
 
+/**
+ * 獲取 OSS 縮略圖 URL（帶圖片處理參數）
+ * 將 1.4MB 原圖轉為 ~25KB WebP 縮略圖，大幅提升列表頁加載速度
+ * @param {string} url 原始圖片 URL
+ * @param {number} width 縮略圖寬度，默認 400px
+ * @returns {string} 帶 OSS 處理參數的 URL
+ */
+export function getThumbnailUrl(url, width = 400) {
+    if (!url) return ''
+    if (url.includes('oss-cn-heyuan.aliyuncs.com')) {
+        const base = url.split('?')[0]
+        return `${base}?x-oss-process=image/resize,w_${width}/format,webp`
+    }
+    return url
+}
+
 // 在開發環境輸出配置信息
 if (import.meta.env.DEV) {
     console.log('API 配置:', {

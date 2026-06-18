@@ -50,10 +50,7 @@ import { articleApi } from '@/api/article'
 
 const userStore = useUserStore()
 
-// 正确的默认头像路径
-// 使用 import() 导入图片资源
-import avatarImg from '@/assets/img/avatar.webp';
-const defaultAvatar = avatarImg;
+const defaultAvatar = '/avatar.webp'
 
 // 计算头像URL，优先使用用户头像，否则使用默认头像
 const avatarUrl = defaultAvatar

@@ -29,7 +29,7 @@
         </el-form-item>
         <div class="flex items-center justify-center space-x-4 mt-4">
           <el-button type="default" @click="handleGithubLogin">
-            <img src="@/assets/img/githubLogo.png" alt="GitHub" class="w-6 h-6 mr-2" />
+            <img src="@/assets/img/githubLogo.webp" alt="GitHub" class="w-6 h-6 mr-2" />
             GitHub 登录
           </el-button>
         </div>
