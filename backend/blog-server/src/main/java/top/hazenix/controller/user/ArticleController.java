@@ -36,12 +36,10 @@ public class ArticleController {
      * @return
      */
     @GetMapping
-    @Cacheable(cacheNames = "articlesCache", key = "#root.args[0].title+ '_' + #root.args[0].categoryId+ '_' + #root.args[0].tagId+ '_' + #root.args[0].status+ '_' + #root.args[0].userId")
     public Result getArticleList(ArticleListQuery articleListQuery){
-        log.info("获取文章列表");
-        //由于用于用户端，只返回不是草稿的文章
+        log.info("获取文章列表（轻量）");
         articleListQuery.setStatus(ArticleConstants.STATUS_NORMAL);
-        List<ArticleDetailVO> list = articleService.getArticleList(articleListQuery);
+        List<ArticleShortVO> list = articleService.getArticleShortList(articleListQuery);
         return Result.success(list);
     }
 

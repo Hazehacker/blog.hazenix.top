@@ -103,6 +103,14 @@ public class ArticleServiceImpl implements ArticleService {
         return new PageResult(pageRes.getTotal(),list);
     }
 
+    @Override
+    public List<ArticleShortVO> getArticleShortList(ArticleListQuery query) {
+        com.github.pagehelper.PageHelper.startPage(1, 1000);
+        com.github.pagehelper.Page<ArticleShortVO> pageRes = articleMapper.pageQuery(
+                query.getTitle(), query.getCategoryId(), query.getStatus());
+        return pageRes.getResult();
+    }
+
     /**
      * 获取文章详情
      * @param id

@@ -30,6 +30,9 @@ public interface ArticleService {
 
     List<ArticleDetailVO> getArticleList(ArticleListQuery articleListQuery);
 
+    /** 轻量列表查询（不含正文），用于前端首页/列表页 */
+    List<ArticleShortVO> getArticleShortList(ArticleListQuery articleListQuery);
+
     ArticleDetailVO getArticleDetailBySlug(String slug);
 
     List<ArticleShortVO> getPopularArticles(int i);
