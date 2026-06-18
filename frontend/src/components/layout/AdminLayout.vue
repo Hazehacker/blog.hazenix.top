@@ -88,18 +88,19 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { 
-  House, 
-  Document, 
-  Collection, 
-  PriceTag, 
-  ChatDotRound, 
+import {
+  House,
+  Document,
+  Collection,
+  PriceTag,
+  ChatDotRound,
   Clock,
   Link,
   ArrowLeft,
   Menu,
   ArrowDown,
-  ChatLineRound
+  ChatLineRound,
+  Memo
 } from '@element-plus/icons-vue'
 import avatarFallback from '@/assets/img/avatar.webp'
 
@@ -117,6 +118,7 @@ const menuItems = [
   { name: 'categories', path: '/admin/categories', label: '分类管理', icon: 'Collection' },
   { name: 'tags', path: '/admin/tags', label: '标签管理', icon: 'PriceTag' },
   { name: 'comments', path: '/admin/comments', label: '评论管理', icon: 'ChatDotRound' },
+  { name: 'moments', path: '/admin/moments', label: '手记管理', icon: 'Memo' },
   { name: 'tree-holes', path: '/admin/tree-holes', label: '树洞管理', icon: 'ChatLineRound' },
   { name: 'links', path: '/admin/links', label: '友链管理', icon: 'Link' },
   { name: 'subscriptions', path: '/admin/subscriptions', label: '订阅管理', icon: 'Message' },

@@ -30,7 +30,8 @@ const routes = [
       { path: '/messageboard', name: 'MessageBoard', component: () => import('@/views/MessageBoard.vue'), meta: { title: '留言板' } },
       { path: '/about', name: 'About', component: () => import('@/views/About.vue'), meta: { title: '关于我' } },
       { path: '/about-project', name: 'AboutProject', component: () => import('@/views/AboutProject.vue'), meta: { title: '关于此项目' } },
-      { path: '/search', name: 'Search', component: () => import('@/views/Search.vue'), meta: { title: '搜索结果' } }
+      { path: '/search', name: 'Search', component: () => import('@/views/Search.vue'), meta: { title: '搜索结果' } },
+      { path: '/moments', name: 'Moments', component: () => import('@/views/Moments.vue'), meta: { title: '手记' } }
 
 
 
@@ -109,6 +110,12 @@ const routes = [
         name: 'AdminComments',
         component: () => import('@/views/admin/CommentManagement.vue'),
         meta: { title: '评论管理' }
+      },
+      {
+        path: 'moments',
+        name: 'AdminMoments',
+        component: () => import('@/views/admin/MomentManagement.vue'),
+        meta: { title: '手记管理' }
       },
       {
         path: 'updates',

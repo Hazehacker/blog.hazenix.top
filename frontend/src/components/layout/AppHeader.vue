@@ -46,6 +46,7 @@
         </template>
       </el-dropdown>
       
+      <router-link to="/moments" class="hover:text-primary">手记</router-link>
       <router-link to="/tags" class="hover:text-primary">标签</router-link>
       <router-link to="/tree-hole" class="hover:text-primary">树洞</router-link>
       <router-link to="/friend-links" class="hover:text-primary">友链</router-link>
@@ -142,6 +143,7 @@
               </router-link>
             </div>
 
+            <router-link to="/moments" class="mobile-menu-item" @click="closeMobileMenu">📝 手记</router-link>
             <router-link to="/tags" class="mobile-menu-item" @click="closeMobileMenu">🏷️ 标签</router-link>
             <router-link to="/tree-hole" class="mobile-menu-item" @click="closeMobileMenu">🌳 树洞</router-link>
             <router-link to="/friend-links" class="mobile-menu-item" @click="closeMobileMenu">🔗 友链</router-link>
