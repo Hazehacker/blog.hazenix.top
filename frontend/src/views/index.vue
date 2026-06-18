@@ -26,8 +26,8 @@
           <span class="font-bold">GitHub</span>
         </a>
         <div class="space-x-4">
-          <router-link to="/home" class="hover:text-gray-300">Home</router-link>
-          <router-link to="/articles" class="hover:text-gray-300">Articles</router-link>
+          <a href="/home" class="hover:text-gray-300">Home</a>
+          <a href="/articles" class="hover:text-gray-300">Articles</a>
         </div>
       </nav>
 
@@ -50,30 +50,26 @@
       </div>
     </div>
     <!-- 登录弹窗（登陆页本地挂载） -->
-    <LoginDialog ref="loginDialogRef" />
+    <LandingLogin ref="loginDialogRef" />
   </div>
 </template>
 
 <script setup>
 import GalaxyBackground from '@/Backgrounds/Galaxy/Galaxy.vue';
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import LoginDialog from '@/components/common/LoginDialog.vue';
+import LandingLogin from '@/components/common/LandingLogin.vue';
 
-const router = useRouter();
 const loginDialogRef = ref();
 
-// GitHub 連結
+// GitHub 链接
 const githubUrl = 'https://github.com/HazeHacker';
 
 const goToLogin = () => {
-  if (loginDialogRef.value) {
-    loginDialogRef.value.open();
-  }
+  loginDialogRef.value?.open();
 };
 
 const goToHome = () => {
-  router.push({ path: '/home', query: { fromIndex: 'true' } });
+  window.location.href = '/home?fromIndex=true';
 };
 </script>
 

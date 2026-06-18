@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="/avatar.webp">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Hazenix的后端札记 - 大二成长实录 & 学习笔记，专注后端开发、系统设计与技术分享。">
+  <title>Hazenix's Blog | blog.hazenix.top</title>
+
+  <link rel="preconnect" href="https://blog-hazenix-top.oss-cn-heyuan.aliyuncs.com" crossorigin>
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+  <link rel="dns-prefetch" href="https://monitor.hazenix.top">
+
+  <script>
+    function loadThirdParty() {
+      var umami = document.createElement('script');
+      umami.defer = true;
+      umami.src = 'https://monitor.hazenix.top/script.js';
+      umami.setAttribute('data-website-id', '7e50cd6b-23a9-4a01-9eb5-471e1b82f91a');
+      document.head.appendChild(umami);
+      var ga = document.createElement('script');
+      ga.async = true;
+      ga.src = 'https://www.googletagmanager.com/gtag/js?id=G-LV47MHNJ9B';
+      document.head.appendChild(ga);
+      ga.onload = function () {
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-LV47MHNJ9B');
+      };
+    }
+    if (document.readyState === 'complete') { loadThirdParty(); }
+    else { window.addEventListener('load', loadThirdParty); }
+  </script>
+  <style>body{margin:0;background:#000;}</style>
+</head>
+
+<body>
+  <div id="app">
+    <div style="position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#000;">
+      <h1 style="font-size:32px;font-weight:700;margin:0 0 8px;text-align:center;line-height:1.2;">Hazenix's blog<br/>blog.hazenix.top</h1>
+    </div>
+  </div>
+  <script type="module" src="/src/landing.ts"></script>
+</body>
+
+</html>

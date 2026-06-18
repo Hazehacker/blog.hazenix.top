@@ -1,4 +1,5 @@
 import { fileURLToPath, URL } from 'node:url'
+import { resolve } from 'node:path'
 
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
@@ -7,6 +8,8 @@ import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import compression from 'vite-plugin-compression'
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -44,8 +47,12 @@ export default defineConfig({
     assetsDir: 'assets',
     sourcemap: false,
     assetsInlineLimit: 4096,
-    // 代码分割：把大型依赖单独拆 chunk，避免首屏加载一个巨大的 JS
+    // 多入口：着陆页 landing.html 独立打包，避免拖入主应用 347KB 主包
     rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
+        landing: resolve(__dirname, 'landing.html'),
+      },
       output: {
         // 不做手动分包：重型依赖已通过 defineAsyncComponent 拆分（MarkdownRenderer, CommentList, TableOfContents）
         // manualChunks 容易导致循环依赖和不可预期的合并（如 mermaid 被打进首页 chunk）

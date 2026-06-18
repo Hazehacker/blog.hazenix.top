@@ -51,7 +51,7 @@ const API_BASE = BASE_URL + '/api'
 // ========== 页面列表 ==========
 
 const STATIC_PAGES = [
-  { path: '/', file: 'index.html' },
+  // `/` 不预渲染 —— 着陆页走独立的 landing.html 入口（已是真静态 HTML）
   { path: '/home', file: 'home.html' },
   { path: '/articles', file: 'articles.html' },
   { path: '/categories', file: 'categories.html' },
