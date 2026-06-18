@@ -1,0 +1,29 @@
+# Hazenix的后端札记
+
+> 大二成长实录 & 学习笔记，专注后端开发、系统设计与技术分享。Personal technical blog by Hazenix covering backend engineering, system design, databases, and software craftsmanship.
+
+This blog is built with Vue 3 + Spring Boot + PostgreSQL, deployed on Alibaba Cloud. Articles are written in Chinese, with technical terms in English. The author writes about real engineering experience, debugging stories, and architectural decisions.
+
+## 主要页面 / Primary Pages
+
+- [首页 / Home](https://blog.hazenix.top/home): 最新文章列表与推荐内容 / Latest articles and recommendations
+- [文章列表 / Articles](https://blog.hazenix.top/articles): 所有公开文章，可按分类与标签筛选 / All public articles, filterable by category and tag
+- [分类 / Categories](https://blog.hazenix.top/categories): 按主题组织的文章分类 / Articles grouped by topic
+- [标签 / Tags](https://blog.hazenix.top/tags): 按关键字组织的文章标签 / Articles organized by keywords
+- [手记 / Moments](https://blog.hazenix.top/moments): 短篇随笔与日常更新 / Short-form posts and updates
+- [关于作者 / About](https://blog.hazenix.top/about): 作者信息与联系方式 / About the author
+- [关于本站 / About this site](https://blog.hazenix.top/about-project): 项目技术栈与设计理念 / Project tech stack and design
+
+## 数据资源 / Data Resources
+
+- [Sitemap (XML)](https://blog.hazenix.top/api/user/articles/sitemap.xml): 完整 URL 列表 / Full URL list for crawlers
+- [robots.txt](https://blog.hazenix.top/robots.txt): 爬虫访问规则 / Crawler access rules
+- [文章列表 API / Article List API](https://blog.hazenix.top/api/user/articles): JSON 接口返回最新文章 / JSON endpoint returning recent articles
+- [文章 slug 列表 / Article slugs](https://blog.hazenix.top/api/user/articles/slugs): 全部文章 slug / All article slugs
+
+## Optional
+
+- [友情链接 / Friend Links](https://blog.hazenix.top/friend-links): 推荐的其他博客与链接 / Recommended blogs and links
+- [心灵树洞 / Tree Hole](https://blog.hazenix.top/tree-hole): 匿名留言板 / Anonymous message board
+- [留言板 / Message Board](https://blog.hazenix.top/messageboard): 公开留言板 / Public guestbook
+- [本站历史 / Site History](https://blog.hazenix.top/history): 网站迭代记录 / Site changelog
