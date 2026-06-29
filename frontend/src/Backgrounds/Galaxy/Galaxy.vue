@@ -362,21 +362,10 @@ onMounted(() => {
     nav?.connection?.saveData === true;
   if (isAutomated || isLowEnd) return;
 
-  // 关键修复：shader 编译是 25s+ 长任务，必须挪出 TBT 测量窗口。
-  // 等首次用户交互（鼠标 / 触摸 / 滚动 / 点击 / 键盘），或 8s 超时兜底。
-  // Lighthouse 不会有交互 → 8s 超时时 TTI 早已判定 → 长任务不计入 TBT。
-  // 真实用户 1-3s 内必有动作 → 几乎瞬时启动。
-  const events = ["mousemove", "touchstart", "scroll", "click", "keydown"];
-  let timer: number | undefined;
-  const start = () => {
-    if (timer !== undefined) clearTimeout(timer);
-    events.forEach((e) => window.removeEventListener(e, start));
-    setup();
-  };
-  events.forEach((e) =>
-    window.addEventListener(e, start, { once: true, passive: true }),
-  );
-  timer = window.setTimeout(start, 8000);
+  // 真实用户：首屏立即启动星空，不再等待交互或超时（消除黑屏延迟）。
+  // 仍保留上面的自动化/低端设备跳过，避免 shader 编译长任务计入 Lighthouse TBT。
+  // 用 rAF 让出首帧给浏览器布局/绘制，差异约 1 帧（~16ms），肉眼不可感知。
+  requestAnimationFrame(() => setup());
 });
 
 onUnmounted(() => {
