@@ -15,8 +15,13 @@
 - 手记参与推荐依赖：`status = 0`（正常）且 `recommend_level != 0`。新建手记默认 `recommend_level = 3`。
 - 手记点赞保持**匿名 IP 幂等**，走 `moment_like(article_id, ip)`；不使用登录态 `user_article`。
 - 前端无测试框架（无 vitest/jest）：前端与 MyBatis/Controller 层验证用「编译 + 运行 + curl/肉眼」；仅纯逻辑（标题兜底）写 JUnit。
-- Node 构建统一用 `export PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH"`；npm 用公共镜像 `--registry=https://registry.npmmirror.com`（内网 `bnpm.byted.org` 当前不可用）。
-- 后端构建：`cd backend && ./mvnw -q -DskipTests package`（或 `mvn`）；单测：`./mvnw -q test`。
+- **Bash 沙箱默认禁网**：所有联网/构建命令（mvn、npm install、npm run build）必须用 `dangerouslyDisableSandbox: true` 运行，否则连接被重置。
+- **前端工具链**：`export PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH"`；npm 用公共镜像 `--registry=https://registry.npmmirror.com`（内网 `bnpm.byted.org` 不可用）。
+- **后端工具链**（无 mvnw；已装 JDK17 + Maven 3.9.16 + Aliyun 镜像）：每次构建前先设置
+  `export JAVA_HOME="/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home"` 和
+  `export PATH="$HOME/.local/maven/apache-maven-3.9.16/bin:$JAVA_HOME/bin:$PATH"`（或 `source .superpowers/build-env.sh`）。
+  编译：`cd backend && mvn -q -DskipTests compile`；单测：`mvn -q -pl blog-server test -Dtest=<Test>`；打包：`mvn -q -DskipTests package`。
+  依赖已缓存于 `~/.m2`；若遇偶发 "terminated the handshake"，重试即可（Maven 断点续传）。
 - 提交信息结尾加 `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`。
 
 ---
