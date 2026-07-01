@@ -21,8 +21,8 @@ public class MomentDTO {
     @ApiModelProperty(value = "图片URL列表（最多9张）")
     private List<String> imageUrls;
 
-    @ApiModelProperty(value = "标签列表")
-    private List<String> tags;
+    @ApiModelProperty(value = "标签ID列表")
+    private List<Integer> tagIds;
 
     @ApiModelProperty(value = "状态[0:正常 | 1:草稿]")
     private Integer status;

@@ -145,6 +145,12 @@ public interface ArticleMapper {
     void incrementLikeCount(Long id);
 
     /**
+     * 手记浏览数 +1
+     * @param id 文章ID
+     */
+    void incrementViewCount(Long id);
+
+    /**
      * 分页查询手记列表（手记存储在文章表的手记分类下）
      * @param keyword 关键词（标题或内容模糊匹配）
      * @param status 状态过滤

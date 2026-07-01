@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MomentLike {
-    private Long momentId;
+    private Long articleId;
     private String ip;
     private LocalDateTime createTime;
 }

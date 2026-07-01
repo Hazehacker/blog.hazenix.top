@@ -3,12 +3,12 @@
 <mapper namespace="top.hazenix.mapper.MomentLikeMapper">
 
     <insert id="insert">
-        INSERT INTO moment_like (moment_id, ip, create_time)
-        VALUES (#{momentId}, #{ip}, #{createTime})
+        INSERT INTO moment_like (article_id, ip, create_time)
+        VALUES (#{articleId}, #{ip}, #{createTime})
     </insert>
 
-    <select id="getByMomentIdAndIp" resultType="top.hazenix.entity.MomentLike">
-        SELECT * FROM moment_like WHERE moment_id = #{momentId} AND ip = #{ip}
+    <select id="getByArticleIdAndIp" resultType="top.hazenix.entity.MomentLike">
+        SELECT * FROM moment_like WHERE article_id = #{articleId} AND ip = #{ip}
     </select>
 
 </mapper>

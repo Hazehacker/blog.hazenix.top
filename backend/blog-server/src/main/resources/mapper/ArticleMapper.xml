@@ -56,6 +56,9 @@
     <update id="incrementLikeCount">
         update article set like_count = coalesce(like_count,0) + 1 where id = #{id}
     </update>
+    <update id="incrementViewCount">
+        update article set view_count = coalesce(view_count,0) + 1 where id = #{id}
+    </update>
     <delete id="deleteByIds">
         delete from article where id in
         <foreach item="id" collection="ids" separator="," open="(" close=")">

@@ -29,4 +29,10 @@
         select tags_id
         from article_tags where article_id = #{id}
     </select>
+    <select id="getTagNamesByArticleId" resultType="java.lang.String">
+        select tags_name from article_tags where article_id = #{articleId}
+    </select>
+    <select id="getMomentTagNames" resultType="java.lang.String">
+        select distinct at.tags_name from article_tags at join article a on a.id = at.article_id where a.category_id = #{momentCategoryId}
+    </select>
 </mapper>

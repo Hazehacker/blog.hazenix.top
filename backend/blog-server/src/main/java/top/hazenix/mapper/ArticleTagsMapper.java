@@ -3,6 +3,7 @@ package top.hazenix.mapper;
 
 import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import top.hazenix.annotation.AutoFill;
 import top.hazenix.dto.ArticleTagsDTO;
 import top.hazenix.entity.Article;
@@ -45,4 +46,18 @@ public interface ArticleTagsMapper {
      * @return
      */
     List<Integer> getListByArticleId(Long id);
+
+    /**
+     * 根据文章id获取标签名称列表（从 article_tags 的 tags_name 冗余列）
+     * @param articleId 文章ID
+     * @return 标签名列表
+     */
+    List<String> getTagNamesByArticleId(@Param("articleId") Long articleId);
+
+    /**
+     * 获取手记分类下用过的所有标签名（去重）
+     * @param momentCategoryId 手记分类ID
+     * @return 标签名列表
+     */
+    List<String> getMomentTagNames(@Param("momentCategoryId") Integer momentCategoryId);
 }
