@@ -54,13 +54,14 @@
         @selection-change="handleSelectionChange"
         row-key="id"
       >
-        <el-table-column type="selection" width="55" />
+        <el-table-column type="selection" width="55" :selectable="(row) => row.type !== 1" />
         
         <el-table-column prop="name" label="分类名称" min-width="150">
           <template #default="{ row }">
             <div class="flex items-center">
               <div class="w-4 h-4 rounded mr-2" :style="{ backgroundColor: row.color }"></div>
               <span class="font-medium text-gray-900 dark:text-gray-100">{{ row.name }}</span>
+              <el-tag v-if="row.type === 1" type="info" size="small" class="ml-2">默认分类</el-tag>
             </div>
           </template>
         </el-table-column>
@@ -103,7 +104,7 @@
                          :type="row.status === 0 ? 'warning' : 'success'">
                 {{ row.status === 0 ? '禁用' : '启用' }}
               </el-button>
-              <el-button @click="handleDelete(row)" size="small" type="danger" plain>
+              <el-button @click="handleDelete(row)" size="small" type="danger" plain :disabled="row.type === 1">
                 删除
               </el-button>
             </div>
@@ -361,6 +362,10 @@ const handleToggleStatus = async (category) => {
 
 // 删除分类
 const handleDelete = async (category) => {
+  if (category.type === 1) {
+    ElMessage.warning('手记默认分类不可删除')
+    return
+  }
   try {
     await ElMessageBox.confirm(
       `确定要删除分类"${category.name}"吗？此操作不可恢复。`,
@@ -385,9 +390,17 @@ const handleDelete = async (category) => {
 
 // 批量删除
 const handleBatchDelete = async () => {
+  // 过滤掉手记默认分类（type === 1）
+  const deletableIds = selectedCategories.value
+    .filter(item => item.type !== 1)
+    .map(item => item.id)
+  if (deletableIds.length === 0) {
+    ElMessage.warning('所选分类中包含不可删除的默认分类')
+    return
+  }
   try {
     await ElMessageBox.confirm(
-      `确定要删除选中的 ${selectedCategories.value.length} 个分类吗？此操作不可恢复。`,
+      `确定要删除选中的 ${deletableIds.length} 个分类吗？此操作不可恢复。`,
       '确认批量删除',
       {
         confirmButtonText: '确定',
@@ -395,9 +408,8 @@ const handleBatchDelete = async () => {
         type: 'warning'
       }
     )
-    
-    const ids = selectedCategories.value.map(item => item.id)
-    await adminApi.batchDeleteCategories(ids)
+
+    await adminApi.batchDeleteCategories(deletableIds)
     ElMessage.success('批量删除成功')
     loadCategories()
   } catch (error) {
