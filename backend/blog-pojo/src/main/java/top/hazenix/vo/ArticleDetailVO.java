@@ -1,5 +1,6 @@
 package top.hazenix.vo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -37,5 +38,15 @@ public class ArticleDetailVO extends Article {
     @ApiModelProperty(value = "图片列表（手记九宫格用）", example = "[\"url1\",\"url2\"]")
     @JsonProperty("images")
     private List<String> imageList;
+
+    /**
+     * Hide the inherited raw-String images getter from Jackson serialization.
+     * The parsed list exposed via imageList with @JsonProperty("images") is the
+     * authoritative "images" property in JSON. Without this override, Jackson
+     * would see two properties both named "images" and throw a conflict error.
+     */
+    @Override
+    @JsonIgnore
+    public String getImages() { return super.getImages(); }
 
 }
