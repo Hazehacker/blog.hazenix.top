@@ -30,17 +30,6 @@
             class="article-card"
             @click="goToArticle(article)"
           >
-            <!-- 文章封面 -->
-            <div v-if="(article.coverImage || article.cover) && !imageErrors[article.id]" class="article-cover">
-              <img
-                :src="getCoverUrl(article)"
-                :alt="article.title"
-                class="cover-image"
-                loading="lazy" decoding="async"
-                @error="imageErrors[article.id] = true"
-              />
-            </div>
-
             <!-- 文章内容 -->
             <div class="article-content">
               <!-- 文章标题 -->
@@ -118,7 +107,6 @@ import { getCategoryList } from '@/api/category'
 import { getTagList } from '@/api/tag'
 
 import { formatDate, formatNumber, generateSummary } from '@/utils/helpers'
-import { getThumbnailUrl } from '@/utils/apiConfig'
 import { setSEO } from '@/utils/seo'
 
 const router = useRouter()
@@ -131,8 +119,6 @@ const categories = ref([])
 const tags = ref([])
 const loading = ref(false)
 const total = ref(0)
-const imageErrors = reactive({})
-const getCoverUrl = (article) => getThumbnailUrl(article.coverImage || article.cover, 400)
 
 // 搜索表单
 const searchForm = reactive({
@@ -570,14 +556,6 @@ watch(() => route.query, async (newQuery, oldQuery) => {
 
 .article-card {
   @apply bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden cursor-pointer transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl;
-}
-
-.article-cover {
-  @apply h-48 overflow-hidden;
-}
-
-.cover-image {
-  @apply w-full h-full object-cover transition-transform duration-200 hover:scale-105;
 }
 
 .article-content {
