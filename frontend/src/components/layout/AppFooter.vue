@@ -125,6 +125,37 @@ footer {
   /* 通过调整padding和间距来控制高度，而不是限制max-height */
 }
 
+/* 卡片标题 */
+.footer-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 12px;
+}
+
+.dark .footer-card-title {
+  color: #e5e7eb;
+}
+
+/* 卡片内链接：纵向排列，桌面端也需要 */
+.footer-card-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.footer-link {
+  font-size: 14px;
+  color: var(--el-color-primary);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.footer-link:hover {
+  text-decoration: underline;
+}
+
 /* 响应式调整 */
 @media (max-width: 768px) {
   footer {
@@ -155,6 +186,7 @@ footer {
 
   .footer-card-links {
     display: flex;
+    flex-direction: row;
     gap: 14px;
     flex-wrap: wrap;
   }
