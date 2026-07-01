@@ -112,8 +112,10 @@ public class MomentServiceImpl implements MomentService {
 
     @Override
     public PageResult pageQueryUser(Integer page, Integer pageSize, String tagName, String clientIp) {
+        // 必须在 startPage 之前解析分类 ID，否则 PageHelper 会拦截 getMomentCategoryId 的 limit 1 查询
+        Integer catId = momentCategoryId();
         PageHelper.startPage(page, pageSize);
-        Page<MomentVO> res = articleMapper.pageMoments(null, 0, momentCategoryId());
+        Page<MomentVO> res = articleMapper.pageMoments(null, 0, catId);
         List<MomentVO> list = res.getResult();
         list.forEach(vo -> fillVO(vo, clientIp));
         return new PageResult(res.getTotal(), list);
@@ -121,8 +123,9 @@ public class MomentServiceImpl implements MomentService {
 
     @Override
     public PageResult pageQueryAdmin(Integer page, Integer pageSize, String keyword) {
+        Integer catId = momentCategoryId();
         PageHelper.startPage(page, pageSize);
-        Page<MomentVO> res = articleMapper.pageMoments(keyword, null, momentCategoryId());
+        Page<MomentVO> res = articleMapper.pageMoments(keyword, null, catId);
         List<MomentVO> list = res.getResult();
         list.forEach(vo -> fillVO(vo, null));
         return new PageResult(res.getTotal(), list);
