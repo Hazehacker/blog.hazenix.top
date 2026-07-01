@@ -60,4 +60,7 @@ public class Article {
 
     @ApiModelProperty(value = "更新时间", example = "2020-01-01 00:00:00")
     private LocalDateTime updateTime;
+
+    @ApiModelProperty(value = "图片列表（JSON数组字符串，手记九宫格用）", example = "[\"url1\",\"url2\"]")
+    private String images;
 }

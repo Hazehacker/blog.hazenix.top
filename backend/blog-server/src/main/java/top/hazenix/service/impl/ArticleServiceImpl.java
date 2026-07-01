@@ -1,5 +1,7 @@
 package top.hazenix.service.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import lombok.RequiredArgsConstructor;
@@ -39,9 +41,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ArticleServiceImpl implements ArticleService {
 
     private final ArticleMapper articleMapper;
@@ -63,6 +67,22 @@ public class ArticleServiceImpl implements ArticleService {
     private final ArticleNotifyService articleNotifyService;
 
     private final RecommendCacheService recommendCacheService;
+
+    private final ObjectMapper objectMapper;
+
+    /**
+     * 反序列化 images JSON 字符串为 List<String>，null/blank 返回空列表，JSON 解析失败也返回空列表
+     */
+    private List<String> deserializeImages(String images) {
+        if (images == null || images.isBlank()) return Collections.emptyList();
+        try {
+            return objectMapper.readValue(images, new TypeReference<List<String>>() {});
+        } catch (Exception e) {
+            log.warn("Failed to deserialize article images: {}", e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
     /**
      * 获取最新的文章列表
      * @param i
@@ -125,6 +145,8 @@ public class ArticleServiceImpl implements ArticleService {
         }
         ArticleDetailVO articleDetailVO = new ArticleDetailVO();
         BeanUtils.copyProperties(article,articleDetailVO);
+        // BeanUtils silently skips String->List<String> type mismatch; deserialize explicitly
+        articleDetailVO.setImageList(deserializeImages(article.getImages()));
         //查询这篇文章对应的标签
         List<Integer> tagsId = articleTagsMapper.getListByArticleId(id);
         if (tagsId != null) {
@@ -555,6 +577,8 @@ public class ArticleServiceImpl implements ArticleService {
         }
         ArticleDetailVO articleDetailVO = new ArticleDetailVO();
         BeanUtils.copyProperties(article,articleDetailVO);
+        // BeanUtils silently skips String->List<String> type mismatch; deserialize explicitly
+        articleDetailVO.setImageList(deserializeImages(article.getImages()));
         //查询这篇文章对应的标签
         List<Integer> tagsId = articleTagsMapper.getListByArticleId(article.getId());
         if (tagsId != null) {

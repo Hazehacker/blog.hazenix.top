@@ -47,4 +47,7 @@ public class ArticleDTO {
     @ApiModelProperty(value = "URL标识符", example = "article-slug")
     @Size(max = 100, message = "URL标识符长度不能超过100个字符")
     private String slug;
+
+    @ApiModelProperty(value = "图片URL列表（手记多图用，可空）", example = "[\"url1\",\"url2\"]")
+    private List<String> imageUrls;
 }

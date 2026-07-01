@@ -1,5 +1,6 @@
 package top.hazenix.vo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,5 +33,9 @@ public class ArticleDetailVO extends Article {
     
     @ApiModelProperty(value = "当前用户是否收藏过[0:未收藏 | 1:已收藏]", example = "0")
     private Integer isFavorite;
+
+    @ApiModelProperty(value = "图片列表（手记九宫格用）", example = "[\"url1\",\"url2\"]")
+    @JsonProperty("images")
+    private List<String> imageList;
 
 }

@@ -136,4 +136,10 @@ public interface ArticleMapper {
      * @return 文章slug列表
      */
     List<ArticleSlugVO> getPublishedSlugs();
+
+    /**
+     * 手记匿名点赞：直接累加 like_count（无需登录）
+     * @param id 文章ID
+     */
+    void incrementLikeCount(Long id);
 }
