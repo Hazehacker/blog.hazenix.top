@@ -21,6 +21,7 @@ import top.hazenix.dto.DeleteArticleRequestDTO;
 import top.hazenix.result.PageResult;
 import top.hazenix.result.Result;
 import top.hazenix.service.ArticleService;
+import top.hazenix.service.DeepSeekService;
 import top.hazenix.service.PrerenderNotifyService;
 import top.hazenix.service.impl.ArticleServiceImpl;
 import top.hazenix.vo.ArticleDetailVO;
@@ -28,6 +29,7 @@ import top.hazenix.vo.ArticleShortVO;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 
 @RestController("AdminArticleController")
 @Slf4j
@@ -40,6 +42,7 @@ public class ArticleController {
 
     private final ArticleService articleService;
     private final PrerenderNotifyService prerenderNotifyService;
+    private final DeepSeekService deepSeekService;
 
 
     /**
@@ -177,6 +180,22 @@ public class ArticleController {
         log.info("管理员修改文章 {} 推荐度为 {}", id, level);
         articleService.updateRecommendLevel(id, level);
         return Result.success();
+    }
+
+    /**
+     * AI 生成文章 slug（DeepSeek）
+     */
+    @PostMapping("/slug/generate")
+    public Result generateSlug(@RequestBody Map<String, String> body) {
+        String title = body.get("title");
+        if (title == null || title.isBlank()) {
+            return Result.error(top.hazenix.constant.ErrorCode.A02002, "标题不能为空");
+        }
+        String slug = deepSeekService.generateSlug(title);
+        if (slug == null) {
+            return Result.error(top.hazenix.constant.ErrorCode.A04001, "AI 生成失败，请稍后重试");
+        }
+        return Result.success(slug);
     }
 
 

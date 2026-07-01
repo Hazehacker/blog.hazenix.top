@@ -267,11 +267,22 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 自定义URL
               </label>
-              <el-input
-                v-model="form.slug"
-                placeholder="[注意唯一性!] 留空自动生成"
-                maxlength="100"
-              />
+              <div class="flex gap-2">
+                <el-input
+                  v-model="form.slug"
+                  placeholder="留空则自动生成拼音，或点击 AI 按钮"
+                  maxlength="100"
+                  class="flex-1"
+                />
+                <el-button
+                  :loading="aiSlugLoading"
+                  :disabled="!form.title"
+                  @click="handleGenerateSlug"
+                  size="default"
+                >
+                  AI 生成
+                </el-button>
+              </div>
             </div>
 
             <div>
@@ -451,6 +462,7 @@ const editorRef = ref()
 const fileInputRef = ref()
 const editor = ref(null)
 const saving = ref(false)
+const aiSlugLoading = ref(false)
 const isFullscreen = ref(false)
 const previewMode = ref('markdown') // 'markdown' 或 'wysiwyg'
 
@@ -874,6 +886,26 @@ const handleFileImport = async (event) => {
   event.target.value = ''
 }
 
+// AI 生成 slug
+const handleGenerateSlug = async () => {
+  if (!form.title) return
+  aiSlugLoading.value = true
+  try {
+    const res = await adminApi.generateSlug(form.title)
+    const slug = res?.data || res
+    if (slug && typeof slug === 'string') {
+      form.slug = slug
+      ElMessage.success('AI 已生成英文 slug')
+    } else {
+      ElMessage.error('AI 生成失败，请重试')
+    }
+  } catch {
+    ElMessage.error('AI 生成失败，请检查网络')
+  } finally {
+    aiSlugLoading.value = false
+  }
+}
+
 // 保存草稿
 const handleSaveDraft = async () => {
   await saveArticle('2')
@@ -1062,6 +1094,19 @@ watch(() => props.article, (newArticle) => {
     }
   }
 }, { deep: true, immediate: false })
+
+// 自动填充 slug：标题变更时，若 slug 为空则用拼音提示（后端负责最终生成）
+watch(() => form.title, () => {
+  if (!form.slug && form.title) {
+    // 前端仅做简单提示：去掉特殊字符、空格转连字符
+    const hint = form.title
+      .toLowerCase()
+      .replace(/[^\w\s一-龥-]/g, '')
+      .replace(/\s+/g, '-')
+      .substring(0, 80)
+    form.slug = hint
+  }
+})
 
 // 初始化
 onMounted(async () => {

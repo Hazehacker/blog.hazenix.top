@@ -55,6 +55,11 @@ export const adminApi = {
     return request.put(`${ADMIN_BASE_URL}/articles/${id}/${status}`)
   },
 
+  // AI 生成 slug
+  generateSlug(title) {
+    return request.post('/admin/articles/slug/generate', { title })
+  },
+
   // ========== 分类管理 ==========
   // 获取分类列表
   getCategories(params = {}) {

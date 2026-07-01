@@ -34,6 +34,7 @@ import top.hazenix.service.UserBehaviorService;
 import top.hazenix.vo.ArticleDetailVO;
 import top.hazenix.vo.ArticleShortVO;
 import top.hazenix.vo.ArticleSlugVO;
+import top.hazenix.util.SlugUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -193,7 +194,6 @@ public class ArticleServiceImpl implements ArticleService {
                 throw new BussinessException(ErrorCode.A02003, MessageConstant.ARTICLE_SIZE_EXCEED_LIMIT);
             }
         }
-        //TODO (检验slug是否已经在数据库中存在)
         //插入article表
         Article article = new Article();
         BeanUtils.copyProperties(articleDTO,article);
@@ -210,6 +210,15 @@ public class ArticleServiceImpl implements ArticleService {
         article.setRecommendLevel(articleDTO.getRecommendLevel() != null
             ? articleDTO.getRecommendLevel()
             : RecommendConstants.RECOMMEND_LEVEL_DEFAULT);
+        // 自动生成 slug：未提供时从标题生成，确保唯一性
+        if (StringUtils.isBlank(article.getSlug())) {
+            article.setSlug(SlugUtils.generate(articleDTO.getTitle()));
+        }
+        if (article.getSlug() != null) {
+            String uniqueSlug = SlugUtils.ensureUnique(article.getSlug(),
+                    s -> articleMapper.getBySlug(s) != null);
+            article.setSlug(uniqueSlug);
+        }
         articleMapper.insert(article);
 
         // notify subscribers on first publish
@@ -250,6 +259,13 @@ public class ArticleServiceImpl implements ArticleService {
         article.setId(id);
         BeanUtils.copyProperties(articleDTO,article);
         Article existing = articleMapper.getById(id);
+        // 自动生成 slug：未提供时从标题生成，排除自身避免误判
+        if (StringUtils.isBlank(article.getSlug())) {
+            article.setSlug(SlugUtils.generate(articleDTO.getTitle()));
+        }
+        String slug = SlugUtils.ensureUnique(article.getSlug(),
+                s -> { Article found = articleMapper.getBySlug(s); return found != null && !found.getId().equals(id); });
+        article.setSlug(slug);
         // 检查推荐度是否变化，变化时清除缓存
         Integer newLevel = articleDTO.getRecommendLevel();
         if (newLevel != null && (existing == null || !newLevel.equals(existing.getRecommendLevel()))) {
