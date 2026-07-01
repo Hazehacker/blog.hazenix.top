@@ -4,7 +4,7 @@
     <div class="flex justify-between items-center">
       <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">文章管理</h1>
       <div class="flex space-x-3">
-        <el-button @click="handleBatchDelete" type="danger" :disabled="selectedArticles.length === 0">
+        <el-button @click="batchRemove(selectedArticles)" type="danger" :disabled="selectedArticles.length === 0">
           批量删除
         </el-button>
         <el-button @click="handleCreate" type="primary">
@@ -148,11 +148,11 @@
               <el-button @click="handleEdit(row)" size="small">
                 编辑
               </el-button>
-              <el-button @click="handleToggleStatus(row)" size="small" 
+              <el-button @click="toggleStatus(row)" size="small"
                          :type="row.status === 0 ? 'warning' : 'success'">
                 {{ row.status === 0 ? '下架' : '发布' }}
               </el-button>
-              <el-button @click="handleDelete(row)" size="small" type="danger" plain>
+              <el-button @click="remove(row)" size="small" type="danger" plain>
                 删除
               </el-button>
             </div>
@@ -200,11 +200,11 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { Plus, Search, Refresh } from '@element-plus/icons-vue'
 import { adminApi } from '@/api/admin'
-import { articleApi } from '@/api/article'
 import ToastUIEditor from '@/components/admin/ToastUIEditor.vue'
+import { useArticleAdminActions } from '@/composables/useArticleAdminActions'
 
 
 
@@ -250,29 +250,6 @@ const formatDate = (dateString) => {
   })
 }
 
-const levelLabel = (lv) => {
-  const map = { 0: '屏蔽', 1: '弱', 2: '较弱', 3: '默认', 4: '推荐', 5: '精华' }
-  return map[lv ?? 3]
-}
-
-const levelTagType = (lv) => {
-  if (lv === 0) return 'info'
-  if (lv === 5) return 'danger'
-  if (lv === 4) return 'warning'
-  return ''
-}
-
-const changeLevel = async (row, lv) => {
-  try {
-    await articleApi.updateRecommendLevel(row.id, lv)
-    row.recommendLevel = lv
-    ElMessage.success('推荐度已更新')
-  } catch (error) {
-    console.error('更新推荐度失败:', error)
-    ElMessage.error('更新推荐度失败')
-  }
-}
-
 // 加载文章列表
 const loadArticles = async () => {
   loading.value = true
@@ -293,6 +270,10 @@ const loadArticles = async () => {
 
   }
 }
+
+// 共享行操作 composable
+const { levelLabel, levelTagType, changeLevel, toggleStatus, remove, batchRemove } =
+  useArticleAdminActions({ reload: loadArticles, entityLabel: '文章' })
 
 // 加载分类和标签
 const loadCategoriesAndTags = async () => {
@@ -368,70 +349,6 @@ const handleEdit = async (article) => {
 const handleView = (article) => {
   // 跳转到管理端查看文章页面
   router.push(`/admin/articles/${article.id}`)
-}
-
-// 切换文章状态
-const handleToggleStatus = async (article) => {
-  try {
-    const newStatus = article.status === 0 ? 2 : 0
-    console.log('切换文章状态:', { articleId: article.id, currentStatus: article.status, newStatus })
-    const response = await adminApi.toggleArticleStatus(article.id, newStatus)
-    console.log('切换状态响应:', response)
-    ElMessage.success(`${newStatus === 0 ? '发布' : '下架'}成功`)
-    loadArticles()
-  } catch (error) {
-    console.error('切换文章状态失败:', error)
-    ElMessage.error('操作失败')
-  }
-}
-
-// 删除文章
-const handleDelete = async (article) => {
-  try {
-    await ElMessageBox.confirm(
-      `确定要删除文章"${article.title}"吗？此操作不可恢复。`,
-      '确认删除',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
-    
-    await adminApi.deleteArticle(article.id)
-    ElMessage.success('删除成功')
-    loadArticles()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('删除文章失败:', error)
-      ElMessage.error('删除失败')
-    }
-  }
-}
-
-// 批量删除
-const handleBatchDelete = async () => {
-  try {
-    await ElMessageBox.confirm(
-      `确定要删除选中的 ${selectedArticles.value.length} 篇文章吗？此操作不可恢复。`,
-      '确认批量删除',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
-    
-    const ids = selectedArticles.value.map(item => item.id)
-    await adminApi.batchDeleteArticles(ids)
-    ElMessage.success('批量删除成功')
-    loadArticles()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('批量删除失败:', error)
-      ElMessage.error('批量删除失败')
-    }
-  }
 }
 
 // 保存文章
