@@ -70,12 +70,15 @@
         select count(*) from article
     </select>
     <select id="getRecentArticles" resultType="top.hazenix.vo.ArticleShortVO">
-        select id,title,status,create_time,cover_image from article order by update_time desc limit #{i}
+        select id,title,status,create_time,cover_image from article
+        where category_id not in (select id from category where type = 1)
+        order by update_time desc limit #{i}
     </select>
     <select id="pageQuery" resultType="top.hazenix.vo.ArticleShortVO">
         select id,title,status,create_time,is_top,like_count,favorite_count,view_count,recommend_level,cover_image
         from article
         <where>
+            and category_id not in (select id from category where type = 1)
             <if test="keyword != null and keyword != ''">
                 and title like concat('%',#{keyword},'%')
             </if>
@@ -98,7 +101,8 @@
     <select id="getArticleList" resultType="top.hazenix.entity.Article">
         select * from article
         <where>
-            <if test="title != null and title != ''">title like concat('%',#{title},'%')</if>
+            and category_id not in (select id from category where type = 1)
+            <if test="title != null and title != ''">and title like concat('%',#{title},'%')</if>
             <if test="categoryId != null">and category_id = #{categoryId}</if>
             <if test="status != null">and status = #{status}</if>
             <if test="tagId != null">and id in (select article_id from article_tags where tags_id = #{tagId})</if>
@@ -111,7 +115,7 @@
     </select>
     <select id="getPopularArticles" resultType="top.hazenix.entity.Article">
         select * from article
-        where status = 0 AND (recommend_level != 0 OR recommend_level IS NULL)
+        where status = 0 AND (recommend_level != 0 OR recommend_level IS NULL) AND category_id not in (select id from category where type = 1)
         order by (like_count+view_count) desc limit #{i}
     </select>
     <select id="listAllForScoring" resultType="top.hazenix.entity.Article">
