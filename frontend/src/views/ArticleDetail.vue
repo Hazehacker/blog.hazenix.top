@@ -6,7 +6,7 @@
         <article v-if="article" class="article-content">
           <!-- 文章标题 -->
           <header class="article-header">
-            <h1 class="article-title">{{ article.title }}</h1>
+            <h1 class="article-title">{{ displayTitle }}</h1>
             
             <!-- 文章元数据 -->
             <ArticleMetadata
@@ -18,6 +18,11 @@
               :tags="article.tags"
             />
           </header>
+
+          <!-- 手记图片九宫格 -->
+          <div v-if="isMomentCategory && article.images?.length" class="moment-images-section">
+            <MomentImageGrid :images="article.images" />
+          </div>
 
           <!-- 文章摘要 -->
           <div v-if="article.summary" class="article-summary">
@@ -212,6 +217,7 @@ import { Pointer, Share, Collection, ArrowDown } from '@element-plus/icons-vue'
 import { getArticleDetail, getArticleBySlug, getRelatedArticles, likeArticle as likeArticleApi, collectArticle as favoriteArticleApi, incrementViewCount } from '@/api/article'
 import { getApiBaseURL } from '@/utils/apiConfig'
 import ArticleMetadata from '@/components/article/ArticleMetadata.vue'
+import MomentImageGrid from '@/components/moments/MomentImageGrid.vue'
 import dayjs from 'dayjs'
 
 // 重型组件异步加载，拆分大 chunk（markdown-it + mermaid + highlight.js 只在文章页加载）
@@ -232,6 +238,20 @@ const isMobile = ref(false)
 const isAISummaryExpanded = ref(false)
 const shouldScrollToTop = ref(false)
 const isUpdatingUrl = ref(false) // 标记是否正在更新URL（从ID到slug）
+
+// 是否为手记分类（category.type === 1）
+const isMomentCategory = computed(() => article.value?.category?.type === 1)
+
+// 手记标题兜底：显式标题 → 正文前30字 → "无标题"
+const displayTitle = computed(() => {
+  if (!article.value) return ''
+  const title = article.value.title
+  if (title && title.trim()) return title
+  const content = article.value.content || ''
+  const plain = content.replace(/<[^>]*>/g, '').replace(/\s+/g, '').trim()
+  if (!plain) return '无标题'
+  return plain.length <= 30 ? plain : plain.substring(0, 30) + '…'
+})
 
 // 判断路由参数是ID还是slug（ID是纯数字，slug包含字母或特殊字符）
 const isSlug = computed(() => {
@@ -781,6 +801,10 @@ onUnmounted(() => {
 
 .article-body {
   @apply p-6;
+}
+
+.moment-images-section {
+  @apply px-6 pb-6;
 }
 
 .content-section {
