@@ -11,6 +11,7 @@ import top.hazenix.enumeration.OperationType;
 import top.hazenix.query.ArticleListQuery;
 import top.hazenix.vo.ArticleShortVO;
 import top.hazenix.vo.ArticleSlugVO;
+import top.hazenix.vo.MomentVO;
 
 import java.util.List;
 
@@ -142,4 +143,16 @@ public interface ArticleMapper {
      * @param id 文章ID
      */
     void incrementLikeCount(Long id);
+
+    /**
+     * 分页查询手记列表（手记存储在文章表的手记分类下）
+     * @param keyword 关键词（标题或内容模糊匹配）
+     * @param status 状态过滤
+     * @param momentCategoryId 手记分类ID
+     * @return 手记VO分页结果
+     */
+    com.github.pagehelper.Page<top.hazenix.vo.MomentVO> pageMoments(
+            @org.apache.ibatis.annotations.Param("keyword") String keyword,
+            @org.apache.ibatis.annotations.Param("status") Integer status,
+            @org.apache.ibatis.annotations.Param("momentCategoryId") Integer momentCategoryId);
 }

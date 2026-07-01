@@ -153,4 +153,17 @@
         ORDER BY create_time DESC
             LIMIT #{limit}
     </select>
+    <select id="pageMoments" resultType="top.hazenix.vo.MomentVO">
+        select id, title, content, images as images_json,
+               like_count, view_count, status, create_time, update_time
+        from article
+        where category_id = #{momentCategoryId}
+        <if test="keyword != null and keyword != ''">
+            and (title like concat('%',#{keyword},'%') or content like concat('%',#{keyword},'%'))
+        </if>
+        <if test="status != null">
+            and status = #{status}
+        </if>
+        order by create_time desc
+    </select>
 </mapper>
