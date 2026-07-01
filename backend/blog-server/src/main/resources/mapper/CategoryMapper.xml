@@ -71,4 +71,7 @@
         order by
         c.sort desc
     </select>
+    <select id="getMomentCategoryId" resultType="java.lang.Integer">
+        select id from category where type = 1 limit 1
+    </select>
 </mapper>

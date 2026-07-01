@@ -35,4 +35,7 @@ public class Category {
 
     @ApiModelProperty(value = "更新时间", example = "2020-01-01 00:00:00")
     private LocalDateTime updateTime;
+
+    @ApiModelProperty(value = "分类类型[0:普通 | 1:手记]", example = "0")
+    private Integer type;
 }

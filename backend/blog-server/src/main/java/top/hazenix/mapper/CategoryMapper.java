@@ -64,6 +64,10 @@ public interface CategoryMapper {
      */
     void deleteBatch(List<Integer> ids);
 
-
+    /**
+     * 获取手记分类id
+     * @return
+     */
+    Integer getMomentCategoryId();
 
 }
