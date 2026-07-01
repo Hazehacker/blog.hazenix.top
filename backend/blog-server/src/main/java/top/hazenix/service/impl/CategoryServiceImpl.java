@@ -75,6 +75,11 @@ public class CategoryServiceImpl implements CategoryService {
      */
     @Override
     public void deleteCategory(Integer id) {
+        //如果是手记默认分类，不能删除
+        Integer momentCatId = categoryMapper.getMomentCategoryId();
+        if (momentCatId != null && momentCatId.equals(id)) {
+            throw new DeleteNotAllowedException(ErrorCode.A04002, MessageConstant.DELETE_NOT_ALLOWED_DEFAULT_MOMENT_CATEGORY);
+        }
         //如果这个分类关联了文章，就不能删除
         Integer count = articleMapper.countByIds(Collections.singletonList(id));
 
@@ -91,6 +96,11 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void deleteCategories(DeleteCategoryRequestDTO deleteCategoryRequestDTO) {
         List<Integer> ids = deleteCategoryRequestDTO.getIds();
+        //如果是手记默认分类，不能删除
+        Integer momentCatId = categoryMapper.getMomentCategoryId();
+        if (momentCatId != null && ids.contains(momentCatId)) {
+            throw new DeleteNotAllowedException(ErrorCode.A04002, MessageConstant.DELETE_NOT_ALLOWED_DEFAULT_MOMENT_CATEGORY);
+        }
         //如果这个标签关联了文章，就不能删除
         Integer count = articleMapper.countByIds(ids);
         if(count != 0){

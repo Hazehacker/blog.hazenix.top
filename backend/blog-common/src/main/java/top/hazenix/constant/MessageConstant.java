@@ -29,6 +29,7 @@ public class MessageConstant {
     public static final String ARTICLE_SIZE_EXCEED_LIMIT = "文章字数超出限制";
     public static final String ARTICLE_FAVORITE_NEED_LOGIN = "登录之后才能收藏文章";
     public static final String DELETE_NOT_ALLOWED_THIS_CATEGORY_HAS_ARTICLES = "当前分类关联了文章，不能删除";
+    public static final String DELETE_NOT_ALLOWED_DEFAULT_MOMENT_CATEGORY = "手记默认分类不可删除";
 
     public static final String DELETE_NOT_ALLOWED_THIS_TAG_HAS_RELATED_ARTICLE = "当前标签关联了文章，不能删除";
     public static final String CURRENT_EMAIL_NOT_REGISTERD = "当前邮箱还未注册";
