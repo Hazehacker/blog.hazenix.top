@@ -31,5 +31,21 @@ export const momentApi = {
       method: 'get',
       isPublicResource: true
     })
+  },
+
+  adminPage(params) {
+    return request({ url: '/admin/moment/page', method: 'get', params })
+  },
+
+  create(data) {
+    return request({ url: '/admin/moment', method: 'post', data })
+  },
+
+  update(id, data) {
+    return request({ url: `/admin/moment/${id}`, method: 'put', data })
+  },
+
+  batchDelete(ids) {
+    return request({ url: '/admin/moment/batch', method: 'delete', data: { ids } })
   }
 }

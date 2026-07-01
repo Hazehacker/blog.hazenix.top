@@ -45,26 +45,21 @@
       </el-form-item>
 
       <el-form-item label="标签">
-        <div class="flex flex-wrap gap-2 w-full">
-          <el-tag
-            v-for="tag in form.tags"
-            :key="tag"
-            closable
-            @close="removeTag(tag)"
-          >
-            {{ tag }}
-          </el-tag>
-          <el-input
-            v-if="tagInputVisible"
-            ref="tagInputRef"
-            v-model="tagInputValue"
-            style="width: 100px"
-            size="small"
-            @keyup.enter="addTag"
-            @blur="addTag"
+        <el-select
+          v-model="form.tagIds"
+          multiple
+          filterable
+          placeholder="选择标签"
+          class="w-full"
+          clearable
+        >
+          <el-option
+            v-for="tag in tagOptions"
+            :key="tag.id"
+            :label="tag.name"
+            :value="tag.id"
           />
-          <el-button v-else size="small" @click="showTagInput">+ 添加标签</el-button>
-        </div>
+        </el-select>
       </el-form-item>
 
       <el-form-item label="状态">
@@ -85,25 +80,25 @@
 </template>
 
 <script setup>
-import { ref, reactive, nextTick } from 'vue'
+import { ref, reactive } from 'vue'
 import { Plus, Delete } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { adminApi } from '@/api/admin'
+import { momentApi } from '@/api/moment'
+import { getTagList } from '@/api/tag'
 
 const visible = ref(false)
 const isEdit = ref(false)
 const editId = ref(null)
 const submitting = ref(false)
 const formRef = ref()
-const tagInputVisible = ref(false)
-const tagInputValue = ref('')
-const tagInputRef = ref()
 const fileList = ref([])
+const tagOptions = ref([])
 
 const form = reactive({
   title: '',
   content: '',
-  tags: [],
+  tagIds: [],
   status: 0
 })
 
@@ -113,22 +108,40 @@ const rules = {
 
 const emit = defineEmits(['saved'])
 
-function open(moment = null) {
+async function loadTagOptions() {
+  try {
+    const res = await getTagList()
+    tagOptions.value = res.data || []
+  } catch (e) {
+    tagOptions.value = []
+  }
+}
+
+async function open(moment = null) {
   isEdit.value = !!moment
   editId.value = moment?.id || null
   form.title = moment?.title || ''
   form.content = moment?.content || ''
-  form.tags = moment?.tags ? [...moment.tags] : []
   form.status = moment?.status ?? 0
   fileList.value = (moment?.images || []).map((url, i) => ({ name: `img-${i}`, url, status: 'success' }))
+
+  await loadTagOptions()
+
+  if (moment?.tags && moment.tags.length > 0) {
+    // moment.tags is an array of tag name strings; map to ids using loaded tagOptions
+    form.tagIds = moment.tags
+      .map(name => tagOptions.value.find(t => t.name === name)?.id)
+      .filter(id => id != null)
+  } else {
+    form.tagIds = []
+  }
+
   visible.value = true
 }
 
 function handleClose() {
   formRef.value?.resetFields()
   fileList.value = []
-  tagInputVisible.value = false
-  tagInputValue.value = ''
 }
 
 async function handleUpload({ file, onSuccess, onError }) {
@@ -153,24 +166,6 @@ function removeImage(file) {
   fileList.value = fileList.value.filter(f => f.uid !== file.uid)
 }
 
-function showTagInput() {
-  tagInputVisible.value = true
-  nextTick(() => tagInputRef.value?.focus())
-}
-
-function addTag() {
-  const val = tagInputValue.value.trim()
-  if (val && !form.tags.includes(val) && form.tags.length < 10) {
-    form.tags.push(val)
-  }
-  tagInputVisible.value = false
-  tagInputValue.value = ''
-}
-
-function removeTag(tag) {
-  form.tags = form.tags.filter(t => t !== tag)
-}
-
 async function handleSubmit() {
   await formRef.value.validate()
   submitting.value = true
@@ -182,13 +177,13 @@ async function handleSubmit() {
       title: form.title || null,
       content: form.content,
       imageUrls,
-      tags: form.tags,
+      tagIds: form.tagIds,
       status: form.status
     }
     if (isEdit.value) {
-      await adminApi.updateMoment(editId.value, payload)
+      await momentApi.update(editId.value, payload)
     } else {
-      await adminApi.createMoment(payload)
+      await momentApi.create(payload)
     }
     ElMessage.success(isEdit.value ? '更新成功' : '发布成功')
     visible.value = false
