@@ -158,7 +158,8 @@
     </select>
     <select id="pageMoments" resultType="top.hazenix.vo.MomentVO">
         select id, title, content, images as images_json,
-               like_count, view_count, status, create_time, update_time
+               like_count, view_count, status, recommend_level, is_top,
+               create_time, update_time
         from article
         where category_id = #{momentCategoryId}
         <if test="keyword != null and keyword != ''">
@@ -167,6 +168,6 @@
         <if test="status != null">
             and status = #{status}
         </if>
-        order by create_time desc
+        order by coalesce(is_top, 0) desc, create_time desc
     </select>
 </mapper>

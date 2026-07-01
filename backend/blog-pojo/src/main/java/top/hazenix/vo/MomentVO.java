@@ -46,6 +46,12 @@ public class MomentVO {
     @ApiModelProperty(value = "创建时间")
     private LocalDateTime createTime;
 
+    @ApiModelProperty(value = "推荐度[0:屏蔽 | 1:弱 | 2:较弱 | 3:默认 | 4:推荐 | 5:精华]")
+    private Integer recommendLevel;
+
+    @ApiModelProperty(value = "是否置顶[0:否 | 1:是]")
+    private Integer isTop;
+
     @ApiModelProperty(value = "更新时间")
     private LocalDateTime updateTime;
 }

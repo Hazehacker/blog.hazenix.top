@@ -94,5 +94,18 @@ export function useArticleAdminActions({ reload, entityLabel = '文章' } = {}) 
     }
   }
 
-  return { levelLabel, levelTagType, changeLevel, toggleStatus, remove, batchRemove }
+  // ── 切换置顶 ─────────────────────────────────────────────────
+  const toggleTop = async (row) => {
+    try {
+      const newVal = row.isTop === 1 ? 0 : 1
+      await adminApi.updateArticle(row.id, { isTop: newVal })
+      row.isTop = newVal
+      ElMessage.success(newVal === 1 ? '已置顶' : '已取消置顶')
+    } catch (error) {
+      console.error('置顶操作失败:', error)
+      ElMessage.error('操作失败')
+    }
+  }
+
+  return { levelLabel, levelTagType, changeLevel, toggleStatus, toggleTop, remove, batchRemove }
 }
